@@ -20,6 +20,8 @@ class Console {
 	}
 
 	public function run() {
+		$this->checkEnv();
+
 		$input = iloader()->singleton(\W7\Console\Io\Input::class);
 		$commend = $input->getCommend();
 
@@ -38,6 +40,23 @@ class Console {
 		return true;
 	}
 
+	private function checkEnv() {
+		if (PHP_SAPI !== 'cli') {
+			throw new \RuntimeException('服务必须运行在Cli模式下');
+		}
+		if (!version_compare(PHP_VERSION, '7.0')) {
+			throw new \RuntimeException('当前Php版本必须是7.0.0及以上');
+		}
+
+		if (!\extension_loaded('swoole')) {
+			throw new \RuntimeException('缺少Swoole扩展，请安装最新版');
+		}
+
+		if (!class_exists('Swoole\Coroutine')) {
+			throw new \RuntimeException("未启用Swoole Coroutine，编译时请附加'--enable-coroutine'参数");
+		}
+	}
+
 	private function getServer($name) {
 		$className = sprintf("\\W7\\%s\\Console\\Commend", istudly($name));
 		$object = new $className();
@@ -54,7 +73,7 @@ class Console {
 	 */
 	private function supportServer() {
 		$result = [];
-		$setting = \W7\App::config();
+		$setting = \W7\App::getConfig();
 		if (empty($setting['server'])) {
 			throw new \Exception('配置文件中未定义服务信息');
 		}
