@@ -20,3 +20,23 @@ if (!function_exists('istudly')) {
 		return str_replace(' ', '', $value);
 	}
 }
+
+if (!function_exists('ioutputer')) {
+	/**
+	 * 获取输出对象
+	 * @return W7\Console\Io\Output
+	 */
+	function ioutputer() {
+		return iloader()->singleton(\W7\Console\Io\Output::class);
+	}
+}
+
+if (!function_exists('iinputer')) {
+	/**
+	 * 输入对象
+	 * @return W7\Console\Io\Input
+	 */
+	function iinputer() {
+		return iloader()->singleton(\W7\Console\Io\Input::class);
+	}
+}

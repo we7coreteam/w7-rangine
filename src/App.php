@@ -21,12 +21,15 @@ class App {
 		return self::$loader;
 	}
 
-	static public function config() {
-		if (!empty(self::$setting)) {
+	static public function getConfig($section = '') {
+		if (empty(self::$setting)) {
+			self::$setting = [];
+			self::$setting['server'] = include_once IA_ROOT . '/config/server.php';
+		}
+		if (!empty($section)) {
+			return self::$setting[$section];
+		} else {
 			return self::$setting;
 		}
-		self::$setting = [];
-		self::$setting['server'] = include_once IA_ROOT . '/config/server.php';
-		return self::$setting;
 	}
 }
