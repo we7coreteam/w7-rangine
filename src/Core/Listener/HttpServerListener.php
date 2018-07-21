@@ -11,6 +11,6 @@ use Swoole\Http\Response;
 
 class HttpServerListener {
 	public function onRequest(Request $request, Response $response) {
-
+		print_r($request);
 	}
 }
