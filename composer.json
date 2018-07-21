@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-        "illuminate/database": "5.6.*"
+        "illuminate/database": "5.6.*",
+        "w7/http-message": "dev-master"
     },
     "require-dev": {
         "eaglewu/swoole-ide-helper": "dev-master"
@@ -22,5 +23,11 @@
         "files": [
             "src/Core/Helper/Functions.php"
         ]
-    }
+    },
+    "repositories": [
+        {
+            "type" : "vcs",
+            "url" : "git@gitee.com:we7coreteam/we7HttpMessage.git"
+        }
+    ],
 }
