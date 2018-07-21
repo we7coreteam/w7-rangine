@@ -40,3 +40,13 @@ if (!function_exists('iinputer')) {
 		return iloader()->singleton(\W7\Console\Io\Input::class);
 	}
 }
+
+if (!function_exists('iconfig')) {
+	/**
+	 * 输入对象
+	 * @return W7\Core\Config\Config
+	 */
+	function iconfig() {
+		return iloader()->singleton(\W7\Core\Config\Config::class);
+	}
+}

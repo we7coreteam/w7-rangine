@@ -73,11 +73,12 @@ class Console {
 	 */
 	private function supportServer() {
 		$result = [];
-		$setting = \W7\App::getConfig();
-		if (empty($setting['server'])) {
+		$setting = \iconfig()->getServer();
+
+		if (empty($setting)) {
 			throw new \Exception('配置文件中未定义服务信息');
 		}
-		foreach ($setting['server'] as $serverName => $config) {
+		foreach ($setting as $serverName => $config) {
 			if ($serverName == 'common' || empty($config['host']) || empty($config['port'])) {
 				continue;
 			}
