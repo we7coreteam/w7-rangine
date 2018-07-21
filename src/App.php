@@ -6,13 +6,17 @@
 
 namespace W7;
 
+use W7\Core\Config\Config;
+
 class App {
+
+	const IA_ROOT = __DIR__;
 
 	/**
 	 * @var \W7\Core\Helper\Loader;
 	 */
 	static private $loader;
-	static private $setting;
+	static private $config;
 
 	static public function getLoader() {
 		if(empty(self::$loader)) {
@@ -20,16 +24,5 @@ class App {
 		}
 		return self::$loader;
 	}
-
-	static public function getConfig($section = '') {
-		if (empty(self::$setting)) {
-			self::$setting = [];
-			self::$setting['server'] = include_once IA_ROOT . '/config/server.php';
-		}
-		if (!empty($section)) {
-			return self::$setting[$section];
-		} else {
-			return self::$setting;
-		}
-	}
 }
+

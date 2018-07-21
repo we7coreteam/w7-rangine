@@ -22,7 +22,7 @@ class Commend implements CommendInterface {
 		$lines = [
 			'                         Server Information                      ',
 			'********************************************************************',
-			"* HTTP | host: $httpHost, port: $httpPort, type: $httpType, worker: $workerNum, mode: $httpMode",
+			"* HTTP | host: {$status['host']}, port: {$status['port']}, type: {$status['type']}, worker: {$status['workerNum']}, mode: {$status['mode']}",
 			'********************************************************************',
 		];
 
