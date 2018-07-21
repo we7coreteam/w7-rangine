@@ -23,5 +23,11 @@
         "files": [
             "src/Core/Helper/Functions.php"
         ]
-    }
+    },
+    "repositories": [
+        {
+            "type" : "vcs",
+            "url" : "git@gitee.com:we7coreteam/we7HttpMessage.git"
+        }
+    ]
 }
