@@ -8,15 +8,19 @@
 namespace W7\Console\Io;
 
 class Input {
-	public function getCommend($argv = null) {
+
+	public function getCommand($argv = null) {
 		$result = [];
 		if (null === $argv) {
 			$argv = $_SERVER['argv'];
 		}
+		/**
+		 * @var \W7\Console\Io\Parser $parser
+		 */
 		$parser = iloader()->singleton(\W7\Console\Io\Parser::class);
-		$commend = $parser->parse($argv);
-		list($temp, $result['server'], $result['action']) = $commend[0];
-		$result['option'] = array_merge([], $commend[1], $commend[2]);
+		$command = $parser->parse($argv);
+		list($temp, $result['command'], $result['action']) = $command[0];
+		$result['option'] = array_merge([], $command[1], $command[2]);
 		return $result;
 	}
 }
