@@ -49,7 +49,7 @@ class Console {
 	private function showDefaultCommand() {
 
 
-		$script = 'php bin/server.php';
+		$script = 'bin/server.php';
 		$commandList = [
 			'Usage:' => ["php $script {command} [arguments] [options]"],
 			'Commands:' => [],
