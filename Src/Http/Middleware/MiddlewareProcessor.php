@@ -111,6 +111,7 @@ class MiddlewareProcessor
         $table = new Table(102400);
         $middlewaresJson = json_encode($middlewares);
         $table->column('values', Table::TYPE_STRING, 102000);
+        $table->create();
         $table->set(self::MEMORY_CACHE_KEY, ["values"=>$middlewaresJson]);
         return $table;
     }
