@@ -20,23 +20,30 @@ class HttpServerListener {
      * @return \Psr\Http\Message\ResponseInterface|Response
      * @throws \ReflectionException
      */
-	public function onRequest(Request $request, \w7\Http\Message\Server\Response $response) {
-	    $routeObj    = new HttpServer();
-	    $middleObj   = new MiddlewareProcessor();
-	    $routes      = iconfig()->getUserConfig("Routes");
-	    $middlewares = iconfig()->getUserConfig("Middlewares");
-	    $routeTableObj    = $routeObj->addRoutDataInCache($routes);
-	    $middlewaresTableObj = $middleObj->insertMiddlewareCached($middlewares, MiddlewareProcessor::MEMORY_CACHE_TYPE);
-        $middlewaresConf = $middleObj->getMiddlewares(MiddlewareProcessor::MEMORY_CACHE_TYPE, "", $middlewaresTableObj);
-        $httpMethod  = $request->server['request_method'];
-        $url         = $request->server['request_uri'];
-        $handleArray = $routeObj->dispatch($httpMethod, $url, $routeTableObj);
-        $psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
-        $requestHandler = new RequestHandler($middlewaresConf, '');
-        $requestHandler->handle($psr7Request);
-        $handlerAdapter = new AdapterHandler();
-        $response =  $handlerAdapter->doHandler($psr7Request, $handleArray['handler'], $handleArray['funArgs']);
+	public function onRequest(Request $request,Response $response) {
+	    $response = new \w7\Http\Message\Server\Response($response);
+	    try {
+            $routeObj = new HttpServer();
+            $middleObj = new MiddlewareProcessor();
+            $routes = iconfig()->getUserConfig("Routes");
+            $middlewares = iconfig()->getUserConfig("Middlewares");
+            $routeTableObj = $routeObj->addRoutDataInCache($routes);
+            $middlewaresTableObj = $middleObj->insertMiddlewareCached($middlewares, MiddlewareProcessor::MEMORY_CACHE_TYPE);
+            $middlewaresConf = $middleObj->getMiddlewares(MiddlewareProcessor::MEMORY_CACHE_TYPE, "", $middlewaresTableObj);
+            $httpMethod = $request->server['request_method'];
+            $url = $request->server['request_uri'];
+            $handleArray = $routeObj->dispatch($httpMethod, $url, $routeTableObj);
+            $psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
+            $requestHandler = new RequestHandler($middlewaresConf, '');
+            $requestHandler->handle($psr7Request);
+            $handlerAdapter = new AdapterHandler();
+            $result = $handlerAdapter->doHandler($psr7Request, $handleArray['handler'], $handleArray['funArgs']);
+            $response = $response->json($result);
+        }catch (\Throwable $throwable){
+	        $response = $response->json($throwable->getMessage(), $throwable->getCode());
+        }
         $response->send();
+	    return $response;
 	}
 
 }

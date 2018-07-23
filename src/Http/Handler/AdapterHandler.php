@@ -12,8 +12,8 @@ namespace W7\Http\Handler;
 use http\Exception\InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Helper\PhpHelper;
-use w7\Http\Message\Base\Response;
 use w7\Http\Message\Server\Request;
+use w7\Http\Message\Server\Response;
 
 class AdapterHandler
 {
@@ -33,8 +33,6 @@ class AdapterHandler
         // execute handler
         $params   = $this->bindParams($request, $handler, $matches);
         $response = PhpHelper::call($handler, $params);
-
-
         return $response;
     }
 
