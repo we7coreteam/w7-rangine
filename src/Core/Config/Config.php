@@ -51,7 +51,7 @@ class Config {
 		return $this->server;
 	}
 
-	private function getUserConfig($type) {
+	public function getUserConfig($type) {
 		$appConfigFile = IA_ROOT . '/config/'.$type.'.php';
 		if (file_exists($appConfigFile)) {
 			$appConfig = include_once $appConfigFile;
