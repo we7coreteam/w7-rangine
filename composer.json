@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "W7\\": "src/"
+            "W7\\": "Src/"
         },
         "files": [
             "src/Core/Helper/Functions.php"
