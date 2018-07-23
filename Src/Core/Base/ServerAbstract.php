@@ -12,8 +12,6 @@ use W7\Core\Listener\ManageServerListener;
 
 abstract class ServerAbstract implements ServerInterface {
 
-	use ManageServerListener;
-
 	/**
 	 * @var SwooleHttpServer
 	 */
@@ -47,12 +45,21 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	public function getStatus() {
+		$pidFile = $this->setting['pid_file'];
+		if (file_exists($pidFile)) {
+			$pids = explode(',', file_get_contents($pidFile));
+			$this->setting['masterPid'] = $pids[0];
+			$this->setting['managerPid'] = $pids[1];
+		}
+
 		return [
 			'host' => $this->connection['host'],
 			'port' => $this->connection['port'],
 			'type' => $this->connection['sock_type'],
 			'mode' => $this->connection['mode'],
 			'workerNum' => $this->setting['worker_num'],
+			'masterPid' => $this->setting['masterPid'],
+			'managerPid' => $this->setting['managerPid'],
 		];
 	}
 
@@ -61,7 +68,40 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	public function isRun() {
+		$status = $this->getStatus();
+		if (!empty($status['masterPid'])) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
+	public function stop() {
+		$timeout = 20;
+		$startTime = time();
+		$result = true;
+
+		if (\swoole_process::kill($this->setting['masterPid'], 0)) {
+			\swoole_process::kill($this->setting['masterPid'], SIGTERM);
+			while (1) {
+				$masterIslive = \swoole_process::kill($this->setting['masterPid'], SIGTERM);
+				if ($masterIslive) {
+					if (time() - $startTime >= $timeout) {
+						$result = false;
+						break;
+					}
+					usleep(10000);
+					continue;
+				}
+				break;
+			}
+		}
+		if (!file_exists($this->setting['pid_file'])) {
+			return true;
+		} else {
+			unlink($this->setting['pid_file']);
+		}
+		return $result;
 	}
 
 	protected function registerServerEvent() {

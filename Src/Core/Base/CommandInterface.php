@@ -24,4 +24,10 @@ interface CommandInterface {
 	 * @return mixed
 	 */
 	public function reload();
+
+	/**
+	 * 创建一个服务端
+	 * @return mixed
+	 */
+	public function createServer();
 }

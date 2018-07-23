@@ -10,6 +10,8 @@ use W7\Core\Listener\HttpServerListener;
 use W7\Core\Listener\TaskListener;
 
 class Config {
+	const VERSION = '1.0.0';
+
 	private $server;
 	private $defaultServer = [
 		'websocket' => [

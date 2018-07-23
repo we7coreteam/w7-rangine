@@ -9,8 +9,11 @@ namespace W7\Console\Io;
 
 class Input {
 
+	private $command;
+	private $action;
+	private $option;
+
 	public function getCommand($argv = null) {
-		$result = [];
 		if (null === $argv) {
 			$argv = $_SERVER['argv'];
 		}
@@ -19,8 +22,22 @@ class Input {
 		 */
 		$parser = iloader()->singleton(\W7\Console\Io\Parser::class);
 		$command = $parser->parse($argv);
-		list($temp, $result['command'], $result['action']) = $command[0];
-		$result['option'] = array_merge([], $command[1], $command[2]);
-		return $result;
+		list($temp, $this->command, $this->action) = $command[0];
+		$this->option = array_merge([], $command[1], $command[2]);
+		return [
+			'command' => $this->command,
+			'action' => $this->action,
+			'option' => $this->option,
+		];
+	}
+
+	public function isVersionCommand() {
+		$command = $this->getCommand();
+
+		if (isset($command['option']['v']) || isset($command['option']['version'])) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
