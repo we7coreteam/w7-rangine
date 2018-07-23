@@ -108,9 +108,9 @@ class MiddlewareProcessor
      */
     public function memoryCached(array $middlewares)
     {
-        $table = new Table(102400);
+        $table = new Table(10240);
         $middlewaresJson = json_encode($middlewares);
-        $table->column('values', Table::TYPE_STRING, 102000);
+        $table->column('values', Table::TYPE_STRING, 1020);
         $table->create();
         $table->set(self::MEMORY_CACHE_KEY, ["values"=>$middlewaresJson]);
         return $table;
