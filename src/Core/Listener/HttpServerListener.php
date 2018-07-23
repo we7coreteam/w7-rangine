@@ -20,7 +20,7 @@ class HttpServerListener {
      * @return \Psr\Http\Message\ResponseInterface|Response
      * @throws \ReflectionException
      */
-	public function onRequest(Request $request, Response $response) {
+	public function onRequest(Request $request, \w7\Http\Message\Server\Response $response) {
 	    $routeObj    = new HttpServer();
 	    $middleObj   = new MiddlewareProcessor();
 	    $routes      = iconfig()->getUserConfig("Routes");
