@@ -20,7 +20,7 @@
             "W7\\": "Src/"
         },
         "files": [
-            "src/Core/Helper/Functions.php"
+            "Src/Core/Helper/Functions.php"
         ]
     },
     "repositories": [
