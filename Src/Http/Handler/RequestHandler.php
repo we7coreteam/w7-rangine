@@ -6,7 +6,7 @@
  * Time: 上午10:01
  */
 
-namespace w7\Http\Handler;
+namespace W7\Http\Handler;
 
 
 

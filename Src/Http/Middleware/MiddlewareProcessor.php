@@ -6,7 +6,7 @@
  * Time: 上午10:33
  */
 
-namespace w7\Http\Middleware;
+namespace W7\Http\Middleware;
 
 
 use Psr\Http\Message\ResponseInterface;
