@@ -25,8 +25,8 @@ class HttpServerListener {
 	    try {
             $routeObj = new HttpServer();
             $middleObj = new MiddlewareProcessor();
-            $routes = iconfig()->getUserConfig("Routes");
-            $middlewares = iconfig()->getUserConfig("Middlewares");
+            $routes = iconfig()->getUserConfig("routes");
+            $middlewares = iconfig()->getUserConfig("middlewares");
             $routeTableObj = $routeObj->addRoutDataInCache($routes);
             $middlewaresTableObj = $middleObj->insertMiddlewareCached($middlewares, MiddlewareProcessor::MEMORY_CACHE_TYPE);
             $middlewaresConf = $middleObj->getMiddlewares(MiddlewareProcessor::MEMORY_CACHE_TYPE, "", $middlewaresTableObj);
