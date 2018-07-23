@@ -11,7 +11,6 @@
     ],
     "require": {
         "illuminate/database": "5.6.*"
-
     },
     "require-dev": {
         "eaglewu/swoole-ide-helper": "dev-master",

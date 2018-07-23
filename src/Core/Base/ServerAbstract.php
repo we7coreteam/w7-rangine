@@ -7,7 +7,7 @@
 
 namespace W7\Core\Base;
 
-use W7\Core\Exception\CommendException;
+use W7\Core\Exception\CommandException;
 use W7\Core\Listener\ManageServerListener;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -40,7 +40,7 @@ abstract class ServerAbstract implements ServerInterface {
 		$setting = \iconfig()->getServer();
 
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
-			throw new CommendException(sprintf('缺少服务配置 %s', $this->type));
+			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
 		}
 		$this->setting = array_merge([], $setting['common']);
 		$this->connection = $setting[$this->type];

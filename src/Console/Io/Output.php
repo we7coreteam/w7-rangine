@@ -46,11 +46,11 @@ class Output {
 	 */
 	public function writeLogo() {
 		$logo = "
- ____                __ _
-/ ___|_      _____  / _| |_
-\___ \ \ /\ / / _ \| |_| __|
- ___) \ V  V / (_) |  _| |_
-|____/ \_/\_/ \___/|_|  \__|
+__        _______ ____                     _      
+\ \      / /___  / ___|_      _____   ___ | | ___ 
+ \ \ /\ / /   / /\___ \ \ /\ / / _ \ / _ \| |/ _ \
+  \ V  V /   / /  ___) \ V  V / (_) | (_) | |  __/
+   \_/\_/   /_/  |____/ \_/\_/ \___/ \___/|_|\___|
 ";
 		$this->writeln(' ' . \ltrim($logo));
 	}
@@ -63,14 +63,14 @@ class Output {
 	 * @param string      $cmdStyle   命令样式
 	 * @param string|null $descStyle  描述样式
 	 */
-	public function writeList($list, $titleStyle = 'comment', $cmdStyle = 'info', $descStyle = null) {
+	public function writeList($list) {
 		foreach ($list as $title => $items) {
 			// 标题
-			$title = "<$titleStyle>$title</$titleStyle>";
+			$title = "$title";
 			$this->writeln($title);
 
 			// 输出块内容
-			$this->writeItems((array)$items, $cmdStyle);
+			$this->writeItems((array)$items);
 			$this->writeln('');
 		}
 	}
@@ -81,7 +81,7 @@ class Output {
 	 * @param array  $items    数据
 	 * @param string $cmdStyle 命令样式
 	 */
-	private function writeItems($items, string $cmdStyle) {
+	private function writeItems($items) {
 		foreach ($items as $cmd => $desc) {
 			// 没有命令，只是一行数据
 			if (\is_int($cmd)) {
@@ -93,7 +93,7 @@ class Output {
 			// 命令和描述
 			$maxLength = $this->getCmdMaxLength(array_keys($items));
 			$cmd = \str_pad($cmd, $maxLength, ' ');
-			$cmd = "<$cmdStyle>$cmd</$cmdStyle>";
+			$cmd = "$cmd";
 			$message = self::LEFT_CHAR . $cmd . self::GAP_CHAR . $desc;
 
 			$this->writeln($message);

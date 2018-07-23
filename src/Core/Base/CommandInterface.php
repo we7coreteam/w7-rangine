@@ -6,7 +6,7 @@
 
 namespace W7\Core\Base;
 
-interface CommendInterface {
+interface CommandInterface {
 	/**
 	 * 启动命令
 	 * @return mixed

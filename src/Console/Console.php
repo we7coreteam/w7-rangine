@@ -8,9 +8,9 @@
 
 namespace W7\Console;
 
-use W7\Core\Base\CommendBase;
-use W7\Core\Base\CommendInterface;
-use W7\Core\Exception\CommendException;
+
+use W7\Core\Base\CommandInterface;
+use W7\Core\Exception\CommandException;
 
 class Console {
 	private $allowServer;
@@ -21,22 +21,56 @@ class Console {
 
 	public function run() {
 		$this->checkEnv();
-
+		/**
+		 * @var \W7\Console\Io\Input $input
+		 */
 		$input = iloader()->singleton(\W7\Console\Io\Input::class);
-		$commend = $input->getCommend();
+		$command = $input->getCommand();
 
+		if (empty($command['command']) && empty($command['action'])) {
+			$this->showDefaultCommand();
+			return false;
+		}
 		$supportServer = $this->supportServer();
-		if (!in_array($commend['server'], $supportServer)) {
-			throw new CommendException(sprintf('暂不支持此服务 %s', $commend['server']));
+		if (!in_array($command['command'], $supportServer)) {
+			throw new CommandException(sprintf('暂不支持此服务 %s', $command['command']));
 			return false;
 		}
 
-		$server = $this->getServer($commend['server']);
-		if (!method_exists($server, $commend['action'])) {
-			throw new CommendException(sprintf('暂不支持该启动操作 %s ', $commend['action']));
+		$server = $this->getServer($command['command']);
+		if (!method_exists($server, $command['action'])) {
+			throw new CommandException(sprintf('暂不支持该启动操作 %s ', $command['action']));
 		}
 
-		call_user_func_array(array($server, $commend['action']), $commend['option']);
+		call_user_func_array(array($server, $command['action']), $command['option']);
+		return true;
+	}
+
+	private function showDefaultCommand() {
+
+
+		$script = 'php bin/server.php';
+		$commandList = [
+			'Usage:' => ["php $script {command} [arguments] [options]"],
+			'Commands:' => [],
+			'Arguments:' => [
+				'start' => 'Start the service.',
+				'stop' => 'Stop the service.',
+				'restart' => 'Restart the service',
+			],
+			'Options:' => [
+				'-h, --help'    => 'Display help information',
+				'-v, --version' => 'Display version information',
+			]
+		];
+
+		$server = $this->supportServer();
+		foreach ($server as $item) {
+			$commandList['Commands:'][$item] = 'Start the ' . $item . ' service.';
+		}
+
+		\ioutputer()->writeLogo();
+		\ioutputer()->writeList($commandList, 'comment', 'info');
 		return true;
 	}
 
@@ -58,10 +92,10 @@ class Console {
 	}
 
 	private function getServer($name) {
-		$className = sprintf("\\W7\\%s\\Console\\Commend", istudly($name));
+		$className = sprintf("\\W7\\%s\\Console\\Command", istudly($name));
 		$object = new $className();
-		if (!($object instanceof CommendInterface)) {
-			throw new CommendException('启动命令必须继续CommendBase类');
+		if (!($object instanceof CommandInterface)) {
+			throw new CommandException('启动命令必须继续CommandInterface类');
 		}
 		return $object;
 	}

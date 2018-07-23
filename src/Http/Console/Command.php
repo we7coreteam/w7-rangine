@@ -6,10 +6,10 @@
 
 namespace W7\Http\Console;
 
-use W7\Core\Base\CommendInterface;
+use W7\Core\Base\CommandInterface;
 use W7\Http\Server\Server;
 
-class Commend implements CommendInterface {
+class Command implements CommandInterface {
 	public function start() {
 		$server = $this->getServer();
 		$status = $server->getStatus();
