@@ -6,8 +6,8 @@
 
 namespace W7\Core\Config;
 
-use W7\Core\Listener\HttpServerListener;
 use W7\Core\Listener\TaskListener;
+use W7\Http\Listener\RequestListener;
 
 class Config {
 	const VERSION = '1.0.0';
@@ -26,7 +26,7 @@ class Config {
 			'finish' => TaskListener::class,
 		],
 		'http' => [
-			'request' => HttpServerListener::class,
+			'request' => RequestListener::class,
 		]
 	];
 

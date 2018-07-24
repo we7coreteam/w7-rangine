@@ -26,12 +26,6 @@ interface ServerInterface {
 	public function stop();
 
 	/**
-	 * 服务重载
-	 * @return mixed
-	 */
-	public function reload();
-
-	/**
 	 * 服务是否运行
 	 * @return mixed
 	 */

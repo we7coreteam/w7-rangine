@@ -1,12 +1,11 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: alex
- * Date: 18-7-20
- * Time: 上午10:33
+ * 保存中间件数据
+ * @author alex
+ * @date 18-7-24 下午5:31
  */
 
-namespace W7\Http\Middleware;
+namespace W7\Core\Helper;
 
 
 use Psr\Http\Message\ResponseInterface;
@@ -14,7 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Table;
 
-class MiddlewareProcessor
+class Middleware
 {
 
 
