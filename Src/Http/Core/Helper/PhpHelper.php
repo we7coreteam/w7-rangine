@@ -23,9 +23,10 @@ class PhpHelper
             $ret = $cb(...$args);
         } elseif (\is_array($cb)) {
             list($obj, $mhd) = $cb;
-            $obj = new $obj;
+            $obj = iloader()->singleton($obj);
             $ret = \is_object($obj) ? $obj->$mhd(...$args) : $obj::$mhd(...$args);
         }
         return $ret;
     }
+
 }

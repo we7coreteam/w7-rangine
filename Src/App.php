@@ -11,7 +11,6 @@ use W7\Core\Config\Config;
 class App {
 
 	const IA_ROOT = __DIR__;
-
 	/**
 	 * @var \W7\Core\Helper\Loader;
 	 */
@@ -24,5 +23,6 @@ class App {
 		}
 		return self::$loader;
 	}
+	
 }
 
