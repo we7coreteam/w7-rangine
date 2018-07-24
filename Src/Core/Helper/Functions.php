@@ -50,3 +50,6 @@ if (!function_exists('iconfig')) {
 		return iloader()->singleton(\W7\Core\Config\Config::class);
 	}
 }
+if (!function_exists('')) {
+
+}
