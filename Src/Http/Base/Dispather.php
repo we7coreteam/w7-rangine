@@ -9,9 +9,14 @@ namespace W7\Http\Base;
 use W7\Core\Base\DispatcherInterface;
 use W7\Core\Helper\Context;
 use W7\Http\Middleware\MiddlewareProcessor;
-use w7\HttpRoute\HttpServer;
+use W7\Http\Middleware\RequestMiddleware;
 
 class Dispather implements DispatcherInterface {
+
+	private $middleware = [
+		RequestMiddleware::class,
+	];
+
 	public function dispatch(...$params) {
 		list($request, $response) = $params;
 
