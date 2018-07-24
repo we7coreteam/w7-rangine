@@ -40,13 +40,16 @@ class Console {
 
 		$supportServer = $this->supportServer();
 		if (!in_array($command['command'], $supportServer)) {
-			throw new CommandException(sprintf('暂不支持此服务 %s', $command['command']));
+			\ioutputer()->writeln(sprintf('暂不支持此服务 %s', $command['command']), true);
+			$this->showDefaultCommand();
 			return false;
 		}
 
 		$server = $this->getServer($command['command']);
 		if (!method_exists($server, $command['action'])) {
-			throw new CommandException(sprintf('暂不支持该启动操作 %s ', $command['action']));
+			\ioutputer()->writeln(sprintf('暂不支持该启动操作 %s', $command['action']), true);
+			$this->showDefaultCommand();
+			return false;
 		}
 
 		call_user_func_array(array($server, $command['action']), $command['option']);

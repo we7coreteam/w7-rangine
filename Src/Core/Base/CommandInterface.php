@@ -20,10 +20,10 @@ interface CommandInterface {
 	public function stop();
 
 	/**
-	 * 重载配置
+	 * 重启配置
 	 * @return mixed
 	 */
-	public function reload();
+	public function restart();
 
 	/**
 	 * 创建一个服务端

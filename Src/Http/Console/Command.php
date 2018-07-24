@@ -36,10 +36,6 @@ class Command implements CommandInterface {
 		$server->start();
 	}
 
-	public function reload() {
-		// TODO: Implement reload() method.
-	}
-
 	public function stop() {
 		$this->server = $server = $this->createServer();
 		// 是否已启动
@@ -52,6 +48,14 @@ class Command implements CommandInterface {
 			\ioutputer()->writeln(sprintf('Server %s stop fail', $this->server->type), true, true);
 		}
 		ioutputer()->writeln(sprintf('Server %s stop success!', $this->server->type));
+	}
+
+	public function restart() {
+		$this->server = $server = $this->createServer();
+		if ($this->server->isRun()) {
+			$this->stop();
+		}
+		$this->start();
 	}
 
 	public function createServer() {
