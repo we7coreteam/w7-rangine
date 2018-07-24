@@ -34,8 +34,10 @@ class HttpServerListener {
             $url = $request->server['request_uri'];
             $handleArray = $routeObj->dispatch($httpMethod, $url, $routeTableObj);
             $psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
-            $requestHandler = new RequestHandler($middlewaresConf, '');
-            $requestHandler->handle($psr7Request);
+            if (!empty($middlewaresConf)) {
+                $requestHandler = new RequestHandler($middlewaresConf, '');
+                $requestHandler->handle($psr7Request);
+            }
             $handlerAdapter = new AdapterHandler();
             $result = $handlerAdapter->doHandler($psr7Request, $handleArray['handler'], $handleArray['funArgs']);
             $response = $response->json($result);

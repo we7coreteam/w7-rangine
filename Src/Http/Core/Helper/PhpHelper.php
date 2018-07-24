@@ -24,10 +24,7 @@ class PhpHelper
         } elseif (\is_array($cb)) {
             list($obj, $mhd) = $cb;
             $ret = \is_object($obj) ? $obj->$mhd(...$args) : $obj::$mhd(...$args);
-        } else {
-            $ret = \Swoole\Coroutine::call_user_func_array($cb, $args);
         }
-
         return $ret;
     }
 }
