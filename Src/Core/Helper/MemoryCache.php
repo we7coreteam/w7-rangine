@@ -47,7 +47,7 @@ class MemoryCache  implements TableInterface
         {
             throw new \InvalidArgumentException("the memory config is not has");
         }
-        $this->setSize($tableConfig['size']);
+        $this->setSize($tableConfig['memory']['size']);
         $this->setTable(new Table($this->size));
     }
 

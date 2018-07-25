@@ -90,7 +90,7 @@ class Cache extends CacheAbstract
      * @throws \InvalidArgumentException When driver does not exist
      * @return CacheAbstract
      */
-    public function getDriver(string $driver = null): CacheAbstract
+    public function getDriver(string $driver = null)
     {
         $currentDriver = $driver ?? $this->driver;
         $drivers = $this->getDrivers();

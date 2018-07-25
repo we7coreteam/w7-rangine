@@ -36,7 +36,7 @@ class Middleware
      * @param string|null $filePath
      * @param Table|null $tableObj
      */
-    public function getMiddlewares(Table $tableObj = null)
+    public function getMiddlewares( $tableObj = null)
     {
 
         if (empty($filePath) && empty($tableObj)) {
@@ -71,13 +71,13 @@ class Middleware
      * @param Table $tableObj
      * @return array|mixed
      */
-    protected function getMemoryCached(Table $tableObj)
+    protected function getMemoryCached($tableObj)
     {
-        if (!($tableObj instanceof Table) || empty($tableObj)){
+        if (!is_object($tableObj) || empty($tableObj)){
             throw new \RuntimeException("tableObj is not isset");
         }
         $data = $tableObj->get(self::MEMORY_CACHE_KEY);
-        if (empty($data)){
+        if (empty($data['values'])){
             return [];
         }
         return json_decode($data['values'], true);

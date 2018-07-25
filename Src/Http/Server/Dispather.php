@@ -34,8 +34,13 @@ class Dispather extends DispatcherAbstract {
         $table = $middlewarehelper->insertMiddlewareCached();
         $middlewares = $middlewarehelper->getMiddlewares($table);
         $middlewareHandler = new MiddlewareHandler($middlewares);
-        $response = $middlewareHandler->handle($psr7Request);
-        $psr7Response->json($response);
+        try {
+            $response = $middlewareHandler->handle($psr7Request);
+            $psr7Response->json($response);
+        }catch (\Throwable $throwable){
+            $psr7Response->json($throwable->getMessage(), $throwable->getCode());
+        }
+
         $psr7Response->send();
 
 
