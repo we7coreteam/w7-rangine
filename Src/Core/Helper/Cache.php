@@ -107,7 +107,7 @@ class Cache extends CacheAbstract
     protected function getDrivers(): array
     {
         return [
-            'memory'=>"MemoryCache",
+            'memory'=>MemoryCache::class,
         ];
     }
 }
