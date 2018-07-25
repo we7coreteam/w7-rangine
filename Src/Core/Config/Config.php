@@ -60,7 +60,7 @@ class Config {
 	public function getUserConfig($type) {
 		$appConfigFile = IA_ROOT . '/config/'.$type.'.php';
 		if (file_exists($appConfigFile)) {
-			$appConfig = include_once $appConfigFile;
+			$appConfig = include $appConfigFile;
 		}
 		return $appConfig;
 	}
