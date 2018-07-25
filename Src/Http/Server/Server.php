@@ -8,7 +8,6 @@ namespace W7\Http\Server;
 
 use W7\Core\Base\ServerAbstract;
 use W7\Core\Base\SwooleHttpServer;
-use W7\Core\Listener\HttpServerListener;
 
 class Server extends ServerAbstract {
 
@@ -22,7 +21,8 @@ class Server extends ServerAbstract {
 		$this->server->set($this->setting);
 
 		$this->registerEventListener();
-		$this->
+		$this->registerProcesser();
+
 
 		$this->server->start();
 	}

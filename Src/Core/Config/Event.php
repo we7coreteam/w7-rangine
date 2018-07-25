@@ -6,7 +6,10 @@
 
 namespace W7\Core\Config;
 
-class SwooleEvent {
+class Event {
+	/**
+	 * swoole 事件
+	 */
 	const ON_START = 'start';
 	const ON_WORKER_START = 'workerStart';
 	const ON_MANAGER_START = 'managerStart';
@@ -17,8 +20,9 @@ class SwooleEvent {
 	const ON_CONNECT = 'connect';
 	const ON_RECEIVE = 'receive';
 	const ON_CLOSE = 'close';
+
+	/**
+	 * 自定义事件
+	 */
 	const ON_BEFORE_START = 'beforeStart';
-	const ON_OPEN = 'open';
-	const ON_HAND_SHAKE = 'handshake';
-	const ON_MESSAGE = 'message';
 }

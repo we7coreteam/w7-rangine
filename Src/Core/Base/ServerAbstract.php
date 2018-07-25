@@ -124,7 +124,7 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 		foreach ($event as $eventName => $class) {
 			$object = \W7\App::getLoader()->singleton($class);
-			$this->server->on($eventName, [$object, 'on' . ucfirst($eventName)]);
+			$this->server->on($eventName, [$object, 'run']);
 		}
 	}
 }
