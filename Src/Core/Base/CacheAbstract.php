@@ -45,7 +45,7 @@ abstract class CacheAbstract implements CacheInterface
         ];
     }
     abstract public function set($key, $value ,$ttl=null);
-    abstract public function get($key, $default = null);
+    public function get($key, $default = null){}
     public function delete($key){}
     public function clear(){}
     public function getMultiple($key, $default = null){}
