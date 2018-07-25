@@ -96,9 +96,13 @@ class Middleware
      */
     protected function memoryCached(array $middlewares)
     {
-        $table = new Table(10240);
+        $cacheObj = new Cache();
+        $cacheObj->getDriver('memory');
+        /**
+         * @var MemoryCache $table
+         */
+        $table = Context::getContextDataByKey(Cache::CONTEXT_DATA_KEY . "memory");
         $middlewaresJson = json_encode($middlewares);
-        $table->column('values', Table::TYPE_STRING, 1020);
         $table->create();
         $table->set(self::MEMORY_CACHE_KEY, ["values"=>$middlewaresJson]);
         return $table;
