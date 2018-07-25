@@ -35,17 +35,4 @@ class RouteHandler
         Context::setContextDataByKey(static::ROUTE_CONTEXT_KEY, $routeList);
     }
 
-    /**
-     * @param ServerRequestInterface $request
-     * @return array
-     */
-    public static function dispath(ServerRequestInterface $request)
-    {
-        $httpMethod = $request->getMethod();
-        $url        = $request->getUri()->getPath();
-        $routeData = Context::getContextDataByKey(static::ROUTE_CONTEXT_KEY);
-        $fastRoute = new HttpServer();
-        $routeInfo = $fastRoute->dispathByData($httpMethod, $url, $routeData);
-        return $routeInfo;
-    }
 }

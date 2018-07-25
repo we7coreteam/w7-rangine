@@ -22,7 +22,7 @@ class Middleware
 
     const MEMORY_CACHE_TYPE = 2;
 
-    const LAST_MIDDLER_WARE = RequestMiddleware::class;
+    protected $lastMiddleware;
     //1191014510910510010010810111997114101 转化32进制去掉0000000000000
     const MEMORY_CACHE_KEY = 'slgop41mg0c';
 
@@ -31,6 +31,10 @@ class Middleware
 
 
 
+    public function setLastMiddleware(string $middlerware)
+    {
+        $this->lastMiddleware = $middlerware;
+    }
     /**
      * @param int $cacheType
      * @param string|null $filePath
@@ -46,7 +50,7 @@ class Middleware
         $server = iconfig()->getServer();
         $beforeMiddlerwares = $server['befor_middlerware'];
         $afterMiddlerwares  = $server['after_middlerware'];
-        $lastMiddlerware    = static::LAST_MIDDLER_WARE;
+        $lastMiddlerware    = $this->lastMiddleware;
         $data = array_merge($beforeMiddlerwares, $data, $afterMiddlerwares);
         array_unshift($data, $lastMiddlerware);
         return $data;

@@ -9,6 +9,7 @@ namespace W7\Core\Helper;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Coroutine;
+use w7\Http\Message\Server\Response;
 
 class Context {
 	/**
@@ -39,7 +40,7 @@ class Context {
 	}
 
 	/**
-	 * @return \Psr\Http\Message\ResponseInterface|null
+	 * @return Response|null
 	 */
 	public static function getResponse() {
 		return self::getCoroutineContext(self::RESPONSE_KEY);

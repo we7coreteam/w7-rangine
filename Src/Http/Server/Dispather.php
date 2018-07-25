@@ -6,11 +6,13 @@
 
 namespace W7\Http\Server;
 
+use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Base\DispatcherAbstract;
 use W7\Core\Base\MiddlewareHandler;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Middleware;
 use W7\Http\Handler\RouteHandler;
+use w7\HttpRoute\HttpServer;
 
 class Dispather extends DispatcherAbstract {
 
@@ -31,6 +33,7 @@ class Dispather extends DispatcherAbstract {
         RouteHandler::addRoute();
         $middlewarehelper = new Middleware();
         $table = $middlewarehelper->insertMiddlewareCached();
+        $middlewarehelper->setLastMiddleware($this->lastMiddleware);
         $middlewares = $middlewarehelper->getMiddlewares($table);
         $middlewareHandler = new MiddlewareHandler($middlewares);
         try {
@@ -46,7 +49,12 @@ class Dispather extends DispatcherAbstract {
 	/**
 	 * 通过route信息，调用具体的Controller
 	 */
-	public function handler() {
-
+	public static function handler(ServerRequestInterface $request) {
+        $httpMethod = $request->getMethod();
+        $url        = $request->getUri()->getPath();
+        $routeData = Context::getContextDataByKey(RouteHandler::ROUTE_CONTEXT_KEY);
+        $fastRoute = new HttpServer();
+        $routeInfo = $fastRoute->dispathByData($httpMethod, $url, $routeData);
+        return $routeInfo;
 	}
 }
