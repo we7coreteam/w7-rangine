@@ -8,7 +8,6 @@ namespace W7\Http\Listener;
 
 use Swoole\Http\Request;
 use Swoole\Http\Response;
-use w7\Http\Message\Stream\SwooleStream;
 
 class RequestListener {
 	/**
@@ -19,9 +18,9 @@ class RequestListener {
 	 */
 	public function onRequest(Request $request,Response $response) {
 		/**
-		 * @var \W7\Http\Base\Dispather $dispather
+		 * @var \W7\Http\Server\Dispather $dispather
 		 */
-		$dispather = \iloader()->singleton(\W7\Http\Base\Dispather::class);
+		$dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
 		$dispather->dispatch($request, $response);
 	}
 

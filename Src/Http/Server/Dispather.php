@@ -4,18 +4,14 @@
  * @date 18-7-24 下午5:31
  */
 
-namespace W7\Http\Base;
+namespace W7\Http\Server;
 
-use W7\Core\Base\DispatcherInterface;
+use W7\Core\Base\DispatcherAbstract;
 use W7\Core\Helper\Context;
-use W7\Http\Middleware\MiddlewareProcessor;
-use W7\Http\Middleware\RequestMiddleware;
 
-class Dispather implements DispatcherInterface {
+class Dispather extends DispatcherAbstract {
 
-	private $middleware = [
-		RequestMiddleware::class,
-	];
+	public $lastMiddleware = \W7\Http\Middleware\RequestMiddleware::class;
 
 	public function dispatch(...$params) {
 		list($request, $response) = $params;
