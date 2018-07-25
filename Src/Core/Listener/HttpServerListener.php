@@ -13,7 +13,7 @@ use W7\Http\Handler\RequestHandler;
 use W7\Http\Middleware\MiddlewareProcessor;
 use w7\HttpRoute\HttpServer;
 
-class HttpServerListener {
+class HttpServerListener extends Lister{
     /**
      * @param Request $request
      * @param Response $response
@@ -21,6 +21,8 @@ class HttpServerListener {
      * @throws \ReflectionException
      */
 	public function onRequest(Request $request,Response $response) {
+	    $this->dispatch($requlest,);
+
 	    $response = new \w7\Http\Message\Server\Response($response);
 	    try {
             $routeObj = new HttpServer();
@@ -48,4 +50,9 @@ class HttpServerListener {
 	    return $response;
 	}
 
+}
+
+
+public function onReceiver($data, $body) {
+    $this->dispatch($data, $body,);
 }

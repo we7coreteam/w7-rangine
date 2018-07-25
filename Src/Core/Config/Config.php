@@ -25,7 +25,10 @@ class Config {
 		],
 		'http' => [
 			'request' => HttpServerListener::class,
-		]
+		],
+        'system' => [
+            'beforeServerStart' => '',
+        ]
 	];
 
 
