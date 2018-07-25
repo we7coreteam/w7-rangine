@@ -30,7 +30,7 @@ class RouteHandler
         $fastRoute = new HttpServer();
         foreach($configData as $httpMethod=>$routeData)
         {
-            $routeList[] = $fastRoute->addRoute($httpMethod, $routeData);
+            $routeList = array_merge_recursive($routeList ,$fastRoute->addRoute($httpMethod, $routeData));
         }
         Context::setContextDataByKey(static::ROUTE_CONTEXT_KEY, $routeList);
     }

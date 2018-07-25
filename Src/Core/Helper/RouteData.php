@@ -58,14 +58,14 @@ class RouteData
             if (isset($data['method']) && !empty($data['method']))
             {
                 if (!strstr($data['method'], ',')) {
-                    $routs[$data['method']][$controller. '-' . $data['method']] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $method . DIRECTORY_SEPARATOR . $data['query'];
+                    $routes[$data['method']][$controller. '-' . $method] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $method . DIRECTORY_SEPARATOR . $data['query'];
                 }else
-                    {
-                        $httpMethod = [];
-                        $httpMethod = explode(',', $data['method']);
-                        $routs[$httpMethod[0]][$controller. '-' . $data['method']] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $method . DIRECTORY_SEPARATOR . $data['query'];
-                        $routs[$httpMethod[1]][$controller. '-' . $data['method']] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $method . DIRECTORY_SEPARATOR . $data['query'];
-                    }
+                {
+                    $httpMethod = [];
+                    $httpMethod = explode(',', $data['method']);
+                    $routes[$httpMethod[0]][$controller. '-' . $method] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $method . DIRECTORY_SEPARATOR . $data['query'];
+                    $routes[$httpMethod[1]][$controller. '-' . $method] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $method . DIRECTORY_SEPARATOR . $data['query'];
+                }
             }
         }
         return $routes;
