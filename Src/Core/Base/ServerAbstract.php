@@ -104,14 +104,18 @@ abstract class ServerAbstract implements ServerInterface {
 		return $result;
 	}
 
-	protected function registerServerEvent() {
-		$event = \iconfig()->getEvent()[$this->type];
-		$this->registerEvent($event);
+	protected function registerProcesser() {
+
 	}
 
-	protected function registerTaskEvent() {
-		$event = \iconfig()->getEvent()['task'];
-		$this->registerEvent($event);
+	protected function registerEventListener() {
+		$event = [$this->type, 'task', 'manage'];
+		foreach ($event as $name) {
+			$event = \iconfig()->getEvent()[$name];
+			if (!empty($event)) {
+				$this->registerEvent($event);
+			}
+		}
 	}
 
 	private function registerEvent($event) {

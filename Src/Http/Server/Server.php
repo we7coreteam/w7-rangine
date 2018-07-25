@@ -20,8 +20,9 @@ class Server extends ServerAbstract {
 		}
 		$this->server = new SwooleHttpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
 		$this->server->set($this->setting);
-		$this->registerServerEvent();
-		$this->registerTaskEvent();
+
+		$this->registerEventListener();
+		$this->
 
 		$this->server->start();
 	}

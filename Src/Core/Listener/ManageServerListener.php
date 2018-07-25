@@ -8,7 +8,7 @@ namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
 
-trait ManageServerListener {
+class ManageServerListener {
 	public function onStart(Server $server) {
 		\ioutputer()->writeln('server start');
 	}
