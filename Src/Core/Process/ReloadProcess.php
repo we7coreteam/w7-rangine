@@ -6,14 +6,27 @@
 
 namespace W7\Core\Process;
 
+use Swoft\Process\Bootstrap\Reload;
+use W7\App;
+use W7\Core\Base\Process;
 use W7\Core\Base\ProcessInterface;
 
 class ReloadProcess implements ProcessInterface {
 	public function check() {
-		// TODO: Implement check() method.
+	    $serverConfig = iconfig()->getServer();
+	    if (!$serverConfig['autoReload'])
+	    {
+	        return false;
+        }
+        return true;
 	}
 
-	public function run() {
-		// TODO: Implement run() method.
+	public function run(Process $process)
+    {
+        $pname = App::$server->getPname();
+        $processName = sprintf('%s reload process', $pname);
+        $process->name($processName);
+        $reload = new Reload();
+        $reload->run();
 	}
 }

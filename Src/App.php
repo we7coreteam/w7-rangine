@@ -6,11 +6,20 @@
 
 namespace W7;
 
+use W7\Core\Base\ServerAbstract;
 use W7\Core\Config\Config;
+use W7\Http\Server\Server;
 
 class App {
 
 	const IA_ROOT = __DIR__;
+
+    /**
+     * 服务器对象
+     *
+     * @var Server
+     */
+	static $server;
 	/**
 	 * @var \W7\Core\Helper\Loader;
 	 */

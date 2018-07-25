@@ -7,8 +7,10 @@
 
 namespace W7\Core\Base;
 
+use W7\App;
 use W7\Core\Exception\CommandException;
 use W7\Core\Listener\ManageServerListener;
+use W7\Core\Process\ReloadProcess;
 
 abstract class ServerAbstract implements ServerInterface {
 
@@ -35,6 +37,8 @@ abstract class ServerAbstract implements ServerInterface {
 
 	public function __construct() {
 
+	    App::$server = $this;
+
 		$setting = \iconfig()->getServer();
 
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
@@ -42,7 +46,20 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 		$this->setting = array_merge([], $setting['common']);
 		$this->connection = $setting[$this->type];
+
+
 	}
+
+    /**
+     * Get pname
+     *
+     * @return string
+     */
+    public function getPname(): string
+    {
+        return $this->setting['pname'];
+    }
+
 
 	public function getStatus() {
 		$pidFile = $this->setting['pid_file'];
@@ -105,7 +122,15 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerProcesser() {
-
+        $processObject = new ReloadProcess();
+        if (!$processObject->check()){
+            return;
+        }
+        $processName = iconfig()->getProcess();
+        foreach ($processName as $name) {
+            $process = ProcessBuilder::create($name, App::$server);
+            $this->server->addProcess($process);
+        }
 	}
 
 	protected function registerEventListener() {

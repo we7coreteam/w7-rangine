@@ -50,6 +50,14 @@ if (!function_exists('iconfig')) {
 		return iloader()->singleton(\W7\Core\Config\Config::class);
 	}
 }
-if (!function_exists('')) {
-
+if (!function_exists('isMac')) {
+    /**
+     * 是否是mac环境
+     *
+     * @return bool
+     */
+     function isMac(): bool
+    {
+        return \stripos(PHP_OS, 'Darwin') !== false;
+    }
 }

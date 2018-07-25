@@ -43,7 +43,7 @@ class Dispather extends DispatcherAbstract {
         }
 
 
-        $psr7Response->send();
+        $response->send();
 	}
 
 	/**

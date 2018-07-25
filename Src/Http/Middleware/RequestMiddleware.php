@@ -12,8 +12,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use W7\Core\Base\MiddlewareAbstract;
 use W7\Core\Helper\Context;
-use W7\Http\AttributeEnum;
-use W7\Http\Handler\RouteHandler;
 use W7\Http\Server\Dispather;
 use w7\HttpRoute\Exception\BadRequestException;
 use w7\HttpRoute\Exception\RouteNotFoundException;
