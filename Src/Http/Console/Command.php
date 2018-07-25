@@ -10,8 +10,13 @@ use W7\Core\Base\CommandInterface;
 use W7\Http\Server\Server;
 
 class Command implements CommandInterface {
+	/**
+	 * @var \W7\Core\Base\ServerAbstract $server
+	 */
+	private $server;
+
 	public function start() {
-		$server = $this->getServer();
+		$this->server = $server = $this->createServer();
 		$status = $server->getStatus();
 
 		if ($server->isRun()) {
@@ -31,15 +36,29 @@ class Command implements CommandInterface {
 		$server->start();
 	}
 
-	public function reload() {
-		// TODO: Implement reload() method.
-	}
-
 	public function stop() {
-		// TODO: Implement stop() method.
+		$this->server = $server = $this->createServer();
+		// 是否已启动
+		if (!$this->server->isRun()) {
+			\ioutputer()->writeln('The server is not running!', true, true);
+		}
+		\ioutputer()->writeln(sprintf('Server %s is stopping ...', $this->server->type));
+		$result = $this->server->stop();
+		if (!$result) {
+			\ioutputer()->writeln(sprintf('Server %s stop fail', $this->server->type), true, true);
+		}
+		ioutputer()->writeln(sprintf('Server %s stop success!', $this->server->type));
 	}
 
-	private function getServer() {
+	public function restart() {
+		$this->server = $server = $this->createServer();
+		if ($this->server->isRun()) {
+			$this->stop();
+		}
+		$this->start();
+	}
+
+	public function createServer() {
 		$server = new Server();
 		return $server;
 	}

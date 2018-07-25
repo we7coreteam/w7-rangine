@@ -1,25 +1,22 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: alex
- * Date: 18-7-20
- * Time: 上午10:01
+ * 由Dispatch调用，传入准备好的中间件和处理回调，调用中间件队列
+ * @author donknap
+ * @date 18-7-21 上午11:08
  */
 
-namespace W7\Http\Handler;
 
-
-
+namespace W7\Core\Base;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class RequestHandler implements RequestHandlerInterface
-{ /**
- * @var array
- */
+class RequestHandler implements RequestHandlerInterface {
+	/**
+	* @var array
+	*/
     private $middlewares;
 
     /**
@@ -39,8 +36,7 @@ class RequestHandler implements RequestHandlerInterface
      * @param array $middleware
      * @param string $default
      */
-    public function __construct(array $middleware, string $default)
-    {
+    public function __construct(array $middleware, string $hander) {
         $this->middlewares = \array_unique($middleware);
         $this->default = $default;
     }
@@ -52,8 +48,7 @@ class RequestHandler implements RequestHandlerInterface
      * @return ResponseInterface
      * @throws \InvalidArgumentException
      */
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
+    public function handle(ServerRequestInterface $request): ResponseInterface {
         if (!empty($this->default) && empty($this->middlewares[$this->offset])) {
             $handler = new $this->default;
         } else {
@@ -73,8 +68,7 @@ class RequestHandler implements RequestHandlerInterface
      *
      * @return static
      */
-    private function next()
-    {
+    private function next() {
         $clone = clone $this;
         $clone->offset++;
         return $clone;
@@ -87,8 +81,7 @@ class RequestHandler implements RequestHandlerInterface
      * @param null $offset
      * @return $this
      */
-    public function insertMiddlewares(array $middlewares, $offset = null)
-    {
+    public function insertMiddlewares(array $middlewares, $offset = null) {
         null === $offset && $offset = $this->offset;
         $chunkArray = array_chunk($this->middlewares, $offset);
         $after = [];

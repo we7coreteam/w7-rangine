@@ -25,12 +25,4 @@ class Server extends ServerAbstract {
 
 		$this->server->start();
 	}
-
-	public function stop() {
-
-	}
-
-	public function reload() {
-
-	}
 }

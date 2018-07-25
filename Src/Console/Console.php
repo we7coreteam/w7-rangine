@@ -25,21 +25,31 @@ class Console {
 		 * @var \W7\Console\Io\Input $input
 		 */
 		$input = iloader()->singleton(\W7\Console\Io\Input::class);
-		$command = $input->getCommand();
 
+		if ($input->isVersionCommand()) {
+			$this->showVersionCommand();
+			return false;
+		}
+
+		$command = $input->getCommand();
 		if (empty($command['command']) && empty($command['action'])) {
 			$this->showDefaultCommand();
 			return false;
 		}
+
+
 		$supportServer = $this->supportServer();
 		if (!in_array($command['command'], $supportServer)) {
-			throw new CommandException(sprintf('暂不支持此服务 %s', $command['command']));
+			\ioutputer()->writeln(sprintf('暂不支持此服务 %s', $command['command']), true);
+			$this->showDefaultCommand();
 			return false;
 		}
 
 		$server = $this->getServer($command['command']);
 		if (!method_exists($server, $command['action'])) {
-			throw new CommandException(sprintf('暂不支持该启动操作 %s ', $command['action']));
+			\ioutputer()->writeln(sprintf('暂不支持该启动操作 %s', $command['action']), true);
+			$this->showDefaultCommand();
+			return false;
 		}
 
 		call_user_func_array(array($server, $command['action']), $command['option']);
@@ -72,6 +82,15 @@ class Console {
 		\ioutputer()->writeLogo();
 		\ioutputer()->writeList($commandList, 'comment', 'info');
 		return true;
+	}
+
+	private function showVersionCommand() {
+		$frameworkVersion = \iconfig()::VERSION;
+		$phpVersion = PHP_VERSION;
+		$swooleVersion = SWOOLE_VERSION;
+
+		\ioutputer()->writeLogo();
+		\ioutputer()->writeln("framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion\n", true);
 	}
 
 	private function checkEnv() {
