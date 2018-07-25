@@ -25,10 +25,9 @@ class Dispather extends DispatcherAbstract {
 		Context::setRequest($psr7Request);
         Context::setResponse($psr7Response);
 
+        //根据router配置，获取到匹配的controller信息
 
-//		$routes = iconfig()->getUserConfig("route");
-
-		//根据router配置，获取到全部中间件数据，最后附加Http组件的中间件，用于处理调用Controller
+		//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
         RouteHandler::addRoute();
         $middlewarehelper = new Middleware();
         $table = $middlewarehelper->insertMiddlewareCached();
@@ -42,8 +41,6 @@ class Dispather extends DispatcherAbstract {
         }
 
         $psr7Response->send();
-
-
 	}
 
 	/**

@@ -24,16 +24,16 @@ class Config {
 	private $event;
 	private $defaultEvent = [
 		'task' => [
-			SwooleEvent::ON_TASK => TaskListener::class,
-			SwooleEvent::ON_FINISH => TaskListener::class,
+			Event::ON_TASK => TaskListener::class,
+			Event::ON_FINISH => TaskListener::class,
 		],
 		'http' => [
-			SwooleEvent::ON_REQUEST => RequestListener::class,
+			Event::ON_REQUEST => RequestListener::class,
 		],
 		'manage' => [
-			SwooleEvent::ON_START => ManageServerListener::class,
-			SwooleEvent::ON_MANAGER_START => ManageServerListener::class,
-		]
+			Event::ON_START => ManageServerListener::class,
+			Event::ON_MANAGER_START => ManageServerListener::class,
+		],
 	];
 
 	private $process = [
@@ -76,7 +76,7 @@ class Config {
 	public function getUserConfig($type) {
 		$appConfigFile = IA_ROOT . '/config/'.$type.'.php';
 		if (file_exists($appConfigFile)) {
-			$appConfig = include_once $appConfigFile;
+			$appConfig = include $appConfigFile;
 		}
 		return $appConfig;
 	}
