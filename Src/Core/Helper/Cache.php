@@ -99,9 +99,9 @@ class Cache extends CacheAbstract
         }
 
         //TODO If driver component not loaded, throw an exception.
-         $driverObj = new $drivers[$currentDriver];
+         $driverObj = new $drivers[$currentDriver]();
          Context::setContextDataByKey(static::CONTEXT_DATA_KEY . $driver, $driverObj);
-         return Context::getContextDataByKey(static::CONTEXT_DATA_KEY . $driver);
+         return $driverObj;
     }
 
     protected function getDrivers(): array

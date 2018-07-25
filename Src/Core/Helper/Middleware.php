@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Table;
+use W7\Http\Middleware\RequestMiddleware;
 
 class Middleware
 {
@@ -21,6 +22,7 @@ class Middleware
 
     const MEMORY_CACHE_TYPE = 2;
 
+    const LAST_MIDDLER_WARE = RequestMiddleware::class;
     //1191014510910510010010810111997114101 转化32进制去掉0000000000000
     const MEMORY_CACHE_KEY = 'slgop41mg0c';
 
@@ -28,18 +30,25 @@ class Middleware
     public $cacheType = self::MEMORY_CACHE_TYPE;
 
 
+
     /**
      * @param int $cacheType
      * @param string|null $filePath
      * @param Table|null $tableObj
      */
-    public function getMiddlewares(int $cacheType, string $filePath = null, Table $tableObj = null)
+    public function getMiddlewares(Table $tableObj = null)
     {
 
         if (empty($filePath) && empty($tableObj)) {
             throw new \RuntimeException("fun args is not be empty all");
         }
         $data = $this->getMemoryCached($tableObj);
+        $server = iconfig()->getServer();
+        $beforeMiddlerwares = $server['befor_middlerware'];
+        $afterMiddlerwares  = $server['after_middlerware'];
+        $lastMiddlerware    = static::LAST_MIDDLER_WARE;
+        $data = array_merge($beforeMiddlerwares, $data, $afterMiddlerwares);
+        array_unshift($data, $lastMiddlerware);
         return $data;
     }
 
@@ -92,16 +101,15 @@ class Middleware
 
     /**
      * @param array $middlewares
-     * @return Table
+     * @return MemoryCache
      */
     protected function memoryCached(array $middlewares)
     {
         $cacheObj = new Cache();
-        $cacheObj->getDriver('memory');
         /**
          * @var MemoryCache $table
          */
-        $table = Context::getContextDataByKey(Cache::CONTEXT_DATA_KEY . "memory");
+        $table = $cacheObj->getDriver('memory');
         $middlewaresJson = json_encode($middlewares);
         $table->create();
         $table->set(self::MEMORY_CACHE_KEY, ["values"=>$middlewaresJson]);

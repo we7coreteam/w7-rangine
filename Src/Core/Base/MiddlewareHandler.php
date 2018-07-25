@@ -36,9 +36,8 @@ class MiddlewareHandler implements RequestHandlerInterface {
      * @param array $middleware
      * @param string $default
      */
-    public function __construct(array $middleware, string $hander) {
+    public function __construct(array $middleware) {
         $this->middlewares = \array_unique($middleware);
-        $this->default = $default;
     }
 
     /**
@@ -49,12 +48,8 @@ class MiddlewareHandler implements RequestHandlerInterface {
      * @throws \InvalidArgumentException
      */
     public function handle(ServerRequestInterface $request): ResponseInterface {
-        if (!empty($this->default) && empty($this->middlewares[$this->offset])) {
-            $handler = new $this->default;
-        } else {
             $handler = $this->middlewares[$this->offset];
             \is_string($handler) && $handler = new $handler;
-        }
 
         if (!$handler instanceof MiddlewareInterface) {
             throw new \InvalidArgumentException('Invalid Handler. It must be an instance of MiddlewareInterface');

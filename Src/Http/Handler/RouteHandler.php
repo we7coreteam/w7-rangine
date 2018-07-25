@@ -9,9 +9,9 @@
 namespace W7\Http\Handler;
 
 
+use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\RouteData;
-use w7\Http\Message\Server\Request;
 use w7\HttpRoute\HttpServer;
 
 class RouteHandler
@@ -23,7 +23,7 @@ class RouteHandler
     /**
      *
      */
-    public function addRoute()
+    public static function addRoute()
     {
         $routeList = [];
         $configData = RouteData::routeData();
@@ -36,10 +36,10 @@ class RouteHandler
     }
 
     /**
-     * @param Request $request
+     * @param ServerRequestInterface $request
      * @return array
      */
-    public function dispath(Request $request)
+    public static function dispath(ServerRequestInterface $request)
     {
         $httpMethod = $request->getMethod();
         $url        = $request->getUri();
