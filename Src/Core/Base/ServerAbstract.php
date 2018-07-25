@@ -11,6 +11,7 @@ use W7\App;
 use W7\Core\Exception\CommandException;
 use W7\Core\Listener\ManageServerListener;
 use W7\Core\Process\ReloadProcess;
+use W7\Http\Listener\BeforeStartListener;
 
 abstract class ServerAbstract implements ServerInterface {
 
@@ -40,7 +41,8 @@ abstract class ServerAbstract implements ServerInterface {
 	    App::$server = $this;
 
 		$setting = \iconfig()->getServer();
-
+		$beforeStatListen = new BeforeStartListener();
+		$beforeStatListen->run();
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
 		}
