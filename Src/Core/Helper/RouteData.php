@@ -11,10 +11,13 @@ namespace W7\Core\Helper;
 
 class RouteData
 {
+
+    const CONTEXT_ROUTE_CONFIG_KEY = "route-config";
     public static function middlerWareData()
     {
         $middlerwares = [];
-        $configData = iconfig()->getUserConfig("route");
+        $configData = static::getConfig();
+
         foreach ($configData as $controller => $route)
         {
             if (isset($route['common']) && empty($route['common']))
@@ -40,10 +43,21 @@ class RouteData
         return $methodMiddlewares;
     }
 
+    protected static function getConfig()
+    {
+        $configData = iconfig()->getUserConfig("route");
+        if ($configData === true){
+            $configData = Context::getContextDataByKey(static::CONTEXT_ROUTE_CONFIG_KEY);
+            return $configData;
+        }
+        Context::setContextDataByKey(static::CONTEXT_ROUTE_CONFIG_KEY, $configData);
+        return $configData;
+    }
+
     public static function routeData()
     {
         $routes = [];
-        $configData = iconfig()->getUserConfig("route");
+        $configData = static::getConfig();
         foreach ($configData as $controller => $route)
         {
             $routes = static::methodRouteData($route, $controller, $routes);
