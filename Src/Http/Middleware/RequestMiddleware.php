@@ -25,9 +25,9 @@ class RequestMiddleware extends MiddlewareAbstract {
             $routeInfo = Dispather::handler($request);
             list($controller, $method) = explode("-", $routeInfo['handler']);
             $controller = "W7\\App\\Controller\\" . ucfirst($controller) . "Controller";
-            $newRespone = Context::getResponse();
             $response =  call_user_func_array([$controller, $method], $routeInfo['funArgs']);
-            $response = $newRespone->withAttribute(AttributeEnum::RESPONSE_ATTRIBUTE, $response);
+            $response = is_array($response)?$response:(array)$response;
+            $response = Context::getResponse()->json($response);
             return $response;
         }catch (RouteNotFoundException $routeNotFoundException){
             throw new BadRequestException($routeNotFoundException->getMessage(), 403);

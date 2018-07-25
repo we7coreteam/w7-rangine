@@ -39,12 +39,11 @@ class Dispather extends DispatcherAbstract {
         $middlewareHandler = new MiddlewareHandler($middlewares);
         try {
             $response = $middlewareHandler->handle($psr7Request);
-            $psr7Response->json($response);
         }catch (\Throwable $throwable){
-            $psr7Response->json($throwable->getMessage(), $throwable->getCode());
+            $response = Context::getResponse()->json($throwable->getMessage(), $throwable->getCode());
         }
 
-        $psr7Response->send();
+        $response->send();
 
 
 	}
