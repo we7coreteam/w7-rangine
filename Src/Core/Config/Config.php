@@ -6,7 +6,9 @@
 
 namespace W7\Core\Config;
 
+use W7\Core\Listener\ManageServerListener;
 use W7\Core\Listener\TaskListener;
+use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
 
 class Config {
@@ -22,12 +24,20 @@ class Config {
 	private $event;
 	private $defaultEvent = [
 		'task' => [
-			'task' => TaskListener::class,
-			'finish' => TaskListener::class,
+			SwooleEvent::ON_TASK => TaskListener::class,
+			SwooleEvent::ON_FINISH => TaskListener::class,
 		],
 		'http' => [
-			'request' => RequestListener::class,
+			SwooleEvent::ON_REQUEST => RequestListener::class,
+		],
+		'manage' => [
+			SwooleEvent::ON_START => ManageServerListener::class,
+			SwooleEvent::ON_MANAGER_START => ManageServerListener::class,
 		]
+	];
+
+	private $process = [
+		ReloadProcess::class,
 	];
 
 
@@ -51,6 +61,16 @@ class Config {
 		}
 		$this->server = array_merge([], $this->defaultServer, $this->getUserConfig('server'));
 		return $this->server;
+	}
+
+	/**
+	 * @return array
+	 */
+	/**
+	 * @return array
+	 */
+	public function getProcess() {
+		return $this->process;
 	}
 
 	public function getUserConfig($type) {
