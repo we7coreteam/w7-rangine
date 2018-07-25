@@ -42,7 +42,7 @@ class RouteHandler
     public static function dispath(ServerRequestInterface $request)
     {
         $httpMethod = $request->getMethod();
-        $url        = $request->getUri();
+        $url        = $request->getUri()->getPath();
         $routeData = Context::getContextDataByKey(static::ROUTE_CONTEXT_KEY);
         $fastRoute = new HttpServer();
         $routeInfo = $fastRoute->dispathByData($httpMethod, $url, $routeData);
