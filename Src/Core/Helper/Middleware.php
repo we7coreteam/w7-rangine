@@ -39,16 +39,22 @@ class Middleware
         if (empty($filePath) && empty($tableObj)) {
             throw new \RuntimeException("fun args is not be empty all");
         }
-        switch ($cacheType)
-        {
-            case self::MEMORY_CACHE_TYPE:
-                $data = $this->getMemoryCached($tableObj);
-                break;
-            case self::FILE_CACHE_TYPE:
-                $data = $this->getfileCached($filePath);
-                break;
-        }
+        $data = $this->getMemoryCached($tableObj);
         return $data;
+    }
+
+    protected function formatData(array $commonMiddlewares, array $methodMiddlewares)
+    {
+        $middlewares = [];
+        foreach($commonMiddlewares as $controller=>$middleware)
+        {
+            $middlewares[$controller] = $middleware;
+        }
+        foreach($methodMiddlewares as $method=>$middleware)
+        {
+            $middlewares[$method] = $middleware;
+        }
+        return $middlewares;
     }
 
 
@@ -70,42 +76,25 @@ class Middleware
     }
 
     /**
-     * @param string $filePath
-     * @return mixed
-     */
-    protected function getfileCached(string $filePath)
-    {
-        if (!is_file($filePath)){
-            throw new \RuntimeException("file is not isset");
-        }
-        return require_once $filePath;
-    }
-    /**
      * @param array $middlewares
      * @param int $cacheType
      * @param string $filePath
      * @return bool|Table
      */
-    public function insertMiddlewareCached(array $middlewares, int $cacheType, string $filePath = null)
+    public function insertMiddlewareCached()
     {
-        switch ($cacheType)
-        {
-            case self::FILE_CACHE_TYPE:
-                $this->fileCached($middlewares, $filePath);
-                break;
-            case self::MEMORY_CACHE_TYPE:
-                $table = $this->memoryCached($middlewares);
-                return $table;
-                break;
-        }
-        return true;
+        $dataHepler  = new RouteData();
+        $middlewares = $dataHepler->middlerWareData();
+        $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
+        $table = $this->memoryCached($middlewares);
+        return $table;
     }
 
     /**
      * @param array $middlewares
      * @return Table
      */
-    public function memoryCached(array $middlewares)
+    protected function memoryCached(array $middlewares)
     {
         $table = new Table(10240);
         $middlewaresJson = json_encode($middlewares);
@@ -115,18 +104,4 @@ class Middleware
         return $table;
     }
 
-    /**
-     * @param array $middlewares
-     * @param string $filePath
-     */
-    public function fileCached(array $middlewares, string $filePath)
-    {
-        if (!is_file($filePath)){
-            throw new \RuntimeException("file is not isset");
-        }
-        file_put_contents(
-            $filePath,
-            '<?php return '. var_export($middlewares, true). ';'
-        );
-    }
 }

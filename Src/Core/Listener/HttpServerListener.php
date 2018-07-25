@@ -9,7 +9,7 @@
 //use Swoole\Http\Request;
 //use Swoole\Http\Response;
 //use W7\Http\Handler\AdapterHandler;
-//use W7\Http\Handler\RequestHandler;
+//use W7\Http\Handler\MiddlewareHandler;
 //use W7\Http\Middleware\MiddlewareProcessor;
 //use w7\HttpRoute\HttpServer;
 //
@@ -38,7 +38,7 @@
 //            $handleArray = $routeObj->dispatch($httpMethod, $url, $routeTableObj);
 //            $psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
 //            if (!empty($middlewaresConf)) {
-//                $requestHandler = new RequestHandler($middlewaresConf, '');
+//                $requestHandler = new MiddlewareHandler($middlewaresConf, '');
 //                $requestHandler->handle($psr7Request);
 //            }
 //            $handlerAdapter = new AdapterHandler();

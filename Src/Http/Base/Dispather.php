@@ -8,6 +8,7 @@ namespace W7\Http\Base;
 
 use W7\Core\Base\DispatcherInterface;
 use W7\Core\Helper\Context;
+use W7\Core\Helper\Middleware;
 use W7\Http\Middleware\MiddlewareProcessor;
 use W7\Http\Middleware\RequestMiddleware;
 
@@ -27,9 +28,9 @@ class Dispather implements DispatcherInterface {
 		Context::setResponse($psr7Response);
 
 		$routes = iconfig()->getUserConfig("route");
-		$middleObj = new MiddlewareProcessor();
 
 		//根据router配置，获取到全部中间件数据，最后附加Http组件的中间件，用于处理调用Controller
+
 	}
 
 	/**

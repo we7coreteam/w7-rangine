@@ -13,7 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class RequestHandler implements RequestHandlerInterface {
+class MiddlewareHandler implements RequestHandlerInterface {
 	/**
 	* @var array
 	*/
@@ -31,7 +31,7 @@ class RequestHandler implements RequestHandlerInterface {
     private $offset = 0;
 
     /**
-     * RequestHandler constructor.
+     * MiddlewareHandler constructor.
      *
      * @param array $middleware
      * @param string $default
