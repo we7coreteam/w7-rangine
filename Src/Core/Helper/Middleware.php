@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Table;
+use W7\Http\Middleware\RequestMiddleware;
 
 class Middleware
 {
@@ -21,6 +22,7 @@ class Middleware
 
     const MEMORY_CACHE_TYPE = 2;
 
+    const LAST_MIDDLER_WARE = RequestMiddleware::class;
     //1191014510910510010010810111997114101 转化32进制去掉0000000000000
     const MEMORY_CACHE_KEY = 'slgop41mg0c';
 
@@ -28,27 +30,40 @@ class Middleware
     public $cacheType = self::MEMORY_CACHE_TYPE;
 
 
+
     /**
      * @param int $cacheType
      * @param string|null $filePath
      * @param Table|null $tableObj
      */
-    public function getMiddlewares(int $cacheType, string $filePath = null, Table $tableObj = null)
+    public function getMiddlewares( $tableObj = null)
     {
 
         if (empty($filePath) && empty($tableObj)) {
             throw new \RuntimeException("fun args is not be empty all");
         }
-        switch ($cacheType)
-        {
-            case self::MEMORY_CACHE_TYPE:
-                $data = $this->getMemoryCached($tableObj);
-                break;
-            case self::FILE_CACHE_TYPE:
-                $data = $this->getfileCached($filePath);
-                break;
-        }
+        $data = $this->getMemoryCached($tableObj);
+        $server = iconfig()->getServer();
+        $beforeMiddlerwares = $server['befor_middlerware'];
+        $afterMiddlerwares  = $server['after_middlerware'];
+        $lastMiddlerware    = static::LAST_MIDDLER_WARE;
+        $data = array_merge($beforeMiddlerwares, $data, $afterMiddlerwares);
+        array_unshift($data, $lastMiddlerware);
         return $data;
+    }
+
+    protected function formatData(array $commonMiddlewares, array $methodMiddlewares)
+    {
+        $middlewares = [];
+        foreach($commonMiddlewares as $controller=>$middleware)
+        {
+            $middlewares[$controller] = $middleware;
+        }
+        foreach($methodMiddlewares as $method=>$middleware)
+        {
+            $middlewares[$method] = $middleware;
+        }
+        return $middlewares;
     }
 
 
@@ -56,13 +71,13 @@ class Middleware
      * @param Table $tableObj
      * @return array|mixed
      */
-    protected function getMemoryCached(Table $tableObj)
+    protected function getMemoryCached($tableObj)
     {
-        if (!($tableObj instanceof Table) || empty($tableObj)){
+        if (!is_object($tableObj) || empty($tableObj)){
             throw new \RuntimeException("tableObj is not isset");
         }
         $data = $tableObj->get(self::MEMORY_CACHE_KEY);
-        if (empty($data)){
+        if (empty($data['values'])){
             return [];
         }
         return json_decode($data['values'], true);
@@ -70,63 +85,35 @@ class Middleware
     }
 
     /**
-     * @param string $filePath
-     * @return mixed
-     */
-    protected function getfileCached(string $filePath)
-    {
-        if (!is_file($filePath)){
-            throw new \RuntimeException("file is not isset");
-        }
-        return require_once $filePath;
-    }
-    /**
      * @param array $middlewares
      * @param int $cacheType
      * @param string $filePath
      * @return bool|Table
      */
-    public function insertMiddlewareCached(array $middlewares, int $cacheType, string $filePath = null)
+    public function insertMiddlewareCached()
     {
-        switch ($cacheType)
-        {
-            case self::FILE_CACHE_TYPE:
-                $this->fileCached($middlewares, $filePath);
-                break;
-            case self::MEMORY_CACHE_TYPE:
-                $table = $this->memoryCached($middlewares);
-                return $table;
-                break;
-        }
-        return true;
-    }
-
-    /**
-     * @param array $middlewares
-     * @return Table
-     */
-    public function memoryCached(array $middlewares)
-    {
-        $table = new Table(10240);
-        $middlewaresJson = json_encode($middlewares);
-        $table->column('values', Table::TYPE_STRING, 1020);
-        $table->create();
-        $table->set(self::MEMORY_CACHE_KEY, ["values"=>$middlewaresJson]);
+        $dataHepler  = new RouteData();
+        $middlewares = $dataHepler->middlerWareData();
+        $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
+        $table = $this->memoryCached($middlewares);
         return $table;
     }
 
     /**
      * @param array $middlewares
-     * @param string $filePath
+     * @return MemoryCache
      */
-    public function fileCached(array $middlewares, string $filePath)
+    protected function memoryCached(array $middlewares)
     {
-        if (!is_file($filePath)){
-            throw new \RuntimeException("file is not isset");
-        }
-        file_put_contents(
-            $filePath,
-            '<?php return '. var_export($middlewares, true). ';'
-        );
+        $cacheObj = new Cache();
+        /**
+         * @var MemoryCache $table
+         */
+        $table = $cacheObj->getDriver('memory');
+        $middlewaresJson = json_encode($middlewares);
+        $table->create();
+        $table->set(self::MEMORY_CACHE_KEY, ["values"=>$middlewaresJson]);
+        return $table;
     }
+
 }
