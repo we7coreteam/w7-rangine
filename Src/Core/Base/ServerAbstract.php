@@ -37,17 +37,21 @@ abstract class ServerAbstract implements ServerInterface {
 	public $connection;
 
 	public function __construct() {
+
 	    App::$server = $this;
 
 		$setting = \iconfig()->getServer();
+        /**
+         * @var Middleware $middlewarehelper
+         */
+		$middlewarehelper = App::getLoader()->singleton( Middleware::class);
+		$middlewarehelper->insertMiddlewareCached();
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
 		}
 		$this->setting = array_merge([], $setting['common']);
 		$this->connection = $setting[$this->type];
 
-		$middlewarehelper = new Middleware();
-		$middlewarehelper->insertMiddlewareCached();
 	}
 
     /**
@@ -121,17 +125,17 @@ abstract class ServerAbstract implements ServerInterface {
 		return $result;
 	}
 
-	protected function registerProcesser() {
-        $processObject = new ReloadProcess();
-        if (!$processObject->check()){
-            return;
-        }
+    protected function registerProcesser() {
         $processName = iconfig()->getProcess();
         foreach ($processName as $name) {
+            $checkInfo = call_user_func([$name, "check"]);
+            if (!$checkInfo){
+                continue;
+            }
             $process = ProcessBuilder::create($name, App::$server);
             $this->server->addProcess($process);
         }
-	}
+    }
 
 	protected function registerEventListener() {
 		$event = [$this->type, 'task', 'manage'];

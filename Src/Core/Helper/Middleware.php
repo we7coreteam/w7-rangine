@@ -34,26 +34,23 @@ class Middleware
     public function setLastMiddleware(string $middlerware)
     {
         $this->lastMiddleware = $middlerware;
+        $middlewares = Context::getContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME);
+        array_unshift($middlewares, $this->lastMiddleware);
+        Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
     }
     /**
      * @param int $cacheType
      * @param string|null $filePath
      * @param Table|null $tableObj
      */
-    public function getMiddlewares( $tableObj = null)
+    public function getMiddlewares(array $middlewares)
     {
 
-        if (empty($filePath) && empty($tableObj)) {
-            throw new \RuntimeException("fun args is not be empty all");
-        }
-        $data = $this->getMemoryCached($tableObj);
-        $middlerwares = iconfig()->getUserConfig("define");
-        $beforeMiddlerwares = $middlerwares['middlerware']['befor_middlerware'];
-        $afterMiddlerwares  = $middlerwares['middlerware']['after_middlerware'];
-        $lastMiddlerware    = $this->lastMiddleware;
-        $data = array_merge($beforeMiddlerwares, $data, $afterMiddlerwares);
-        array_unshift($data, $lastMiddlerware);
-        return $data;
+        $systemMiddlerwares = iconfig()->getUserConfig("define");
+        $beforeMiddlerwares = !empty($systemMiddlerwares['middlerware']['befor_middlerware'])?$systemMiddlerwares['middlerware']['befor_middlerware']:[];
+        $afterMiddlerwares  = !empty($systemMiddlerwares['middlerware']['after_middlerware'])?$systemMiddlerwares['middlerware']['after_middlerware']:[];
+        $middlewares = array_merge($beforeMiddlerwares, $middlewares, $afterMiddlerwares);
+        return $middlewares;
     }
 
     protected function formatData(array $commonMiddlewares, array $methodMiddlewares)
@@ -61,31 +58,19 @@ class Middleware
         $middlewares = [];
         foreach($commonMiddlewares as $controller=>$middleware)
         {
+            if (empty($middlewares)){
+                continue;
+            }
             $middlewares[$controller] = $middleware;
         }
         foreach($methodMiddlewares as $method=>$middleware)
         {
+            if (empty($middleware)){
+                continue;
+            }
             $middlewares[$method] = $middleware;
         }
         return $middlewares;
-    }
-
-
-    /**
-     * @param Table $tableObj
-     * @return array|mixed
-     */
-    protected function getMemoryCached($tableObj)
-    {
-        if (!is_object($tableObj) || empty($tableObj)){
-            throw new \RuntimeException("tableObj is not isset");
-        }
-        $data = $tableObj->get(self::MEMORY_CACHE_KEY);
-        if (empty($data['values'])){
-            return [];
-        }
-        return json_decode($data['values'], true);
-
     }
 
     /**
@@ -99,24 +84,8 @@ class Middleware
         $dataHepler  = new RouteData();
         $middlewares = $dataHepler->middlerWareData();
         $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
-        Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $this->memoryCached($middlewares));
-    }
-
-    /**
-     * @param array $middlewares
-     * @return MemoryCache
-     */
-    protected function memoryCached(array $middlewares)
-    {
-        $cacheObj = new Cache();
-        /**
-         * @var MemoryCache $table
-         */
-        $table = $cacheObj->getDriver('memory');
-        $middlewaresJson = json_encode($middlewares);
-        $table->create();
-        $table->set(self::MEMORY_CACHE_KEY, ["values"=>$middlewaresJson]);
-        return $table;
+        $middlewares = $this->getMiddlewares($middlewares);
+        Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
     }
 
 }

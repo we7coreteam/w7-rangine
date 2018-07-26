@@ -1,6 +1,6 @@
 <?php
 
-namespace Swoft\Process\Bootstrap;
+namespace W7\Core\Base;
 use W7\App;
 use W7\Core\Helper\FileHelper;
 
@@ -34,7 +34,7 @@ class Reload
     public function __construct()
     {
         $pathConfig = iconfig()->getUserConfig('define');
-        $this->watchDir = $pathConfig['app'];
+        $this->watchDir = APP_PATH;
         $this->md5File = FileHelper::md5File($this->watchDir);
     }
 

@@ -10,7 +10,6 @@ use W7\Core\Base\ListenerInterface;
 use W7\Http\Handler\RouteHandler;
 
 class BeforeStartListener implements ListenerInterface {
-	public function run() {
-	    RouteHandler::addRoute();
+	public static function run() {
 	}
 }

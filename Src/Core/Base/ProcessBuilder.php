@@ -1,8 +1,7 @@
 <?php
 
 namespace W7\Core\Base;
-
-use Swoole\Coroutine;
+;
 use Swoole\Process as SwooleProcess;
 use W7\Core\Exception\ProcessException;
 
@@ -20,9 +19,9 @@ class ProcessBuilder
     /**
      * @param string $name
      *
-     * @return Process
+     * @return SwooleProcess
      */
-    public static function create(string $name, $server): Process
+    public static function create(string $name, $server): SwooleProcess
     {
         if (isset(self::$processes[$name])) {
             return self::$processes[$name];
@@ -31,10 +30,9 @@ class ProcessBuilder
         $swooleProcess = new SwooleProcess(function (SwooleProcess $swooleProcess) use ($server, $name) {
             call_user_func([$name, "run"]);
         });
-        $process = new Process($swooleProcess);
-        self::$processes[$name] = $process;
+        self::$processes[$name] = $swooleProcess;
 
-        return $process;
+        return $swooleProcess;
     }
 
 }
