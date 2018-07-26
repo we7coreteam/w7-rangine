@@ -24,5 +24,6 @@ class Event {
 	/**
 	 * 自定义事件
 	 */
-	const ON_BEFORE_START = 'beforeStart';
+	const ON_USER_BEFORE_START = 'beforeStart';
+
 }
