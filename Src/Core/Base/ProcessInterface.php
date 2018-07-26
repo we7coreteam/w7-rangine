@@ -11,7 +11,7 @@ interface ProcessInterface {
 	 * 线程具体执行内容
 	 * @return mixed
 	 */
-	public function run(Process $process);
+	public function run();
 
 	/**
 	 * 检查线程是否可以执行，TRUE执行，FALSE不执行

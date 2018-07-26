@@ -125,12 +125,9 @@ abstract class ServerAbstract implements ServerInterface {
 		return $result;
 	}
 
-	protected function registerProcesser() {
-        echo 11111111;
+    protected function registerProcesser() {
         $processName = iconfig()->getProcess();
-        var_dump($processName);
         foreach ($processName as $name) {
-            var_dump($name);
             $checkInfo = call_user_func([$name, "check"]);
             if (!$checkInfo){
                 continue;
@@ -138,7 +135,7 @@ abstract class ServerAbstract implements ServerInterface {
             $process = ProcessBuilder::create($name, App::$server);
             $this->server->addProcess($process);
         }
-	}
+    }
 
 	protected function registerEventListener() {
 		$event = [$this->type, 'task', 'manage'];
