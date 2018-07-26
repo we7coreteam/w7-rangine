@@ -42,10 +42,7 @@ class Middleware
      */
     public function getMiddlewares(array $middlewares)
     {
-
-        if (empty($filePath) && empty($tableObj)) {
-            throw new \RuntimeException("fun args is not be empty all");
-        }
+        
         $systemMiddlerwares = iconfig()->getUserConfig("define");
         $beforeMiddlerwares = $systemMiddlerwares['middlerware']['befor_middlerware'];
         $afterMiddlerwares  = $systemMiddlerwares['middlerware']['after_middlerware'];
@@ -69,24 +66,6 @@ class Middleware
         return $middlewares;
     }
 
-
-    /**
-     * @param Table $tableObj
-     * @return array|mixed
-     */
-    protected function getMemoryCached($tableObj)
-    {
-        if (!is_object($tableObj) || empty($tableObj)){
-            throw new \RuntimeException("tableObj is not isset");
-        }
-        $data = $tableObj->get(self::MEMORY_CACHE_KEY);
-        if (empty($data['values'])){
-            return [];
-        }
-        return json_decode($data['values'], true);
-
-    }
-
     /**
      * @param array $middlewares
      * @param int $cacheType
@@ -100,23 +79,6 @@ class Middleware
         $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
         $middlewares = $this->getMiddlewares($middlewares);
         Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
-    }
-
-    /**
-     * @param array $middlewares
-     * @return MemoryCache
-     */
-    protected function memoryCached(array $middlewares)
-    {
-        $cacheObj = new Cache();
-        /**
-         * @var MemoryCache $table
-         */
-        $table = $cacheObj->getDriver('memory');
-        $middlewaresJson = json_encode($middlewares);
-        $table->create();
-        $table->set(self::MEMORY_CACHE_KEY, ["values"=>$middlewaresJson]);
-        return $table;
     }
 
 }
