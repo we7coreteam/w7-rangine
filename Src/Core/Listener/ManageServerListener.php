@@ -24,4 +24,8 @@ class ManageServerListener {
 	public function onPipeMessage(Server $server, $srcWorkerId, $message) {
 
 	}
+    public static function run()
+    {
+
+    }
 }

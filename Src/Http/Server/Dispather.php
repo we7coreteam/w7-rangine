@@ -48,7 +48,7 @@ class Dispather extends DispatcherAbstract {
 	/**
 	 * 通过route信息，调用具体的Controller
 	 */
-	public static function handler(ServerRequestInterface $request) {
+	public static function getController(ServerRequestInterface $request) {
         $httpMethod = $request->getMethod();
         $url        = $request->getUri()->getPath();
         $routeData = Context::getContextDataByKey(RouteHandler::ROUTE_CONTEXT_KEY);
