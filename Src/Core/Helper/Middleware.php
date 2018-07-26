@@ -42,10 +42,10 @@ class Middleware
      */
     public function getMiddlewares(array $middlewares)
     {
-        
+
         $systemMiddlerwares = iconfig()->getUserConfig("define");
-        $beforeMiddlerwares = $systemMiddlerwares['middlerware']['befor_middlerware'];
-        $afterMiddlerwares  = $systemMiddlerwares['middlerware']['after_middlerware'];
+        $beforeMiddlerwares = !empty($systemMiddlerwares['middlerware']['befor_middlerware'])?$systemMiddlerwares['middlerware']['befor_middlerware']:[];
+        $afterMiddlerwares  = !empty($systemMiddlerwares['middlerware']['after_middlerware'])?$systemMiddlerwares['middlerware']['after_middlerware']:[];
         $lastMiddlerware    = $this->lastMiddleware;
         $middlewares = array_merge($beforeMiddlerwares, $middlewares, $afterMiddlerwares);
         array_unshift($middlewares, $lastMiddlerware);
