@@ -139,6 +139,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	protected function registerEventListener() {
 		$event = [$this->type, 'task', 'manage'];
+
 		foreach ($event as $name) {
 			$event = \iconfig()->getEvent()[$name];
 			if (!empty($event)) {
@@ -155,7 +156,7 @@ abstract class ServerAbstract implements ServerInterface {
 			if (empty($class)) {
 				continue;
 			}
-			$object = \W7\App::getLoader()->singleton($class);
+			$object = \iloader()->singleton($class);
 			$this->server->on($eventName, [$object, 'run']);
 		}
 	}
