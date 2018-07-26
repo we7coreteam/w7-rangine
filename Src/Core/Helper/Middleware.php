@@ -18,7 +18,7 @@ class Middleware
 {
 
 
-    const FILE_CACHE_TYPE = 1;
+    const MIDDLEWARE_MEMORY_TABLE_NAME = 'middleware_memory';
 
     const MEMORY_CACHE_TYPE = 2;
 
@@ -99,8 +99,7 @@ class Middleware
         $dataHepler  = new RouteData();
         $middlewares = $dataHepler->middlerWareData();
         $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
-        $table = $this->memoryCached($middlewares);
-        return $table;
+        Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $this->memoryCached($middlewares));
     }
 
     /**

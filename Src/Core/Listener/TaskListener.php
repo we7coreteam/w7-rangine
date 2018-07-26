@@ -17,8 +17,8 @@ class TaskListener {
 
 		return true;
 	}
-	public function run()
+	public static function run()
     {
-        
+
     }
 }
