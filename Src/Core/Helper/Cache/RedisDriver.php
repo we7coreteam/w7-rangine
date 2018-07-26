@@ -98,7 +98,7 @@ use W7\Core\Exception\RedisException;
  */
 class RedisDriver implements CacheInterface
 {
-    static protected $redis;
+    static protected $redis = null;
 
     /**
      * RedisDriver constructor.
