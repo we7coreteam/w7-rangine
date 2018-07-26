@@ -20,7 +20,7 @@ class RequestMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		//此处处理调用控制器操作
         try {
-            $routeInfo = Dispather::handler($request);
+            $routeInfo = Dispather::getController($request);
             list($controller, $method) = explode("-", $routeInfo['handler']);
             $controller = "W7\\App\\Controller\\" . ucfirst($controller) . "Controller";
             $response =  call_user_func_array([$controller, $method], $routeInfo['funArgs']);
