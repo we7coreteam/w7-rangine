@@ -37,21 +37,17 @@ abstract class ServerAbstract implements ServerInterface {
 	public $connection;
 
 	public function __construct() {
-
 	    App::$server = $this;
 
 		$setting = \iconfig()->getServer();
-		$beforeStatListen = new BeforeStartListener();
-		$middlewarehelper = new Middleware();
-		$middlewarehelper->insertMiddlewareCached();
-		$beforeStatListen->run();
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
 		}
 		$this->setting = array_merge([], $setting['common']);
 		$this->connection = $setting[$this->type];
 
-
+		$middlewarehelper = new Middleware();
+		$middlewarehelper->insertMiddlewareCached();
 	}
 
     /**
