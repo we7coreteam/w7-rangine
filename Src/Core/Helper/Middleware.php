@@ -34,6 +34,9 @@ class Middleware
     public function setLastMiddleware(string $middlerware)
     {
         $this->lastMiddleware = $middlerware;
+        $middlewares = Context::getContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME);
+        array_unshift($middlewares, $this->lastMiddleware);
+        Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
     }
     /**
      * @param int $cacheType
@@ -46,9 +49,7 @@ class Middleware
         $systemMiddlerwares = iconfig()->getUserConfig("define");
         $beforeMiddlerwares = !empty($systemMiddlerwares['middlerware']['befor_middlerware'])?$systemMiddlerwares['middlerware']['befor_middlerware']:[];
         $afterMiddlerwares  = !empty($systemMiddlerwares['middlerware']['after_middlerware'])?$systemMiddlerwares['middlerware']['after_middlerware']:[];
-        $lastMiddlerware    = $this->lastMiddleware;
         $middlewares = array_merge($beforeMiddlerwares, $middlewares, $afterMiddlerwares);
-        array_unshift($middlewares, $lastMiddlerware);
         return $middlewares;
     }
 
@@ -57,10 +58,16 @@ class Middleware
         $middlewares = [];
         foreach($commonMiddlewares as $controller=>$middleware)
         {
+            if (empty($middlewares)){
+                continue;
+            }
             $middlewares[$controller] = $middleware;
         }
         foreach($methodMiddlewares as $method=>$middleware)
         {
+            if (empty($middleware)){
+                continue;
+            }
             $middlewares[$method] = $middleware;
         }
         return $middlewares;

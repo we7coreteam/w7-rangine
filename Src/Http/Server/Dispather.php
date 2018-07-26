@@ -35,6 +35,8 @@ class Dispather extends DispatcherAbstract {
          * @var Middleware $middlewarehelper
          */
 
+        $middlewarehelper = iloader()->singleton(Middleware::class);
+        $middlewarehelper->setLastMiddleware($this->lastMiddleware);
         $middlewares = Context::getContextDataByKey(Middleware::MIDDLEWARE_MEMORY_TABLE_NAME);
         $middlewareHandler = new MiddlewareHandler($middlewares);
         try {
