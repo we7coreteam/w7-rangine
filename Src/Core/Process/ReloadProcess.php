@@ -8,7 +8,6 @@ namespace W7\Core\Process;
 
 use W7\App;
 use W7\Core\Base\ProcessInterface;
-use W7\Core\Base\Reload;
 use W7\Core\Helper\FileHelper;
 
 class ReloadProcess implements ProcessInterface {
@@ -59,17 +58,12 @@ class ReloadProcess implements ProcessInterface {
             sleep($this->interval);
             $md5File = FileHelper::md5File($this->watchDir);
             if (strcmp($this->md5File, $md5File) !== 0) {
-                echo "Start reloading...\n";
+                ioutputer()->writeln("Start reloading...\n");
                 $server->isRun();
                 $server->getServer()->reload();
-                echo "Reloaded\n";
+                ioutputer()->writeln("Reloaded\n");
             }
             $this->md5File = $md5File;
         }
-        /**
-         * @var Reload $reload
-         */
-        $reload = iloader()->singleton(Reload::class);
-        $reload->run();
     }
 }
