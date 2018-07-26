@@ -11,6 +11,5 @@ use W7\Http\Handler\RouteHandler;
 
 class BeforeStartListener implements ListenerInterface {
 	public static function run() {
-	    RouteHandler::addRoute();
 	}
 }
