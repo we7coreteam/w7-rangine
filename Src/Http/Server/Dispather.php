@@ -7,6 +7,7 @@
 namespace W7\Http\Server;
 
 use Psr\Http\Message\ServerRequestInterface;
+use W7\App;
 use W7\Core\Base\DispatcherAbstract;
 use W7\Core\Base\MiddlewareHandler;
 use W7\Core\Helper\Context;
@@ -30,10 +31,11 @@ class Dispather extends DispatcherAbstract {
         //根据router配置，获取到匹配的controller信息
 
 		//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
-        $middlewarehelper = new Middleware();
+        /**
+         * @var Middleware $middlewarehelper
+         */
 
-        $middlewarehelper->setLastMiddleware($this->lastMiddleware);
-        $middlewares = $middlewarehelper->getMiddlewares(Context::getContextDataByKey(Middleware::MIDDLEWARE_MEMORY_TABLE_NAME));
+        $middlewares = Context::getContextDataByKey(Middleware::MIDDLEWARE_MEMORY_TABLE_NAME);
         $middlewareHandler = new MiddlewareHandler($middlewares);
         try {
             $response = $middlewareHandler->handle($psr7Request);

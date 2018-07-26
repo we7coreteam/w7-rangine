@@ -40,20 +40,19 @@ class Middleware
      * @param string|null $filePath
      * @param Table|null $tableObj
      */
-    public function getMiddlewares( $tableObj = null)
+    public function getMiddlewares(array $middlewares)
     {
 
         if (empty($filePath) && empty($tableObj)) {
             throw new \RuntimeException("fun args is not be empty all");
         }
-        $data = $this->getMemoryCached($tableObj);
-        $middlerwares = iconfig()->getUserConfig("define");
-        $beforeMiddlerwares = $middlerwares['middlerware']['befor_middlerware'];
-        $afterMiddlerwares  = $middlerwares['middlerware']['after_middlerware'];
+        $systemMiddlerwares = iconfig()->getUserConfig("define");
+        $beforeMiddlerwares = $systemMiddlerwares['middlerware']['befor_middlerware'];
+        $afterMiddlerwares  = $systemMiddlerwares['middlerware']['after_middlerware'];
         $lastMiddlerware    = $this->lastMiddleware;
-        $data = array_merge($beforeMiddlerwares, $data, $afterMiddlerwares);
-        array_unshift($data, $lastMiddlerware);
-        return $data;
+        $middlewares = array_merge($beforeMiddlerwares, $middlewares, $afterMiddlerwares);
+        array_unshift($middlewares, $lastMiddlerware);
+        return $middlewares;
     }
 
     protected function formatData(array $commonMiddlewares, array $methodMiddlewares)
@@ -99,7 +98,8 @@ class Middleware
         $dataHepler  = new RouteData();
         $middlewares = $dataHepler->middlerWareData();
         $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
-        Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $this->memoryCached($middlewares));
+        $middlewares = $this->getMiddlewares($middlewares);
+        Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
     }
 
     /**
