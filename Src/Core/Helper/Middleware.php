@@ -47,9 +47,9 @@ class Middleware
             throw new \RuntimeException("fun args is not be empty all");
         }
         $data = $this->getMemoryCached($tableObj);
-        $server = iconfig()->getServer();
-        $beforeMiddlerwares = $server['befor_middlerware'];
-        $afterMiddlerwares  = $server['after_middlerware'];
+        $middlerwares = iconfig()->getUserConfig("define");
+        $beforeMiddlerwares = $middlerwares['middlerware']['befor_middlerware'];
+        $afterMiddlerwares  = $middlerwares['middlerware']['after_middlerware'];
         $lastMiddlerware    = $this->lastMiddleware;
         $data = array_merge($beforeMiddlerwares, $data, $afterMiddlerwares);
         array_unshift($data, $lastMiddlerware);
