@@ -19,7 +19,7 @@ class Dispather extends DispatcherAbstract {
 
 	public $lastMiddleware = \W7\Http\Middleware\RequestMiddleware::class;
 
-    const ROUTE_CONTEXT_KEY = "http-route";
+
 
 	public function dispatch(...$params) {
 		list($request, $response) = $params;
@@ -38,7 +38,6 @@ class Dispather extends DispatcherAbstract {
          */
 
         $middlewarehelper = iloader()->singleton(Middleware::class);
-        static::addRoute();
         $middlewarehelper->insertMiddlewareCached();
         $middlewarehelper->setLastMiddleware($this->lastMiddleware);
         $middlewares = Context::getContextDataByKey(Middleware::MIDDLEWARE_MEMORY_TABLE_NAME);
@@ -49,36 +48,7 @@ class Dispather extends DispatcherAbstract {
             $response = Context::getResponse()->json($throwable->getMessage(), $throwable->getCode());
         }
 
-
         $response->send();
 	}
 
-	/**
-	 * 通过route信息，调用具体的Controller
-	 */
-	public static function getController(ServerRequestInterface $request) {
-        $httpMethod = $request->getMethod();
-        $url        = $request->getUri()->getPath();
-        $routeData = Context::getContextDataByKey(static::ROUTE_CONTEXT_KEY);
-        $fastRoute = new HttpServer();
-        $routeInfo = $fastRoute->dispathByData($httpMethod, $url, $routeData);
-        return $routeInfo;
-	}
-
-
-
-    /**
-     *
-     */
-    public static function addRoute()
-    {
-        $routeList = [];
-        $configData = RouteData::routeData();
-        $fastRoute = new HttpServer();
-        foreach($configData as $httpMethod=>$routeData)
-        {
-            $routeList = array_merge_recursive($routeList ,$fastRoute->addRoute($httpMethod, $routeData));
-        }
-        Context::setContextDataByKey(static::ROUTE_CONTEXT_KEY, $routeList);
-    }
 }
