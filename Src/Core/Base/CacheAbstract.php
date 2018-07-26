@@ -11,6 +11,15 @@ namespace W7\Core\Base;
 
 use Psr\SimpleCache\CacheInterface;
 
+/**
+ * @method string|bool get($key, $default = null)
+ * @method bool delete($key)
+ * @method bool clear()
+ * @method array getMultiple($keys, $default = null)
+ * @method bool setMultiple($values, $ttl = null)
+ * @method bool deleteMultiple($keys)
+ * @method int has($key)
+ */
 abstract class CacheAbstract implements CacheInterface
 {
 
@@ -45,12 +54,5 @@ abstract class CacheAbstract implements CacheInterface
         ];
     }
     abstract public function set($key, $value ,$ttl=null);
-    public function get($key, $default = null){}
-    public function delete($key){}
-    public function clear(){}
-    public function getMultiple($key, $default = null){}
-    public function setMultiple($value, $ttl=null){}
-    public function deleteMultiple($key, $default = null){}
-    public function has($key){}
 
 }

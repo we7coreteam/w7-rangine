@@ -22,7 +22,7 @@ use W7\Core\Helper\Cache\RedisDriver;
  * @method bool deleteMultiple($keys)
  * @method int has($key)
  */
-class Cache extends CacheAbstract
+class Cache
 {
     /**
      * @var string
