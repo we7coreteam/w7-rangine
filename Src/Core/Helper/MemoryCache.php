@@ -42,7 +42,7 @@ class MemoryCache  implements TableInterface
 
     public function __construct()
     {
-        $tableConfig = iconfig()->getUserConfig("define")['cache'];
+        $tableConfig = iconfig()->getUserConfig("define")['Cache'];
         if (empty($tableConfig) || !isset($tableConfig['memory']))
         {
             throw new \InvalidArgumentException("the memory config is not has");

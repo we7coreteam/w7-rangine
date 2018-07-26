@@ -11,6 +11,7 @@ namespace W7\Core\Helper;
 
 use W7\Core\Base\CacheAbstract;
 use Psr\SimpleCache;
+use W7\Core\Helper\Cache\RedisDriver;
 
 /**
  * @method string|bool get($key, $default = null)
@@ -32,7 +33,7 @@ class Cache extends CacheAbstract
 
 
     /**
-     * Persists data in the cache, uniquely referenced by a key with an optional expiration TTL time.
+     * Persists data in the Cache, uniquely referenced by a key with an optional expiration TTL time.
      *
      * @param  string                $key   The key of the item to store.
      * @param int|double|string|bool $value The value of the item to store, must be serializable.
@@ -106,8 +107,8 @@ class Cache extends CacheAbstract
     protected function getDrivers(): array
     {
         return [
-            'memory'=>MemoryCache::class,
-            ''
+            'memory'=> MemoryCache::class,
+            'redis' => RedisDriver::class,
         ];
     }
 }
