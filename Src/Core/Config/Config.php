@@ -6,7 +6,9 @@
 
 namespace W7\Core\Config;
 
+use W7\Core\Listener\ManagerStart;
 use W7\Core\Listener\ManageServerListener;
+use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
@@ -25,14 +27,14 @@ class Config {
 	private $defaultEvent = [
 		'task' => [
 			Event::ON_TASK => TaskListener::class,
-			Event::ON_FINISH => TaskListener::class,
+			Event::ON_FINISH => '',
 		],
 		'http' => [
 			Event::ON_REQUEST => RequestListener::class,
 		],
 		'manage' => [
-			Event::ON_START => ManageServerListener::class,
-			Event::ON_MANAGER_START => ManageServerListener::class,
+			Event::ON_START => StartListener::class,
+			Event::ON_MANAGER_START => ManagerStart::class,
 		],
 	];
 

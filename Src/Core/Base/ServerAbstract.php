@@ -10,7 +10,6 @@ namespace W7\Core\Base;
 use W7\App;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\Middleware;
-use W7\Core\Listener\ManageServerListener;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\BeforeStartListener;
 
@@ -153,6 +152,9 @@ abstract class ServerAbstract implements ServerInterface {
 			return true;
 		}
 		foreach ($event as $eventName => $class) {
+			if (empty($class)) {
+				continue;
+			}
 			$object = \W7\App::getLoader()->singleton($class);
 			$this->server->on($eventName, [$object, 'run']);
 		}
