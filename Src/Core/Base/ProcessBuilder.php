@@ -22,7 +22,7 @@ class ProcessBuilder
      *
      * @return Process
      */
-    public static function create(string $name, $server): Process
+    public static function create(string $name, $server): SwooleProcess
     {
         if (isset(self::$processes[$name])) {
             return self::$processes[$name];
@@ -34,7 +34,7 @@ class ProcessBuilder
         $process = new Process($swooleProcess);
         self::$processes[$name] = $process;
 
-        return $process;
+        return $swooleProcess;
     }
 
 }

@@ -126,12 +126,15 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerProcesser() {
-        $processObject = new ReloadProcess();
-        if (!$processObject->check()){
-            return;
-        }
+        echo 11111111;
         $processName = iconfig()->getProcess();
+        var_dump($processName);
         foreach ($processName as $name) {
+            var_dump($name);
+            $checkInfo = call_user_func([$name, "check"]);
+            if (!$checkInfo){
+                continue;
+            }
             $process = ProcessBuilder::create($name, App::$server);
             $this->server->addProcess($process);
         }
