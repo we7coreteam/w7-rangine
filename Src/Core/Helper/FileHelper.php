@@ -73,4 +73,10 @@ class FileHelper
 
         return md5(implode('', $md5File));
     }
+
+    public static function cached(string $filePath, array $data)
+    {
+        $data = "<?php retrun " .var_export($data) . ";";
+        file_put_contents($filePath, $data);
+    }
 }

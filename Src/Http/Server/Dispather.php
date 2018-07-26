@@ -8,16 +8,18 @@ namespace W7\Http\Server;
 
 use Psr\Http\Message\ServerRequestInterface;
 use W7\App;
+use W7\Core\Helper\RouteData;
 use W7\Core\Base\DispatcherAbstract;
 use W7\Core\Base\MiddlewareHandler;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Middleware;
-use W7\Http\Handler\RouteHandler;
 use w7\HttpRoute\HttpServer;
 
 class Dispather extends DispatcherAbstract {
 
 	public $lastMiddleware = \W7\Http\Middleware\RequestMiddleware::class;
+
+    const ROUTE_CONTEXT_KEY = "http-route";
 
 	public function dispatch(...$params) {
 		list($request, $response) = $params;
@@ -36,7 +38,7 @@ class Dispather extends DispatcherAbstract {
          */
 
         $middlewarehelper = iloader()->singleton(Middleware::class);
-        RouteHandler::addRoute();
+        static::addRoute();
         $middlewarehelper->insertMiddlewareCached();
         $middlewarehelper->setLastMiddleware($this->lastMiddleware);
         $middlewares = Context::getContextDataByKey(Middleware::MIDDLEWARE_MEMORY_TABLE_NAME);
@@ -57,9 +59,26 @@ class Dispather extends DispatcherAbstract {
 	public static function getController(ServerRequestInterface $request) {
         $httpMethod = $request->getMethod();
         $url        = $request->getUri()->getPath();
-        $routeData = Context::getContextDataByKey(RouteHandler::ROUTE_CONTEXT_KEY);
+        $routeData = Context::getContextDataByKey(static::ROUTE_CONTEXT_KEY);
         $fastRoute = new HttpServer();
         $routeInfo = $fastRoute->dispathByData($httpMethod, $url, $routeData);
         return $routeInfo;
 	}
+
+
+
+    /**
+     *
+     */
+    public static function addRoute()
+    {
+        $routeList = [];
+        $configData = RouteData::routeData();
+        $fastRoute = new HttpServer();
+        foreach($configData as $httpMethod=>$routeData)
+        {
+            $routeList = array_merge_recursive($routeList ,$fastRoute->addRoute($httpMethod, $routeData));
+        }
+        Context::setContextDataByKey(static::ROUTE_CONTEXT_KEY, $routeList);
+    }
 }

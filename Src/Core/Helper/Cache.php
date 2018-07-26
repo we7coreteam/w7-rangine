@@ -99,8 +99,7 @@ class Cache extends CacheAbstract
         }
 
         //TODO If driver component not loaded, throw an exception.
-         $driverObj = new $drivers[$currentDriver]();
-         Context::setContextDataByKey(static::CONTEXT_DATA_KEY . $driver, $driverObj);
+         $driverObj = iloader()->singleton($drivers[$currentDriver]);
          return $driverObj;
     }
 
@@ -108,6 +107,7 @@ class Cache extends CacheAbstract
     {
         return [
             'memory'=>MemoryCache::class,
+            ''
         ];
     }
 }

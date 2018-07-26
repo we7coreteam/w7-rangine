@@ -69,24 +69,4 @@ class MiddlewareHandler implements RequestHandlerInterface {
         return $clone;
     }
 
-    /**
-     * Insert middlewares to the next position
-     *
-     * @param array $middlewares
-     * @param null $offset
-     * @return $this
-     */
-    public function insertMiddlewares(array $middlewares, $offset = null) {
-        null === $offset && $offset = $this->offset;
-        $chunkArray = array_chunk($this->middlewares, $offset);
-        $after = [];
-        $before = $chunkArray[0];
-        if (isset($chunkArray[1])) {
-            $after = $chunkArray[1];
-        }
-        $middlewares = array_merge((array)$before, $middlewares, (array)$after);
-        $this->middlewares = $middlewares;
-        return $this;
-    }
-
 }

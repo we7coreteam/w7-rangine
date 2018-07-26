@@ -41,11 +41,6 @@ abstract class ServerAbstract implements ServerInterface {
 	    App::$server = $this;
 
 		$setting = \iconfig()->getServer();
-        /**
-         * @var Middleware $middlewarehelper
-         */
-		$middlewarehelper = App::getLoader()->singleton( Middleware::class);
-		$middlewarehelper->insertMiddlewareCached();
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
 		}
