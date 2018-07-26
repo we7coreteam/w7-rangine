@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Table;
+use w7\Http\Message\Server\Request;
 use W7\Http\Middleware\RequestMiddleware;
 
 class Middleware
@@ -30,20 +31,38 @@ class Middleware
     public $cacheType = self::MEMORY_CACHE_TYPE;
 
 
-
-    public function setLastMiddleware(string $middlerware)
+    /**
+     * @param string $middlerware
+     * @param array $dispather
+     * @return array
+     */
+    public function setLastMiddleware(string $middlerware, array $handler)
     {
         $this->lastMiddleware = $middlerware;
-        $middlewares = Context::getContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME);
+        $middlewares = $this->findMiddlewaresByDispather($handler);
         array_unshift($middlewares, $this->lastMiddleware);
-        Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
+        return $middlewares;
+    }
+
+    protected function findMiddlewaresByDispather(array $handler)
+    {
+        $result = [];
+        $middlewares = Context::getShareContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME);
+        $controllerMiddlerwares = !empty($middlewares[$handler['middlerware_key']])?$middlewares[$handler['middlerware_key']]:[];
+        foreach ($controllerMiddlerwares as $method => $middlerware)
+        {
+            if (strstr($method, $handler['method'])|| $method == "default") {
+                $result = array_merge($result,$controllerMiddlerwares[$method]);
+            }
+        }
+        return $result;
     }
     /**
      * @param int $cacheType
      * @param string|null $filePath
      * @param Table|null $tableObj
      */
-    public function getMiddlewares(array $middlewares)
+    public static function getMiddlewares(array $middlewares)
     {
 
         $systemMiddlerwares = iconfig()->getUserConfig("define");
@@ -53,22 +72,22 @@ class Middleware
         return $middlewares;
     }
 
-    protected function formatData(array $commonMiddlewares, array $methodMiddlewares)
+    protected  static function formatData(array $commonMiddlewares, array $methodMiddlewares)
     {
         $middlewares = [];
         foreach($commonMiddlewares as $controller=>$middleware)
         {
-            if (empty($middlewares)){
+            if (empty($middleware)){
                 continue;
             }
-            $middlewares[$controller] = $middleware;
+            $middlewares[$controller]['default'] = $middleware;
         }
         foreach($methodMiddlewares as $method=>$middleware)
         {
             if (empty($middleware)){
                 continue;
             }
-            $middlewares[$method] = $middleware;
+            $middlewares[$controller][$method] = $middleware;
         }
         return $middlewares;
     }
@@ -79,13 +98,13 @@ class Middleware
      * @param string $filePath
      * @return bool|Table
      */
-    public function insertMiddlewareCached()
+    public static function insertMiddlewareCached()
     {
         $dataHepler  = new RouteData();
         $middlewares = $dataHepler->middlerWareData();
-        $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
-        $middlewares = $this->getMiddlewares($middlewares);
-        Context::setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
+        $middlewares = static::formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
+        $middlewares = static::getMiddlewares($middlewares);
+        Context::setShareContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
     }
 
 }

@@ -10,6 +10,7 @@ namespace W7\Core\Helper\Cache;
 
 
 use Psr\SimpleCache\CacheInterface;
+use Swoole\Coroutine\Redis;
 use W7\Core\Exception\RedisException;
 
 /**
@@ -95,7 +96,7 @@ use W7\Core\Exception\RedisException;
  * @method string getLastError()
  * @method bool clearLastError()
  */
-class RedisDriver implements CacheInterface
+class RedisCoroutineDriver implements CacheInterface
 {
     static protected $redis = null;
 
@@ -105,7 +106,7 @@ class RedisDriver implements CacheInterface
      */
     public function __construct()
     {
-        if (static::$redis instanceof \Redis){
+        if (static::$redis instanceof Redis){
             return static::$redis;
         }
         $defineConf = iconfig()->getUserConfig("define");
@@ -117,7 +118,7 @@ class RedisDriver implements CacheInterface
         /**
          * @var Redis static::$redis
          */
-        static::$redis = new \Redis();
+        static::$redis = new Redis();
         static::$redis->connect($host, $port);
         if (isset($config['auth']) && false === static::$redis->auth($redisConf['auth'])) {
             $error = sprintf('Redis connection authentication failed host=%s port=%d auth=%s', $host, (int)$port, (string)$redisConf['auth']);

@@ -114,6 +114,41 @@ class Context {
 		return $default;
 	}
 
+    /**
+     * Update share context data by key
+     *
+     * @param string $key
+     * @param mixed $val
+     */
+    public static function setShareContextDataByKey(string $key, $val) {
+        /**
+         * @var Cache $cacheObj
+         */
+        $cacheObj = iloader()->singleton(Cache::class);
+        if (is_string($val)) {
+            $cacheObj->set($key, $val);
+        }else{
+            $cacheObj->set($key, json_encode($val));
+        }
+    }
+
+    /**
+     * Get share context data by key
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+	public static function getShareContextDataByKey(string $key, $default = null) {
+        /**
+         * @var Cache $cacheObj
+         */
+	    $cacheObj = iloader()->singleton(Cache::class);
+        $default = $cacheObj->get($key);
+        $default = json_decode($default, true);
+        return $default;
+    }
+
 	/**
 	 * Destroy all current coroutine context data
 	 */

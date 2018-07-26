@@ -20,7 +20,7 @@ class RouteData
 
         foreach ($configData as $controller => $route)
         {
-            if (isset($route['common']) && empty($route['common']))
+            if (isset($route['common']) && !empty($route['common']))
             {
                 $middlerwares['controller_midllerware'][$controller] = $route['common'];
             }

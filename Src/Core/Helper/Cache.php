@@ -11,6 +11,7 @@ namespace W7\Core\Helper;
 
 use W7\Core\Base\CacheAbstract;
 use Psr\SimpleCache;
+use W7\Core\Helper\Cache\RedisCoroutineDriver;
 use W7\Core\Helper\Cache\RedisDriver;
 
 /**
@@ -94,6 +95,7 @@ class Cache
     public function getDriver(string $driver = null)
     {
         $currentDriver = $driver ?? $this->driver;
+        $this->driver  = $currentDriver;
         $drivers = $this->getDrivers();
         if (! isset($drivers[$currentDriver])) {
             throw new \InvalidArgumentException(sprintf('Driver %s not exist', $currentDriver));
@@ -108,6 +110,7 @@ class Cache
     {
         return [
             'memory'=> MemoryCache::class,
+            'rediscoroutine' => RedisCoroutineDriver::class,
             'redis' => RedisDriver::class,
         ];
     }
