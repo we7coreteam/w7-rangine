@@ -9,6 +9,7 @@ namespace W7\Core\Process;
 use W7\App;
 use W7\Core\Base\ProcessInterface;
 use W7\Core\Base\Reload;
+use W7\Core\Helper\FileHelper;
 
 class ReloadProcess implements ProcessInterface {
 
@@ -38,7 +39,7 @@ class ReloadProcess implements ProcessInterface {
      */
     public function __construct()
     {
-        $pathConfig = iconfig()->getUserConfig('define');
+        iconfig()->getUserConfig('define');
         $this->watchDir = APP_PATH;
         $this->md5File = FileHelper::md5File($this->watchDir);
     }
@@ -53,8 +54,18 @@ class ReloadProcess implements ProcessInterface {
 
     public function run()
     {
-        $pname = App::$server->getPname();
-        $processName = sprintf('%s reload process', $pname);
+        $server = App::$server;
+        while (true) {
+            sleep($this->interval);
+            $md5File = FileHelper::md5File($this->watchDir);
+            if (strcmp($this->md5File, $md5File) !== 0) {
+                echo "Start reloading...\n";
+                $server->isRun();
+                $server->getServer()->reload();
+                echo "Reloaded\n";
+            }
+            $this->md5File = $md5File;
+        }
         /**
          * @var Reload $reload
          */

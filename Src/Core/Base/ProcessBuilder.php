@@ -1,9 +1,7 @@
 <?php
 
 namespace W7\Core\Base;
-;
 use Swoole\Process as SwooleProcess;
-use W7\Core\Exception\ProcessException;
 
 
 /**
@@ -28,7 +26,8 @@ class ProcessBuilder
         }
 
         $swooleProcess = new SwooleProcess(function (SwooleProcess $swooleProcess) use ($server, $name) {
-            call_user_func([$name, "run"]);
+            $processe = iloader()->singleton($name);
+            $processe->run();
         });
         self::$processes[$name] = $swooleProcess;
 

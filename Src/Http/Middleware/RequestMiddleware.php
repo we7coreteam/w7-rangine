@@ -13,7 +13,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use W7\Core\Base\MiddlewareAbstract;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\RouteData;
-use W7\Http\Server\Dispather;
 use w7\HttpRoute\Exception\BadRequestException;
 use w7\HttpRoute\Exception\RouteNotFoundException;
 use w7\HttpRoute\HttpServer;
@@ -26,8 +25,8 @@ class RequestMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		//此处处理调用控制器操作
         try {
-            static::addRoute();
-            $dispather = static::getController($request);
+            $this->addRoute();
+            $dispather = $this->getController($request);
             list($controller, $funArgs) = $dispather;
             $response =  call_user_func_array($controller, $funArgs);
             $response = is_array($response)?$response:(array)$response;
@@ -44,7 +43,7 @@ class RequestMiddleware extends MiddlewareAbstract {
     /**
      * 通过route信息，调用具体的Controller
      */
-    public static function getController(ServerRequestInterface $request) {
+    public function getController(ServerRequestInterface $request) {
         $httpMethod = $request->getMethod();
         $url        = $request->getUri()->getPath();
         $routeData = Context::getContextDataByKey(static::ROUTE_CONTEXT_KEY);
@@ -62,7 +61,7 @@ class RequestMiddleware extends MiddlewareAbstract {
     /**
      *
      */
-    public static function addRoute()
+    public function addRoute()
     {
         $routeList = [];
         $configData = RouteData::routeData();
