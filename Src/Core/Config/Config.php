@@ -6,6 +6,7 @@
 
 namespace W7\Core\Config;
 
+use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStart;
 use W7\Core\Listener\ManageServerListener;
 use W7\Core\Listener\StartListener;
@@ -27,7 +28,7 @@ class Config {
 	private $defaultEvent = [
 		'task' => [
 			Event::ON_TASK => TaskListener::class,
-			Event::ON_FINISH => '',
+			Event::ON_FINISH => FinishListener::class,
 		],
 		'http' => [
 			Event::ON_REQUEST => RequestListener::class,
@@ -50,7 +51,7 @@ class Config {
 		if (!empty($this->event)) {
 			return $this->event;
 		}
-		$this->event = array_merge([], $this->defaultEvent, $this->getUserConfig('event'));
+		$this->event = array_merge([], $this->defaultEvent, $this->getUserCommonConfig('event'));
 		return $this->event;
 	}
 
@@ -81,5 +82,14 @@ class Config {
 			$appConfig = include $appConfigFile;
 		}
 		return $appConfig;
+	}
+
+	public function getUserCommonConfig($name) {
+		$commonConfig = $this->getUserConfig('define');
+		if (isset($commonConfig[$name])) {
+			return $commonConfig[$name];
+		} else {
+			return [];
+		}
 	}
 }
