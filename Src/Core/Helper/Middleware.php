@@ -24,6 +24,8 @@ class Middleware
     const MEMORY_CACHE_TYPE = 2;
 
     protected $lastMiddleware;
+
+
     //1191014510910510010010810111997114101 转化32进制去掉0000000000000
     const MEMORY_CACHE_KEY = 'slgop41mg0c';
 
@@ -44,6 +46,11 @@ class Middleware
         return $middlewares;
     }
 
+    /**
+     * @param array $handler
+     * @param array $middlewares
+     * @return array
+     */
     protected function findMiddlewaresByDispather(array $handler , array $middlewares)
     {
         $result = [];
@@ -71,6 +78,11 @@ class Middleware
         return $middlewares;
     }
 
+    /**
+     * @param array $commonMiddlewares
+     * @param array $methodMiddlewares
+     * @return array
+     */
     protected function formatData(array $commonMiddlewares, array $methodMiddlewares)
     {
         $middlewares = [];

@@ -7,13 +7,10 @@
 namespace W7\Http\Server;
 
 use Psr\Http\Message\ServerRequestInterface;
-use W7\App;
-use W7\Core\Helper\RouteData;
 use W7\Core\Base\DispatcherAbstract;
 use W7\Core\Base\MiddlewareHandler;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Middleware;
-use W7\Http\Middleware\RequestMiddleware;
 use w7\HttpRoute\HttpServer;
 
 class Dispather extends DispatcherAbstract {
@@ -44,7 +41,7 @@ class Dispather extends DispatcherAbstract {
          */
 
         $middlewarehelper = iloader()->singleton(Middleware::class);
-        $dispather  = static::getController($psr7Request, $serverContext);
+        $dispather  = $this->getController($psr7Request, $serverContext);
         $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $dispather['handler'], $serverContext[Middleware::MIDDLEWARE_MEMORY_TABLE_NAME]);
         unset($dispather['handler']['middlerware_key']);
         $psr7Request = $psr7Request->withAddedHeader("dispather", json_encode($dispather));
@@ -61,7 +58,7 @@ class Dispather extends DispatcherAbstract {
     /**
      * 通过route信息，调用具体的Controller
      */
-    public static function getController(ServerRequestInterface $request, array $serverContext) {
+    public function getController(ServerRequestInterface $request, array $serverContext) {
         $httpMethod = $request->getMethod();
         $url        = $request->getUri()->getPath();
         $routeData = $serverContext[static::ROUTE_CONTEXT_KEY];

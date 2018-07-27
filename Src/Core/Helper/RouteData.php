@@ -13,10 +13,15 @@ class RouteData
 {
 
     const CONTEXT_ROUTE_CONFIG_KEY = "route-config";
-    public static function middlerWareData()
+
+
+    /**
+     * @return array
+     */
+    public function middlerWareData()
     {
         $middlerwares = [];
-        $configData = static::getConfig();
+        $configData = $this->getConfig();
 
         foreach ($configData as $controller => $route)
         {
@@ -24,13 +29,18 @@ class RouteData
             {
                 $middlerwares['controller_midllerware'][$controller] = $route['common'];
             }
-            $middlerwares['method_middlerware'] = static::methodMiddlerWare($route, $controller);
+            $middlerwares['method_middlerware'] = $this->methodMiddlerWare($route, $controller);
 
         }
         return $middlerwares;
     }
 
-    protected static function methodMiddlerWare($routeData, $controller)
+    /**
+     * @param $routeData
+     * @param $controller
+     * @return array
+     */
+    protected function methodMiddlerWare($routeData, $controller)
     {
         $methodMiddlewares = [];
         foreach ($routeData as $method=>$data)
@@ -43,29 +53,40 @@ class RouteData
         return $methodMiddlewares;
     }
 
-    protected static function getConfig()
+    /**
+     * @return mixed
+     */
+    protected function getConfig()
     {
         $configData = iconfig()->getUserConfig("route");
+        /**
+         * @var Context $contextOBj
+         */
+        $contextOBj = iloader()->singleton(Context::class);
         if ($configData === true){
-            $configData = Context::getContextDataByKey(static::CONTEXT_ROUTE_CONFIG_KEY);
+
+            $contextOBj->getContextDataByKey(static::CONTEXT_ROUTE_CONFIG_KEY);
             return $configData;
         }
-        Context::setContextDataByKey(static::CONTEXT_ROUTE_CONFIG_KEY, $configData);
+       $contextOBj->setContextDataByKey(static::CONTEXT_ROUTE_CONFIG_KEY, $configData);
         return $configData;
     }
 
-    public static function routeData()
+    /**
+     * @return array|mixed
+     */
+    public  function routeData()
     {
         $routes = [];
-        $configData = static::getConfig();
+        $configData = $this->getConfig();
         foreach ($configData as $controller => $route)
         {
-            $routes = static::methodRouteData($route, $controller, $routes);
+            $routes = $this->methodRouteData($route, $controller, $routes);
         }
         return $routes;
     }
 
-    protected static function methodRouteData($routeData, $controller, $routes)
+    protected function methodRouteData($routeData, $controller, $routes)
     {
         foreach ($routeData as $method=>$data)
         {
