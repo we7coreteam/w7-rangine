@@ -4,6 +4,8 @@
  * @date 18-7-19 上午10:49
  */
 
+use Swoole\Coroutine;
+
 if (!function_exists('getApp')) {
 	/**
 	 * 获取加载器
@@ -59,5 +61,16 @@ if (!function_exists('isMac')) {
      function isMac(): bool
     {
         return \stripos(PHP_OS, 'Darwin') !== false;
+    }
+}
+if (!function_exists('isCo'))
+{
+    /**
+     * 是否是在协成
+     * @return bool
+     */
+    function isCo():bool
+    {
+        return Coroutine::getuid()>0;
     }
 }

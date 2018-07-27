@@ -2,16 +2,14 @@
 /**
  * Created by PhpStorm.
  * User: alex
- * Date: 18-7-26
- * Time: 下午3:27
+ * Date: 18-7-27
+ * Time: 上午9:33
  */
 
 namespace W7\Core\Helper\Cache;
 
 
 use Psr\SimpleCache\CacheInterface;
-use Swoole\Coroutine\Redis;
-use W7\Core\Exception\RedisException;
 
 /**
  * Redis
@@ -96,9 +94,15 @@ use W7\Core\Exception\RedisException;
  * @method string getLastError()
  * @method bool clearLastError()
  */
-class RedisCoroutineDriver implements CacheInterface
+class AbstractRedisDriver implements CacheInterface
 {
+
+
+    protected $prefix;
+
     static protected $redis = null;
+
+    protected $defineConf;
 
     /**
      * RedisDriver constructor.
@@ -106,37 +110,36 @@ class RedisCoroutineDriver implements CacheInterface
      */
     public function __construct()
     {
-        if (static::$redis instanceof Redis){
-            return static::$redis;
-        }
-        $defineConf = iconfig()->getUserConfig("define");
-        $redisConfUrl  = $defineConf['cache']['redis']['url'];
-        $timeout = $defineConf['cache']['redis']['timeout'];
-        $redisConf = $this->parseUri($redisConfUrl);
-        $host = $redisConf['host'];
-        $port = (int)$redisConf['port'];
-        /**
-         * @var Redis static::$redis
-         */
-        static::$redis = new Redis();
-        static::$redis->connect($host, $port);
-        if (isset($config['auth']) && false === static::$redis->auth($redisConf['auth'])) {
-            $error = sprintf('Redis connection authentication failed host=%s port=%d auth=%s', $host, (int)$port, (string)$redisConf['auth']);
-            throw new RedisException($error);
-        }
-
-        if (isset($config['database']) && $redisConf['database'] < 16 && false === static::$redis->select($redisConf['database'])) {
-            $error = sprintf('Redis selection database failure host=%s port=%d database=%d', $host, (int)$port, (int)$redisConf['database']);
-            throw new RedisException($error);
-        }
-
-        if (!static::$redis){
-            $error = sprintf('Redis connection failure host=%s port=%d', $host, $port);
-            throw new RedisException($error);
-        }
-        return static::$redis;
+        throw new \RedisException("redis driver select wrong");
     }
 
+
+    public function setPrefix()
+    {
+        $prefix = $this->getPrefix();
+        if (!empty($prefix) && is_string($prefix)){
+            static::$redis->setOption(\Redis::OPT_PREFIX, $prefix);
+        }
+    }
+    /**
+     *
+     */
+    protected function getDefineConf()
+    {
+        $this->defineConf = iconfig()->getUserConfig("define");
+    }
+
+
+    public function getPrefix()
+    {
+        if (empty($this->defineConf)){
+            return null;
+        }
+        if (!isset($this->defineConf['prefix']) || empty($this->defineConf['prefix'])){
+            return null;
+        }
+        return $this->defineConf['prefix'];
+    }
 
     /**
      * @param string $uri
@@ -347,7 +350,7 @@ class RedisCoroutineDriver implements CacheInterface
      *
      * @return mixed
      */
-    private function call(string $method, array $params)
+    protected function call(string $method, array $params)
     {
         $result     = static::$redis->$method(...$params);
 
@@ -365,6 +368,5 @@ class RedisCoroutineDriver implements CacheInterface
     {
         return ($ttl === null) ? 0 : (int)$ttl;
     }
-
 
 }

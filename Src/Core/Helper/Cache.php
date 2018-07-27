@@ -11,8 +11,9 @@ namespace W7\Core\Helper;
 
 use W7\Core\Base\CacheAbstract;
 use Psr\SimpleCache;
-use W7\Core\Helper\Cache\RedisCoroutineDriver;
-use W7\Core\Helper\Cache\RedisDriver;
+use W7\Core\Helper\Cache\Redis\RedisCoroutineDriver;
+use W7\Core\Helper\Cache\Redis\RedisDriver;
+use W7\Core\Helper\Cache\Redis\SyncRedisDriver;
 
 /**
  * @method string|bool get($key, $default = null)
@@ -100,18 +101,27 @@ class Cache
         if (! isset($drivers[$currentDriver])) {
             throw new \InvalidArgumentException(sprintf('Driver %s not exist', $currentDriver));
         }
-
         //TODO If driver component not loaded, throw an exception.
-         $driverObj = iloader()->singleton($drivers[$currentDriver]);
+        if (isCo()) {
+            $driverObj = iloader()->singleton($drivers[$currentDriver]['co']);
+        }else{
+            $driverObj = iloader()->singleton($drivers[$currentDriver]['sync']);
+        }
          return $driverObj;
     }
 
+    /**
+     * @return array
+     */
     protected function getDrivers(): array
     {
         return [
             'memory'=> MemoryCache::class,
-            'rediscoroutine' => RedisCoroutineDriver::class,
-            'redis' => RedisDriver::class,
+            'redis' => [
+                "co" => RedisCoroutineDriver::class,
+//                "sync" => SyncRedisDriver::class,
+                "sync" => RedisDriver::class,
+            ],
         ];
     }
 }
