@@ -36,18 +36,17 @@ class Middleware
      * @param array $dispather
      * @return array
      */
-    public function setLastMiddleware(string $middlerware, array $handler)
+    public function setLastMiddleware(string $middlerware, array $handler, array $middlewares)
     {
         $this->lastMiddleware = $middlerware;
-        $middlewares = $this->findMiddlewaresByDispather($handler);
+        $middlewares = $this->findMiddlewaresByDispather($handler, $middlewares);
         array_unshift($middlewares, $this->lastMiddleware);
         return $middlewares;
     }
 
-    protected function findMiddlewaresByDispather(array $handler)
+    protected function findMiddlewaresByDispather(array $handler , array $middlewares)
     {
         $result = [];
-        $middlewares = Context::getShareContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME);
         $controllerMiddlerwares = !empty($middlewares[$handler['middlerware_key']])?$middlewares[$handler['middlerware_key']]:[];
         foreach ($controllerMiddlerwares as $method => $middlerware)
         {
@@ -104,7 +103,11 @@ class Middleware
         $middlewares = $dataHepler->middlerWareData();
         $middlewares = static::formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
         $middlewares = static::getMiddlewares($middlewares);
-        Context::setShareContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
+        /**
+         * @var Context $contextObj
+         */
+        $contextObj  = iloader()->singleton(Context::class);
+        $contextObj->setContextDataByKey(static::MIDDLEWARE_MEMORY_TABLE_NAME, $middlewares);
     }
 
 }

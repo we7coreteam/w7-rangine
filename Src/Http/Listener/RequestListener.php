@@ -9,7 +9,10 @@ namespace W7\Http\Listener;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
+use W7\App;
 use W7\Core\Base\ListenerInterface;
+use W7\Core\Helper\Context;
+use W7\Core\Helper\Middleware;
 
 class RequestListener implements ListenerInterface {
 	/**
@@ -19,12 +22,16 @@ class RequestListener implements ListenerInterface {
 	 * @throws \ReflectionException
 	 */
 	public function run(Server $server, Request $request,Response $response) {
-		print_r($server);
+
+        /**
+         * @var Context $serverContext
+         */
+        $serverContext = $server->context;
 		/**
 		 * @var \W7\Http\Server\Dispather $dispather
 		 */
 		$dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
-		$dispather->dispatch($request, $response);
+		$dispather->dispatch($request, $response, $serverContext);
 	}
 
 }

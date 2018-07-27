@@ -40,8 +40,7 @@ abstract class ServerAbstract implements ServerInterface {
 	public function __construct() {
 
 	    App::$server = $this;
-
-	    //Middleware::insertMiddlewareCached();
+	    
 		$setting = \iconfig()->getServer();
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
@@ -136,7 +135,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	protected function registerEventListener() {
 		$event = [$this->type, 'task', 'manage'];
-
+		
 		foreach ($event as $name) {
 			$event = \iconfig()->getEvent()[$name];
 			if (!empty($event)) {

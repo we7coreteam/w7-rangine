@@ -35,21 +35,21 @@ class Context {
 	/**
 	 * @return \Psr\Http\Message\ServerRequestInterface|null
 	 */
-	public static function getRequest() {
+	public  function getRequest() {
 		return self::getCoroutineContext(self::REQUEST_KEY);
 	}
 
 	/**
 	 * @return Response|null
 	 */
-	public static function getResponse() {
+	public  function getResponse() {
 		return self::getCoroutineContext(self::RESPONSE_KEY);
 	}
 
 	/**
 	 * @return array|null
 	 */
-	public static function getContextData() {
+	public  function getContextData() {
 		return self::getCoroutineContext(self::DATA_KEY);
 	}
 
@@ -58,7 +58,7 @@ class Context {
 	 *
 	 * @param RequestInterface $request
 	 */
-	public static function setRequest(RequestInterface $request) {
+	public  function setRequest(RequestInterface $request) {
 		$coroutineId = self::getCoroutineId();
 		self::$context[$coroutineId][self::REQUEST_KEY] = $request;
 	}
@@ -68,7 +68,7 @@ class Context {
 	 *
 	 * @param ResponseInterface $response
 	 */
-	public static function setResponse(ResponseInterface $response) {
+	public  function setResponse(ResponseInterface $response) {
 		$coroutineId = self::getCoroutineId();
 		self::$context[$coroutineId][self::RESPONSE_KEY] = $response;
 	}
@@ -78,7 +78,7 @@ class Context {
 	 *
 	 * @param array $contextData
 	 */
-	public static function setContextData(array $contextData = []) {
+	public  function setContextData(array $contextData = []) {
 		$existContext = [];
 		$coroutineId = self::getCoroutineId();
 		if (isset(self::$context[$coroutineId][self::DATA_KEY])) {
@@ -93,7 +93,7 @@ class Context {
 	 * @param string $key
 	 * @param mixed $val
 	 */
-	public static function setContextDataByKey(string $key, $val) {
+	public  function setContextDataByKey(string $key, $val) {
 		$coroutineId = self::getCoroutineId();
 		self::$context[$coroutineId][self::DATA_KEY][$key] = $val;
 	}
@@ -105,7 +105,7 @@ class Context {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public static function getContextDataByKey(string $key, $default = null) {
+	public  function getContextDataByKey(string $key, $default = null) {
 		$coroutineId = self::getCoroutineId();
 		if (isset(self::$context[$coroutineId][self::DATA_KEY][$key])) {
 			return self::$context[$coroutineId][self::DATA_KEY][$key];
@@ -120,7 +120,7 @@ class Context {
      * @param string $key
      * @param mixed $val
      */
-    public static function setShareContextDataByKey(string $key, $val) {
+    public  function setShareContextDataByKey(string $key, $val) {
         /**
          * @var Cache $cacheObj
          */
@@ -139,7 +139,7 @@ class Context {
      * @param mixed $default
      * @return mixed
      */
-	public static function getShareContextDataByKey(string $key, $default = null) {
+	public  function getShareContextDataByKey(string $key, $default = null) {
         /**
          * @var Cache $cacheObj
          */
@@ -152,7 +152,7 @@ class Context {
 	/**
 	 * Destroy all current coroutine context data
 	 */
-	public static function destroy() {
+	public  function destroy() {
 		$coroutineId = self::getCoroutineId();
 		if (isset(self::$context[$coroutineId])) {
 			unset(self::$context[$coroutineId]);
@@ -165,7 +165,7 @@ class Context {
 	 * @param string $key key of context
 	 * @return mixed|null
 	 */
-	private static function getCoroutineContext(string $key) {
+	private  function getCoroutineContext(string $key) {
 		$coroutineId = self::getCoroutineId();
 		if (!isset(self::$context[$coroutineId])) {
 			return null;
@@ -183,7 +183,7 @@ class Context {
 	 *
 	 * @return int|null Return null when in non-coroutine context
 	 */
-	private static function getCoroutineId() {
+	private  function getCoroutineId() {
 		return Coroutine::getuid();
 	}
 }

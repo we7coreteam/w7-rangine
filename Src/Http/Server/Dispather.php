@@ -24,12 +24,18 @@ class Dispather extends DispatcherAbstract {
 
 	public function dispatch(...$params) {
 		list($request, $response) = $params;
-
+		$request       = $params[0];
+        $response      = $params[1];
+		$serverContext = $params[2];
 		$psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
         $psr7Response = new \w7\Http\Message\Server\Response($response);
+        /**
+         * @var Context $contextObj
+         */
+        $contextObj = iloader()->singleton(Context::class);
 
-		Context::setRequest($psr7Request);
-        Context::setResponse($psr7Response);
+		$contextObj->setRequest($psr7Request);
+        $contextObj->setResponse($psr7Response);
 
         //根据router配置，获取到匹配的controller信息
 
@@ -39,41 +45,27 @@ class Dispather extends DispatcherAbstract {
          */
 
         $middlewarehelper = iloader()->singleton(Middleware::class);
-        $dispather  = static::getController($psr7Request);
-        $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $dispather['handler']);
+        $dispather  = static::getController($psr7Request, $serverContext);
+        $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $dispather['handler'], $serverContext[Middleware::MIDDLEWARE_MEMORY_TABLE_NAME]);
         unset($dispather['handler']['middlerware_key']);
         $psr7Request = $psr7Request->withAddedHeader("dispather", json_encode($dispather));
         $middlewareHandler = new MiddlewareHandler($middlewares);
         try {
             $response = $middlewareHandler->handle($psr7Request);
         }catch (\Throwable $throwable){
-            $response = Context::getResponse()->json($throwable->getMessage(), $throwable->getCode());
+            $response = $contextObj->getResponse()->json($throwable->getMessage(), $throwable->getCode());
         }
 
         $response->send();
 	}
-
-    /**
-     *
-     */
-    public static function addRoute()
-    {
-        $routeList = [];
-        $configData = RouteData::routeData();
-        $fastRoute = new HttpServer();
-        foreach($configData as $httpMethod=>$routeData)
-        {
-            $routeList = array_merge_recursive($routeList ,$fastRoute->addRoute($httpMethod, $routeData));
-        }
-        Context::setShareContextDataByKey(static::ROUTE_CONTEXT_KEY, $routeList);
-    }
+	
     /**
      * 通过route信息，调用具体的Controller
      */
-    public static function getController(ServerRequestInterface $request) {
+    public static function getController(ServerRequestInterface $request, array $serverContext) {
         $httpMethod = $request->getMethod();
         $url        = $request->getUri()->getPath();
-        $routeData = Context::getShareContextDataByKey(static::ROUTE_CONTEXT_KEY);
+        $routeData = $serverContext[static::ROUTE_CONTEXT_KEY];
         $fastRoute = new HttpServer();
         $routeInfo = $fastRoute->dispathByData($httpMethod, $url, $routeData);
         list($controller, $method) = explode("-", $routeInfo['handler']);
