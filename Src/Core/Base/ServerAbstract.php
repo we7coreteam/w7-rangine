@@ -8,6 +8,7 @@
 namespace W7\Core\Base;
 
 use W7\App;
+use W7\Core\Config\Event;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\Middleware;
 use W7\Core\Process\ReloadProcess;
@@ -40,7 +41,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	    App::$server = $this;
 
-	    Middleware::insertMiddlewareCached();
+	    //Middleware::insertMiddlewareCached();
 		$setting = \iconfig()->getServer();
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
@@ -153,7 +154,15 @@ abstract class ServerAbstract implements ServerInterface {
 				continue;
 			}
 			$object = \iloader()->singleton($class);
-			$this->server->on($eventName, [$object, 'run']);
+			if ($eventName == Event::ON_REQUEST) {
+				$server = \W7\App::$server->server;
+				$this->server->on($eventName, function ($request, $response) use ($server, $object) {
+					$object->run($server, $request, $response);
+				});
+			} else {
+				$this->server->on($eventName, [$object, 'run']);
+			}
+
 		}
 	}
 }

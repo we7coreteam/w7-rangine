@@ -8,6 +8,7 @@ namespace W7\Http\Listener;
 
 use Swoole\Http\Request;
 use Swoole\Http\Response;
+use Swoole\Http\Server;
 use W7\Core\Base\ListenerInterface;
 
 class RequestListener implements ListenerInterface {
@@ -17,7 +18,8 @@ class RequestListener implements ListenerInterface {
 	 * @return \Psr\Http\Message\ResponseInterface|Response
 	 * @throws \ReflectionException
 	 */
-	public function run(Request $request,Response $response) {
+	public function run(Server $server, Request $request,Response $response) {
+		print_r($server);
 		/**
 		 * @var \W7\Http\Server\Dispather $dispather
 		 */

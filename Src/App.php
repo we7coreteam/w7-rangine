@@ -24,7 +24,6 @@ class App {
 	 * @var \W7\Core\Helper\Loader;
 	 */
 	static private $loader;
-	static private $config;
 
 	static public function getLoader() {
 		if(empty(self::$loader)) {
