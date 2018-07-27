@@ -37,6 +37,10 @@ class Config {
 			Event::ON_START => StartListener::class,
 			Event::ON_MANAGER_START => ManagerStart::class,
 		],
+		'system' =>[
+			Event::ON_USER_BEFORE_START,
+
+		],
 	];
 
 	private $process = [

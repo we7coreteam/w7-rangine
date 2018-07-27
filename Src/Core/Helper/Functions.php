@@ -52,25 +52,34 @@ if (!function_exists('iconfig')) {
 		return iloader()->singleton(\W7\Core\Config\Config::class);
 	}
 }
+
+if (!function_exists('ieventDispatcher')) {
+	/**
+	 * 输入对象
+	 * @return \W7\Core\Helper\EventDispatcher
+	 */
+	function ieventDispatcher() {
+		return iloader()->singleton(\W7\Core\Helper\EventDispatcher::class);
+	}
+}
+
 if (!function_exists('isMac')) {
     /**
      * 是否是mac环境
      *
      * @return bool
      */
-     function isMac(): bool
-    {
+    function isMac(): bool {
         return \stripos(PHP_OS, 'Darwin') !== false;
     }
 }
-if (!function_exists('isCo'))
-{
+
+if (!function_exists('isCo')) {
     /**
      * 是否是在协成
      * @return bool
      */
-    function isCo():bool
-    {
+    function isCo():bool {
         return Coroutine::getuid()>0;
     }
 }
