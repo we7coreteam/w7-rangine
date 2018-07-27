@@ -26,7 +26,7 @@ class RequestListener implements ListenerInterface {
         /**
          * @var Context $serverContext
          */
-        $serverContext = $server->context->getContextData();
+        $serverContext = $server->context;
 		/**
 		 * @var \W7\Http\Server\Dispather $dispather
 		 */
