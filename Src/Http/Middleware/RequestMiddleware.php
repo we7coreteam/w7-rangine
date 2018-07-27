@@ -20,9 +20,6 @@ use w7\HttpRoute\HttpServer;
 
 class RequestMiddleware extends MiddlewareAbstract {
 
-
-
-
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		//此处处理调用控制器操作
         try {

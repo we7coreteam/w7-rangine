@@ -37,17 +37,17 @@ class Dispather extends DispatcherAbstract {
         $contextObj->setResponse($psr7Response);
 
         //根据router配置，获取到匹配的controller信息
-
 		//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
+		$route = $this->getRoute($psr7Request, $serverContext[static::ROUTE_CONTEXT_KEY]);
         /**
          * @var Middleware $middlewarehelper
          */
-
         $middlewarehelper = iloader()->singleton(Middleware::class);
-        $dispather  = static::getController($psr7Request, $serverContext);
-        $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $dispather['handler'], $serverContext[Middleware::MIDDLEWARE_MEMORY_TABLE_NAME]);
-        unset($dispather['handler']['middlerware_key']);
-        $psr7Request = $psr7Request->withAddedHeader("dispather", json_encode($dispather));
+        $middlewarehelper->initMiddleware($serverContext[Middleware::MIDDLEWARE_MEMORY_TABLE_NAME]);
+        $middlewares = $middlewarehelper->getMiddlewareByController($route['controller']);
+
+
+        $psr7Request = $psr7Request->withAddedHeader("route", json_encode($route));
         $middlewareHandler = new MiddlewareHandler($middlewares);
         try {
             $response = $middlewareHandler->handle($psr7Request);
@@ -57,24 +57,22 @@ class Dispather extends DispatcherAbstract {
 
         $response->send();
 	}
-	
-    /**
-     * 通过route信息，调用具体的Controller
-     */
-    public static function getController(ServerRequestInterface $request, array $serverContext) {
-        $httpMethod = $request->getMethod();
-        $url        = $request->getUri()->getPath();
-        $routeData = $serverContext[static::ROUTE_CONTEXT_KEY];
-        $fastRoute = new HttpServer();
-        $routeInfo = $fastRoute->dispathByData($httpMethod, $url, $routeData);
-        list($controller, $method) = explode("-", $routeInfo['handler']);
-        $controllerClassName = "W7\\App\\Controller\\" . ucfirst($controller) . "Controller";
-        $dispather["handler"] = [
-            "controller_classname" => $controllerClassName,
-            "method" => $method,
-            'middlerware_key' => $controller,
-        ];
-        $dispather['funArgs'] = $routeInfo['funArgs'];
-        return $dispather;
-    }
+
+	private function getRoute(ServerRequestInterface $request, $routeInfo) {
+		$httpMethod = $request->getMethod();
+		$url = $request->getUri()->getPath();
+
+		$fastRoute = new HttpServer();
+		$routeInfo = $fastRoute->dispathByData($httpMethod, $url, $routeInfo);
+
+		list($controller, $method) = explode("-", $routeInfo['handler']);
+
+		return [
+			"method" => $method,
+			'controller' => $controller,
+			'classname' => "W7\\App\\Controller\\" . ucfirst($controller) . "Controller",
+			'args' => $routeInfo['funArgs'],
+		];
+	}
+
 }

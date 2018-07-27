@@ -7,20 +7,9 @@
 
 namespace W7\Core\Helper;
 
-
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Swoole\Table;
-use w7\Http\Message\Server\Request;
-use W7\Http\Middleware\RequestMiddleware;
-
-class Middleware
-{
-
+class Middleware {
 
     const MIDDLEWARE_MEMORY_TABLE_NAME = 'middleware_memory';
-
     const MEMORY_CACHE_TYPE = 2;
 
     protected $lastMiddleware;
