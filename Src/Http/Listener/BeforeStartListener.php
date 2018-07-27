@@ -15,12 +15,15 @@ use w7\HttpRoute\HttpServer;
 
 class BeforeStartListener implements ListenerInterface {
 	public function run() {
-	    echo 1111111;
-	    static::addRoute();
-	    Middleware::insertMiddlewareCached();
+	    $this->addRoute();
+        /**
+         * @var Middleware $middlerwareObj
+         */
+	    $middlerwareObj = iloader()->singleton(Middleware::class);
+        $middlerwareObj->insertMiddlewareCached();
 	}
 
-    private static function addRoute()
+    private function addRoute()
     {
         $routeList = [];
         $configData = RouteData::routeData();

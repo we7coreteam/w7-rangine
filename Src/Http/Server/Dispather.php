@@ -23,7 +23,6 @@ class Dispather extends DispatcherAbstract {
     const ROUTE_CONTEXT_KEY = "http-route";
 
 	public function dispatch(...$params) {
-		list($request, $response) = $params;
 		$request       = $params[0];
         $response      = $params[1];
 		$serverContext = $params[2];

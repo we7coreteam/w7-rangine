@@ -61,7 +61,7 @@ class Middleware
      * @param string|null $filePath
      * @param Table|null $tableObj
      */
-    public static function getMiddlewares(array $middlewares)
+    public function getMiddlewares(array $middlewares)
     {
 
         $systemMiddlerwares = iconfig()->getUserConfig("define");
@@ -71,7 +71,7 @@ class Middleware
         return $middlewares;
     }
 
-    protected  static function formatData(array $commonMiddlewares, array $methodMiddlewares)
+    protected function formatData(array $commonMiddlewares, array $methodMiddlewares)
     {
         $middlewares = [];
         foreach($commonMiddlewares as $controller=>$middleware)
@@ -97,12 +97,12 @@ class Middleware
      * @param string $filePath
      * @return bool|Table
      */
-    public static function insertMiddlewareCached()
+    public function insertMiddlewareCached()
     {
         $dataHepler  = new RouteData();
         $middlewares = $dataHepler->middlerWareData();
-        $middlewares = static::formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
-        $middlewares = static::getMiddlewares($middlewares);
+        $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
+        $middlewares = $this->getMiddlewares($middlewares);
         /**
          * @var Context $contextObj
          */

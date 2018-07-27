@@ -26,12 +26,12 @@ class RequestListener implements ListenerInterface {
         /**
          * @var Context $serverContext
          */
-        $serverContext = $server->context;
+        $serverContext = $server->context->getContextData();
 		/**
 		 * @var \W7\Http\Server\Dispather $dispather
 		 */
 		$dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
-		$dispather->dispatch($request, $response, $routeInfo, $middleware);
+		$dispather->dispatch($request, $response, $serverContext);
 	}
 
 }
