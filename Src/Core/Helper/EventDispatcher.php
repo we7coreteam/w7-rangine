@@ -8,75 +8,81 @@ namespace W7\Core\Helper;
 
 use W7\App;
 use W7\Core\Base\EventInterface;
+use W7\Core\Base\ListenerInterface;
 use W7\Core\Config\Event;
 
 class EventDispatcher {
 
+	private $listener = [];
+	private $serverType;
+	private $swooleEvent = [];
+	private $systemEvent = [];
+	private $cache = [];
 
-    // 通配符 - 所有触发的事件都会流过
-    const MATCH_ALL = '*';
+    public function __construct() {
+    	$this->initListener();
+		$this->initServerType();
+		$this->initAllowEvent();
+	}
 
-    /**
-     * @var self
-     */
-    private $parent;
+	public function trigger($eventName) {
+		if (!in_array($eventName, $this->systemEvent)) {
+			return true;
+		}
+		$type = ['framework', $this->serverType, 'user'];
+		foreach ($type as $item) {
+			$class = $this->listener[$eventName][$item];
+			if (!empty($class)) {
+				if (class_exists($class)) {
+					echo $class . PHP_EOL;
+					$object = \iloader()->singleton($class);
+					if ($object instanceof ListenerInterface) {
+						call_user_func_array([$object, 'run'], []);
+					}
+				}
+			}
+		}
+	}
 
-    /**
-     * @var EventInterface
-     */
-    private $basicEvent;
+	private function initServerType() {
+    	$this->serverType = App::$server->type;
+	}
 
-    /**
-     * 预定义的事件存储
-     * @var EventInterface[]
-     * [
-     *     'event name' => (object)EventInterface -- event description
-     * ]
-     */
-    protected $events = [];
+	private function initListener() {
+		//根据用户自定义事件列表，添加侦听队列
+		$event = \iconfig()->getEvent()['system'];
+		if (empty($event)) {
+			return true;
+		}
+		$serverSupport = \iconfig()->getServer();
+		unset($serverSupport['common']);
 
+		$listenerClass = [];
+		foreach ($event as $eventName) {
+			$listenerClass[$eventName] = [];
+			$listenerClass[$eventName]['framework'] = sprintf("\\W7\\Core\\Listener\\%sListener", ucfirst($eventName));
+			foreach ($serverSupport as $serverName => $server) {
+				$class = sprintf("\\W7\\%s\\Listener\\%sListener", ucfirst($serverName), ucfirst($eventName));
+				if (class_exists($class)) {
+					$listenerClass[$eventName][$serverName] = $class;
+				}
+			}
+			$listenerClass[$eventName]['user'] = sprintf("\\W7\\App\\Listener\\%sListener", ucfirst($eventName));
+		}
+		$this->listener = $listenerClass;
+		return true;
+	}
 
-    protected $suffix = "Listener";
-
-//    /**
-//     * 监听器存储
-//     * @var ListenerQueue[]
-//     */
-//    protected $listeners = [];
-    static $sysevent = [
-        'start',
-        'workerStart',
-        'managerStart',
-        'request',
-        'task',
-        'finish',
-        'pipeMessage',
-        'connect',
-        'receive',
-        'close',
-    ];
-	public function trigger() {
-	    $customEvent = [];
-	    $eventReflectionClass = new \ReflectionClass(Event::class);
-	    $eventArray = $eventReflectionClass->getConstants();
-	    foreach($eventArray as $event=>$prefix)
-	    {
-	        if (in_array($prefix, static::$sysevent)){
-	            continue;
-            }
-            $customEvent[$event] = $prefix;
-        }
-        $prefix = ucwords($prefix);
-	    $server = App::$server;
-	    switch ($server::$type)
-        {
-            case $server::TYPE_HTTP:
-                $namepaces = "W7\Http\Listener";
-                break;
-            default:
-                break;
-        }
-        $eventObj = new $namepaces. $prefix . $this->suffix;
-	    return call_user_func([$eventObj, "run"]);
+	private function initAllowEvent() {
+		$eventReflectionClass = new \ReflectionClass(Event::class);
+		$event = $eventReflectionClass->getConstants();
+		foreach ($event as $eventKey => $eventName) {
+			if (strpos($eventKey, '_USER_') !== false) {
+				$this->systemEvent[] = $eventName;
+			} else {
+				$this->swooleEvent[] = $eventName;
+			}
+		}
+		return true;
 	}
 }

@@ -8,8 +8,7 @@ namespace W7\Http\Server;
 
 use W7\Core\Base\ServerAbstract;
 use W7\Core\Base\SwooleHttpServer;
-use W7\Core\Helper\Context;
-use W7\Core\Helper\Middleware;
+use W7\Core\Config\Event;
 
 
 class Server extends ServerAbstract {
@@ -23,18 +22,11 @@ class Server extends ServerAbstract {
 		$this->server = new SwooleHttpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
 		$this->server->set($this->setting);
 
-		$this->registerEventListener();
-		$this->registerProcesser();
-		$this->registerServerContext();
+		//执行一些公共操作，注册事件等
+		$this->registerService();
+
+		\ieventDispatcher()->trigger(Event::ON_USER_BEFORE_START);
 
 		$this->server->start();
 	}
-
-    private function registerServerContext() {
-        /**
-         * @var Context $contextObj
-         */
-        $contextObj = iloader()->singleton(Context::class);
-        $this->server->context = $contextObj->getContextData();
-    }
 }

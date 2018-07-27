@@ -10,7 +10,6 @@ use W7\Core\Base\ListenerInterface;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Middleware;
 use W7\Core\Helper\RouteData;
-use W7\Http\Handler\RouteHandler;
 use W7\Http\Server\Dispather;
 use w7\HttpRoute\HttpServer;
 
@@ -21,9 +20,6 @@ class BeforeStartListener implements ListenerInterface {
 	    Middleware::insertMiddlewareCached();
 	}
 
-    /**
-     *
-     */
     private static function addRoute()
     {
         $routeList = [];

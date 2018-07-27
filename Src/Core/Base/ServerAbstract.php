@@ -47,16 +47,14 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 		$this->setting = array_merge([], $setting['common']);
 		$this->connection = $setting[$this->type];
-
 	}
 
-    /**
+	/**
      * Get pname
      *
      * @return string
      */
-    public function getPname(): string
-    {
+    public function getPname() {
         return $this->setting['pname'];
     }
 
@@ -121,8 +119,16 @@ abstract class ServerAbstract implements ServerInterface {
 		return $result;
 	}
 
+
+	public function registerService() {
+		$this->registerSwooleEventListener();
+		$this->registerProcesser();
+		$this->registerServerContext();
+		return true;
+	}
+
     protected function registerProcesser() {
-        $processName = iconfig()->getProcess();
+        $processName = \iconfig()->getProcess();
         foreach ($processName as $name) {
             $checkInfo = call_user_func([$name, "check"]);
             if (!$checkInfo){
@@ -133,8 +139,8 @@ abstract class ServerAbstract implements ServerInterface {
         }
     }
 
-	protected function registerEventListener() {
-		$event = [$this->type, 'task', 'manage', ''];
+	protected function registerSwooleEventListener() {
+		$event = [$this->type, 'task', 'manage'];
 		
 		foreach ($event as $name) {
 			$event = \iconfig()->getEvent()[$name];
@@ -142,6 +148,14 @@ abstract class ServerAbstract implements ServerInterface {
 				$this->registerEvent($event);
 			}
 		}
+	}
+
+	protected function registerServerContext() {
+		/**
+		 * @var Context $contextObj
+		 */
+		$contextObj = iloader()->singleton(\W7\Core\Helper\Context::class);
+		$this->server->context = $contextObj->getContextData();
 	}
 
 	private function registerEvent($event) {
@@ -155,13 +169,12 @@ abstract class ServerAbstract implements ServerInterface {
 			$object = \iloader()->singleton($class);
 			if ($eventName == Event::ON_REQUEST) {
 				$server = \W7\App::$server->server;
-				$this->server->on($eventName, function ($request, $response) use ($server, $object) {
+				$this->server->on(Event::ON_REQUEST, function ($request, $response) use ($server, $object) {
 					$object->run($server, $request, $response);
 				});
 			} else {
 				$this->server->on($eventName, [$object, 'run']);
 			}
-
 		}
 	}
 }
