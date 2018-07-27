@@ -34,7 +34,6 @@ class EventDispatcher {
 			$class = $this->listener[$eventName][$item];
 			if (!empty($class)) {
 				if (class_exists($class)) {
-					echo $class . PHP_EOL;
 					$object = \iloader()->singleton($class);
 					if ($object instanceof ListenerInterface) {
 						call_user_func_array([$object, 'run'], []);
