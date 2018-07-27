@@ -5,6 +5,7 @@
  */
 
 use Swoole\Coroutine;
+use W7\Core\Helper\StringHelper;
 
 if (!function_exists('getApp')) {
 	/**
@@ -74,3 +75,46 @@ if (!function_exists('isCo'))
         return Coroutine::getuid()>0;
     }
 }
+if (! function_exists('ienv')) {
+    /**
+     *获取ENV的参数.
+     *
+     * @param  string $key
+     * @param  mixed $default
+     * @return mixed
+     */
+    function ienv($key, $default = null)
+    {
+        $value = getenv($key);
+
+        if ($value === false) {
+            return value($default);
+        }
+
+        switch (strtolower($value)) {
+            case 'true':
+            case '(true)':
+                return true;
+            case 'false':
+            case '(false)':
+                return false;
+            case 'empty':
+            case '(empty)':
+                return '';
+            case 'null':
+            case '(null)':
+                return;
+        }
+
+        if (strlen($value) > 1 && StringHelper::startsWith($value, '"') && StringHelper::endsWith($value, '"')) {
+            return substr($value, 1, -1);
+        }
+
+        if (defined($value)) {
+            $value = constant($value);
+        }
+
+        return $value;
+    }
+}
+

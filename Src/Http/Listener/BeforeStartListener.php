@@ -15,7 +15,8 @@ use W7\Http\Server\Dispather;
 use w7\HttpRoute\HttpServer;
 
 class BeforeStartListener implements ListenerInterface {
-	public static function run() {
+	public function run() {
+	    echo 1111111;
 	    static::addRoute();
 	    Middleware::insertMiddlewareCached();
 	}
