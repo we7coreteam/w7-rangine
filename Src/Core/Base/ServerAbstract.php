@@ -134,7 +134,7 @@ abstract class ServerAbstract implements ServerInterface {
     }
 
 	protected function registerEventListener() {
-		$event = [$this->type, 'task', 'manage'];
+		$event = [$this->type, 'task', 'manage', ''];
 		
 		foreach ($event as $name) {
 			$event = \iconfig()->getEvent()[$name];
