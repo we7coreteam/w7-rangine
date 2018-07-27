@@ -34,7 +34,7 @@ class Server extends ServerAbstract {
 
 	private function registerBeforeStartListener()
     {
-        $event = iconfig()->getUserConfig("event");
+        $event = iconfig()->getUserConfig("define")['event'];
         foreach ($event['beforeStart'] as $prefix => $listener)
         {
             call_user_func([$listener, 'run']);
