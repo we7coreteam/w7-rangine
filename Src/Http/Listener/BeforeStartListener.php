@@ -20,13 +20,22 @@ class BeforeStartListener implements ListenerInterface {
          * @var Middleware $middlerwareObj
          */
 	    $middlerwareObj = iloader()->singleton(Middleware::class);
-        $middlerwareObj->insertMiddlewareCached();
+        $middlerwares   = $middlerwareObj->getMiddlewares();
+        /**
+         * @var Context $contextObj
+         */
+        $contextObj = iloader()->singleton(Context::class);
+        $contextObj->setContextDataByKey(Context::MIDDLEWARE_KEY, $middlerwares);
 	}
 
     private function addRoute()
     {
         $routeList = [];
-        $configData = RouteData::routeData();
+        /**
+         * @var RouteData $routeObj
+         */
+        $routeObj  = iloader()->singleton(RouteData::class);
+        $configData = $routeObj->routeData();
         $fastRoute = new HttpServer();
         foreach($configData as $httpMethod=>$routeData)
         {

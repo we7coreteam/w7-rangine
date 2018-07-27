@@ -20,9 +20,6 @@ use w7\HttpRoute\HttpServer;
 
 class RequestMiddleware extends MiddlewareAbstract {
 
-
-
-
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		//此处处理调用控制器操作
         try {
@@ -32,7 +29,11 @@ class RequestMiddleware extends MiddlewareAbstract {
             $funArgs = $dispather['funArgs'];
             $response =  call_user_func_array($controllerHandler, $funArgs);
             $response = is_array($response)?$response:(array)$response;
-            $response = Context::getResponse()->json($response);
+            /**
+             * @var Context $contextObj
+             */
+            $contextObj = iloader()->singleton(Context::class);
+            $response = $contextObj->getResponse()->json($response);
             return $response;
         }catch (RouteNotFoundException $routeNotFoundException){
             throw new BadRequestException($routeNotFoundException->getMessage(), 403);

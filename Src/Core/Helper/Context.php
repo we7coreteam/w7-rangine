@@ -32,6 +32,17 @@ class Context {
 	 */
 	private static $context;
 
+
+    /**
+     *
+     */
+    const MIDDLEWARE_KEY = 'middleware_memory';
+
+    /**
+     *
+     */
+    const ROUTE_KEY = "http-route";
+
 	/**
 	 * @return \Psr\Http\Message\ServerRequestInterface|null
 	 */
