@@ -23,10 +23,10 @@ class RequestMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		//此处处理调用控制器操作
         try {
-            $dispather = $request->getHeader('dispather');
-            $dispather = json_decode($dispather[0], true);
-            $controllerHandler = array_values($dispather['handler']);
-            $funArgs = $dispather['funArgs'];
+            $route = $request->getHeader('route');
+            $route = json_decode($route[0], true);
+            $controllerHandler = [$route['classname'], $route['method']];
+            $funArgs = $route['args'];
             $response =  call_user_func_array($controllerHandler, $funArgs);
             $response = is_array($response)?$response:(array)$response;
             /**
