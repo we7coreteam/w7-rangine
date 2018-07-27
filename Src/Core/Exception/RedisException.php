@@ -8,8 +8,6 @@
 
 namespace W7\Core\Exception;
 
-
 class RedisException extends \Exception
 {
-
 }

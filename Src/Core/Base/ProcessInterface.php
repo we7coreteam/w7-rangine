@@ -6,16 +6,17 @@
 
 namespace W7\Core\Base;
 
-interface ProcessInterface {
-	/**
-	 * 线程具体执行内容
-	 * @return mixed
-	 */
-	public function run();
+interface ProcessInterface
+{
+    /**
+     * 线程具体执行内容
+     * @return mixed
+     */
+    public function run();
 
-	/**
-	 * 检查线程是否可以执行，TRUE执行，FALSE不执行
-	 * @return mixed
-	 */
-	public function check();
+    /**
+     * 检查线程是否可以执行，TRUE执行，FALSE不执行
+     * @return mixed
+     */
+    public function check();
 }

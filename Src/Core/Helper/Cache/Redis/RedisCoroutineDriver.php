@@ -8,10 +8,8 @@
 
 namespace W7\Core\Helper\Cache\Redis;
 
-
 use Swoole\Coroutine\Redis;
 use W7\Core\Helper\Cache\AbstractRedisDriver;
-
 
 /**
  * Redis
@@ -105,7 +103,7 @@ class RedisCoroutineDriver extends AbstractRedisDriver
      */
     public function __construct()
     {
-        if (static::$redis instanceof Redis){
+        if (static::$redis instanceof Redis) {
             return static::$redis;
         }
         $this->getDefineConf();
@@ -129,7 +127,7 @@ class RedisCoroutineDriver extends AbstractRedisDriver
             throw new RedisException($error);
         }
 
-        if (!static::$redis){
+        if (!static::$redis) {
             $error = sprintf('Redis connection failure host=%s port=%d', $host, $port);
             throw new RedisException($error);
         }

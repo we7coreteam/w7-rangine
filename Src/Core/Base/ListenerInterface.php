@@ -6,6 +6,6 @@
 
 namespace W7\Core\Base;
 
-interface ListenerInterface {
-
+interface ListenerInterface
+{
 }

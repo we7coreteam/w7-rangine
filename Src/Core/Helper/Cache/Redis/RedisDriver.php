@@ -7,9 +7,7 @@
  */
 namespace W7\Core\Helper\Cache\Redis;
 
-
 use W7\Core\Helper\Cache\AbstractRedisDriver;
-
 
 /**
  * Redis
@@ -103,7 +101,7 @@ class RedisDriver extends AbstractRedisDriver
      */
     public function __construct()
     {
-        if (static::$redis instanceof \Redis){
+        if (static::$redis instanceof \Redis) {
             return static::$redis;
         }
         $defineConf = iconfig()->getUserConfig("define");
@@ -127,14 +125,11 @@ class RedisDriver extends AbstractRedisDriver
             throw new RedisException($error);
         }
 
-        if (!static::$redis){
+        if (!static::$redis) {
             $error = sprintf('Redis connection failure host=%s port=%d', $host, $port);
             throw new RedisException($error);
         }
         $this->setPrefix();
         return static::$redis;
     }
-
-
-
 }

@@ -13,20 +13,22 @@ use W7\Core\Helper\RouteData;
 use W7\Http\Server\Dispather;
 use w7\HttpRoute\HttpServer;
 
-class BeforeStartListener implements ListenerInterface {
-	public function run() {
-	    $this->addRoute();
+class BeforeStartListener implements ListenerInterface
+{
+    public function run()
+    {
+        $this->addRoute();
         /**
          * @var Middleware $middlerwareObj
          */
-	    $middlerwareObj = iloader()->singleton(Middleware::class);
+        $middlerwareObj = iloader()->singleton(Middleware::class);
         $middlerwares   = $middlerwareObj->getMiddlewares();
         /**
          * @var Context $contextObj
          */
         $contextObj = iloader()->singleton(Context::class);
         $contextObj->setContextDataByKey(Context::MIDDLEWARE_KEY, $middlerwares);
-	}
+    }
 
     private function addRoute()
     {
@@ -37,9 +39,8 @@ class BeforeStartListener implements ListenerInterface {
         $routeObj  = iloader()->singleton(RouteData::class);
         $configData = $routeObj->routeData();
         $fastRoute = new HttpServer();
-        foreach($configData as $httpMethod=>$routeData)
-        {
-            $routeList = array_merge_recursive($routeList ,$fastRoute->addRoute($httpMethod, $routeData));
+        foreach ($configData as $httpMethod=>$routeData) {
+            $routeList = array_merge_recursive($routeList, $fastRoute->addRoute($httpMethod, $routeData));
         }
         /**
          * @var Context $contextObj

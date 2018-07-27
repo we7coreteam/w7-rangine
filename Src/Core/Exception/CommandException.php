@@ -6,6 +6,6 @@
 
 namespace W7\Core\Exception;
 
-class CommandException extends \Exception {
-
+class CommandException extends \Exception
+{
 }

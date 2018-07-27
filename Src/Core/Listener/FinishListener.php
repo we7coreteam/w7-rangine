@@ -9,8 +9,9 @@ namespace W7\Core\Listener;
 use Swoole\Http\Server;
 use W7\Core\Base\ListenerInterface;
 
-class FinishListener implements ListenerInterface {
-	public function run(Server $server) {
-
-	}
+class FinishListener implements ListenerInterface
+{
+    public function run(Server $server)
+    {
+    }
 }

@@ -7,36 +7,39 @@
 
 namespace W7\Core\Helper;
 
-class Loader {
-	//存储加载过的类
-	private $cache = array();
-	private $loadTypeMap = array();
+class Loader
+{
+    //存储加载过的类
+    private $cache = array();
+    private $loadTypeMap = array();
 
-	/**
-	 * 实例化一个单例
-	 * @param $name
-	 * @return mixed
-	 */
-	public function singleton($name) {
-		if (isset($this->cache[$name])) {
-			return $this->cache[$name];
-		}
-		$this->cache[$name] = $this->object($name);
-		return $this->cache[$name];
-	}
+    /**
+     * 实例化一个单例
+     * @param $name
+     * @return mixed
+     */
+    public function singleton($name)
+    {
+        if (isset($this->cache[$name])) {
+            return $this->cache[$name];
+        }
+        $this->cache[$name] = $this->object($name);
+        return $this->cache[$name];
+    }
 
-	/**
-	 * 实例化一个对
-	 * @param $name
-	 * @return bool
-	 */
-	public function object($name) {
-		if (class_exists($name)) {
-			return new $name();
-		} else {
-			throw new \Exception('类不存在');
-		}
-	}
+    /**
+     * 实例化一个对
+     * @param $name
+     * @return bool
+     */
+    public function object($name)
+    {
+        if (class_exists($name)) {
+            return new $name();
+        } else {
+            throw new \Exception('类不存在');
+        }
+    }
 
 
     /**
@@ -48,7 +51,7 @@ class Loader {
      *
      * @throws \InvalidArgumentException
      */
-    static public function setPsr4($prefix, $paths)
+    public static function setPsr4($prefix, $paths)
     {
         if (!$prefix) {
             static::$fallbackDirsPsr4 = (array) $paths;
@@ -62,7 +65,7 @@ class Loader {
         }
     }
 
-    static private function findFileWithExtension($class, $ext)
+    private static function findFileWithExtension($class, $ext)
     {
         // PSR-4 lookup
         $logicalPathPsr4 = strtr($class, '\\', DIRECTORY_SEPARATOR) . $ext;

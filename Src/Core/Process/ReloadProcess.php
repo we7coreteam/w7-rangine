@@ -10,7 +10,8 @@ use W7\App;
 use W7\Core\Base\ProcessInterface;
 use W7\Core\Helper\FileHelper;
 
-class ReloadProcess implements ProcessInterface {
+class ReloadProcess implements ProcessInterface
+{
 
     /**
      * 监听文件变化的路径
@@ -42,10 +43,10 @@ class ReloadProcess implements ProcessInterface {
         $this->watchDir = APP_PATH;
         $this->md5File = FileHelper::md5File($this->watchDir);
     }
-    public function check() {
+    public function check()
+    {
         $serverConfig = iconfig()->getServer();
-        if (!$serverConfig['autoReload'])
-        {
+        if (!$serverConfig['autoReload']) {
             return true;
         }
         return true;

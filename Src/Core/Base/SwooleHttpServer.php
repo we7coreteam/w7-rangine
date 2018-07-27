@@ -6,6 +6,6 @@
 
 namespace W7\Core\Base;
 
-class SwooleHttpServer extends \swoole_http_server {
-
+class SwooleHttpServer extends \swoole_http_server
+{
 }

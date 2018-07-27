@@ -14,124 +14,132 @@ use W7\Core\Helper\Middleware;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\BeforeStartListener;
 
-abstract class ServerAbstract implements ServerInterface {
+abstract class ServerAbstract implements ServerInterface
+{
 
-	/**
-	 * @var SwooleHttpServer
-	 */
-	public $server;
+    /**
+     * @var SwooleHttpServer
+     */
+    public $server;
 
-	/**
-	 * 服务类型
-	 * @var
-	 */
-	public $type;
+    /**
+     * 服务类型
+     * @var
+     */
+    public $type;
 
-	/**
-	 * 配置
-	 * @var
-	 */
-	public $setting;
-	/**
-	 * @var 连接配置
-	 */
-	public $connection;
+    /**
+     * 配置
+     * @var
+     */
+    public $setting;
+    /**
+     * @var 连接配置
+     */
+    public $connection;
 
-	public function __construct() {
+    public function __construct()
+    {
+        App::$server = $this;
+        
+        $setting = \iconfig()->getServer();
+        if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
+            throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
+        }
+        $this->setting = array_merge([], $setting['common']);
+        $this->connection = $setting[$this->type];
+    }
 
-	    App::$server = $this;
-	    
-		$setting = \iconfig()->getServer();
-		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
-			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
-		}
-		$this->setting = array_merge([], $setting['common']);
-		$this->connection = $setting[$this->type];
-	}
-
-	/**
+    /**
      * Get pname
      *
      * @return string
      */
-    public function getPname() {
+    public function getPname()
+    {
         return $this->setting['pname'];
     }
 
 
-	public function getStatus() {
-		$pidFile = $this->setting['pid_file'];
-		if (file_exists($pidFile)) {
-			$pids = explode(',', file_get_contents($pidFile));
-			$this->setting['masterPid'] = $pids[0];
-			$this->setting['managerPid'] = $pids[1];
-		}
+    public function getStatus()
+    {
+        $pidFile = $this->setting['pid_file'];
+        if (file_exists($pidFile)) {
+            $pids = explode(',', file_get_contents($pidFile));
+            $this->setting['masterPid'] = $pids[0];
+            $this->setting['managerPid'] = $pids[1];
+        }
 
-		return [
-			'host' => $this->connection['host'],
-			'port' => $this->connection['port'],
-			'type' => $this->connection['sock_type'],
-			'mode' => $this->connection['mode'],
-			'workerNum' => $this->setting['worker_num'],
-			'masterPid' => $this->setting['masterPid'],
-			'managerPid' => $this->setting['managerPid'],
-		];
-	}
+        return [
+            'host' => $this->connection['host'],
+            'port' => $this->connection['port'],
+            'type' => $this->connection['sock_type'],
+            'mode' => $this->connection['mode'],
+            'workerNum' => $this->setting['worker_num'],
+            'masterPid' => $this->setting['masterPid'],
+            'managerPid' => $this->setting['managerPid'],
+        ];
+    }
 
-	public function getServer() {
-		return $this->server;
-	}
+    public function getServer()
+    {
+        return $this->server;
+    }
 
-	public function isRun() {
-		$status = $this->getStatus();
-		if (!empty($status['masterPid'])) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public function isRun()
+    {
+        $status = $this->getStatus();
+        if (!empty($status['masterPid'])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	public function stop() {
-		$timeout = 20;
-		$startTime = time();
-		$result = true;
+    public function stop()
+    {
+        $timeout = 20;
+        $startTime = time();
+        $result = true;
 
-		if (\swoole_process::kill($this->setting['masterPid'], 0)) {
-			\swoole_process::kill($this->setting['masterPid'], SIGTERM);
-			while (1) {
-				$masterIslive = \swoole_process::kill($this->setting['masterPid'], SIGTERM);
-				if ($masterIslive) {
-					if (time() - $startTime >= $timeout) {
-						$result = false;
-						break;
-					}
-					usleep(10000);
-					continue;
-				}
-				break;
-			}
-		}
-		if (!file_exists($this->setting['pid_file'])) {
-			return true;
-		} else {
-			unlink($this->setting['pid_file']);
-		}
-		return $result;
-	}
+        if (\swoole_process::kill($this->setting['masterPid'], 0)) {
+            \swoole_process::kill($this->setting['masterPid'], SIGTERM);
+            while (1) {
+                $masterIslive = \swoole_process::kill($this->setting['masterPid'], SIGTERM);
+                if ($masterIslive) {
+                    if (time() - $startTime >= $timeout) {
+                        $result = false;
+                        break;
+                    }
+                    usleep(10000);
+                    continue;
+                }
+                break;
+            }
+        }
+        if (!file_exists($this->setting['pid_file'])) {
+            return true;
+        } else {
+            unlink($this->setting['pid_file']);
+        }
+        return $result;
+    }
 
 
-	public function registerService() {
-		$this->registerSwooleEventListener();
-		$this->registerProcesser();
-		$this->registerServerContext();
-		return true;
-	}
+    public function registerService()
+    {
+        $this->registerSwooleEventListener();
+        $this->registerProcesser();
+        $this->registerServerContext();
+        return true;
+    }
 
-    protected function registerProcesser() {
+    protected function registerProcesser()
+    {
         $processName = \iconfig()->getProcess();
         foreach ($processName as $name) {
             $checkInfo = call_user_func([$name, "check"]);
-            if (!$checkInfo){
+            if (!$checkInfo) {
                 continue;
             }
             $process = ProcessBuilder::create($name, App::$server);
@@ -139,42 +147,45 @@ abstract class ServerAbstract implements ServerInterface {
         }
     }
 
-	protected function registerSwooleEventListener() {
-		$event = [$this->type, 'task', 'manage'];
-		
-		foreach ($event as $name) {
-			$event = \iconfig()->getEvent()[$name];
-			if (!empty($event)) {
-				$this->registerEvent($event);
-			}
-		}
-	}
+    protected function registerSwooleEventListener()
+    {
+        $event = [$this->type, 'task', 'manage'];
+        
+        foreach ($event as $name) {
+            $event = \iconfig()->getEvent()[$name];
+            if (!empty($event)) {
+                $this->registerEvent($event);
+            }
+        }
+    }
 
-	protected function registerServerContext() {
-		/**
-		 * @var Context $contextObj
-		 */
-		$contextObj = iloader()->singleton(\W7\Core\Helper\Context::class);
-		$this->server->context = $contextObj->getContextData();
-	}
+    protected function registerServerContext()
+    {
+        /**
+         * @var Context $contextObj
+         */
+        $contextObj = iloader()->singleton(\W7\Core\Helper\Context::class);
+        $this->server->context = $contextObj->getContextData();
+    }
 
-	private function registerEvent($event) {
-		if (empty($event)) {
-			return true;
-		}
-		foreach ($event as $eventName => $class) {
-			if (empty($class)) {
-				continue;
-			}
-			$object = \iloader()->singleton($class);
-			if ($eventName == Event::ON_REQUEST) {
-				$server = \W7\App::$server->server;
-				$this->server->on(Event::ON_REQUEST, function ($request, $response) use ($server, $object) {
-					$object->run($server, $request, $response);
-				});
-			} else {
-				$this->server->on($eventName, [$object, 'run']);
-			}
-		}
-	}
+    private function registerEvent($event)
+    {
+        if (empty($event)) {
+            return true;
+        }
+        foreach ($event as $eventName => $class) {
+            if (empty($class)) {
+                continue;
+            }
+            $object = \iloader()->singleton($class);
+            if ($eventName == Event::ON_REQUEST) {
+                $server = \W7\App::$server->server;
+                $this->server->on(Event::ON_REQUEST, function ($request, $response) use ($server, $object) {
+                    $object->run($server, $request, $response);
+                });
+            } else {
+                $this->server->on($eventName, [$object, 'run']);
+            }
+        }
+    }
 }

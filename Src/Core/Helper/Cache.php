@@ -8,12 +8,9 @@
 
 namespace W7\Core\Helper;
 
-
 use W7\Core\Base\CacheAbstract;
-use Psr\SimpleCache;
 use W7\Core\Helper\Cache\Redis\RedisCoroutineDriver;
 use W7\Core\Helper\Cache\Redis\RedisDriver;
-use W7\Core\Helper\Cache\Redis\SyncRedisDriver;
 
 /**
  * @method string|bool get($key, $default = null)
@@ -49,14 +46,11 @@ class Cache
     {
         $valueType = \gettype($value);
         if (! \in_array($valueType, ['integer', 'double', 'boolean', 'string'], true)) {
-            // TODO add serializer mechanism handle the other type
             throw new \InvalidArgumentException('Invalid value type');
         }
         try {
             $ret = $this->getDriver()->set($key, $value, $ttl);
-
-        }catch (\InvalidArgumentException $invalidArgumentException){
-
+        } catch (\InvalidArgumentException $invalidArgumentException) {
             throw new \InvalidArgumentException('Invalid value type');
         }
         return $ret;
@@ -104,10 +98,10 @@ class Cache
         //TODO If driver component not loaded, throw an exception.
         if (isCo()) {
             $driverObj = iloader()->singleton($drivers[$currentDriver]['co']);
-        }else{
+        } else {
             $driverObj = iloader()->singleton($drivers[$currentDriver]['sync']);
         }
-         return $driverObj;
+        return $driverObj;
     }
 
     /**

@@ -13,10 +13,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class MiddlewareHandler implements RequestHandlerInterface {
-	/**
-	* @var array
-	*/
+class MiddlewareHandler implements RequestHandlerInterface
+{
+    /**
+    * @var array
+    */
     private $middlewares;
 
     /**
@@ -36,7 +37,8 @@ class MiddlewareHandler implements RequestHandlerInterface {
      * @param array $middleware
      * @param string $default
      */
-    public function __construct(array $middleware) {
+    public function __construct(array $middleware)
+    {
         $this->middlewares = \array_unique($middleware);
     }
 
@@ -47,9 +49,10 @@ class MiddlewareHandler implements RequestHandlerInterface {
      * @return ResponseInterface
      * @throws \InvalidArgumentException
      */
-    public function handle(ServerRequestInterface $request): ResponseInterface {
-            $handler = $this->middlewares[$this->offset];
-            \is_string($handler) && $handler = new $handler;
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        $handler = $this->middlewares[$this->offset];
+        \is_string($handler) && $handler = new $handler;
 
         if (!$handler instanceof MiddlewareInterface) {
             throw new \InvalidArgumentException('Invalid Handler. It must be an instance of MiddlewareInterface');
@@ -63,10 +66,10 @@ class MiddlewareHandler implements RequestHandlerInterface {
      *
      * @return static
      */
-    private function next() {
+    private function next()
+    {
         $clone = clone $this;
         $clone->offset++;
         return $clone;
     }
-
 }
