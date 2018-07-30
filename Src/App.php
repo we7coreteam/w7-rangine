@@ -7,7 +7,7 @@
 namespace W7;
 
 use Dotenv\Dotenv;
-use W7\Core\Base\Logger;
+use W7\Core\Helper\Logger;
 use W7\Http\Server\Server;
 
 class App
@@ -25,6 +25,8 @@ class App
      */
     private static $loader;
 
+    private static $logger;
+
     public static function getLoader()
     {
         if (empty(self::$loader)) {
@@ -33,11 +35,23 @@ class App
         return self::$loader;
     }
 
-    public static function logInit()
+    /**
+     * @return Logger
+     */
+    public static function getLogger()
     {
-        $defineConfig = iconfig()->getUserConfig('define');
-        $logfile = RUNTIME_PATH . DIRECTORY_SEPARATOR . "logs" . DIRECTORY_SEPARATOR . "w7.log";
-        Logger::init($logfile, $defineConfig['log']['level'], $defineConfig['log']['flushInterval']);
+        $defineConfig = iconfig()->getUserConfig('app');
+        if (!empty(static::$logger) && static::$logger instanceof Logger)
+        {
+            return static::$logger;
+        }
+
+        /**
+         * @var Logger $logger
+         */
+        static::$logger = iloader()->singleton(Logger::class);
+        static::$logger->init($defineConfig['log']['log_file'], $defineConfig['log']['level'], $defineConfig['log']['flushInterval']);
+        return static::$logger;
     }
 
 

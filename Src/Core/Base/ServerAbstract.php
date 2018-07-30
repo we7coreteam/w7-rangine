@@ -7,7 +7,6 @@
 
 namespace W7\Core\Base;
 
-use Dotenv\Dotenv;
 use W7\App;
 use W7\Core\Config\Event;
 use W7\Core\Exception\CommandException;
@@ -40,8 +39,6 @@ abstract class ServerAbstract implements ServerInterface
     public function __construct()
     {
         App::$server = $this;
-
-        App::logInit();
 
         App::doteEnv();
         
@@ -142,7 +139,8 @@ abstract class ServerAbstract implements ServerInterface
     {
         $processName = \iconfig()->getProcess();
         foreach ($processName as $name) {
-            $checkInfo = call_user_func([$name, "check"]);
+            $process = iloader()->singleton($name);
+            $checkInfo = call_user_func([$process, "check"]);
             if (!$checkInfo) {
                 continue;
             }

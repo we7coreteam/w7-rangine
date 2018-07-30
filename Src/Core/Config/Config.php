@@ -15,6 +15,7 @@ use W7\Http\Listener\RequestListener;
 
 class Config
 {
+
     const VERSION = '1.0.0';
 
     private $server;
@@ -39,6 +40,8 @@ class Config
         ],
         'system' =>[
             Event::ON_USER_BEFORE_START,
+            Event::ON_USER_BEFORE_REQUEST,
+            Event::ON_USER_AFTER_REQUEST,
 
         ],
     ];

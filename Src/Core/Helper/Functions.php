@@ -60,6 +60,14 @@ if (!function_exists('iconfig')) {
     }
 }
 
+if (!function_exists("ilogger"))
+{
+    function ilogger()
+    {
+        return App::getLogger();
+    }
+}
+
 if (!function_exists('ieventDispatcher')) {
     /**
      * 输入对象

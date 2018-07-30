@@ -7,8 +7,8 @@
 namespace W7\Http\Handler;
 
 
-use W7\Core\Base\Logger;
 use W7\Core\Helper\Context;
+use W7\Http\Server\Dispather;
 
 class LogHandler
 {
@@ -27,29 +27,45 @@ class LogHandler
         $this->contextObj = iloader()->singleton(Context::class);
     }
 
-    public function beforeRequestInit($controller, $method)
+    public function beforeRequestInit()
     {
-        $logid = uniqid();
-        $spanid = rand(1000000, 9999999);
-        $uri   = $controller . DIRECTORY_SEPARATOR . $method;
-        Logger::addBasic("logid", uniqid());
-        Logger::addBasic("client", getClientIp());
-        Logger::addBasic('controller', $controller);
-        Logger::addBasic('method',     $method);
-
-        $contextData = [
-            'logid'       => $logid,
-            'spanid'      => $spanid,
-            'uri'         => $uri,
-            'requestTime' => microtime(true),
-        ];
         /**
          * @var Context $contextObj
          */
         $contextObj = iloader()->singleton(Context::class);
-        $contextObj->setContextData($contextData);
+        $requestLogContextData = $contextObj->getContextDataByKey(Dispather::$log_context_data_key);
+
+        $spanid = rand(1000000, 9999999);
+        ilogger()->addBasic("logid", uniqid());
+        ilogger()->addBasic("client", getClientIp());
+        ilogger()->addBasic("spanid", $spanid);
+        ilogger()->addBasic("controller", $requestLogContextData['controller']);
+        ilogger()->addBasic('method', $requestLogContextData['method']);
     }
 
+    /**
+     * @param $errcode
+     * @param $errstr
+     * @param $errfile
+     * @param $errline
+     * @param $errcontext
+     */
+    public function errorHandler($errcode, $errstr, $errfile, $errline, $errcontext)
+    {
+        ilogger()->fatal('errcode:%d, errstr:%s, errfile:%s, errline:%s', $errcode, $errstr, $errfile, $errline );
+    }
+
+    /**
+     * @param \Throwable $exception
+     */
+    public function exceptionHandler(\Throwable $exception)
+    {
+        ilogger()->warning("exception msg is %s code is %s", $exception->getMessage(), $exception->getCode());
+    }
+
+    /**
+     *
+     */
     public function appendNoticeLog()
     {
         // php耗时单位ms毫秒
@@ -58,7 +74,7 @@ class LogHandler
         // php运行内存大小单位M
         $memUsed = sprintf('%.0f', memory_get_peak_usage() / (1024 * 1024));
 
-        Logger::notice("memory_cross: %s(MB), request_cross cost: %d(ms), request_url: %s", $memUsed, $timeUsed, $this->getUri());
+        ilogger()->notice("memory_cross: %s(MB), request_cross cost: %d(ms), request_url: %s", $memUsed, $timeUsed, $this->getUri());
     }
 
     /**
@@ -68,7 +84,7 @@ class LogHandler
      */
     private function getRequestTime(): int
     {
-        $contextData = $this->contextObj->getContextData();
+        $contextData = $this->contextObj->getContextDataByKey(Dispather::$log_context_data_key);
 
         return $contextData['requestTime'] ?? 0;
     }
@@ -78,9 +94,9 @@ class LogHandler
      *
      * @return int
      */
-    private function getUri(): int
+    private function getUri(): string
     {
-        $contextData = $this->contextObj->getContextData();
+        $contextData = $this->contextObj->getContextDataByKey(Dispather::$log_context_data_key);
 
         return $contextData['url'] ?? 0;
     }

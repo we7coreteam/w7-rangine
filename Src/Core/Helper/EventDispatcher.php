@@ -32,7 +32,13 @@ class EventDispatcher
             return true;
         }
         $type = ['framework', $this->serverType, 'user'];
+        var_dump($this->listener);
         foreach ($type as $item) {
+            if (!isset($this->listener[$eventName][$item]))
+            {
+                ilogger()->warning("Undefined index eventName is %s, item is %s " , $eventName, $item);
+                continue;
+            }
             $class = $this->listener[$eventName][$item];
             if (!empty($class)) {
                 if (class_exists($class)) {

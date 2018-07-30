@@ -8,9 +8,9 @@ namespace W7\Http\Server;
 
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Base\DispatcherAbstract;
-use W7\Core\Base\Logger;
 use W7\Core\Base\MiddlewareHandler;
 use W7\Core\Helper\Context;
+use W7\Core\Helper\EventDispatcher;
 use W7\Core\Helper\Middleware;
 use w7\HttpRoute\HttpServer;
 use W7\Http\Handler\LogHandler;
@@ -18,6 +18,9 @@ use W7\Http\Handler\LogHandler;
 class Dispather extends DispatcherAbstract
 {
     public $lastMiddleware = \W7\Http\Middleware\RequestMiddleware::class;
+
+
+    public static $log_context_data_key = "request-log";
 
 
     public function dispatch(...$params)
@@ -48,12 +51,16 @@ class Dispather extends DispatcherAbstract
         $middlewares = $middlewarehelper->getMiddlewareByRoute($route['controller'], $route['method']);
         $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $middlewares);
 
+        $requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
+        $contextObj->setContextDataByKey(static::$log_context_data_key, $requestLogContextData);
+
 
         /**
-         * @var LogHandler $logHandler
+         * @var EventDispatcher $eventDispatcher
          */
-        $logHandler = iloader()->singleton(LogHandler::class);
-        $logHandler->beforeRequestInit($route['controller'], $route['method']);
+        $eventDispatcher = iloader()->singleton(EventDispatcher::class);
+        $eventDispatcher->trigger('beforeRequest');
+
 
         $middlewareHandler = new MiddlewareHandler($middlewares);
         try {
@@ -62,7 +69,7 @@ class Dispather extends DispatcherAbstract
             $response = $contextObj->getResponse()->json($throwable->getMessage(), $throwable->getCode());
         }
 
-        $logHandler->appendNoticeLog();
+        $eventDispatcher->trigger('afterRequest');
         $response->send();
     }
 
@@ -83,5 +90,15 @@ class Dispather extends DispatcherAbstract
             'classname' => "W7\\App\\Controller\\" . ucfirst($controller) . "Controller",
             'args' => $routeInfo['funArgs'],
         ];
+    }
+
+    private function getRequestLogContextData($controller, $method)
+    {
+        $contextData = [
+            'controller'=>$controller,
+            'method'=>$method,
+            'requestTime' => microtime(true),
+        ];
+        return $contextData;
     }
 }

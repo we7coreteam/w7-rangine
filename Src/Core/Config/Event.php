@@ -27,4 +27,6 @@ class Event
      */
     const ON_USER_BEFORE_START = 'beforeStart';
     const ON_USER_AFTER_START = 'afterStart';
+    const ON_USER_BEFORE_REQUEST = 'beforeRequest';
+    const ON_USER_AFTER_REQUEST = 'afterRequest';
 }

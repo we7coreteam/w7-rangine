@@ -23,7 +23,8 @@ class RequestMiddleware extends MiddlewareAbstract
         try {
             $route = $request->getHeader('route');
             $route = json_decode($route[0], true);
-            $controllerHandler = [$route['classname'], $route['method']];
+            $classObj = iloader()->singleton($route['classname']);
+            $controllerHandler = [$classObj, $route['method']];
             $funArgs = $route['args'];
             $response =  call_user_func_array($controllerHandler, $funArgs);
             $response = is_array($response)?$response:(array)$response;

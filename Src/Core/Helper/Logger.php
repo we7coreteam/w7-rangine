@@ -1,9 +1,8 @@
 <?php
-namespace W7\Core\Base;
+namespace W7\Core\Helper;
 
 
 
-use W7\Core\Helper\FileHelper;
 
 
 /**
@@ -31,34 +30,34 @@ class Logger
     private static $ARR_DESC = array (0 => 'ALL', 1 => 'DEBUG', 2 => 'TRACE', 3 => 'INFO',
         4 => 'NOTICE', 5 => 'WARNING', 6 => 'FATAL' );
 
-    private static $LOG_LEVEL = self::L_DEBUG;
+    private  $log_level = self::L_DEBUG;
 
-    private static $ARR_BASIC = [];
+    private  $arr_basic = [];
 
-    private static $FILE = [];
+    private  $file = [];
 
-    private static $FORCE_FLUSH = false;
+    private  $force_flush = false;
 
-    private static $MESSAGES = [];
+    private  $messgaes = [];
 
-    private static $FIUSH_INTERVAL = 1;
+    private  $flush_interval = 1;
 
-    public static function flush()
+    public function flush()
     {
 
-        foreach ( self::$FILE as $file )
+        foreach ( $this->file as $fileIndex=>$file )
         {
-            fflush ( $file );
+            $this->flushLog($fileIndex);
         }
     }
 
-    public static function addBasic($key, $value)
+    public function addBasic($key, $value)
     {
 
-        self::$ARR_BASIC [$key] = $value;
+        $this->arr_basic[$key] = $value;
     }
 
-    public static function init($filename, $level, $flushInterval = 1,$arrBasic = null, $forceFlush = false)
+    public function init($filename, $level, $flushInterval = 1,$arrBasic = null, $forceFlush = false)
     {
 
         if (! isset ( self::$ARR_DESC [$level] ))
@@ -66,7 +65,7 @@ class Logger
             trigger_error ( "invalid level:$level" );
             return;
         }
-        self::$LOG_LEVEL = $level;
+        $this->log_level = $level;
         $dir = dirname ( $filename );
         if (! file_exists ( $dir ))
         {
@@ -80,31 +79,31 @@ class Logger
         if (empty ( $accessFile ))
         {
             trigger_error ( "create log file $filename failed, no disk space for permission" );
-            self::$FILE = array ();
+            $this->file = array ();
             return;
         }
 
-        self::$FILE['access'] = $filename;
+       $this->file['access'] = $filename;
 
         $errorFile = fopen ( $filename . '.wf', 'a+' );
         if (empty ( $errorFile ))
         {
             trigger_error ( "create log file $filename.wf failed, no disk space for permission" );
-            self::$FILE = array ();
+            $this->file = array ();
             return;
         }
-        self::$FILE['error'] = $filename . ".wf";
+        $this->file['error'] = $filename . ".wf";
         if (! empty ( $arrBasic ))
         {
-            self::$ARR_BASIC = $arrBasic;
+           $this->arr_basic = $arrBasic;
         }
 
         if (!empty($flushInterval))
         {
-            self::$FIUSH_INTERVAL = $flushInterval;
+            $this->flush_interval = $flushInterval;
         }
 
-        self::$FORCE_FLUSH = $forceFlush;
+        $this->force_flush = $forceFlush;
     }
 
     private static function checkPrintable(&$data, $key)
@@ -120,19 +119,19 @@ class Logger
             $data = base64_encode ( $data );
         }
     }
-    private static function checkFlushable($fileIndex)
+    private function checkFlushable($fileIndex)
     {
-        if (count(static::$MESSAGES[$fileIndex]) >= static::$FIUSH_INTERVAL)
+        if (count($this->messgaes[$fileIndex]) >= $this->flush_interval)
         {
             return true;
         }
         return false;
     }
 
-    private static function log($level, $arrArg)
+    private function log($level, $arrArg)
     {
 
-        if ($level < self::$LOG_LEVEL || empty ( self::$FILE ) || empty ( $arrArg ))
+        if ($level < $this->log_level || empty ( $this->file ) || empty ( $arrArg ))
         {
             return;
         }
@@ -143,7 +142,7 @@ class Logger
         $content .= '][';
         $content .= self::$ARR_DESC [$level];
         $content .= "]";
-        foreach ( self::$ARR_BASIC as $key => $value )
+        foreach ( $this->arr_basic as $key => $value )
         {
             $content .= "[$key:$value]";
         }
@@ -164,7 +163,7 @@ class Logger
             {
                 array_walk_recursive ( $arg, array (Logger::class, 'checkPrintable' ) );
 
-                if (static::$LOG_LEVEL)
+                if ($this->log_level)
                 {
                     $data = var_export ( $arg, true );
                 }
@@ -179,10 +178,10 @@ class Logger
         $content .= call_user_func_array ( 'sprintf', $arrArg );
         $content .= "\n";
 
-        self::$MESSAGES['access'][] = $content;
+        $this->messgaes['access'][] = $content;
         if (self::checkFlushable('access'))
         {
-            static::flushLog('access');
+            $this->flushLog('access');
         }
 
         if ($level <= self::L_NOTICE)
@@ -190,59 +189,59 @@ class Logger
             return;
         }
 
-        self::$MESSAGES["error"][] = $content;
+        $this->messgaes["error"][] = $content;
         if (self::checkFlushable('error'))
         {
-            static::flushLog('error');
+            $this->flushLog('error');
         }
     }
 
-    private static function flushLog( $fileIndex)
+    private  function flushLog( $fileIndex)
     {
-        if (empty(static::$MESSAGES[$fileIndex])){
+        if (empty($this->messgaes[$fileIndex])){
             return;
         }
-        $messageText = implode("\n", static::$MESSAGES[$fileIndex]) . "\n";
-        FileHelper::write(self::$FILE[$fileIndex], $messageText);
-        static::$MESSAGES[$fileIndex] = [];
+        $messageText = implode("\n", $this->messgaes[$fileIndex]) . "\n";
+        FileHelper::write($this->file[$fileIndex], $messageText);
+        $this->messgaes[$fileIndex] = [];
     }
 
-    public static function debug()
+    public function debug()
     {
 
         $arrArg = func_get_args ();
         self::log ( self::L_DEBUG, $arrArg );
     }
 
-    public static function trace()
+    public function trace()
     {
 
         $arrArg = func_get_args ();
         self::log ( self::L_TRACE, $arrArg );
     }
 
-    public static function info()
+    public function info()
     {
 
         $arrArg = func_get_args ();
         self::log ( self::L_INFO, $arrArg );
     }
 
-    public static function notice()
+    public function notice()
     {
 
         $arrArg = func_get_args ();
         self::log ( self::L_NOTICE, $arrArg );
     }
 
-    public static function warning()
+    public function warning()
     {
 
         $arrArg = func_get_args ();
         self::log ( self::L_WARNING, $arrArg );
     }
 
-    public static function fatal()
+    public function fatal()
     {
 
         $arrArg = func_get_args ();
