@@ -59,9 +59,9 @@ class LogHandler
         $memUsed = sprintf('%.0f', memory_get_peak_usage() / (1024 * 1024));
 
         $messageAry = array(
-            "[请求耗时:$timeUsed(ms)]",
-            "[内存消耗:$memUsed(MB)]",
-            "[请求地址:{$this->getUri()}]",
+            "[request_cross:$timeUsed(ms)]",
+            "[memory_cross:$memUsed(MB)]",
+            "[request_url:{$this->getUri()}]",
         );
         Logger::notice($messageAry);
     }
