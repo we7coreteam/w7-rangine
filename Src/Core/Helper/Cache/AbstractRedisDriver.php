@@ -1,13 +1,10 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: alex
- * Date: 18-7-27
- * Time: 上午9:33
+ * author: alex
+ * date: 18-7-27 下午6:02
  */
 
 namespace W7\Core\Helper\Cache;
-
 
 use Psr\SimpleCache\CacheInterface;
 
@@ -96,11 +93,9 @@ use Psr\SimpleCache\CacheInterface;
  */
 class AbstractRedisDriver implements CacheInterface
 {
-
-
     protected $prefix;
 
-    static protected $redis = null;
+    protected static $redis = null;
 
     protected $defineConf;
 
@@ -117,7 +112,7 @@ class AbstractRedisDriver implements CacheInterface
     public function setPrefix()
     {
         $prefix = $this->getPrefix();
-        if (!empty($prefix) && is_string($prefix)){
+        if (!empty($prefix) && is_string($prefix)) {
             static::$redis->setOption(\Redis::OPT_PREFIX, $prefix);
         }
     }
@@ -132,10 +127,10 @@ class AbstractRedisDriver implements CacheInterface
 
     public function getPrefix()
     {
-        if (empty($this->defineConf)){
+        if (empty($this->defineConf)) {
             return null;
         }
-        if (!isset($this->defineConf['prefix']) || empty($this->defineConf['prefix'])){
+        if (!isset($this->defineConf['prefix']) || empty($this->defineConf['prefix'])) {
             return null;
         }
         return $this->defineConf['prefix'];
@@ -368,5 +363,4 @@ class AbstractRedisDriver implements CacheInterface
     {
         return ($ttl === null) ? 0 : (int)$ttl;
     }
-
 }

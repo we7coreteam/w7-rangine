@@ -6,12 +6,13 @@
 
 namespace W7\Core\Base;
 
-interface DispatcherInterface {
+interface DispatcherInterface
+{
 
-	/**
-	 * 匹配请求
-	 * @param mixed ...$params
-	 * @return mixed
-	 */
-	public function dispatch(...$params);
+    /**
+     * 匹配请求
+     * @param mixed ...$params
+     * @return mixed
+     */
+    public function dispatch(...$params);
 }

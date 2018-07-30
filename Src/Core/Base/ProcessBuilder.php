@@ -1,8 +1,11 @@
 <?php
-
+/**
+ * author: alex
+ * date: 18-7-27 下午6:02
+ */
 namespace W7\Core\Base;
-use Swoole\Process as SwooleProcess;
 
+use Swoole\Process as SwooleProcess;
 
 /**
  * The process builder
@@ -33,5 +36,4 @@ class ProcessBuilder
 
         return $swooleProcess;
     }
-
 }

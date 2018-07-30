@@ -1,13 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: alex
- * Date: 18-7-25
- * Time: 上午11:05
+ * author: alex
+ * date: 18-7-27 下午6:02
  */
-
 namespace W7\Core\Base;
-
 
 use Psr\SimpleCache\CacheInterface;
 
@@ -22,7 +18,6 @@ use Psr\SimpleCache\CacheInterface;
  */
 abstract class CacheAbstract implements CacheInterface
 {
-
     protected static $driverType;
 
     /**
@@ -53,6 +48,5 @@ abstract class CacheAbstract implements CacheInterface
             'memory' => '',
         ];
     }
-    abstract public function set($key, $value ,$ttl=null);
-
+    abstract public function set($key, $value, $ttl=null);
 }

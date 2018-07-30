@@ -15,10 +15,11 @@ use W7\Core\Helper\Context;
 use w7\HttpRoute\Exception\BadRequestException;
 use w7\HttpRoute\Exception\RouteNotFoundException;
 
-class RequestMiddleware extends MiddlewareAbstract {
-
-	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		//此处处理调用控制器操作
+class RequestMiddleware extends MiddlewareAbstract
+{
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        //此处处理调用控制器操作
         try {
             $route = $request->getHeader('route');
             $route = json_decode($route[0], true);
@@ -32,14 +33,10 @@ class RequestMiddleware extends MiddlewareAbstract {
             $contextObj = iloader()->singleton(Context::class);
             $response = $contextObj->getResponse()->json($response);
             return $response;
-        }catch (RouteNotFoundException $routeNotFoundException){
+        } catch (RouteNotFoundException $routeNotFoundException) {
             throw new BadRequestException($routeNotFoundException->getMessage(), 403);
-        }catch (\Throwable $throwable){
+        } catch (\Throwable $throwable) {
             throw new BadRequestException($throwable->getMessage(), $throwable->getCode());
         }
-
-	}
-
-
-
+    }
 }

@@ -7,6 +7,6 @@ namespace W7\Core\Base;
 
 use Psr\Http\Server\MiddlewareInterface;
 
-abstract class MiddlewareAbstract implements MiddlewareInterface {
-	
+abstract class MiddlewareAbstract implements MiddlewareInterface
+{
 }

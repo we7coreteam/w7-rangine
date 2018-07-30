@@ -1,18 +1,15 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: alex
- * Date: 18-7-25
- * Time: 上午11:24
+ * author: alex
+ * date: 18-7-27 下午6:02
  */
 
 namespace W7\Core\Helper;
 
-
 use Swoole\Table;
 use W7\Core\Base\TableInterface;
 
-class MemoryCache  implements TableInterface
+class MemoryCache implements TableInterface
 {
     /**
      * @var Table $table 内存表实例
@@ -43,8 +40,7 @@ class MemoryCache  implements TableInterface
     public function __construct()
     {
         $tableConfig = iconfig()->getUserConfig("define")['cache'];
-        if (empty($tableConfig) || !isset($tableConfig['memory']))
-        {
+        if (empty($tableConfig) || !isset($tableConfig['memory'])) {
             throw new \InvalidArgumentException("the memory config is not has");
         }
         $this->setSize($tableConfig['memory']['size']);
@@ -158,8 +154,10 @@ class MemoryCache  implements TableInterface
     {
         switch ($type) {
             case self::TYPE_INT:
-                if (!in_array($size,
-                    [self::ONE_INT_LENGTH, self::TWO_INT_LENGTH, self::FOUR_INT_LENGTH, self::EIGHT_INT_LENGTH])) {
+                if (!in_array(
+                    $size,
+                    [self::ONE_INT_LENGTH, self::TWO_INT_LENGTH, self::FOUR_INT_LENGTH, self::EIGHT_INT_LENGTH]
+                )) {
                     $size = 4;
                 }
                 break;

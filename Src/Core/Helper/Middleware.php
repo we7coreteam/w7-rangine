@@ -7,10 +7,8 @@
 
 namespace W7\Core\Helper;
 
-class Middleware {
-
-
-
+class Middleware
+{
     protected $middlewares;
 
 
@@ -23,10 +21,9 @@ class Middleware {
     {
         $result = [];
         $controllerMiddlerwares = !empty($this->middlewares[$routeController])?$this->middlewares[$routeController]:[];
-        foreach ($controllerMiddlerwares as $method => $middlerware)
-        {
+        foreach ($controllerMiddlerwares as $method => $middlerware) {
             if (strstr($method, $routeMethod)|| $method == "default") {
-                $result = array_merge($result,$controllerMiddlerwares[$method]);
+                $result = array_merge($result, $controllerMiddlerwares[$method]);
             }
         }
         return $result;
@@ -48,7 +45,6 @@ class Middleware {
      */
     public function getMiddlewares()
     {
-
         $dataHepler  = new RouteData();
         $middlewares = $dataHepler->middlerWareData();
         $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
@@ -67,21 +63,18 @@ class Middleware {
     protected function formatData(array $commonMiddlewares, array $methodMiddlewares)
     {
         $middlewares = [];
-        foreach($commonMiddlewares as $controller=>$middleware)
-        {
-            if (empty($middleware)){
+        foreach ($commonMiddlewares as $controller=>$middleware) {
+            if (empty($middleware)) {
                 continue;
             }
             $middlewares[$controller]['default'] = $middleware;
         }
-        foreach($methodMiddlewares as $method=>$middleware)
-        {
-            if (empty($middleware)){
+        foreach ($methodMiddlewares as $method=>$middleware) {
+            if (empty($middleware)) {
                 continue;
             }
             $middlewares[$controller][$method] = $middleware;
         }
         return $middlewares;
     }
-
 }

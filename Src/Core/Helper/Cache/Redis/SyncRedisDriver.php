@@ -1,13 +1,10 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: alex
- * Date: 18-7-27
- * Time: 上午10:04
+ * author: alex
+ * date: 18-7-27 下午6:02
  */
 
 namespace W7\Core\Helper\Cache\Redis;
-
 
 use Swoole\Redis;
 use W7\Core\Helper\Cache\AbstractRedisDriver;
@@ -20,7 +17,7 @@ class SyncRedisDriver extends AbstractRedisDriver
      */
     public function __construct()
     {
-        if (static::$redis instanceof Redis){
+        if (static::$redis instanceof Redis) {
             return static::$redis;
         }
         $defineConf = iconfig()->getUserConfig("define");
@@ -35,17 +32,17 @@ class SyncRedisDriver extends AbstractRedisDriver
             $options['password'] = $config['auth'];
         }
 
-        if (isset($config['database']) && $redisConf['database'] < 16 ) {
+        if (isset($config['database']) && $redisConf['database'] < 16) {
             $options['database'] = $config['database'];
         }
         $client = new Redis($options);
-        $client->connect($host, $port, function ($client, $result){
-            if ($result === false){
+        $client->connect($host, $port, function ($client, $result) {
+            if ($result === false) {
                 throw new \RedisException("SyncRedis is wrong");
             }
         });
         static::$redis = $client;
-        if (!static::$redis){
+        if (!static::$redis) {
             $error = sprintf('Redis connection failure host=%s port=%d', $host, $port);
             throw new RedisException($error);
         }
@@ -62,7 +59,7 @@ class SyncRedisDriver extends AbstractRedisDriver
     protected function call(string $method, array $params)
     {
         $client = static::$redis;
-        $callback = function ($client, $result){
+        $callback = function ($client, $result) {
         };
         $params[] = $callback;
         static::$redis->$method(...$params);
