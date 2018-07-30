@@ -46,6 +46,6 @@ class BeforeStartListener implements ListenerInterface
          * @var Context $contextObj
          */
         $contextObj = iloader()->singleton(Context::class);
-        $contextObj->setContextDataByKey(Dispather::ROUTE_CONTEXT_KEY, $routeList);
+        $contextObj->setContextDataByKey(Context::ROUTE_KEY, $routeList);
     }
 }
