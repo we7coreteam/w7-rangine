@@ -8,10 +8,12 @@ namespace W7\Http\Server;
 
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Base\DispatcherAbstract;
+use W7\Core\Base\Logger;
 use W7\Core\Base\MiddlewareHandler;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Middleware;
 use w7\HttpRoute\HttpServer;
+use W7\Http\Handler\LogHandler;
 
 class Dispather extends DispatcherAbstract
 {
@@ -20,6 +22,7 @@ class Dispather extends DispatcherAbstract
 
     public function dispatch(...$params)
     {
+
         $request       = $params[0];
         $response      = $params[1];
         $serverContext = $params[2];
@@ -34,7 +37,7 @@ class Dispather extends DispatcherAbstract
 
         //根据router配置，获取到匹配的controller信息
         //获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
-        $route = $this->getRoute($psr7Request, $serverContext[Context::REQUEST_KEY]);
+        $route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
         $psr7Request = $psr7Request->withAddedHeader("route", json_encode($route));
 
         /**
@@ -45,6 +48,13 @@ class Dispather extends DispatcherAbstract
         $middlewares = $middlewarehelper->getMiddlewareByRoute($route['controller'], $route['method']);
         $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $middlewares);
 
+
+        /**
+         * @var LogHandler $logHandler
+         */
+        $logHandler = iloader()->singleton(LogHandler::class);
+        $logHandler->beforeRequestInit($route['controller'], $route['method']);
+
         $middlewareHandler = new MiddlewareHandler($middlewares);
         try {
             $response = $middlewareHandler->handle($psr7Request);
@@ -52,6 +62,7 @@ class Dispather extends DispatcherAbstract
             $response = $contextObj->getResponse()->json($throwable->getMessage(), $throwable->getCode());
         }
 
+        $logHandler->appendNoticeLog();
         $response->send();
     }
 
