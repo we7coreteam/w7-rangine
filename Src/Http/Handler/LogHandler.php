@@ -59,9 +59,9 @@ class LogHandler
         $memUsed = sprintf('%.0f', memory_get_peak_usage() / (1024 * 1024));
 
         $messageAry = array(
-            "[$timeUsed(ms)]",
-            "[$memUsed(MB)]",
-            "[{$this->getUri()}]",
+            "[请求耗时:$timeUsed(ms)]",
+            "[内存消耗:$memUsed(MB)]",
+            "[请求地址:{$this->getUri()}]",
         );
         Logger::notice($messageAry);
     }
@@ -90,28 +90,4 @@ class LogHandler
         return $contextData['url'] ?? 0;
     }
 
-    /**
-     * 格式化一条日志记录
-     *
-     * @param string    $message   信息
-     * @param array     $context    上下文信息
-     * @param int       $level     级别
-     * @param string    $levelName 级别名
-     * @param \DateTime $ts        时间
-     * @param array     $extra     附加信息
-     * @return array
-     */
-    public function formateRecord($message, $context, $level, $levelName, $ts, $extra)
-    {
-        $record = array(
-            'messages'   => $message,
-            'context'    => $context,
-            'level'      => $level,
-            'level_name' => $levelName,
-            'datetime'   => $ts,
-            'extra'      => $extra,
-        );
-
-        return $record;
-    }
 }
