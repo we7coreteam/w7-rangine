@@ -33,8 +33,7 @@ class RequestListener implements ListenerInterface
         /**
          * @var \W7\Http\Server\Dispather $dispather
          */
-        Logger::addBasic("logid", uniqid());
-        Logger::addBasic("client", getClientIp());
+
         $dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
         $dispather->dispatch($request, $response, $serverContext);
     }

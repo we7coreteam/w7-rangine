@@ -44,6 +44,8 @@ class Dispather extends DispatcherAbstract
         $middlewarehelper = iloader()->singleton(Middleware::class);
         $middlewarehelper->initMiddleware($serverContext[Context::MIDDLEWARE_KEY]);
         $middlewares = $middlewarehelper->getMiddlewareByRoute($route['controller'], $route['method']);
+        Logger::addBasic("logid", uniqid());
+        Logger::addBasic("client", getClientIp());
         Logger::addBasic('controller', $route['controller']);
         Logger::addBasic('method',     $route['method']);
         $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $middlewares);
