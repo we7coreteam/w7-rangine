@@ -53,7 +53,7 @@ class LogHandler
     public function appendNoticeLog()
     {
         // php耗时单位ms毫秒
-        $timeUsed = sprintf('%.2f', (microtime(true) - $this->getRequestTime()) / 1000);
+        $timeUsed = sprintf('%.2f', (microtime(true) - $this->getRequestTime()) * 1000);
 
         // php运行内存大小单位M
         $memUsed = sprintf('%.0f', memory_get_peak_usage() / (1024 * 1024));
