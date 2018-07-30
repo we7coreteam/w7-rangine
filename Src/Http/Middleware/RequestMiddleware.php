@@ -12,11 +12,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use W7\Core\Base\MiddlewareAbstract;
 use W7\Core\Helper\Context;
-use W7\Core\Helper\RouteData;
-use W7\Http\Server\Dispather;
 use w7\HttpRoute\Exception\BadRequestException;
 use w7\HttpRoute\Exception\RouteNotFoundException;
-use w7\HttpRoute\HttpServer;
 
 class RequestMiddleware extends MiddlewareAbstract {
 
