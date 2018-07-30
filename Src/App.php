@@ -46,7 +46,8 @@ class App
 
     public static function doteEnv()
     {
-        $dotenv = new Dotenv(static::IA_ROOT);
+        iconfig()->getUserConfig('define');
+        $dotenv = new Dotenv(BASE_PATH);
         $dotenv->load();
     }
 }
