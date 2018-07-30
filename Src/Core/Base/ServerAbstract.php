@@ -41,6 +41,8 @@ abstract class ServerAbstract implements ServerInterface
     public function __construct()
     {
         App::$server = $this;
+
+        App::logInit();
         
         $setting = \iconfig()->getServer();
         if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {

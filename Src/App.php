@@ -6,8 +6,10 @@
 
 namespace W7;
 
+use W7\Core\Base\Logger;
 use W7\Core\Base\ServerAbstract;
 use W7\Core\Config\Config;
+use W7\Core\Helper\Context;
 use W7\Http\Server\Server;
 
 class App
@@ -31,5 +33,12 @@ class App
             self::$loader = new \W7\Core\Helper\Loader();
         }
         return self::$loader;
+    }
+
+    public static function logInit()
+    {
+        $defineConfig = iconfig()->getUserConfig('define');
+        $logfile = RUNTIME_PATH . DIRECTORY_SEPARATOR . "logs" . DIRECTORY_SEPARATOR . "w7.log";
+        Logger::init($logfile, $defineConfig['log']['level']);
     }
 }

@@ -80,4 +80,53 @@ class FileHelper
         $data = "<?php retrun " .var_export($data) . ";";
         file_put_contents($filePath, $data);
     }
+
+    /**
+     * 写入文件
+     * @param array $records
+     */
+    public  static function write(string $file, string $messageText)
+    {
+
+        // 同步写
+        if (isWorkerStatus() === false) {
+            static::syncWrite($file, $messageText);
+        }
+        // 异步写
+        static::aysncWrite($file, $messageText);
+    }
+
+    /**
+     * 同步写文件
+     *
+     * @param string $logFile     日志路径
+     * @param string $messageText 文本信息
+     */
+    private static function syncWrite(string $logFile, string $messageText)
+    {
+        $fp = fopen($logFile, 'a');
+        if ($fp === false) {
+            throw new \InvalidArgumentException("Unable to append to log file: {$logFile}");
+        }
+        flock($fp, LOCK_EX);
+        fwrite($fp, $messageText);
+        flock($fp, LOCK_UN);
+        fclose($fp);
+    }
+
+    /**
+     * 异步写文件
+     *
+     * @param string $logFile     日志路径
+     * @param string $messageText 文本信息
+     */
+    private static function aysncWrite(string $logFile, string $messageText)
+    {
+        while (true) {
+            $result = \Swoole\Async::writeFile($logFile, $messageText, null, FILE_APPEND);
+            if ($result == true) {
+                break;
+            }
+        }
+    }
 }

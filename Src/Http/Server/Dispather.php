@@ -8,6 +8,7 @@ namespace W7\Http\Server;
 
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Base\DispatcherAbstract;
+use W7\Core\Base\Logger;
 use W7\Core\Base\MiddlewareHandler;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Middleware;
@@ -43,6 +44,8 @@ class Dispather extends DispatcherAbstract
         $middlewarehelper = iloader()->singleton(Middleware::class);
         $middlewarehelper->initMiddleware($serverContext[Context::MIDDLEWARE_KEY]);
         $middlewares = $middlewarehelper->getMiddlewareByRoute($route['controller'], $route['method']);
+        Logger::addBasic('controller', $route['controller']);
+        Logger::addBasic('method',     $route['method']);
         $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $middlewares);
 
         $middlewareHandler = new MiddlewareHandler($middlewares);

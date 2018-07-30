@@ -5,6 +5,7 @@
  */
 
 use Swoole\Coroutine;
+use W7\App;
 use W7\Core\Helper\StringHelper;
 
 if (!function_exists('getApp')) {
@@ -90,6 +91,42 @@ if (!function_exists('isCo')) {
     function isCo():bool
     {
         return Coroutine::getuid()>0;
+    }
+}
+
+if (!function_exists("getClientIp"))
+{
+    function getClientIp()
+    {
+        if (!empty($_SERVER['HTTP_CLIENT_IP']))
+        {
+            return $_SERVER['HTTP_CLIENT_IP'];
+        }
+
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))
+        {
+            return $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+
+        return $_SERVER['REMOTE_ADDR'];
+    }
+}
+
+if (!function_exists("isWorkerStatus"))
+{
+    function isWorkerStatus()
+    {
+        if (App::$server === null) {
+            return false;
+        }
+
+        $server = App::$server->getServer();
+
+        if ($server && \property_exists($server, 'taskworker') && ($server->taskworker === false)) {
+            return true;
+        }
+
+        return false;
     }
 }
 if (! function_exists('ienv')) {

@@ -11,6 +11,7 @@ use Swoole\Http\Response;
 use Swoole\Http\Server;
 use W7\App;
 use W7\Core\Base\ListenerInterface;
+use W7\Core\Base\Logger;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Middleware;
 
@@ -32,6 +33,8 @@ class RequestListener implements ListenerInterface
         /**
          * @var \W7\Http\Server\Dispather $dispather
          */
+        Logger::addBasic("logid", uniqid());
+        Logger::addBasic("client", getClientIp());
         $dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
         $dispather->dispatch($request, $response, $serverContext);
     }
