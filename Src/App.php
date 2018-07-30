@@ -44,7 +44,9 @@ class App
     public static function doteEnv()
     {
         iconfig()->getUserConfig('define');
-        $dotenv = new Dotenv(BASE_PATH);
-        $dotenv->load();
+        if (file_exists(BASE_PATH . DIRECTORY_SEPARATOR . ".env")) {
+            $dotenv = new Dotenv(BASE_PATH);
+            $dotenv->load();
+        }
     }
 }
