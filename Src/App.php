@@ -6,6 +6,7 @@
 
 namespace W7;
 
+use Dotenv\Dotenv;
 use W7\Core\Base\Logger;
 use W7\Core\Base\ServerAbstract;
 use W7\Core\Config\Config;
@@ -40,5 +41,12 @@ class App
         $defineConfig = iconfig()->getUserConfig('define');
         $logfile = RUNTIME_PATH . DIRECTORY_SEPARATOR . "logs" . DIRECTORY_SEPARATOR . "w7.log";
         Logger::init($logfile, $defineConfig['log']['level']);
+    }
+
+
+    public static function doteEnv()
+    {
+        $dotenv = new Dotenv(static::IA_ROOT);
+        $dotenv->load();
     }
 }

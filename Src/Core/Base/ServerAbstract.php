@@ -7,13 +7,11 @@
 
 namespace W7\Core\Base;
 
+use Dotenv\Dotenv;
 use W7\App;
 use W7\Core\Config\Event;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\Context;
-use W7\Core\Helper\Middleware;
-use W7\Core\Process\ReloadProcess;
-use W7\Http\Listener\BeforeStartListener;
 
 abstract class ServerAbstract implements ServerInterface
 {
@@ -44,6 +42,8 @@ abstract class ServerAbstract implements ServerInterface
         App::$server = $this;
 
         App::logInit();
+
+        App::doteEnv();
         
         $setting = \iconfig()->getServer();
         if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
@@ -51,6 +51,7 @@ abstract class ServerAbstract implements ServerInterface
         }
         $this->setting = array_merge([], $setting['common']);
         $this->connection = $setting[$this->type];
+
     }
 
     /**

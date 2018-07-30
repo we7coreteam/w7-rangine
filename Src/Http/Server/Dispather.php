@@ -13,6 +13,7 @@ use W7\Core\Base\MiddlewareHandler;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Middleware;
 use w7\HttpRoute\HttpServer;
+use W7\Http\Handler\LogHandler;
 
 class Dispather extends DispatcherAbstract
 {
@@ -21,6 +22,7 @@ class Dispather extends DispatcherAbstract
 
     public function dispatch(...$params)
     {
+
         $request       = $params[0];
         $response      = $params[1];
         $serverContext = $params[2];
@@ -44,11 +46,14 @@ class Dispather extends DispatcherAbstract
         $middlewarehelper = iloader()->singleton(Middleware::class);
         $middlewarehelper->initMiddleware($serverContext[Context::MIDDLEWARE_KEY]);
         $middlewares = $middlewarehelper->getMiddlewareByRoute($route['controller'], $route['method']);
-        Logger::addBasic("logid", uniqid());
-        Logger::addBasic("client", getClientIp());
-        Logger::addBasic('controller', $route['controller']);
-        Logger::addBasic('method',     $route['method']);
         $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $middlewares);
+
+
+        /**
+         * @var LogHandler $logHandler
+         */
+        $logHandler = iloader()->singleton(LogHandler::class);
+        $logHandler->beforeRequestInit($route['controller'], $route['method']);
 
         $middlewareHandler = new MiddlewareHandler($middlewares);
         try {
@@ -57,6 +62,7 @@ class Dispather extends DispatcherAbstract
             $response = $contextObj->getResponse()->json($throwable->getMessage(), $throwable->getCode());
         }
 
+        $logHandler->appendNoticeLog();
         $response->send();
     }
 
