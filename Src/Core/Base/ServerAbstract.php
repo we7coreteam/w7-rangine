@@ -10,6 +10,7 @@ namespace W7\Core\Base;
 use W7\App;
 use W7\Core\Config\Event;
 use W7\Core\Exception\CommandException;
+use W7\Core\Helper\Context;
 use W7\Core\Helper\Middleware;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\BeforeStartListener;

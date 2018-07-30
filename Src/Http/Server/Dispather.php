@@ -35,7 +35,7 @@ class Dispather extends DispatcherAbstract
 
         //根据router配置，获取到匹配的controller信息
         //获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
-        $route = $this->getRoute($psr7Request, $serverContext[Context::REQUEST_KEY]);
+        $route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
         $psr7Request = $psr7Request->withAddedHeader("route", json_encode($route));
 
         /**
