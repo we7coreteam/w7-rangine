@@ -57,13 +57,8 @@ class LogHandler
 
         // php运行内存大小单位M
         $memUsed = sprintf('%.0f', memory_get_peak_usage() / (1024 * 1024));
-
-        $messageAry = array(
-            "[request_cross:$timeUsed(ms)]",
-            "[memory_cross:$memUsed(MB)]",
-            "[request_url:{$this->getUri()}]",
-        );
-        Logger::notice($messageAry);
+        
+        Logger::notice("memory_cross: %s(MB), request_cross cost: %d(ms), request_url: %s", $memUsed, $timeUsed, $this->getUri());
     }
 
     /**
