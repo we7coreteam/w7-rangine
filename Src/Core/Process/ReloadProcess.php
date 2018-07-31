@@ -57,7 +57,7 @@ class ReloadProcess implements ProcessInterface
         while (true) {
             sleep($this->interval);
             $md5File = FileHelper::md5File($this->watchDir);
-            if (strcmp($this->md5File, $md5File) !== 0) {
+            if (strcmp($this->md5File, $md5File) !== 0 || true) {
                 ioutputer()->writeln("Start reloading...\n");
                 $server->isRun();
                 $server->getServer()->reload();

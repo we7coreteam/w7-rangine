@@ -80,9 +80,6 @@ class Config
     /**
      * @return array
      */
-    /**
-     * @return array
-     */
     public function getProcess()
     {
         return $this->process;
@@ -98,7 +95,7 @@ class Config
          * @var EnvHelper $envHelper
          */
         $envHelper = iloader()->singleton(EnvHelper::class);
-        $appConfig = $envHelper->overWrite($appConfig);
+        $appConfig = $envHelper->overWrite((array)$appConfig);
         return $appConfig;
     }
 
