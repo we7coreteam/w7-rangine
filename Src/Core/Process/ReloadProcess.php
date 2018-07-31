@@ -7,7 +7,7 @@
 namespace W7\Core\Process;
 
 use W7\App;
-use W7\Core\Base\ProcessInterface;
+use W7\Core\Base\Process\ProcessInterface;
 use W7\Core\Helper\FileHelper;
 
 class ReloadProcess implements ProcessInterface

@@ -33,7 +33,7 @@ class Logger
     const L_FATAL = 6;
 
 
-    private static $ARR_DESC = array (0 => 'ALL', 1 => 'DEBUG', 2 => 'TRACE', 3 => 'INFO',
+    private  $arr_desc = array (0 => 'ALL', 1 => 'DEBUG', 2 => 'TRACE', 3 => 'INFO',
         4 => 'NOTICE', 5 => 'WARNING', 6 => 'FATAL' );
 
     private  $log_level = self::L_DEBUG;
@@ -66,7 +66,7 @@ class Logger
     public function init($filename, $level, $flushInterval = 1,$arrBasic = null, $forceFlush = false)
     {
 
-        if (! isset ( self::$ARR_DESC [$level] ))
+        if (! isset ( $this->arr_desc [$level] ))
         {
             trigger_error ( "invalid level:$level" );
             return;
@@ -146,7 +146,7 @@ class Logger
         $content = '[' . date ( 'Ymd H:i:s ' );
         $content .= sprintf ( "%06d", intval ( 1000000 * $arrMicro [0] ) );
         $content .= '][';
-        $content .= self::$ARR_DESC [$level];
+        $content .= $this->arr_desc [$level];
         $content .= "]";
         foreach ( $this->arr_basic as $key => $value )
         {
@@ -165,6 +165,10 @@ class Logger
         foreach ( $arrArg as $idx => $arg )
         {
 
+            if (is_object($arg))
+            {
+                $arg = (array)$arg;
+            }
             if (is_array ( $arg ))
             {
                 array_walk_recursive ( $arg, array (Logger::class, 'checkPrintable' ) );

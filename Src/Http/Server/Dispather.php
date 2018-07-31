@@ -7,20 +7,18 @@
 namespace W7\Http\Server;
 
 use Psr\Http\Message\ServerRequestInterface;
-use W7\Core\Base\DispatcherAbstract;
-use W7\Core\Base\MiddlewareHandler;
+use W7\Core\Base\Dispatcher\DispatcherAbstract;
+use W7\Core\Base\Middleware\MiddlewareHandler;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\EventDispatcher;
 use W7\Core\Helper\Middleware;
 use w7\HttpRoute\HttpServer;
-use W7\Http\Handler\LogHandler;
 
 class Dispather extends DispatcherAbstract
 {
     public $lastMiddleware = \W7\Http\Middleware\RequestMiddleware::class;
 
 
-    public static $log_context_data_key = "request-log";
 
 
     public function dispatch(...$params)

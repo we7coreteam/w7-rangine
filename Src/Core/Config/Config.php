@@ -6,12 +6,16 @@
 
 namespace W7\Core\Config;
 
+use Dotenv\Dotenv;
 use W7\Core\Helper\EnvHelper;
+use W7\Core\Listener\AfterRequestListener;
+use W7\Core\Listener\BeforeRequestListener;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStart;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Process\ReloadProcess;
+use W7\Http\Listener\BeforeStartListener;
 use W7\Http\Listener\RequestListener;
 
 class Config
@@ -25,6 +29,9 @@ class Config
             'host' => '0.0.0.0'
         ]
     ];
+
+
+
 
     private $event;
     private $defaultEvent = [
@@ -66,6 +73,33 @@ class Config
     }
 
     /**
+     * EnvHelper constructor.
+     */
+    public function __construct()
+    {
+        if (file_exists(BASE_PATH . DIRECTORY_SEPARATOR . ".env")) {
+            $dotenv = new Dotenv(BASE_PATH);
+            $dotenv->load();
+        }
+    }
+    /**
+     * @param array $config
+     * @return array
+     */
+    public function overWrite(array $config)
+    {
+        foreach ($config as $key=>$value)
+        {
+            if (is_array($value)){
+                $config[$key] = $this->overWrite($value);
+                continue;
+            }
+            $config[$key] = env(strtoupper($key), $value);
+        }
+        return $config;
+    }
+
+    /**
      * @return array
      */
     public function getServer()
@@ -77,6 +111,9 @@ class Config
         return $this->server;
     }
 
+    /**
+     * @return array
+     */
     /**
      * @return array
      */
@@ -94,8 +131,7 @@ class Config
         /**
          * @var EnvHelper $envHelper
          */
-        $envHelper = iloader()->singleton(EnvHelper::class);
-        $appConfig = $envHelper->overWrite((array)$appConfig);
+        $appConfig = $this->overWrite($appConfig);
         return $appConfig;
     }
 

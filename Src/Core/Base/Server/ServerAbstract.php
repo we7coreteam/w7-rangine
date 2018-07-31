@@ -5,9 +5,10 @@
  * @date 18-7-20 上午9:32
  */
 
-namespace W7\Core\Base;
+namespace W7\Core\Base\Server;
 
 use W7\App;
+use W7\Core\Base\Process\ProcessBuilder;
 use W7\Core\Config\Event;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\Context;
@@ -39,8 +40,6 @@ abstract class ServerAbstract implements ServerInterface
     public function __construct()
     {
         App::$server = $this;
-
-        
         $setting = \iconfig()->getServer();
         if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
             throw new CommandException(sprintf('缺少服务配置 %s', $this->type));

@@ -7,7 +7,6 @@
 namespace W7\Core\Helper;
 
 use W7\App;
-use W7\Core\Base\EventInterface;
 use W7\Core\Base\ListenerInterface;
 use W7\Core\Config\Event;
 
@@ -62,7 +61,6 @@ class EventDispatcher
             return true;
         }
         $serverSupport = \iconfig()->getServer();
-        unset($serverSupport['common']);
 
         $listenerClass = [];
         foreach ($event as $eventName) {
