@@ -165,6 +165,10 @@ class Logger
         foreach ( $arrArg as $idx => $arg )
         {
 
+            if (is_object($arg))
+            {
+                $arg = (array)$arg;
+            }
             if (is_array ( $arg ))
             {
                 array_walk_recursive ( $arg, array (Logger::class, 'checkPrintable' ) );
