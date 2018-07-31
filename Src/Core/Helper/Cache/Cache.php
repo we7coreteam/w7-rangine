@@ -4,11 +4,12 @@
  * date: 18-7-27 下午6:02
  */
 
-namespace W7\Core\Helper;
+namespace W7\Core\Base\Cache\Helper;
 
 use W7\Core\Base\Cache\CacheAbstract;
 use W7\Core\Helper\Cache\Redis\RedisCoroutineDriver;
 use W7\Core\Helper\Cache\Redis\RedisDriver;
+use W7\Core\Helper\MemoryCache;
 
 /**
  * @method string|bool get($key, $default = null)
