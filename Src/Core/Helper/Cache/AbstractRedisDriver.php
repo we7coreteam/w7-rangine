@@ -121,7 +121,7 @@ class AbstractRedisDriver implements CacheInterface
      */
     protected function getDefineConf()
     {
-        $this->defineConf = iconfig()->getUserConfig("define");
+        $this->defineConf = iconfig()->getUserConfig("app");
     }
 
 

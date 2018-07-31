@@ -48,7 +48,7 @@ class Middleware
         $dataHepler  = new RouteData();
         $middlewares = $dataHepler->middlerWareData();
         $middlewares = $this->formatData($middlewares['controller_midllerware'], $middlewares['method_middlerware']);
-        $systemMiddlerwares = iconfig()->getUserConfig("define");
+        $systemMiddlerwares = iconfig()->getUserConfig("app");
         $beforeMiddlerwares = !empty($systemMiddlerwares['middlerware']['befor_middlerware'])?$systemMiddlerwares['middlerware']['befor_middlerware']:[];
         $afterMiddlerwares  = !empty($systemMiddlerwares['middlerware']['after_middlerware'])?$systemMiddlerwares['middlerware']['after_middlerware']:[];
         $middlewares = array_merge($beforeMiddlerwares, $middlewares, $afterMiddlerwares);

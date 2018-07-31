@@ -20,7 +20,7 @@ class SyncRedisDriver extends AbstractRedisDriver
         if (static::$redis instanceof Redis) {
             return static::$redis;
         }
-        $defineConf = iconfig()->getUserConfig("define");
+        $defineConf = iconfig()->getUserConfig("app");
         $redisConfUrl  = $defineConf['cache']['redis']['url'];
         $timeout = $defineConf['cache']['redis']['timeout'];
         $redisConf = $this->parseUri($redisConfUrl);

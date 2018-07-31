@@ -39,14 +39,13 @@ class ReloadProcess implements ProcessInterface
      */
     public function __construct()
     {
-        iconfig()->getUserConfig('define');
         $this->watchDir = APP_PATH;
         $this->md5File = FileHelper::md5File($this->watchDir);
     }
     public function check()
     {
         $serverConfig = iconfig()->getServer();
-        if (!$serverConfig['autoReload']) {
+        if (!$serverConfig['common']['autoReload']) {
             return true;
         }
         return true;

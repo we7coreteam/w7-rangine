@@ -54,13 +54,4 @@ class App
         return static::$logger;
     }
 
-
-    public static function doteEnv()
-    {
-        iconfig()->getUserConfig('define');
-        if (file_exists(BASE_PATH . DIRECTORY_SEPARATOR . ".env")) {
-            $dotenv = new Dotenv(BASE_PATH);
-            $dotenv->load();
-        }
-    }
 }

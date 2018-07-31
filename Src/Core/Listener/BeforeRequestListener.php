@@ -9,7 +9,7 @@ namespace W7\Core\Listener;
 
 use W7\Core\Base\ListenerInterface;
 use W7\Core\Helper\Context;
-use W7\Http\Handler\LogHandler;
+use W7\Core\Helper\LogHelper;
 use W7\Http\Server\Dispather;
 
 class BeforeRequestListener implements ListenerInterface
@@ -17,9 +17,9 @@ class BeforeRequestListener implements ListenerInterface
     public function run()
     {
         /**
-         * @var LogHandler $logHanler
+         * @var LogHelper $logHanler
          */
-        $logHanler = iloader()->singleton(LogHandler::class);
+        $logHanler = iloader()->singleton(LogHelper::class);
         $logHanler->beforeRequestInit();
     }
 }

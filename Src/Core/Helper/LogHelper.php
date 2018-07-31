@@ -4,13 +4,11 @@
  * date: 18-7-30 下午2:16
  */
 
-namespace W7\Http\Handler;
+namespace W7\Core\Helper;
 
 
-use W7\Core\Helper\Context;
-use W7\Http\Server\Dispather;
 
-class LogHandler
+class LogHelper
 {
 
 
@@ -33,11 +31,10 @@ class LogHandler
          * @var Context $contextObj
          */
         $contextObj = iloader()->singleton(Context::class);
-        $requestLogContextData = $contextObj->getContextDataByKey(Dispather::$log_context_data_key);
+        $requestLogContextData = $contextObj->getContextDataByKey(Context::LOG_REQUEST_KEY);
 
         $spanid = rand(1000000, 9999999);
         ilogger()->addBasic("logid", uniqid());
-        ilogger()->addBasic("client", getClientIp());
         ilogger()->addBasic("spanid", $spanid);
         ilogger()->addBasic("controller", $requestLogContextData['controller']);
         ilogger()->addBasic('method', $requestLogContextData['method']);
@@ -84,7 +81,7 @@ class LogHandler
      */
     private function getRequestTime(): int
     {
-        $contextData = $this->contextObj->getContextDataByKey(Dispather::$log_context_data_key);
+        $contextData = $this->contextObj->getContextDataByKey(Context::LOG_REQUEST_KEY);
 
         return $contextData['requestTime'] ?? 0;
     }
@@ -96,7 +93,7 @@ class LogHandler
      */
     private function getUri(): string
     {
-        $contextData = $this->contextObj->getContextDataByKey(Dispather::$log_context_data_key);
+        $contextData = $this->contextObj->getContextDataByKey(Context::LOG_REQUEST_KEY);
 
         return $contextData['url'] ?? 0;
     }

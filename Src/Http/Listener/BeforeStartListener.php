@@ -8,10 +8,9 @@ namespace W7\Http\Listener;
 
 use W7\Core\Base\ListenerInterface;
 use W7\Core\Helper\Context;
+use W7\Core\Helper\LogHelper;
 use W7\Core\Helper\Middleware;
 use W7\Core\Helper\RouteData;
-use W7\Http\Handler\LogHandler;
-use W7\Http\Server\Dispather;
 use w7\HttpRoute\HttpServer;
 
 class BeforeStartListener implements ListenerInterface
@@ -19,9 +18,9 @@ class BeforeStartListener implements ListenerInterface
     public function run()
     {
         /**
-         * @var LogHandler $logHanler
+         * @var LogHelper $logHanler
          */
-        $logHanler = iloader()->singleton(LogHandler::class);
+        $logHanler = iloader()->singleton(LogHelper::class);
         set_error_handler([$logHanler, 'errorHandler']);
         $this->addRoute();
         /**

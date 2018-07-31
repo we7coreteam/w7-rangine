@@ -52,7 +52,7 @@ class Dispather extends DispatcherAbstract
         $middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $middlewares);
 
         $requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
-        $contextObj->setContextDataByKey(static::$log_context_data_key, $requestLogContextData);
+        $contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 
 
         /**

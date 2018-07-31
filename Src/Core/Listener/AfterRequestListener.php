@@ -8,16 +8,16 @@ namespace W7\Core\Listener;
 
 
 use W7\Core\Base\ListenerInterface;
-use W7\Http\Handler\LogHandler;
+use W7\Core\Helper\LogHelper;
 
 class AfterRequestListener implements ListenerInterface
 {
     public function run()
     {
         /**
-         * @var LogHandler $logHandler
+         * @var LogHelper $logHandler
          */
-      $logHandler = iloader()->singleton(LogHandler::class);
+      $logHandler = iloader()->singleton(LogHelper::class);
       $logHandler->appendNoticeLog();
     }
 

@@ -6,6 +6,7 @@
 
 namespace W7\Core\Config;
 
+use W7\Core\Helper\EnvHelper;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStart;
 use W7\Core\Listener\StartListener;
@@ -60,6 +61,7 @@ class Config
             return $this->event;
         }
         $this->event = array_merge([], $this->defaultEvent, $this->getUserCommonConfig('event'));
+
         return $this->event;
     }
 
@@ -92,12 +94,17 @@ class Config
         if (file_exists($appConfigFile)) {
             $appConfig = include $appConfigFile;
         }
+        /**
+         * @var EnvHelper $envHelper
+         */
+        $envHelper = iloader()->singleton(EnvHelper::class);
+        $appConfig = $envHelper->overWrite($appConfig);
         return $appConfig;
     }
 
     public function getUserCommonConfig($name)
     {
-        $commonConfig = $this->getUserConfig('define');
+        $commonConfig = $this->getUserConfig('app');
         if (isset($commonConfig[$name])) {
             return $commonConfig[$name];
         } else {

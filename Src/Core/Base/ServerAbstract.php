@@ -40,7 +40,6 @@ abstract class ServerAbstract implements ServerInterface
     {
         App::$server = $this;
 
-        App::doteEnv();
         
         $setting = \iconfig()->getServer();
         if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
