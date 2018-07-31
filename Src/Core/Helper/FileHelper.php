@@ -85,7 +85,7 @@ class FileHelper
      * 写入文件
      * @param array $records
      */
-    public  static function write(string $file, string $messageText)
+    public static function write(string $file, string $messageText)
     {
 
         // 同步写

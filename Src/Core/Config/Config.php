@@ -16,7 +16,6 @@ use W7\Http\Listener\RequestListener;
 
 class Config
 {
-
     const VERSION = '1.0.0';
 
     private $server;
@@ -54,6 +53,14 @@ class Config
         ReloadProcess::class,
     ];
 
+    private $allow_type=[
+        'server',
+        'event',
+        'app',
+        'route',
+        'define',
+    ];
+
 
     /**
      * @return array
@@ -84,9 +91,8 @@ class Config
      */
     public function overWrite(array $config)
     {
-        foreach ($config as $key=>$value)
-        {
-            if (is_array($value)){
+        foreach ($config as $key=>$value) {
+            if (is_array($value)) {
                 $config[$key] = $this->overWrite($value);
                 continue;
             }
@@ -117,6 +123,9 @@ class Config
 
     public function getUserConfig($type)
     {
+        if (!in_array($type, $this->allow_type)) {
+            return null;
+        }
         $appConfigFile = IA_ROOT . '/config/'.$type.'.php';
         if (file_exists($appConfigFile)) {
             $appConfig = include $appConfigFile;

@@ -10,18 +10,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class ModelAbstract extends Model
 {
-	/**
-	 * 重写方法，获取connection结合到连接池中
-	 * 根据传入的Connection值来实例化特定的连接池，默认是master
-	 * @return \Illuminate\Database\Query\Builder|QueryBuilder
-	 */
-	public static function resolveConnection($connection = null)
-	{
-		/**
-		 * @var \W7\Core\Database\Pool\MasterPool $dbPool
-		 */
-		$dbPool = \iloader()->singleton(\W7\Core\Database\Pool\MasterPool::class);
-		$dbPool->setConnectionName($connection);
-		return $dbPool->getConnection($connection);
-	}
+    /**
+     * 重写方法，获取connection结合到连接池中
+     * 根据传入的Connection值来实例化特定的连接池，默认是master
+     * @return \Illuminate\Database\Query\Builder|QueryBuilder
+     */
+    public static function resolveConnection($connection = null)
+    {
+        /**
+         * @var \W7\Core\Database\Pool\MasterPool $dbPool
+         */
+        $dbPool = \iloader()->singleton(\W7\Core\Database\Pool\MasterPool::class);
+        $dbPool->setConnectionName($connection);
+        return $dbPool->getConnection($connection);
+    }
 }

@@ -46,7 +46,6 @@ abstract class ServerAbstract implements ServerInterface
         }
         $this->setting = array_merge([], $setting['common']);
         $this->connection = $setting[$this->type];
-
     }
 
     /**
@@ -62,12 +61,8 @@ abstract class ServerAbstract implements ServerInterface
 
     public function getStatus()
     {
-        $pidFile = $this->setting['pid_file'];
-        if (file_exists($pidFile)) {
-            $pids = explode(',', file_get_contents($pidFile));
-            $this->setting['masterPid'] = $pids[0];
-            $this->setting['managerPid'] = $pids[1];
-        }
+        $this->setting['masterPid'] = $this->server->master_pid;
+        $this->setting['managerPid'] = $this->server->manager_pid;
 
         return [
             'host' => $this->connection['host'],

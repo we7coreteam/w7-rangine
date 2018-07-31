@@ -6,7 +6,6 @@
 
 namespace W7\Core\Listener;
 
-
 use W7\Core\Base\ListenerInterface;
 use W7\Core\Helper\LogHelper;
 
@@ -17,8 +16,7 @@ class AfterRequestListener implements ListenerInterface
         /**
          * @var LogHelper $logHandler
          */
-      $logHandler = iloader()->singleton(LogHelper::class);
-      $logHandler->appendNoticeLog();
+        $logHandler = iloader()->singleton(LogHelper::class);
+        $logHandler->appendNoticeLog();
     }
-
 }

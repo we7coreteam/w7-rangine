@@ -13,7 +13,6 @@ use W7\Core\Base\ListenerInterface;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\LogHelper;
 
-
 class RequestListener implements ListenerInterface
 {
     /**
@@ -36,7 +35,7 @@ class RequestListener implements ListenerInterface
              */
             $dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
             $dispather->dispatch($request, $response, $serverContext);
-        }catch (\Throwable $throwable){
+        } catch (\Throwable $throwable) {
 
             /**
              * @var LogHelper $logHandler

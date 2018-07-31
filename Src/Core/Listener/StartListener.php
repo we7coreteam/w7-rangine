@@ -9,7 +9,6 @@ namespace W7\Core\Listener;
 use Swoole\Http\Server;
 use W7\Core\Base\ListenerInterface;
 
-
 class StartListener implements ListenerInterface
 {
     public function run(Server $server)

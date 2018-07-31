@@ -6,8 +6,6 @@
 
 namespace W7\Core\Helper;
 
-
-
 class LogHelper
 {
 
@@ -49,7 +47,7 @@ class LogHelper
      */
     public function errorHandler($errcode, $errstr, $errfile, $errline, $errcontext)
     {
-        ilogger()->fatal('errcode:%d, errstr:%s, errfile:%s, errline:%s', $errcode, $errstr, $errfile, $errline );
+        ilogger()->fatal('errcode:%d, errstr:%s, errfile:%s, errline:%s', $errcode, $errstr, $errfile, $errline);
     }
 
     /**
@@ -97,5 +95,4 @@ class LogHelper
 
         return $contextData['url'] ?? 0;
     }
-
 }

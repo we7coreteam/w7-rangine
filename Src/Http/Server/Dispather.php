@@ -23,7 +23,6 @@ class Dispather extends DispatcherAbstract
 
     public function dispatch(...$params)
     {
-
         $request       = $params[0];
         $response      = $params[1];
         $serverContext = $params[2];
