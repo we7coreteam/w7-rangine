@@ -6,8 +6,8 @@
 
 namespace W7\Http\Server;
 
-use W7\Core\Base\ServerAbstract;
-use W7\Core\Base\SwooleHttpServer;
+use W7\Core\Base\Server\ServerAbstract;
+use W7\Core\Base\Server\SwooleHttpServer;
 use W7\Core\Config\Event;
 
 class Server extends ServerAbstract

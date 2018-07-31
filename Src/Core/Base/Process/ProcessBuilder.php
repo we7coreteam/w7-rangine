@@ -3,7 +3,7 @@
  * author: alex
  * date: 18-7-27 下午6:02
  */
-namespace W7\Core\Base;
+namespace W7\Core\Base\Process;
 
 use Swoole\Process as SwooleProcess;
 

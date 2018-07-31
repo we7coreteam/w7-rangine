@@ -6,7 +6,7 @@
 
 namespace W7\Core\Helper;
 
-use W7\Core\Base\CacheAbstract;
+use W7\Core\Base\Cache\CacheAbstract;
 use W7\Core\Helper\Cache\Redis\RedisCoroutineDriver;
 use W7\Core\Helper\Cache\Redis\RedisDriver;
 

@@ -4,7 +4,7 @@
  * @date 18-7-24 下午3:09
  */
 
-namespace W7\Core\Base;
+namespace W7\Core\Base\Dispatcher;
 
 interface DispatcherInterface
 {

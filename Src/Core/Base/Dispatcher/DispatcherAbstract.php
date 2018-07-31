@@ -4,7 +4,7 @@
  * @date 18-7-25 上午10:48
  */
 
-namespace W7\Core\Base;
+namespace W7\Core\Base\Dispatcher;
 
 abstract class DispatcherAbstract implements DispatcherInterface
 {
