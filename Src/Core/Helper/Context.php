@@ -44,6 +44,9 @@ class Context
      */
     const ROUTE_KEY = "http-route";
 
+
+    const LOG_REQUEST_KEY = "request-log";
+
     /**
      * @return \Psr\Http\Message\ServerRequestInterface|null
      */

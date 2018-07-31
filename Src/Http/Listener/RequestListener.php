@@ -11,7 +11,7 @@ use Swoole\Http\Response;
 use Swoole\Http\Server;
 use W7\Core\Base\ListenerInterface;
 use W7\Core\Helper\Context;
-
+use W7\Core\Helper\LogHelper;
 
 
 class RequestListener implements ListenerInterface
@@ -30,10 +30,19 @@ class RequestListener implements ListenerInterface
          */
         $serverContext = $server->context;
 
-        /**
-         * @var \W7\Http\Server\Dispather $dispather
-         */
-        $dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
-        $dispather->dispatch($request, $response, $serverContext);
+        try {
+            /**
+             * @var \W7\Http\Server\Dispather $dispather
+             */
+            $dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
+            $dispather->dispatch($request, $response, $serverContext);
+        }catch (\Throwable $throwable){
+
+            /**
+             * @var LogHelper $logHandler
+             */
+            $logHandler = iloader()->singleton(LogHelper::class);
+            $logHandler->exceptionHandler($throwable);
+        }
     }
 }

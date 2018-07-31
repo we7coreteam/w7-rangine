@@ -91,6 +91,7 @@ class FileHelper
         // 同步写
         if (isWorkerStatus() === false) {
             static::syncWrite($file, $messageText);
+            return;
         }
         // 异步写
         static::aysncWrite($file, $messageText);

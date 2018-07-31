@@ -60,6 +60,18 @@ if (!function_exists('iconfig')) {
     }
 }
 
+if (!function_exists("ilogger"))
+{
+    /**
+     * 返回logger对象
+     * @return \W7\Core\Helper\Logger
+     */
+    function ilogger()
+    {
+        return App::getLogger();
+    }
+}
+
 if (!function_exists('ieventDispatcher')) {
     /**
      * 输入对象
@@ -98,6 +110,7 @@ if (!function_exists("getClientIp"))
 {
     function getClientIp()
     {
+        var_dump($_ENV);
         if (!empty($_SERVER['HTTP_CLIENT_IP']))
         {
             return $_SERVER['HTTP_CLIENT_IP'];

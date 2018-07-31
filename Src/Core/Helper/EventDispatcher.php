@@ -33,6 +33,10 @@ class EventDispatcher
         }
         $type = ['framework', $this->serverType, 'user'];
         foreach ($type as $item) {
+            if (!isset($this->listener[$eventName][$item]))
+            {
+                continue;
+            }
             $class = $this->listener[$eventName][$item];
             if (!empty($class)) {
                 if (class_exists($class)) {
