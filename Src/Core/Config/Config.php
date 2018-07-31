@@ -7,15 +7,11 @@
 namespace W7\Core\Config;
 
 use Dotenv\Dotenv;
-use W7\Core\Helper\EnvHelper;
-use W7\Core\Listener\AfterRequestListener;
-use W7\Core\Listener\BeforeRequestListener;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStart;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Process\ReloadProcess;
-use W7\Http\Listener\BeforeStartListener;
 use W7\Http\Listener\RequestListener;
 
 class Config
@@ -125,9 +121,6 @@ class Config
         if (file_exists($appConfigFile)) {
             $appConfig = include $appConfigFile;
         }
-        /**
-         * @var EnvHelper $envHelper
-         */
         $appConfig = $this->overWrite($appConfig);
         return $appConfig;
     }

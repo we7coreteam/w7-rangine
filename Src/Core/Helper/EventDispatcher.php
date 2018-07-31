@@ -16,7 +16,6 @@ class EventDispatcher
     private $serverType;
     private $swooleEvent = [];
     private $systemEvent = [];
-    private $cache = [];
 
     public function __construct()
     {
