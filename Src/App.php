@@ -6,7 +6,6 @@
 
 namespace W7;
 
-use Dotenv\Dotenv;
 use W7\Core\Helper\Logger;
 use W7\Http\Server\Server;
 

@@ -114,9 +114,6 @@ class Config
     /**
      * @return array
      */
-    /**
-     * @return array
-     */
     public function getProcess()
     {
         return $this->process;

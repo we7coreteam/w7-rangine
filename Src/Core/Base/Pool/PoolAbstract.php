@@ -80,7 +80,6 @@ abstract class PoolAbstract implements PoolInterface
 		if ($this->queue->count() < $this->maxActive) {
 			$this->queue->push($connection);
 		}
-
 		return true;
 	}
 
