@@ -11,7 +11,7 @@ use Swoole\Http\Response;
 use Swoole\Http\Server;
 use W7\Core\Base\ListenerInterface;
 use W7\Core\Helper\Context;
-use W7\Http\Handler\LogHandler;
+use W7\Core\Helper\LogHelper;
 
 
 class RequestListener implements ListenerInterface
@@ -39,9 +39,9 @@ class RequestListener implements ListenerInterface
         }catch (\Throwable $throwable){
 
             /**
-             * @var LogHandler $logHandler
+             * @var LogHelper $logHandler
              */
-            $logHandler = iloader()->singleton(LogHandler::class);
+            $logHandler = iloader()->singleton(LogHelper::class);
             $logHandler->exceptionHandler($throwable);
         }
     }

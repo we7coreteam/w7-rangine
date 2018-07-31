@@ -12,18 +12,24 @@ namespace W7\Core\Helper;
 class Logger
 {
 
+    //所有错误
     const L_ALL = 0;
-
+    //开启DEBUG
     const L_DEBUG = 1;
 
+    //debug之上的级别基本用于打印变量数据，类属性数据等
     const L_TRACE = 2;
 
+    //打印返回数据，
     const L_INFO = 3;
 
+    //打印执行结果或者执行结果效率时候
     const L_NOTICE = 4;
 
+    //逻辑错误时会用到
     const L_WARNING = 5;
 
+    //系统级别的错误，一般不建议自己使用
     const L_FATAL = 6;
 
 
