@@ -32,7 +32,7 @@ class LogHelper
         $requestLogContextData = $contextObj->getContextDataByKey(Context::LOG_REQUEST_KEY);
 
         $spanid = rand(1000000, 9999999);
-        ilogger()->addBasic("logid", uniqid());
+        ilogger()->addBasic("logid", iuuid());
         ilogger()->addBasic("spanid", $spanid);
         ilogger()->addBasic("controller", $requestLogContextData['controller']);
         ilogger()->addBasic('method', $requestLogContextData['method']);

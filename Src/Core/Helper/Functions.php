@@ -8,6 +8,21 @@ use Swoole\Coroutine;
 use W7\App;
 use W7\Core\Helper\StringHelper;
 
+
+if (!function_exists("iuuid")) {
+
+    /**
+     * 获取UUID
+     * @return string
+     */
+    function iuuid()
+    {
+        $len = rand(2,16);
+        $prefix = substr(md5(Coroutine::getuid()), $len);
+        return uniqid($prefix);
+    }
+}
+
 if (!function_exists('getApp')) {
     /**
      * 获取加载器
