@@ -26,6 +26,8 @@ class App
 
     private static $logger;
 
+    public static $dbPool;
+
     public static function getLoader()
     {
         if (empty(self::$loader)) {
