@@ -7,6 +7,7 @@
 namespace W7\Core\Database;
 
 use Illuminate\Database\Eloquent\Model;
+use W7\App;
 
 class ModelAbstract extends Model
 {
@@ -20,7 +21,7 @@ class ModelAbstract extends Model
 		/**
 		 * @var \W7\Core\Database\Pool\MasterPool $dbPool
 		 */
-		$dbPool = \iloader()->singleton(\W7\Core\Database\Pool\MasterPool::class);
+		$dbPool = App::$dbPool;
 		$dbPool->setConnectionName($connection);
 		return $dbPool->getConnection($connection);
 	}

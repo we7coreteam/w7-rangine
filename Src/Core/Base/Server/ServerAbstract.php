@@ -46,7 +46,6 @@ abstract class ServerAbstract implements ServerInterface
         }
         $this->setting = array_merge([], $setting['common']);
         $this->connection = $setting[$this->type];
-
     }
 
     /**
@@ -130,6 +129,7 @@ abstract class ServerAbstract implements ServerInterface
         $this->registerSwooleEventListener();
         $this->registerProcesser();
         $this->registerServerContext();
+		$this->registerDbPool();
         return true;
     }
 
@@ -167,6 +167,12 @@ abstract class ServerAbstract implements ServerInterface
         $contextObj = iloader()->singleton(\W7\Core\Helper\Context::class);
         $this->server->context = $contextObj->getContextData();
     }
+
+    private function registerDbPool()
+	{
+		$dbPool = \iloader()->singleton(\W7\Core\Database\Pool\MasterPool::class);
+		App::$dbPool = $dbPool;
+	}
 
     private function registerEvent($event)
     {

@@ -25,7 +25,7 @@ abstract class PoolAbstract implements PoolInterface
 	 * 最大连接数据
 	 * @var int
 	 */
-	protected $maxActive = 10;
+	protected $maxActive = 100;
 
 	/**
 	 * 最大等待数
@@ -56,20 +56,36 @@ abstract class PoolAbstract implements PoolInterface
 	public function __construct()
 	{
 		$this->queue = new \SplQueue();
+		$this->init();
+	}
+
+	protected function init()
+	{
+
 	}
 
 	public function getConnection()
 	{
+		$connectQueue = [];
+		foreach ($this->queue as $item)
+		{
+			$connectQueue[] = $item->connectionId;
+		}
+		ilogger()->info('queue - ' . implode(',', $connectQueue));
+		ilogger()->info('get count - ' . $this->queue->count());
 		if (!$this->queue->isEmpty()) {
 			$connect = $this->getEffectiveConnection($this->queue->count());
+			ilogger()->info('get by queue - ' . $connect->connectionId);
 		}
 
 		if (empty($connect)) {
 			if ($this->currentCount >= $this->maxActive) {
-				throw new \RuntimeException('Connection pool queue is full. Please add the MaxActive value');
+				//throw new \RuntimeException('Connection pool queue is full. Please add the MaxActive value');
 			}
 			$connect = $this->createConnection();
 			$this->currentCount++;
+			ilogger()->info('currentCount - ' . $this->currentCount);
+			ilogger()->info('create - ' . $connect->connectionId . ' at ' . $connect->createTime);
 		}
 
 		return $connect;
@@ -77,9 +93,12 @@ abstract class PoolAbstract implements PoolInterface
 
 	public function release($connection)
 	{
+		ilogger()->info('release count - ' . $this->queue->count());
 		if ($this->queue->count() < $this->maxActive) {
+			ilogger()->info('release - ' . $connection->connectionId);
 			$this->queue->push($connection);
 		}
+		ilogger()->info('release end count - ' . $this->queue->count());
 		return true;
 	}
 
