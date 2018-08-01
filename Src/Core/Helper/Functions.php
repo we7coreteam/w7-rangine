@@ -18,7 +18,7 @@ if (!function_exists("iuuid")) {
     function iuuid()
     {
         $len = rand(2,16);
-        $prefix = substr(md5(Coroutine::getuid()), $len);
+        $prefix = md5(substr(md5(Coroutine::getuid()), $len));
         return uniqid($prefix);
     }
 }

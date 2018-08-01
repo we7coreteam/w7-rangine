@@ -154,6 +154,9 @@ abstract class ServerAbstract implements ServerInterface
         }
     }
 
+    /**
+     *
+     */
     protected function registerServerContext()
     {
         /**
