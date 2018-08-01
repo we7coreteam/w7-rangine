@@ -8,5 +8,4 @@ namespace W7\Core\Base\Pool;
 
 interface PoolInterface
 {
-	
 }

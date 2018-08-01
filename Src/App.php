@@ -42,8 +42,7 @@ class App
     public static function getLogger()
     {
         $defineConfig = iconfig()->getUserConfig('app');
-        if (!empty(static::$logger) && static::$logger instanceof Logger)
-        {
+        if (!empty(static::$logger) && static::$logger instanceof Logger) {
             return static::$logger;
         }
 
@@ -54,5 +53,4 @@ class App
         static::$logger->init($defineConfig['log']['log_file'], $defineConfig['log']['level'], $defineConfig['log']['flushInterval']);
         return static::$logger;
     }
-
 }

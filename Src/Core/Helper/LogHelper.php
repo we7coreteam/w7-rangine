@@ -6,8 +6,6 @@
 
 namespace W7\Core\Helper;
 
-
-
 class LogHelper
 {
 
@@ -34,7 +32,7 @@ class LogHelper
         $requestLogContextData = $contextObj->getContextDataByKey(Context::LOG_REQUEST_KEY);
 
         $spanid = rand(1000000, 9999999);
-        ilogger()->addBasic("logid", uniqid());
+        ilogger()->addBasic("logid", iuuid());
         ilogger()->addBasic("spanid", $spanid);
         ilogger()->addBasic("controller", $requestLogContextData['controller']);
         ilogger()->addBasic('method', $requestLogContextData['method']);
@@ -49,7 +47,7 @@ class LogHelper
      */
     public function errorHandler($errcode, $errstr, $errfile, $errline, $errcontext)
     {
-        ilogger()->fatal('errcode:%d, errstr:%s, errfile:%s, errline:%s', $errcode, $errstr, $errfile, $errline );
+        ilogger()->fatal('errcode:%d, errstr:%s, errfile:%s, errline:%s', $errcode, $errstr, $errfile, $errline);
     }
 
     /**
@@ -97,5 +95,4 @@ class LogHelper
 
         return $contextData['url'] ?? 0;
     }
-
 }

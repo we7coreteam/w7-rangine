@@ -8,6 +8,21 @@ use Swoole\Coroutine;
 use W7\App;
 use W7\Core\Helper\StringHelper;
 
+
+if (!function_exists("iuuid")) {
+
+    /**
+     * 获取UUID
+     * @return string
+     */
+    function iuuid()
+    {
+        $len = rand(2,16);
+        $prefix = substr(md5(Coroutine::getuid()), $len);
+        return uniqid($prefix);
+    }
+}
+
 if (!function_exists('getApp')) {
     /**
      * 获取加载器
@@ -60,8 +75,7 @@ if (!function_exists('iconfig')) {
     }
 }
 
-if (!function_exists("ilogger"))
-{
+if (!function_exists("ilogger")) {
     /**
      * 返回logger对象
      * @return \W7\Core\Helper\Logger
@@ -106,17 +120,14 @@ if (!function_exists('isCo')) {
     }
 }
 
-if (!function_exists("getClientIp"))
-{
+if (!function_exists("getClientIp")) {
     function getClientIp()
     {
-        if (!empty($_SERVER['HTTP_CLIENT_IP']))
-        {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
             return $_SERVER['HTTP_CLIENT_IP'];
         }
 
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))
-        {
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             return $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
 
@@ -124,8 +135,7 @@ if (!function_exists("getClientIp"))
     }
 }
 
-if (!function_exists("isWorkerStatus"))
-{
+if (!function_exists("isWorkerStatus")) {
     function isWorkerStatus()
     {
         if (App::$server === null) {
@@ -133,7 +143,7 @@ if (!function_exists("isWorkerStatus"))
         }
 
         $server = App::$server->getServer();
-        if ($server->manager_pid == 0){
+        if ($server->manager_pid == 0) {
             return false;
         }
         if ($server && \property_exists($server, 'taskworker') && ($server->taskworker === false)) {
