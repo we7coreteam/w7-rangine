@@ -43,7 +43,7 @@ class MasterPool extends PoolAbstract
 		$this->dbManager = $this->getDbManager();
 		$connect = $this->dbManager->connection();
 		$connect->createTime = microtime(true);
-		$connect->connectionId = uniqid();
+		$connect->connectionId = \iuuid();
 		return $connect;
 	}
 
