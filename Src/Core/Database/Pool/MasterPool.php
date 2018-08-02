@@ -6,28 +6,47 @@
 
 namespace W7\Core\Database\Pool;
 
+use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager;
+use Illuminate\Database\Connection;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Events\Dispatcher;
 use W7\Core\Base\Pool\PoolAbstract;
+use W7\Core\Database\Connection\SwooleMySqlConnection;
+use W7\Core\Database\Connector\SwooleMySqlConnector;
 
 class MasterPool extends PoolAbstract
 {
+	protected $connectionName = 'master';
 	/**
 	 * @var Manager
 	 */
 	private $dbManager;
 	private $dbconfig;
 	private $dbDispatch;
+	private $container;
 
 	public function init()
 	{
-		ilogger()->info('init - at ' . microtime(true));
 		$this->dbconfig = \iconfig()->getUserCommonConfig('database');
+
+		//新增swoole连接mysql的方式
+		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
+			return new SwooleMySqlConnection($connection, $database, $prefix, $config);
+		});
+
+		//新增swoole连接Mysql的容器
+		/**
+		 * @var Manager $manager
+		 */
+		$this->container = new Container();
+		$this->container->instance('db.connector.swoolemysql', iloader()->singleton(SwooleMySqlConnector::class));
+
+		//侦听sql执行完后的事件，回收$connection
 		/**
 		 * @var Dispatcher $dispatch
 		 */
-		$this->dbDispatch = \iloader()->singleton(Dispatcher::class);
+		$this->dbDispatch = new Dispatcher($this->container);
 		$this->dbDispatch->listen(QueryExecuted::class, function ($data) {
 			$connection = $data->connection;
 			$this->release($connection);
@@ -49,10 +68,7 @@ class MasterPool extends PoolAbstract
 
 	private function getDbManager()
 	{
-		/**
-		 * @var Manager $manager
-		 */
-		$manager = new Manager();
+		$manager = new Manager($this->container);
 		$manager->addConnection($this->dbconfig['master']);
 		$manager->setEventDispatcher($this->dbDispatch);
 		return $manager->getDatabaseManager();
