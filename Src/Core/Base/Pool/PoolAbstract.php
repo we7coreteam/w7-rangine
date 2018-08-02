@@ -80,6 +80,12 @@ abstract class PoolAbstract implements PoolInterface
 
 		ilogger()->info('coid ' . (Coroutine::getuid()));
 		ilogger()->info('workid ' . (App::$server->server->worker_id));
+
+		$connect = $this->createConnection();
+		ilogger()->info('create connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
+
+		return $connect;
+
 		/**
 		 * 如果当前有空闲连接，并且连接大于要执行的数，直接返回连接
 		 */
