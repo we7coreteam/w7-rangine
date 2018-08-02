@@ -32,7 +32,7 @@ class ReloadProcess implements ProcessInterface
      *
      * @var int
      */
-    private $interval = 3;
+    private $interval = 5;
 
     /**
      * 初始化方法
@@ -57,7 +57,7 @@ class ReloadProcess implements ProcessInterface
         while (true) {
             sleep($this->interval);
             $md5File = FileHelper::md5File($this->watchDir);
-            if (strcmp($this->md5File, $md5File) !== 0) {
+            if (strcmp($this->md5File, $md5File) !== 0 || true) {
                 ioutputer()->writeln("Start reloading in " . date('m-d H:i:s') . "...");
                 $server->isRun();
                 $server->getServer()->reload();
