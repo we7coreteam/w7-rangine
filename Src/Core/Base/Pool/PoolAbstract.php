@@ -8,8 +8,9 @@ namespace W7\Core\Base\Pool;
 
 
 use Swoole\Coroutine;
-use W7\App\App;
-use W7\Core\Base\Pool\ResourcePool\ResourcePool;
+
+use W7\App;
+
 
 abstract class PoolAbstract implements PoolInterface
 {
@@ -20,58 +21,61 @@ abstract class PoolAbstract implements PoolInterface
 	protected $connectionName = '';
 
 	/**
-	 * 最小连接数
+	 * 最大空闲数
 	 * @var int
 	 */
-	protected $minActive = 5;
+	protected $maxIdleActive = 5;
 
 	/**
 	 * 最大连接数据
 	 * @var int
 	 */
-	protected $maxActive = 100;
+	protected $maxActive = 20;
 
 	/**
-	 * 最大等待数
-	 * @var int
+	 * 执行中连接队列
+	 * @var \SplQueue $busyQueue
 	 */
-	protected $maxWait = 20;
+	protected $busyCount;
 
 	/**
-	 * 最大空闲时间
-	 * @var int
+	 * 空间连接队列
+	 * @var \SplQueue $idleQueue
 	 */
-	protected $maxIdleTime = 60;
+	protected $idleQueue;
 
 	/**
-	 * 最大等待时间
-	 * @var int
+	 * 挂起协程ID队列，恢复时按顺序恢复
+	 * @var \SplQueue $waitCoQueue
 	 */
-	protected $maxWaitTime = 3;
+	protected $waitCoQueue;
 
 	/**
-	 * 超时时间
+	 * 等待数
 	 * @var int
 	 */
-	protected $timeout = 3;
-    /**
-     * @var ResourcePool
-     */
-	protected $queue;
-	protected $currentCount = 0;
+	protected $waitCount = 0;
+
+	/**
+	 * 正在执行数
+	 * @var int
+	 */
+
+	protected $resumeCount = 0;
+
 
 	protected $mysqlProcess;
 
 	public function __construct()
 	{
-//		$this->queue = new ResourcePool([
-//		    'initSize'=>$this->maxActive,
-//            'maxSize'=>$this->maxActive,
-//        ]);
-//
-//		$this->init();
-//        return $this->queue;
-        $this->init();
+
+		$this->busyCount = 0;
+		$this->waitCount = 0;
+		$this->resumeCount = 0;
+		$this->idleQueue = new \SplQueue();
+		$this->waitCoQueue = new \SplQueue();
+		$this->init();
+
 	}
 
 	protected function init()
@@ -90,38 +94,74 @@ abstract class PoolAbstract implements PoolInterface
 
 	public function getConnection()
 	{
-		$connectQueue = [];
-		$item = $this->queue->get();
-//		ilogger()->info('queue - ' . json_encode($item));
-//		ilogger()->info('get count - ' . $this->queue->count());
-		if (!$this->queue->isEmpty()) {
-			$connect = $this->getEffectiveConnection($this->queue->count());
-			ilogger()->info('get by queue - ' . $connect->connectionId);
-			ilogger()->info('get by uid - ' . Coroutine::getuid());
+
+
+		ilogger()->info('coid ' . (Coroutine::getuid()));
+		ilogger()->info('workid ' . (App::$server->server->worker_id));
+		/**
+		 * 如果当前有空闲连接，并且连接大于要执行的数，直接返回连接
+		 */
+		if (!$this->idleQueue->isEmpty() && $this->idleQueue->count() > $this->resumeCount) {
+			ilogger()->info('get by queue, count ' . $this->idleQueue->count() . '. resume count ' . $this->resumeCount);
+			$connect = $this->getConnectionFromPool();
+			$this->busyCount++;
+			return $connect;
+
 		}
 
-		if (empty($connect)) {
-			if ($this->currentCount >= $this->maxActive) {
-				//throw new \RuntimeException('Connection pool queue is full. Please add the MaxActive value');
+		//如果 空闲队列数+执行队列数 等于 最大连接数，则挂起协程
+		ilogger()->info('busy count ' . $this->busyCount . '. queue count ' . $this->idleQueue->count() . ', maxactive' . $this->maxActive);
+		if ($this->busyCount + $this->idleQueue->count() >= $this->maxActive) {
+			//等待进程数++
+			$this->waitCount++;
+			ilogger()->info('suspend connection , count ' . $this->idleQueue->count() . '. wait count ' . $this->waitCount);
+			//存放当前协程ID，以便恢复
+			$this->waitCoQueue->push(Coroutine::getuid());
+			if (\Swoole\Coroutine::suspend('MySQLPool::' . $this->connectionName) == false) {
+				//挂起失败时，抛出异常，恢复等待数
+				$this->waitCount--;
+				throw new \RuntimeException('Reach max connections! Cann\'t pending fetch!');
 			}
-			$connect = $this->createConnection();
-			$this->currentCount++;
-			ilogger()->info('currentCount - ' . $this->currentCount);
-			ilogger()->info('create - ' . $connect->connectionId . ' at ' . $connect->createTime);
+
+			//回收连接时，恢复了协程，则从空闲中取出连接继续执行
+			ilogger()->info('resume connection , count ' . $this->idleQueue->count() . '. resume count ' . $this->resumeCount);
+			$this->resumeCount--;
+
+			if ($this->idleQueue->count() > 0) {
+				$connect = $this->getConnectionFromPool();
+				$this->busyCount++;
+				return $connect;
+			} else {
+				return false;
+			}
 		}
+
+		$connect = $this->createConnection();
+		$this->busyCount++;
+		ilogger()->info('create connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
 
 		return $connect;
 	}
 
 	public function release($connection)
 	{
-//		ilogger()->info('release count - ' . $this->queue->count());
-		if ($this->queue->count() < $this->maxActive) {
-//			ilogger()->info('release - ' . $connection->connectionId);
-			$this->queue->put($connection);
+
+		$this->busyCount--;
+		if ($this->idleQueue->count() < $this->maxIdleActive)
+		{
+			$this->idleQueue->push($connection);
+			if ($this->waitCount > 0)
+			{
+				$this->waitCount--;
+				$this->resumeCount++;
+				$coid = $this->getWaitCoFromPool();
+				if (!empty($coid))
+				{
+					\Swoole\Coroutine::resume($coid);
+				}
+			}
+			return true;
 		}
-//		ilogger()->info('release end count - ' . $this->queue->count());
-		return true;
 	}
 
 	public function setConnectionName($name)
@@ -130,30 +170,13 @@ abstract class PoolAbstract implements PoolInterface
 		return true;
 	}
 
-	private function getEffectiveConnection(int $queueNum)
-	{
-		if ($queueNum <= $this->minActive) {
-			return $this->getConnectionFromPool();
-		}
-
-		$time = time();
-		$moreActive = $queueNum - $this->minActive;
-		$maxWaitTime = $this->maxWaitTime;
-
-		for ($i = 0; $i < $moreActive; $i++) {
-			$connection = $this->getConnectionFromPool();
-			$lastTime = $connection->createTime;
-			if ($time - $lastTime < $maxWaitTime) {
-				return $connection;
-			}
-			$this->currentCount--;
-		}
-
-		return $this->getConnectionFromPool();
-	}
-
 	private function getConnectionFromPool()
 	{
-		return $this->queue->get();
+		return $this->idleQueue->shift();
+	}
+
+	private function getWaitCoFromPool()
+	{
+		return $this->waitCoQueue->shift();
 	}
 }
