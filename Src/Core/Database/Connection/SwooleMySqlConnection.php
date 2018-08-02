@@ -17,6 +17,7 @@ class SwooleMySqlConnection extends MySqlConnection
 				return [];
 			}
 			$statement = $this->getPdoForSelect($useReadPdo)->prepare($query);
+			ilogger()->info('statment ' . $this->getPdoForSelect($useReadPdo)->error);
 			$statement->execute($this->prepareBindings($bindings));
 			return $statement->fetchAll();
 		});
