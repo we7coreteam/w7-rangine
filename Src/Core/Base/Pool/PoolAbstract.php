@@ -28,7 +28,7 @@ abstract class PoolAbstract implements PoolInterface
 	 * 最大连接数据
 	 * @var int
 	 */
-	protected $maxActive = 20;
+	protected $maxActive = 100;
 
 	/**
 	 * 执行中连接队列
@@ -127,6 +127,7 @@ abstract class PoolAbstract implements PoolInterface
 	public function release($connection)
 	{
 		$this->busyCount--;
+		ilogger()->info('release connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
 		if ($this->idleQueue->count() < $this->maxIdleActive)
 		{
 			$this->idleQueue->push($connection);
