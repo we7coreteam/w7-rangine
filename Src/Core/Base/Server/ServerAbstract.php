@@ -125,7 +125,7 @@ abstract class ServerAbstract implements ServerInterface
         $this->registerSwooleEventListener();
         $this->registerProcesser();
         $this->registerServerContext();
-		$this->registerDbPool();
+		$this->registerDb();
         return true;
     }
 
@@ -167,7 +167,7 @@ abstract class ServerAbstract implements ServerInterface
         $this->server->context = $contextObj->getContextData();
     }
 
-    private function registerDbPool()
+    private function registerDb()
 	{
 		$dbPool = \iloader()->singleton(\W7\Core\Database\Pool\MasterPool::class);
 		App::$dbPool = $dbPool;
