@@ -105,7 +105,7 @@ class RedisCoroutineDriver extends AbstractRedisDriver
             return static::$redis;
         }
         $this->getDefineConf();
-        $redisConfUrl  = $this->defineConf['cache']['redis']['url'];
+        $redisConfUrl  = $this->defineConf['cache']['redis']['redis_url'];
         $timeout = $this->defineConf['cache']['redis']['timeout'];
         $redisConf = $this->parseUri($redisConfUrl);
         $host = $redisConf['host'];

@@ -8,6 +8,8 @@ namespace W7\Core\Database;
 
 use Illuminate\Database\Eloquent\Model;
 use W7\App;
+use W7\Core\Database\Pool\MasterPool;
+use W7\Core\Process\MysqlPoolprocess;
 
 class ModelAbstract extends Model
 {
@@ -21,7 +23,9 @@ class ModelAbstract extends Model
 		/**
 		 * @var \W7\Core\Database\Pool\MasterPool $dbPool
 		 */
-		$dbPool = App::$dbPool;
+		$dbPool = iloader()->singleton(MasterPool::class);
+		$dbPool->setMysqlProcess(App::$server->process[MysqlPoolprocess::class]);
+		$dbPool->setQueue(App::$server->queue);
 		$dbPool->setConnectionName($connection);
 		return $dbPool->getConnection($connection);
 	}

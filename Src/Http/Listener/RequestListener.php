@@ -24,6 +24,7 @@ class RequestListener implements ListenerInterface
     public function run(Server $server, Request $request, Response $response)
     {
 
+        ilogger()->info("work_id is ". $server->worker_id);
         /**
          * @var Context $serverContext
          */

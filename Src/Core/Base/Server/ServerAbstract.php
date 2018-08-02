@@ -8,6 +8,7 @@
 namespace W7\Core\Base\Server;
 
 use W7\App;
+use W7\Core\Base\Pool\ResourcePool\ResourcePool;
 use W7\Core\Base\Process\ProcessBuilder;
 use W7\Core\Config\Event;
 use W7\Core\Exception\CommandException;
@@ -36,6 +37,11 @@ abstract class ServerAbstract implements ServerInterface
      * @var 连接配置
      */
     public $connection;
+
+
+    public $process = [];
+
+    public $queue;
 
     public function __construct()
     {
@@ -140,6 +146,7 @@ abstract class ServerAbstract implements ServerInterface
             }
             $process = ProcessBuilder::create($name, App::$server);
             $this->server->addProcess($process);
+            $this->process[$name] = $process;
         }
     }
 
@@ -169,8 +176,8 @@ abstract class ServerAbstract implements ServerInterface
 
     private function registerDbPool()
 	{
-		$dbPool = \iloader()->singleton(\W7\Core\Database\Pool\MasterPool::class);
-		App::$dbPool = $dbPool;
+		$dbPool = \iloader()->singleton(ResourcePool::class);
+		$this->queue = $dbPool;
 	}
 
     private function registerEvent($event)

@@ -7,6 +7,10 @@
 namespace W7\Core\Base\Pool;
 
 
+use Swoole\Coroutine;
+use W7\App\App;
+use W7\Core\Base\Pool\ResourcePool\ResourcePool;
+
 abstract class PoolAbstract implements PoolInterface
 {
 	/**
@@ -50,32 +54,50 @@ abstract class PoolAbstract implements PoolInterface
 	 * @var int
 	 */
 	protected $timeout = 3;
+    /**
+     * @var ResourcePool
+     */
 	protected $queue;
 	protected $currentCount = 0;
 
+	protected $mysqlProcess;
+
 	public function __construct()
 	{
-		$this->queue = new \SplQueue();
-		$this->init();
+//		$this->queue = new ResourcePool([
+//		    'initSize'=>$this->maxActive,
+//            'maxSize'=>$this->maxActive,
+//        ]);
+//
+//		$this->init();
+//        return $this->queue;
+        $this->init();
 	}
 
 	protected function init()
 	{
-
 	}
+
+	public function setQueue($queue)
+    {
+        $this->queue = $queue;
+    }
+	public function setMysqlProcess($process)
+    {
+        $this->mysqlProcess = $process;
+        $this->mysqlProcess->push("yangshen");;
+    }
 
 	public function getConnection()
 	{
 		$connectQueue = [];
-		foreach ($this->queue as $item)
-		{
-			$connectQueue[] = $item->connectionId;
-		}
-		ilogger()->info('queue - ' . implode(',', $connectQueue));
-		ilogger()->info('get count - ' . $this->queue->count());
+		$item = $this->queue->get();
+//		ilogger()->info('queue - ' . json_encode($item));
+//		ilogger()->info('get count - ' . $this->queue->count());
 		if (!$this->queue->isEmpty()) {
 			$connect = $this->getEffectiveConnection($this->queue->count());
 			ilogger()->info('get by queue - ' . $connect->connectionId);
+			ilogger()->info('get by uid - ' . Coroutine::getuid());
 		}
 
 		if (empty($connect)) {
@@ -93,12 +115,12 @@ abstract class PoolAbstract implements PoolInterface
 
 	public function release($connection)
 	{
-		ilogger()->info('release count - ' . $this->queue->count());
+//		ilogger()->info('release count - ' . $this->queue->count());
 		if ($this->queue->count() < $this->maxActive) {
-			ilogger()->info('release - ' . $connection->connectionId);
-			$this->queue->push($connection);
+//			ilogger()->info('release - ' . $connection->connectionId);
+			$this->queue->put($connection);
 		}
-		ilogger()->info('release end count - ' . $this->queue->count());
+//		ilogger()->info('release end count - ' . $this->queue->count());
 		return true;
 	}
 
@@ -132,6 +154,6 @@ abstract class PoolAbstract implements PoolInterface
 
 	private function getConnectionFromPool()
 	{
-		return $this->queue->shift();
+		return $this->queue->get();
 	}
 }

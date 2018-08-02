@@ -26,6 +26,7 @@ class RequestMiddleware extends MiddlewareAbstract
             $classObj = iloader()->singleton($route['classname']);
             $controllerHandler = [$classObj, $route['method']];
             $funArgs = $route['args'];
+            $funArgs[] = $request;
             $response =  call_user_func_array($controllerHandler, $funArgs);
             $response = is_array($response)?$response:(array)$response;
             /**

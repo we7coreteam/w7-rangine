@@ -11,6 +11,7 @@ use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStart;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
+use W7\Core\Process\MysqlPoolprocess;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
 
@@ -51,6 +52,7 @@ class Config
 
     private $process = [
         ReloadProcess::class,
+        MysqlPoolprocess::class,
     ];
 
     private $allow_type=[

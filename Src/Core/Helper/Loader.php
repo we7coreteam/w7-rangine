@@ -35,8 +35,10 @@ class Loader
     public function object($name)
     {
         if (class_exists($name)) {
+
             return new $name();
         } else {
+            var_dump($name);
             throw new \Exception('类不存在');
         }
     }
