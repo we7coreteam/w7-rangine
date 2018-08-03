@@ -33,7 +33,7 @@ class ReloadProcess implements ProcessInterface
      *
      * @var int
      */
-    private $interval = 3;
+    private $interval = 5;
 
     /**
      * 初始化方法
