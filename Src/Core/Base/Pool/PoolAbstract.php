@@ -19,16 +19,10 @@ abstract class PoolAbstract implements PoolInterface
 	protected $connectionName = '';
 
 	/**
-	 * 最大空闲数
-	 * @var int
-	 */
-	protected $maxIdleActive = 5;
-
-	/**
 	 * 最大连接数据
 	 * @var int
 	 */
-	protected $maxActive = 20;
+	protected $maxActive = 100;
 
 	/**
 	 * 执行中连接队列
@@ -80,15 +74,9 @@ abstract class PoolAbstract implements PoolInterface
 
 		ilogger()->info('coid ' . (Coroutine::getuid()));
 		ilogger()->info('workid ' . (App::$server->server->worker_id));
-		/**
-		 * 如果当前有空闲连接，并且连接大于要执行的数，直接返回连接
-		 */
-		if (!$this->idleQueue->isEmpty() && $this->idleQueue->count() > $this->resumeCount) {
-			ilogger()->info('get by queue, count ' . $this->idleQueue->count() . '. resume count ' . $this->resumeCount);
-			$connect = $this->getConnectionFromPool();
-			$this->busyCount++;
-			return $connect;
-		}
+
+		$connect = $this->createConnection();
+		return $connect;
 
 		//如果 空闲队列数+执行队列数 等于 最大连接数，则挂起协程
 		ilogger()->info('busy count ' . $this->busyCount . '. queue count ' . $this->idleQueue->count() . ', maxactive' . $this->maxActive);
@@ -97,8 +85,9 @@ abstract class PoolAbstract implements PoolInterface
 			$this->waitCount++;
 			ilogger()->info('suspend connection , count ' . $this->idleQueue->count() . '. wait count ' . $this->waitCount);
 			//存放当前协程ID，以便恢复
-			$this->waitCoQueue->push(Coroutine::getuid());
-			if (\Swoole\Coroutine::suspend('MySQLPool::' . $this->connectionName) == false) {
+			$coid = Coroutine::getuid();
+			$this->waitCoQueue->push($coid);
+			if (\Swoole\Coroutine::suspend($coid) == false) {
 				//挂起失败时，抛出异常，恢复等待数
 				$this->waitCount--;
 				throw new \RuntimeException('Reach max connections! Cann\'t pending fetch!');
@@ -119,15 +108,16 @@ abstract class PoolAbstract implements PoolInterface
 
 		$connect = $this->createConnection();
 		$this->busyCount++;
-		ilogger()->info('create connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
+		ilogger()->info('create connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount . ' connect id ' . spl_object_hash($connect));
 
 		return $connect;
 	}
 
 	public function release($connection)
 	{
+		ilogger()->info('release , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount );
 		$this->busyCount--;
-		if ($this->idleQueue->count() < $this->maxIdleActive)
+		if ($this->idleQueue->count() < $this->maxActive)
 		{
 			$this->idleQueue->push($connection);
 			if ($this->waitCount > 0)

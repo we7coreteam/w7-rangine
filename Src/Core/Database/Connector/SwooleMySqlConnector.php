@@ -24,6 +24,7 @@ class SwooleMySqlConnector extends Connector implements ConnectorInterface
 			'strict_type' => false,
 			'fetch_mode' => true,
 		]);
+		ilogger()->info('connection id ' . spl_object_hash($connection));
 		if ($connection === false || !empty($connection->connect_errno))
 		{
 			throw new \RuntimeException($connection->connect_error);

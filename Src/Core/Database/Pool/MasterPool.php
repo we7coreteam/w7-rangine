@@ -7,28 +7,28 @@
 namespace W7\Core\Database\Pool;
 
 use Illuminate\Container\Container;
-use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Connection;
+use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Fluent;
+use W7\App;
 use W7\Core\Base\Pool\PoolAbstract;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\Core\Database\Connector\SwooleMySqlConnector;
+use W7\Core\Database\DatabaseManager;
 
 class MasterPool extends PoolAbstract
 {
-	protected $connectionName = 'master';
 	/**
-	 * @var Manager
+	 * @var DatabaseManager $databaseManager;
 	 */
-	private $dbManager;
-	private $dbconfig;
-	private $dbDispatch;
-	private $container;
+	private $databaseManager;
+
 
 	public function init()
 	{
-		$this->dbconfig = \iconfig()->getUserCommonConfig('database');
+		ilogger()->info('db pool init');
 
 		//新增swoole连接mysql的方式
 		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
@@ -36,21 +36,28 @@ class MasterPool extends PoolAbstract
 		});
 
 		//新增swoole连接Mysql的容器
-		/**
-		 * @var Manager $manager
-		 */
-		$this->container = new Container();
-		$this->container->instance('db.connector.swoolemysql', iloader()->singleton(SwooleMySqlConnector::class));
+		$container = new Container();
+		$container->instance('db.connector.swoolemysql', new SwooleMySqlConnector());
 
 		//侦听sql执行完后的事件，回收$connection
-		/**
-		 * @var Dispatcher $dispatch
-		 */
-		$this->dbDispatch = new Dispatcher($this->container);
-		$this->dbDispatch->listen(QueryExecuted::class, function ($data) {
+		$dbDispatch = new Dispatcher($container);
+		$dbDispatch->listen(QueryExecuted::class, function ($data) {
 			$connection = $data->connection;
-			$this->release($connection);
+			App::$dbPool->release($connection);
 		});
+		$container->instance('events', $dbDispatch);
+
+		//添加配置信息到容器
+		$dbconfig = \iconfig()->getUserCommonConfig('database');
+
+		$container->instance('config', new Fluent());
+		$container['config']['database.default'] = 'default';
+		$container['config']['database.connections'] = [
+			'default' => $dbconfig['default'],
+		];
+
+		$factory = new ConnectionFactory($container);
+		$this->databaseManager = new DatabaseManager($container, $factory);
 	}
 
 	/**
@@ -59,18 +66,7 @@ class MasterPool extends PoolAbstract
 	 */
 	protected function createConnection()
 	{
-		$this->dbManager = $this->getDbManager();
-		$connect = $this->dbManager->connection();
-		$connect->createTime = microtime(true);
-		$connect->connectionId = \iuuid();
-		return $connect;
-	}
-
-	private function getDbManager()
-	{
-		$manager = new Manager($this->container);
-		$manager->addConnection($this->dbconfig['master']);
-		$manager->setEventDispatcher($this->dbDispatch);
-		return $manager->getDatabaseManager();
+		$connection = $this->databaseManager->connection();
+		return $connection;
 	}
 }
