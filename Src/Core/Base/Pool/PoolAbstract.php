@@ -91,8 +91,9 @@ abstract class PoolAbstract implements PoolInterface
 			$this->waitCount++;
 			ilogger()->info('suspend connection , count ' . $this->idleQueue->count() . '. wait count ' . $this->waitCount);
 			//存放当前协程ID，以便恢复
-			$this->waitCoQueue->push(Coroutine::getuid());
-			if (\Swoole\Coroutine::suspend('MySQLPool::' . $this->connectionName) == false) {
+			$coid = Coroutine::getuid();
+			$this->waitCoQueue->push($coid);
+			if (\Swoole\Coroutine::suspend($coid) == false) {
 				//挂起失败时，抛出异常，恢复等待数
 				$this->waitCount--;
 				throw new \RuntimeException('Reach max connections! Cann\'t pending fetch!');
@@ -122,7 +123,7 @@ abstract class PoolAbstract implements PoolInterface
     {
         $this->busyCount--;
         ilogger()->info('release connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
-        if ($this->idleQueue->count() < $this->maxIdleActive) {
+        if ($this->idleQueue->count() < $this->maxActive) {
             $this->idleQueue->push($connection);
             if ($this->waitCount > 0) {
                 $this->waitCount--;

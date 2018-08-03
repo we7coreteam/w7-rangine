@@ -20,13 +20,11 @@ class ModelAbstract extends Model
      */
     public static function resolveConnection($connection = null)
     {
-        /**
-         * @var \W7\Core\Database\Pool\MasterPool $dbPool
-         */
-        $dbPool = iloader()->singleton(MasterPool::class);
-        $dbPool->setMysqlProcess(App::$server->process[MysqlPoolprocess::class]);
-        $dbPool->setQueue(App::$server->queue);
-        $dbPool->setConnectionName($connection);
-        return $dbPool->getConnection($connection);
+		/**
+		 * @var \W7\Core\Database\Pool\MasterPool $dbPool
+		 */
+		$dbPool = App::$dbPool;
+		$dbPool->setConnectionName($connection);
+		return $dbPool->getConnection($connection);
     }
 }
