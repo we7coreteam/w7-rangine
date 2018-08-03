@@ -121,6 +121,31 @@ class Context
     }
 
     /**
+     * Get Current Request Log ID
+     *
+     * @return string
+     */
+    public function getLogid(): string
+    {
+        $contextData = self::getCoroutineContext(static::LOG_REQUEST_KEY);
+        $logid = $contextData['logid'] ?? '';
+        return $logid;
+    }
+
+    /**
+     * Get Current Request Span ID
+     *
+     * @return int
+     */
+    public function getSpanid(): int
+    {
+        $contextData = self::getCoroutineContext(static::LOG_REQUEST_KEY);
+
+        return $contextData['spanid'] ? (int)$contextData['spanid'] : 0;
+    }
+
+
+    /**
      * Get context data by key
      *
      * @param string $key

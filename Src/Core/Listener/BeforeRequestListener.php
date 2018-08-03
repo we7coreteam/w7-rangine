@@ -7,9 +7,7 @@
 namespace W7\Core\Listener;
 
 use W7\Core\Base\ListenerInterface;
-use W7\Core\Helper\Context;
-use W7\Core\Helper\LogHelper;
-use W7\Http\Server\Dispather;
+use W7\Core\Helper\Log\LogHelper;
 
 class BeforeRequestListener implements ListenerInterface
 {
