@@ -8,7 +8,6 @@
 namespace W7\Core\Base\Server;
 
 use W7\App;
-use W7\Core\Base\Pool\ResourcePool\ResourcePool;
 use W7\Core\Base\Process\ProcessBuilder;
 use W7\Core\Config\Event;
 use W7\Core\Exception\CommandException;
@@ -37,11 +36,6 @@ abstract class ServerAbstract implements ServerInterface
      * @var 连接配置
      */
     public $connection;
-
-
-    public $process = [];
-
-    public $queue;
 
     public function __construct()
     {
@@ -131,21 +125,21 @@ abstract class ServerAbstract implements ServerInterface
         $this->registerSwooleEventListener();
         $this->registerProcesser();
         $this->registerServerContext();
-        $this->registerDb();
+		$this->registerDb();
         return true;
     }
-
 
     protected function registerProcesser()
     {
         $processName = \iconfig()->getProcess();
         foreach ($processName as $name) {
-            $process = iprocess($name, $this);
-            if (!$process) {
+            $process = iloader()->singleton($name);
+            $checkInfo = call_user_func([$process, "check"]);
+            if (!$checkInfo) {
                 continue;
             }
+            $process = ProcessBuilder::create($name, App::$server);
             $this->server->addProcess($process);
-            $this->process[$name] = $process;
         }
     }
 
@@ -174,10 +168,9 @@ abstract class ServerAbstract implements ServerInterface
     }
 
     private function registerDb()
-    {
-        $dbPool = \iloader()->singleton(ResourcePool::class);
-        $this->queue = $dbPool;
-    }
+	{
+		App::$dbPool = \iloader()->singleton(\W7\Core\Database\Pool\MasterPool::class);
+	}
 
     private function registerEvent($event)
     {
