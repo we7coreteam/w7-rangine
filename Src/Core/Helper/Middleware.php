@@ -35,7 +35,7 @@ class Middleware
      */
     public function setLastMiddleware(string $lasteMiddlerware, array $middlewares)
     {
-        array_unshift($middlewares, $lasteMiddlerware);
+        array_push($middlewares, $lasteMiddlerware);
         return $middlewares;
     }
     /**

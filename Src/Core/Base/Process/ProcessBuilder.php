@@ -30,8 +30,10 @@ class ProcessBuilder
 
         $swooleProcess = new SwooleProcess(function (SwooleProcess $swooleProcess) use ($server, $name) {
             $processe = iloader()->singleton($name);
-            $processe->run();
+            $processe->run($swooleProcess);
         });
+        $swooleProcess->useQueue();
+        $swooleProcess->start();
         self::$processes[$name] = $swooleProcess;
 
         return $swooleProcess;

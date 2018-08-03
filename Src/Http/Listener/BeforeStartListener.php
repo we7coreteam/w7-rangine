@@ -8,7 +8,8 @@ namespace W7\Http\Listener;
 
 use W7\Core\Base\ListenerInterface;
 use W7\Core\Helper\Context;
-use W7\Core\Helper\LogHelper;
+
+use W7\Core\Helper\Log\LogHelper;
 use W7\Core\Helper\Middleware;
 use W7\Core\Helper\RouteData;
 use w7\HttpRoute\HttpServer;

@@ -118,25 +118,23 @@ abstract class PoolAbstract implements PoolInterface
 		return $connect;
 	}
 
-	public function release($connection)
-	{
-		$this->busyCount--;
-		if ($this->idleQueue->count() < $this->maxIdleActive)
-		{
-			$this->idleQueue->push($connection);
-			if ($this->waitCount > 0)
-			{
-				$this->waitCount--;
-				$this->resumeCount++;
-				$coid = $this->getWaitCoFromPool();
-				if (!empty($coid))
-				{
-					\Swoole\Coroutine::resume($coid);
-				}
-			}
-			return true;
-		}
-	}
+    public function release($connection)
+    {
+        $this->busyCount--;
+        ilogger()->info('release connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
+        if ($this->idleQueue->count() < $this->maxIdleActive) {
+            $this->idleQueue->push($connection);
+            if ($this->waitCount > 0) {
+                $this->waitCount--;
+                $this->resumeCount++;
+                $coid = $this->getWaitCoFromPool();
+                if (!empty($coid)) {
+                    \Swoole\Coroutine::resume($coid);
+                }
+            }
+            return true;
+        }
+    }
 
 	public function setConnectionName($name)
 	{

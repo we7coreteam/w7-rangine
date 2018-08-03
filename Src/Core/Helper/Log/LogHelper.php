@@ -1,14 +1,16 @@
 <?php
 /**
  * author: alex
- * date: 18-7-30 下午2:16
+ * date: 18-8-2 下午7:29
  */
 
-namespace W7\Core\Helper;
+namespace W7\Core\Helper\Log;
+
+use W7\Core\Helper\Context;
+use w7\Http\Message\Server\Response;
 
 class LogHelper
 {
-
 
     /**
      * @var Context $contextObj
@@ -32,10 +34,22 @@ class LogHelper
         $requestLogContextData = $contextObj->getContextDataByKey(Context::LOG_REQUEST_KEY);
 
         $spanid = rand(1000000, 9999999);
-        ilogger()->addBasic("logid", iuuid());
+        $logid = iuuid();
+        ilogger()->addBasic("logid", $logid);
         ilogger()->addBasic("spanid", $spanid);
         ilogger()->addBasic("controller", $requestLogContextData['controller']);
         ilogger()->addBasic('method', $requestLogContextData['method']);
+        $requestLogContextData['logid'] = $logid;
+        $requestLogContextData['spanid'] = $spanid;
+        $contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
+    }
+
+    public function beforeTask($logid, $spanid, $taskName, $taskMethod)
+    {
+        ilogger()->addBasic("logid", $logid);
+        ilogger()->addBasic("spanid", $spanid);
+        ilogger()->addBasic("controller", $taskName);
+        ilogger()->addBasic('method', $taskMethod);
     }
 
     /**

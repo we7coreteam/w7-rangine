@@ -6,7 +6,7 @@
 
 namespace W7;
 
-use W7\Core\Helper\Logger;
+use W7\Core\Helper\Log\Logger;
 use W7\Http\Server\Server;
 
 class App

@@ -1,16 +1,16 @@
 <?php
 /**
- * @author donknap
- * @date 18-7-25 下午4:35
+ * author: alex
+ * date: 18-8-3 上午9:40
  */
 
-namespace W7\Core\Helper;
+namespace W7\Core\Base\Provider;
 
 use W7\App;
 use W7\Core\Base\ListenerInterface;
 use W7\Core\Config\Event;
 
-class EventDispatcher
+class EventProvider
 {
     private $listener = [];
     private $serverType;
@@ -24,7 +24,7 @@ class EventDispatcher
         $this->initAllowEvent();
     }
 
-    public function trigger($eventName)
+    public function trigger($eventName, $args = [])
     {
         if (!in_array($eventName, $this->systemEvent)) {
             return true;
@@ -39,11 +39,16 @@ class EventDispatcher
                 if (class_exists($class)) {
                     $object = \iloader()->singleton($class);
                     if ($object instanceof ListenerInterface) {
-                        call_user_func_array([$object, 'run'], []);
+                        call_user_func_array([$object, 'run'], $args);
                     }
                 }
             }
         }
+    }
+
+    public function getFacadeAccessor()
+    {
+        return $this;
     }
 
     private function initServerType()

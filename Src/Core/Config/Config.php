@@ -11,6 +11,7 @@ use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStart;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
+use W7\Core\Process\MysqlPoolprocess;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
 
@@ -45,12 +46,14 @@ class Config
             Event::ON_USER_BEFORE_START,
             Event::ON_USER_BEFORE_REQUEST,
             Event::ON_USER_AFTER_REQUEST,
+            Event::ON_USER_TASK_FINISH,
 
         ],
     ];
 
     private $process = [
         ReloadProcess::class,
+        MysqlPoolprocess::class,
     ];
 
     private $allow_type=[

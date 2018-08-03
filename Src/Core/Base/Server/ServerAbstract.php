@@ -7,20 +7,9 @@
 
 namespace W7\Core\Base\Server;
 
-use Illuminate\Container\Container;
-use Illuminate\Database\Capsule\Manager;
-use Illuminate\Database\Connection;
-use Illuminate\Database\Connectors\ConnectionFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Events\QueryExecuted;
-use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Fluent;
-use W7\Core\Database\Connection\SwooleMySqlConnection;
-use W7\Core\Database\Connector\SwooleMySqlConnector;
 use W7\App;
 use W7\Core\Base\Process\ProcessBuilder;
 use W7\Core\Config\Event;
-use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\Context;
 
