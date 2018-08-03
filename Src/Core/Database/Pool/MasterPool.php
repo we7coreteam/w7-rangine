@@ -7,13 +7,15 @@
 namespace W7\Core\Database\Pool;
 
 use Illuminate\Container\Container;
-use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Connection;
+use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Fluent;
 use W7\Core\Base\Pool\PoolAbstract;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\Core\Database\Connector\SwooleMySqlConnector;
+use W7\Core\Database\DatabaseManager;
 
 class MasterPool extends PoolAbstract
 {
