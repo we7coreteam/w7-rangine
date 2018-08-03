@@ -1,10 +1,14 @@
 <?php
-namespace W7\Core\Helper;
-
 /**
- * author: yangshen
- * date: 12-7-12 上午11:48
+ * author: alex
+ * date: 18-8-2 下午7:27
  */
+
+namespace W7\Core\Helper\Log;
+
+
+use W7\Core\Helper\FileHelper;
+
 class Logger
 {
 
@@ -219,4 +223,3 @@ class Logger
         self::log(self::L_FATAL, $arrArg);
     }
 }
-/* vim: set ts=4 sw=4 sts=4 tw=100 noet: */

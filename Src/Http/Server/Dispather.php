@@ -10,7 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Base\Dispatcher\DispatcherAbstract;
 use W7\Core\Base\Middleware\MiddlewareHandler;
 use W7\Core\Helper\Context;
-use W7\Core\Helper\EventDispatcher;
+use W7\Core\Helper\Log\LogHelper;
 use W7\Core\Helper\Middleware;
 use w7\HttpRoute\HttpServer;
 
@@ -23,6 +23,7 @@ class Dispather extends DispatcherAbstract
 
     public function dispatch(...$params)
     {
+        try {
         $request       = $params[0];
         $response      = $params[1];
         $serverContext = $params[2];
@@ -51,22 +52,23 @@ class Dispather extends DispatcherAbstract
         $requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
         $contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 
-
-        /**
-         * @var EventDispatcher $eventDispatcher
-         */
-        $eventDispatcher = iloader()->singleton(EventDispatcher::class);
-        $eventDispatcher->trigger('beforeRequest');
+        ievent('beforeRequest');
 
 
         $middlewareHandler = new MiddlewareHandler($middlewares);
-        try {
-            $response = $middlewareHandler->handle($psr7Request);
+
+        $response = $middlewareHandler->handle($psr7Request);
         } catch (\Throwable $throwable) {
+
+            /**
+             * @var LogHelper $logHandler
+             */
+            $logHandler = iloader()->singleton(LogHelper::class);
+            $logHandler->exceptionHandler($throwable);
             $response = $contextObj->getResponse()->json($throwable->getMessage(), $throwable->getCode());
         }
 
-        $eventDispatcher->trigger('afterRequest');
+        ievent('afterRequest');
         $response->send();
     }
 

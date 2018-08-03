@@ -6,8 +6,45 @@
 
 use Swoole\Coroutine;
 use W7\App;
+use W7\Core\Base\Dispatcher\DispatcherMaker;
+use W7\Core\Helper\Log\Logger;
 use W7\Core\Helper\StringHelper;
 
+
+
+if (!function_exists('iprocess'))
+{
+    function iprocess($name, $server)
+    {
+        /**
+         * @var DispatcherMaker $dispatcherMaker
+         */
+        $dispatcherMaker = iloader()->singleton(DispatcherMaker::class);
+        return $dispatcherMaker->processDispatcher($name, $server);
+    }
+}
+if (!function_exists("ievent"))
+{
+    function ievent($eventName, $args = [])
+    {
+        /**
+         * @var DispatcherMaker $dispatcherMaker
+         */
+        $dispatcherMaker = iloader()->singleton(DispatcherMaker::class);
+        return $dispatcherMaker->eventDispatcher($eventName, $args);
+    }
+}
+if (!function_exists("itask"))
+{
+    function itask(string $taskName, string $methodName, array $params = [], int $timeout = 3)
+    {
+        /**
+         * @var DispatcherMaker $dispatcherMaker
+         */
+        $dispatcherMaker = iloader()->singleton(DispatcherMaker::class);
+        return $dispatcherMaker->taskDispatcher($taskName, $methodName, $params, $timeout);
+    }
+}
 
 if (!function_exists("iuuid")) {
 
@@ -75,25 +112,31 @@ if (!function_exists('iconfig')) {
     }
 }
 
+if (!function_exists("ientity"))
+{
+    function ientity($name)
+    {
+        $nameSpace = "W7\App\Model\Entity";
+        if (class_exists($name))
+        {
+            return iloader()->singleton($name);
+        }
+        if (class_exists($nameSpace . '\\' . $name))
+        {
+            return iloader()->singleton($nameSpace . $name);
+        }
+        return false;
+    }
+}
+
 if (!function_exists("ilogger")) {
     /**
      * 返回logger对象
-     * @return \W7\Core\Helper\Logger
+     * @return Logger
      */
     function ilogger()
     {
         return App::getLogger();
-    }
-}
-
-if (!function_exists('ieventDispatcher')) {
-    /**
-     * 输入对象
-     * @return \W7\Core\Helper\EventDispatcher
-     */
-    function ieventDispatcher()
-    {
-        return iloader()->singleton(\W7\Core\Helper\EventDispatcher::class);
     }
 }
 
