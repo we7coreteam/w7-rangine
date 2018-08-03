@@ -74,7 +74,7 @@ class TaskDispatcher extends DispatcherFacade
         }
 
 
-        $result = $this->runSyncTask($task, $method, $params, $logid, $spanid, $name, $type);
+        $result = $this->runSyncTask($task, $method, $params, $logid, $spanid, $name);
 
         return $result;
     }
