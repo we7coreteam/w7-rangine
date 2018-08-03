@@ -37,8 +37,7 @@ class Loader
         if (class_exists($name)) {
             return new $name();
         } else {
-            var_dump($name);
-            throw new \Exception('类不存在');
+            throw new \Exception($name . '类不存在');
         }
     }
 }

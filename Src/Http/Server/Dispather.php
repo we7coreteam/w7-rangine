@@ -32,6 +32,7 @@ class Dispather extends DispatcherAbstract
             /**
              * @var Context $contextObj
              */
+
             $contextObj = iloader()->singleton(Context::class);
             $contextObj->setRequest($psr7Request);
             $contextObj->setResponse($psr7Response);
@@ -52,7 +53,7 @@ class Dispather extends DispatcherAbstract
             $requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
             $contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 
-            ievent('beforeRequest');
+            //ievent('beforeRequest');
 
 
             $middlewareHandler = new MiddlewareHandler($middlewares);
@@ -68,7 +69,7 @@ class Dispather extends DispatcherAbstract
             $response = $contextObj->getResponse()->json($throwable->getMessage(), $throwable->getCode());
         }
 
-        ievent('afterRequest');
+        //ievent('afterRequest');
         $response->send();
     }
 
