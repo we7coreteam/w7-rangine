@@ -19,12 +19,6 @@ abstract class PoolAbstract implements PoolInterface
 	protected $connectionName = '';
 
 	/**
-	 * 最大空闲数
-	 * @var int
-	 */
-	protected $maxIdleActive = 5;
-
-	/**
 	 * 最大连接数据
 	 * @var int
 	 */
@@ -80,12 +74,6 @@ abstract class PoolAbstract implements PoolInterface
 
 		ilogger()->info('coid ' . (Coroutine::getuid()));
 		ilogger()->info('workid ' . (App::$server->server->worker_id));
-
-		$connect = $this->createConnection();
-		ilogger()->info('create connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
-
-		return $connect;
-
 		/**
 		 * 如果当前有空闲连接，并且连接大于要执行的数，直接返回连接
 		 */
@@ -133,7 +121,6 @@ abstract class PoolAbstract implements PoolInterface
 	public function release($connection)
 	{
 		$this->busyCount--;
-		ilogger()->info('release connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
 		if ($this->idleQueue->count() < $this->maxIdleActive)
 		{
 			$this->idleQueue->push($connection);

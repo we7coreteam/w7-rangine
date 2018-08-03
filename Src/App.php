@@ -23,9 +23,7 @@ class App
      * @var \W7\Core\Helper\Loader;
      */
     private static $loader;
-
     private static $logger;
-
     public static $dbPool;
 
     public static function getLoader()
