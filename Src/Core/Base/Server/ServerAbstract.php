@@ -8,7 +8,6 @@
 namespace W7\Core\Base\Server;
 
 use W7\App;
-use W7\Core\Base\Process\ProcessBuilder;
 use W7\Core\Config\Event;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\Context;
@@ -37,6 +36,10 @@ abstract class ServerAbstract implements ServerInterface
      */
     public $connection;
 
+    /**
+     * ServerAbstract constructor.
+     * @throws CommandException
+     */
     public function __construct()
     {
         App::$server = $this;
@@ -133,12 +136,10 @@ abstract class ServerAbstract implements ServerInterface
     {
         $processName = \iconfig()->getProcess();
         foreach ($processName as $name) {
-            $process = iloader()->singleton($name);
-            $checkInfo = call_user_func([$process, "check"]);
-            if (!$checkInfo) {
+            $process = iprocess($name, App::$server);
+            if (!$process){
                 continue;
             }
-            $process = ProcessBuilder::create($name, App::$server);
             $this->server->addProcess($process);
         }
     }

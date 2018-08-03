@@ -6,7 +6,9 @@
 
 use Swoole\Coroutine;
 use W7\App;
-use W7\Core\Base\Dispatcher\DispatcherMaker;
+use W7\Core\Base\Dispatcher\EventDispatcher;
+use W7\Core\Base\Dispatcher\ProcessDispather;
+use W7\Core\Base\Dispatcher\TaskDispatcher;
 use W7\Core\Helper\Log\Logger;
 use W7\Core\Helper\StringHelper;
 
@@ -14,30 +16,50 @@ if (!function_exists('iprocess')) {
     function iprocess($name, $server)
     {
         /**
-         * @var DispatcherMaker $dispatcherMaker
+         * @var ProcessDispather $dispatcherMaker
          */
-        $dispatcherMaker = iloader()->singleton(DispatcherMaker::class);
-        return $dispatcherMaker->processDispatcher($name, $server);
+        $dispatcherMaker = iloader()->singleton(ProcessDispather::class);
+        try {
+            $process = $dispatcherMaker->build($name, $server);
+        }catch (Throwable $throwable){
+            ilogger()->warning($throwable->getMessage());
+            return false;
+        }
+        return $process;
     }
 }
 if (!function_exists("ievent")) {
+    /**
+     * @param $eventName
+     * @param array $args
+     * @return bool
+     * @throws Exception
+     */
     function ievent($eventName, $args = [])
     {
         /**
-         * @var DispatcherMaker $dispatcherMaker
+         * @var EventDispatcher $dispatcherMaker
          */
-        $dispatcherMaker = iloader()->singleton(DispatcherMaker::class);
-        return $dispatcherMaker->eventDispatcher($eventName, $args);
+        $dispatcherMaker = iloader()->singleton(EventDispatcher::class);
+        return $dispatcherMaker->trigger($eventName, $args);
     }
 }
 if (!function_exists("itask")) {
+    /**
+     * @param string $taskName
+     * @param string $methodName
+     * @param array $params
+     * @param int $timeout
+     * @return false|int
+     * @throws \W7\Core\Exception\TaskException
+     */
     function itask(string $taskName, string $methodName, array $params = [], int $timeout = 3)
     {
         /**
-         * @var DispatcherMaker $dispatcherMaker
+         * @var TaskDispatcher $dispatcherMaker
          */
-        $dispatcherMaker = iloader()->singleton(DispatcherMaker::class);
-        return $dispatcherMaker->taskDispatcher($taskName, $methodName, $params, $timeout);
+        $dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
+        return $dispatcherMaker->register($taskName, $methodName, $params, $timeout);
     }
 }
 

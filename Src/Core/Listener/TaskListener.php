@@ -7,18 +7,23 @@
 namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
+use W7\Core\Base\Dispatcher\TaskDispatcher;
 use W7\Core\Base\ListenerInterface;
-use W7\Core\Base\Task\TaskExecutor;
 
 class TaskListener implements ListenerInterface
 {
     public function run(Server $server, $taskId, $workerId, $data)
     {
         /**
-         * @var TaskExecutor $taskExecutor
+         * @var TaskDispatcher $taskExecutor
          */
-        $taskExecutor = iloader()->singleton(TaskExecutor::class);
-        $result = $taskExecutor->run($data);
+        $taskExecutor = iloader()->singleton(TaskDispatcher::class);
+        try {
+            $result = $taskExecutor->run($data);
+        }catch (\Exception $exception){
+            $server->finish($exception->getMessage());
+            return;
+        }
         $server->finish($result);
     }
 }

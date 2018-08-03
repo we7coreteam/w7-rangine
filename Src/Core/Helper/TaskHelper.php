@@ -16,13 +16,12 @@ class TaskHelper
      *
      * @return string
      */
-    public function pack(string $taskName, string $methodName, array $params, string $type = Task::TYPE_CO): string
+    public function pack(string $taskName, string $methodName, array $params): string
     {
         $task = [
             'name'   => $taskName,
             'method' => $methodName,
             'params' => $params,
-            'type'   => $type,
         ];
 
         /**

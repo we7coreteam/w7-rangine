@@ -29,5 +29,5 @@ class Event
     const ON_USER_AFTER_START = 'afterStart';
     const ON_USER_BEFORE_REQUEST = 'beforeRequest';
     const ON_USER_AFTER_REQUEST = 'afterRequest';
-    const ON_USER_TASK_FINISH = 'taskFinish';
+    const ON_USER_TASK_FINISH = 'afterTaskFinish';
 }
