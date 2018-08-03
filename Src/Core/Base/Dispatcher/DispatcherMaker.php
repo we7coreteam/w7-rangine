@@ -27,9 +27,9 @@ class DispatcherMaker
 
     public function __construct()
     {
-        $this-> taskInstance = iloader()->singleton(TaskDispatcher::class);
-        $this-> evnetInstance= iloader()->singleton(EventDispatcher::class);
-        $this-> processInstance = iloader()->singleton(ProcessDispather::class);
+        $this->taskInstance = iloader()->singleton(TaskDispatcher::class);
+        $this->evnetInstance= iloader()->singleton(EventDispatcher::class);
+        $this->processInstance = iloader()->singleton(ProcessDispather::class);
     }
 
     public function eventDispatcher(...$param)

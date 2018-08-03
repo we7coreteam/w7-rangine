@@ -30,6 +30,16 @@ class Cache
     const CONTEXT_DATA_KEY = 'cacheDirver';
 
 
+
+    const FIVE_MINUTE_MILLISECOND = '300000';
+
+
+    const FIVE_MINUTE_SCOND = '300';
+
+
+    const ONE_DAY_MILLISECOND = '86400000000';
+
+
     /**
      * Persists data in the Cache, uniquely referenced by a key with an optional expiration TTL time.
      *
