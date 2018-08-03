@@ -12,9 +12,6 @@ use W7\Core\Config\Event;
 
 class EventDispatcher extends DispatcherFacade
 {
-
-
-
     private $listener = [];
     private $serverType;
     private $swooleEvent = [];
@@ -108,5 +105,4 @@ class EventDispatcher extends DispatcherFacade
         }
         return true;
     }
-
 }

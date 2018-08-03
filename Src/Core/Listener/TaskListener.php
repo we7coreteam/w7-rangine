@@ -20,7 +20,7 @@ class TaskListener implements ListenerInterface
         $taskExecutor = iloader()->singleton(TaskDispatcher::class);
         try {
             $result = $taskExecutor->run($data);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             $server->finish($exception->getMessage());
             return;
         }

@@ -6,10 +6,8 @@
 
 namespace W7\Core\Exception;
 
-
 use Swoole\Mysql\Exception;
 
 class MysqlException extends Exception
 {
-
 }

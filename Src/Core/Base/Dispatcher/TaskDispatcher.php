@@ -29,7 +29,6 @@ class TaskDispatcher extends DispatcherFacade
      */
     public function register(...$param)
     {
-
         $taskName = $param[0];
         $methodName = $param[1];
         $params = $param[2];

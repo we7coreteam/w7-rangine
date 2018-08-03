@@ -21,7 +21,7 @@ if (!function_exists('iprocess')) {
         $dispatcherMaker = iloader()->singleton(ProcessDispather::class);
         try {
             $process = $dispatcherMaker->build($name, $server);
-        }catch (Throwable $throwable){
+        } catch (Throwable $throwable) {
             ilogger()->warning($throwable->getMessage());
             return false;
         }

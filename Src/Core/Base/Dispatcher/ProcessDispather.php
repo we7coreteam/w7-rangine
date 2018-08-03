@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base\Dispatcher;
 
-
 use Swoole\Process as SwooleProcess;
 
 class ProcessDispather extends DispatcherFacade
@@ -23,7 +22,6 @@ class ProcessDispather extends DispatcherFacade
      */
     public function build(...$param)
     {
-
         $name = $param[0];
         $server = $param[1];
         if (isset(self::$processes[$name])) {
@@ -54,6 +52,4 @@ class ProcessDispather extends DispatcherFacade
 
         return $swooleProcess;
     }
-
-
 }

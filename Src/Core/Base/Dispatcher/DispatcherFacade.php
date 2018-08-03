@@ -8,8 +8,6 @@ namespace W7\Core\Base\Dispatcher;
 
 abstract class DispatcherFacade extends DispatcherAbstract
 {
-
-
     protected $resolvedInstance;
 
 
@@ -58,5 +56,4 @@ abstract class DispatcherFacade extends DispatcherAbstract
     {
         throw new \Exception(__CLASS__ . "not be " . __METHOD__);
     }
-
 }
