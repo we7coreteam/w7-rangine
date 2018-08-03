@@ -6,7 +6,6 @@
 
 namespace W7\Core\Helper;
 
-
 class TaskHelper
 {
     /**
@@ -36,4 +35,7 @@ class TaskHelper
         return serialize($task);
     }
 
+    public function unpack()
+    {
+    }
 }

@@ -6,10 +6,9 @@
 
 namespace W7\Core\Base\Dispatcher;
 
-
 abstract class DispatcherFacade extends DispatcherAbstract
 {
-    protected  $resolvedInstance;
+    protected $resolvedInstance;
 
 
     abstract public function getFacadeAccessor();
@@ -20,5 +19,4 @@ abstract class DispatcherFacade extends DispatcherAbstract
         $instance = $this->getFacadeAccessor();
         return $instance->trigger(...$args);
     }
-
 }

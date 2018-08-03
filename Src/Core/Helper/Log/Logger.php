@@ -6,7 +6,6 @@
 
 namespace W7\Core\Helper\Log;
 
-
 use W7\Core\Helper\FileHelper;
 
 class Logger

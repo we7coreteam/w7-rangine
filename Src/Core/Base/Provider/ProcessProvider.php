@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base\Provider;
 
-
 use W7\Core\Base\Process\ProcessBuilder;
 
 class ProcessProvider
@@ -18,11 +17,7 @@ class ProcessProvider
      */
     public function trigger(string $name, $server)
     {
-        
-
-
-        if (!class_exists($name))
-        {
+        if (!class_exists($name)) {
             ilogger()->warning("Process is worng name is %s", $name);
             return false;
         }
@@ -33,6 +28,6 @@ class ProcessProvider
             return false;
         }
 
-       return ProcessBuilder::create($name, $server);
+        return ProcessBuilder::create($name, $server);
     }
 }

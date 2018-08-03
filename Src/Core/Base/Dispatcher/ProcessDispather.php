@@ -6,8 +6,6 @@
 
 namespace W7\Core\Base\Dispatcher;
 
-
-
 use W7\Core\Base\Provider\ProcessProvider;
 
 class ProcessDispather extends DispatcherFacade

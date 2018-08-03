@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base\Pool\ResourcePool;
 
-
 use W7\Core\Helper\Logger;
 
 trait BasePoolTrait
@@ -143,7 +142,7 @@ trait BasePoolTrait
     /**
      * @param Logger $logger
      */
-    public function setLogger( $logger)
+    public function setLogger($logger)
     {
         $this->logger = $logger;
     }

@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base\Dispatcher;
 
-
 class DispatcherMaker
 {
 
@@ -35,16 +34,16 @@ class DispatcherMaker
 
     public function eventDispatcher(...$param)
     {
-       return $this->evnetInstance->dispatch(...$param);
+        return $this->evnetInstance->dispatch(...$param);
     }
 
     public function taskDispatcher(...$param)
     {
-       return $this->taskInstance->dispatch(...$param);
+        return $this->taskInstance->dispatch(...$param);
     }
 
     public function processDispatcher(...$param)
     {
-       return $this->processInstance->dispatch(...$param);
+        return $this->processInstance->dispatch(...$param);
     }
 }

@@ -6,8 +6,6 @@
 
 namespace W7\Core\Exception;
 
-
 class TaskException extends \Exception
 {
-
 }

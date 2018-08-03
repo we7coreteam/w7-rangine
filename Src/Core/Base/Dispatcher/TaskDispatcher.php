@@ -8,7 +8,6 @@ namespace W7\Core\Base\Dispatcher;
 
 use W7\Core\Base\Provider\TaskProvider;
 
-
 /**
  * Class TaskDispatcher
  * @package W7\Core\Helper\Dispather

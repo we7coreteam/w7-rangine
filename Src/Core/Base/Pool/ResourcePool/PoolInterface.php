@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base\Pool\ResourcePool;
 
-
 interface PoolInterface
 {
     /**
@@ -25,5 +24,4 @@ interface PoolInterface
      * Empty the resource pool - Release all connections
      */
     public function clear();
-
 }

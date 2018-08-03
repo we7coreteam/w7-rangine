@@ -6,10 +6,8 @@
 
 namespace W7\Core\Base\Pool\ResourcePool;
 
-
 trait ManyPoolTrait
 {
-
     use BasePoolTrait;
 
     /**
@@ -148,5 +146,4 @@ trait ManyPoolTrait
     {
         $this->validateOnPut = $validateOnPut;
     }
-
 }

@@ -6,7 +6,6 @@
 
 namespace W7\Core\Helper\Log;
 
-
 use W7\Core\Helper\Context;
 use w7\Http\Message\Server\Response;
 

@@ -6,8 +6,6 @@
 
 namespace W7\Core\Base\Pool\ResourcePool;
 
-
-
 abstract class AbstractPool implements PoolInterface
 {
     use ManyPoolTrait;
@@ -125,8 +123,6 @@ abstract class AbstractPool implements PoolInterface
      */
     public function clear()
     {
-
-
         $this->queue->removeAll($this->queue);
     }
 
@@ -177,5 +173,4 @@ abstract class AbstractPool implements PoolInterface
     {
         return $this->queue->count() <=0;
     }
-
 }

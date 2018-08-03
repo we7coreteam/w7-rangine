@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base\Provider;
 
-
 use W7\App;
 use W7\Core\Exception\TaskException;
 use W7\Core\Helper\TaskHelper;
@@ -31,7 +30,7 @@ class TaskProvider
         $taskHelper = iloader()->singleton(TaskHelper::class);
         $data   = $taskHelper->pack($taskName, $methodName, $params, $type);
 
-        if(!isWorkerStatus()){
+        if (!isWorkerStatus()) {
             throw new TaskException('Please deliver task by http!');
         }
 

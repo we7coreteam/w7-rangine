@@ -6,13 +6,11 @@
 
 namespace W7\Core\Process;
 
-
 use Swoole\Process;
 use W7\Core\Base\Process\ProcessInterface;
 
 class MysqlPoolprocess implements ProcessInterface
 {
-
     protected $shmKey  = '30';
 
     

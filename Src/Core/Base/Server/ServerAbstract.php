@@ -131,7 +131,7 @@ abstract class ServerAbstract implements ServerInterface
         $this->registerSwooleEventListener();
         $this->registerProcesser();
         $this->registerServerContext();
-		$this->registerDb();
+        $this->registerDb();
         return true;
     }
 
@@ -141,7 +141,7 @@ abstract class ServerAbstract implements ServerInterface
         $processName = \iconfig()->getProcess();
         foreach ($processName as $name) {
             $process = iprocess($name, $this);
-            if (!$process){
+            if (!$process) {
                 continue;
             }
             $this->server->addProcess($process);
@@ -174,10 +174,10 @@ abstract class ServerAbstract implements ServerInterface
     }
 
     private function registerDb()
-	{
-		$dbPool = \iloader()->singleton(ResourcePool::class);
-		$this->queue = $dbPool;
-	}
+    {
+        $dbPool = \iloader()->singleton(ResourcePool::class);
+        $this->queue = $dbPool;
+    }
 
     private function registerEvent($event)
     {

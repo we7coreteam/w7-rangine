@@ -6,9 +6,6 @@
 
 namespace W7\Core\Base\Dispatcher;
 
-
-
-
 use W7\Core\Base\Provider\EventProvider;
 
 class EventDispatcher extends DispatcherFacade

@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base\Pool\ResourcePool;
 
-
 class ResourcePool extends AbstractPool
 {
     /**
@@ -24,7 +23,6 @@ class ResourcePool extends AbstractPool
     protected function init()
     {
         parent::init();
-
     }
 
     /**
@@ -33,7 +31,6 @@ class ResourcePool extends AbstractPool
      */
     protected function wait()
     {
-
         $timer = 0;
         $timeout = $this->getMaxWait();
 

@@ -6,10 +6,9 @@
 
 namespace W7\Core\Helper;
 
-
 abstract class DispatcherFacade
 {
-    protected  $resolvedInstance;
+    protected $resolvedInstance;
 
 
     abstract public function getFacadeAccessor();

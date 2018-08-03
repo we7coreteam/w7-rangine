@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base\Task;
 
-
 use W7\App\Task\Test;
 use W7\Core\Helper\Log\LogHelper;
 
@@ -25,18 +24,14 @@ class TaskExecutor
         $spanid = $taskData['spanid'] ?? 0;
         $nameSpacePrefix = 'W7\App\Task';
 
-        if (class_exists($name))
-        {
+        if (class_exists($name)) {
             $task = iloader()->singleton($name);
         }
 
-        if (class_exists( $nameSpacePrefix . "\\". ucfirst($name)))
-        {
-
+        if (class_exists($nameSpacePrefix . "\\". ucfirst($name))) {
             $task = iloader()->singleton($nameSpacePrefix . "\\" . ucfirst($name));
         }
-        if (empty($task))
-        {
+        if (empty($task)) {
             ilogger()->warning("task name is wrong name is " . $name);
             return false;
         }
@@ -79,6 +74,5 @@ class TaskExecutor
 
     protected function afterTask()
     {
-
     }
 }

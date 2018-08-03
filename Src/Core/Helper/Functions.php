@@ -10,10 +10,7 @@ use W7\Core\Base\Dispatcher\DispatcherMaker;
 use W7\Core\Helper\Log\Logger;
 use W7\Core\Helper\StringHelper;
 
-
-
-if (!function_exists('iprocess'))
-{
+if (!function_exists('iprocess')) {
     function iprocess($name, $server)
     {
         /**
@@ -23,8 +20,7 @@ if (!function_exists('iprocess'))
         return $dispatcherMaker->processDispatcher($name, $server);
     }
 }
-if (!function_exists("ievent"))
-{
+if (!function_exists("ievent")) {
     function ievent($eventName, $args = [])
     {
         /**
@@ -34,8 +30,7 @@ if (!function_exists("ievent"))
         return $dispatcherMaker->eventDispatcher($eventName, $args);
     }
 }
-if (!function_exists("itask"))
-{
+if (!function_exists("itask")) {
     function itask(string $taskName, string $methodName, array $params = [], int $timeout = 3)
     {
         /**
@@ -54,7 +49,7 @@ if (!function_exists("iuuid")) {
      */
     function iuuid()
     {
-        $len = rand(2,16);
+        $len = rand(2, 16);
         $prefix = md5(substr(md5(Coroutine::getuid()), $len));
         return uniqid($prefix);
     }
@@ -112,17 +107,14 @@ if (!function_exists('iconfig')) {
     }
 }
 
-if (!function_exists("ientity"))
-{
+if (!function_exists("ientity")) {
     function ientity($name)
     {
         $nameSpace = "W7\App\Model\Entity";
-        if (class_exists($name))
-        {
+        if (class_exists($name)) {
             return iloader()->singleton($name);
         }
-        if (class_exists($nameSpace . '\\' . $name))
-        {
+        if (class_exists($nameSpace . '\\' . $name)) {
             return iloader()->singleton($nameSpace . $name);
         }
         return false;

@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base;
 
-
 use Psr\Http\Message\ResponseInterface;
 
 /**

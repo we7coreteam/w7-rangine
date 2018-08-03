@@ -6,7 +6,6 @@
 
 namespace W7\Core\Base\Provider;
 
-
 use W7\App;
 use W7\Core\Base\ListenerInterface;
 use W7\Core\Config\Event;
