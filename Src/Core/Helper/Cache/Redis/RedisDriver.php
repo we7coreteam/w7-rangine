@@ -5,6 +5,7 @@
  */
 namespace W7\Core\Helper\Cache\Redis;
 
+use W7\Core\Exception\RedisException;
 use W7\Core\Helper\Cache\AbstractRedisDriver;
 
 /**
@@ -99,21 +100,22 @@ class RedisDriver extends AbstractRedisDriver
      */
     public function __construct()
     {
-        if (static::$redis instanceof \Redis) {
-            return static::$redis;
+        if ($this->redis instanceof \Redis && !empty($this->redis)) {
+
+            return $this;
         }
-        $defineConf = iconfig()->getUserConfig("app");
-        $redisConfUrl  = $defineConf['cache']['redis']['url'];
-        $timeout = $defineConf['cache']['redis']['timeout'];
+        $this->getDefineConf();
+        $redisConfUrl  = $this->defineConf['cache']['redis']['redis_url'];
+        $timeout = $this->defineConf['cache']['redis']['timeout'];
         $redisConf = $this->parseUri($redisConfUrl);
         $host = $redisConf['host'];
         $port = (int)$redisConf['port'];
         /**
-         * @var Redis static::$redis
+         * @var \Redis static::$redis
          */
-        static::$redis = new \Redis();
-        static::$redis->connect($host, $port);
-        if (isset($config['auth']) && false === static::$redis->auth($redisConf['auth'])) {
+        $this->redis = new \Redis();
+        $this->redis->connect($host, $port);
+        if (isset($config['auth']) && false === $this->redis->auth($redisConf['auth'])) {
             $error = sprintf('Redis connection authentication failed host=%s port=%d auth=%s', $host, (int)$port, (string)$redisConf['auth']);
             throw new RedisException($error);
         }
@@ -123,11 +125,10 @@ class RedisDriver extends AbstractRedisDriver
             throw new RedisException($error);
         }
 
-        if (!static::$redis) {
+        if (!$this->redis) {
             $error = sprintf('Redis connection failure host=%s port=%d', $host, $port);
             throw new RedisException($error);
         }
         $this->setPrefix();
-        return static::$redis;
     }
 }

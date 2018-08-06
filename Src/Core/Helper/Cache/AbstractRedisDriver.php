@@ -7,6 +7,7 @@
 namespace W7\Core\Helper\Cache;
 
 use Psr\SimpleCache\CacheInterface;
+use W7\Core\Exception\RedisException;
 
 /**
  * Redis
@@ -95,7 +96,10 @@ class AbstractRedisDriver implements CacheInterface
 {
     protected $prefix;
 
-    protected static $redis = null;
+    /**
+     * @var \Redis
+     */
+    protected $redis = null;
 
     protected $defineConf;
 
@@ -105,7 +109,7 @@ class AbstractRedisDriver implements CacheInterface
      */
     public function __construct()
     {
-        throw new \RedisException("redis driver select wrong");
+        throw new RedisException("redis driver select wrong");
     }
 
 
@@ -113,7 +117,7 @@ class AbstractRedisDriver implements CacheInterface
     {
         $prefix = $this->getPrefix();
         if (!empty($prefix) && is_string($prefix)) {
-            static::$redis->setOption(\Redis::OPT_PREFIX, $prefix);
+            $this->redis->setOption(\Redis::OPT_PREFIX, $prefix);
         }
     }
     /**
@@ -169,6 +173,7 @@ class AbstractRedisDriver implements CacheInterface
      */
     public function get($key, $default = null)
     {
+
         $result = $this->call('get', [$key]);
         if ($result === false || $result === null) {
             return $default;
@@ -347,7 +352,7 @@ class AbstractRedisDriver implements CacheInterface
      */
     protected function call(string $method, array $params)
     {
-        $result     = static::$redis->$method(...$params);
+        $result     = $this->redis->$method(...$params);
 
         return $result;
     }

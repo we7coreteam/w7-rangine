@@ -7,6 +7,7 @@
 namespace W7\Core\Helper\Cache\Redis;
 
 use Swoole\Coroutine\Redis;
+use W7\Core\Exception\RedisException;
 use W7\Core\Helper\Cache\AbstractRedisDriver;
 
 /**
@@ -95,14 +96,15 @@ use W7\Core\Helper\Cache\AbstractRedisDriver;
 class RedisCoroutineDriver extends AbstractRedisDriver
 {
 
+
     /**
-     * RedisDriver constructor.
+     * RedisCoroutineDriver constructor.
      * @throws RedisException
      */
     public function __construct()
     {
-        if (static::$redis instanceof Redis) {
-            return static::$redis;
+        if ($this->redis instanceof Redis) {
+            return $this;
         }
         $this->getDefineConf();
         $redisConfUrl  = $this->defineConf['cache']['redis']['redis_url'];
@@ -110,25 +112,23 @@ class RedisCoroutineDriver extends AbstractRedisDriver
         $redisConf = $this->parseUri($redisConfUrl);
         $host = $redisConf['host'];
         $port = (int)$redisConf['port'];
-        /**
-         * @var Redis static::$redis
-         */
-        static::$redis = new Redis();
-        static::$redis->connect($host, $port);
-        if (isset($config['auth']) && false === static::$redis->auth($redisConf['auth'])) {
+
+        $this->redis = new Redis();
+        $this->redis->connect($host, $port);
+        if (isset($config['auth']) && false === $this->redis->auth($redisConf['auth'])) {
             $error = sprintf('Redis connection authentication failed host=%s port=%d auth=%s', $host, (int)$port, (string)$redisConf['auth']);
             throw new RedisException($error);
         }
 
-        if (isset($config['database']) && $redisConf['database'] < 16 && false === static::$redis->select($redisConf['database'])) {
+        if (isset($config['database']) && $redisConf['database'] < 16 && false === $this->redis->select($redisConf['database'])) {
             $error = sprintf('Redis selection database failure host=%s port=%d database=%d', $host, (int)$port, (int)$redisConf['database']);
             throw new RedisException($error);
         }
 
-        if (!static::$redis) {
+        if (!$this->redis) {
             $error = sprintf('Redis connection failure host=%s port=%d', $host, $port);
             throw new RedisException($error);
         }
-        return static::$redis;
+        $this->redis->select($redisConf['database']);
     }
 }

@@ -23,7 +23,7 @@ class RouteData
             if (isset($route['common']) && !empty($route['common'])) {
                 $middlerwares['controller_midllerware'][$controller] = $route['common'];
             }
-            $middlerwares['method_middlerware'] = $this->methodMiddlerWare($route, $controller);
+            $middlerwares['method_middlerware'][$controller] = $this->methodMiddlerWare($route, $controller);
         }
         return $middlerwares;
     }

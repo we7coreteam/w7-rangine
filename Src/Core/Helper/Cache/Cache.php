@@ -7,12 +7,13 @@
 namespace W7\Core\Helper\Cache;
 
 use W7\Core\Base\Cache\CacheAbstract;
+use W7\Core\Exception\RedisException;
 use W7\Core\Helper\Cache\Redis\RedisCoroutineDriver;
 use W7\Core\Helper\Cache\Redis\RedisDriver;
 use W7\Core\Helper\MemoryCache;
 
 /**
- * @method string|bool get($key, $default = null)
+ * @method bool get($key)
  * @method bool delete($key)
  * @method bool clear()
  * @method array getMultiple($keys, $default = null)
@@ -65,6 +66,7 @@ class Cache
         return $ret;
     }
 
+
     /**
      * @param string $method
      * @param array  $arguments
@@ -105,10 +107,15 @@ class Cache
             throw new \InvalidArgumentException(sprintf('Driver %s not exist', $currentDriver));
         }
         //TODO If driver component not loaded, throw an exception.
-        if (isCo()) {
-            $driverObj = iloader()->singleton($drivers[$currentDriver]['co']);
-        } else {
-            $driverObj = iloader()->singleton($drivers[$currentDriver]['sync']);
+        try {
+            if (isCo()) {
+                $driverObj = iloader()->singleton($drivers[$currentDriver]['co']);
+            } else {
+                $driverObj = iloader()->singleton($drivers[$currentDriver]['sync']);
+            }
+        }catch (\Throwable $redisException)
+        {
+            ilogger()->warning("redis dirver is wrong msg is %s" . $redisException->getMessage());
         }
         return $driverObj;
     }
@@ -121,7 +128,8 @@ class Cache
         return [
             'memory'=> MemoryCache::class,
             'redis' => [
-                "co" => RedisCoroutineDriver::class,
+                "co" => RedisDriver::class,
+//                "co" => RedisCoroutineDriver::class,
 //                "sync" => SyncRedisDriver::class,
                 "sync" => RedisDriver::class,
             ],

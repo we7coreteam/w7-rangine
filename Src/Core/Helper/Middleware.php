@@ -69,11 +69,15 @@ class Middleware
             }
             $middlewares[$controller]['default'] = $middleware;
         }
-        foreach ($methodMiddlewares as $method=>$middleware) {
+        foreach ($methodMiddlewares as $controller=>$middleware) {
             if (empty($middleware)) {
                 continue;
             }
-            $middlewares[$controller][$method] = $middleware;
+            foreach ($middleware as $method=>$methodMiddleware){
+                list($controller, $method) = explode("_", $method);
+                $middlewares[$controller][$method] = $methodMiddleware;
+            }
+
         }
         return $middlewares;
     }
