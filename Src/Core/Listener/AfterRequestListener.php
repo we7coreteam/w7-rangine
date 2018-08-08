@@ -6,8 +6,7 @@
 
 namespace W7\Core\Listener;
 
-use W7\Core\Base\Listener\ListenerInterface;
-use W7\Core\Helper\Log\LogHelper;
+use W7\Core\Log\LogHelper;
 
 class AfterRequestListener implements ListenerInterface
 {

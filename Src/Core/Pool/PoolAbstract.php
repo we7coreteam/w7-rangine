@@ -4,7 +4,7 @@
  * @date 18-7-30 下午6:34
  */
 
-namespace W7\Core\Base\Pool;
+namespace W7\Core\Pool;
 
 use Swoole\Coroutine;
 use W7\App;

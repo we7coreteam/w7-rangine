@@ -6,26 +6,19 @@
 
 use Swoole\Coroutine;
 use W7\App;
-use W7\Core\Base\Dispatcher\EventDispatcher;
-use W7\Core\Base\Dispatcher\ProcessDispather;
-use W7\Core\Base\Dispatcher\TaskDispatcher;
-use W7\Core\Helper\Log\Logger;
-use W7\Core\Helper\StringHelper;
+use W7\Core\Dispatcher\EventDispatcher;
+use W7\Core\Dispatcher\ProcessDispather;
+use W7\Core\Dispatcher\TaskDispatcher;
 
 if (!function_exists('iprocess')) {
-	function iprocess($name, $server)
+	function iprocess($name, $server = null)
 	{
 		/**
-		 * @var ProcessDispather $dispatcherMaker
+		 * @var ProcessDispather $dispatcher
 		 */
-		$dispatcherMaker = iloader()->singleton(ProcessDispather::class);
-		try {
-			$process = $dispatcherMaker->build($name, $server);
-		} catch (Throwable $throwable) {
-			ilogger()->warning($throwable->getMessage());
-			return false;
-		}
-		return $process;
+		$dispatcher = iloader()->singleton(ProcessDispather::class);
+		return $dispatcher->dispatch($name, $server);
+
 	}
 }
 if (!function_exists("ievent")) {
@@ -40,8 +33,8 @@ if (!function_exists("ievent")) {
 		/**
 		 * @var EventDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = iloader()->singleton(EventDispatcher::class);
-		return $dispatcherMaker->trigger($eventName, $args);
+		$dispatcher = iloader()->singleton(EventDispatcher::class);
+		return $dispatcher->trigger($eventName, $args);
 	}
 }
 if (!function_exists("itask")) {
@@ -154,18 +147,6 @@ if (!function_exists("ilogger")) {
 	}
 }
 
-if (!function_exists('isMac')) {
-	/**
-	 * 是否是mac环境
-	 *
-	 * @return bool
-	 */
-	function isMac(): bool
-	{
-		return \stripos(PHP_OS, 'Darwin') !== false;
-	}
-}
-
 if (!function_exists('isCo')) {
 	/**
 	 * 是否是在协成
@@ -210,45 +191,19 @@ if (!function_exists("isWorkerStatus")) {
 		return false;
 	}
 }
-if (! function_exists('ienv')) {
-	/**
-	 *获取ENV的参数.
-	 *
-	 * @param  string $key
-	 * @param  mixed $default
-	 * @return mixed
-	 */
-	function ienv($key, $default = null)
-	{
-		$value = getenv($key);
 
-		if ($value === false) {
-			return value($default);
+if (!function_exists('isetProcessTitle')) {
+	function isetProcessTitle($title) {
+		if (\stripos(PHP_OS, 'Darwin') !== false) {
+			return true;
+		}
+		if (\function_exists('cli_set_process_title')) {
+			return cli_set_process_title($title);
 		}
 
-		switch (strtolower($value)) {
-			case 'true':
-			case '(true)':
-				return true;
-			case 'false':
-			case '(false)':
-				return false;
-			case 'empty':
-			case '(empty)':
-				return '';
-			case 'null':
-			case '(null)':
-				return;
+		if (\function_exists('swoole_set_process_name')) {
+			return swoole_set_process_name($title);
 		}
-
-		if (strlen($value) > 1 && StringHelper::startsWith($value, '"') && StringHelper::endsWith($value, '"')) {
-			return substr($value, 1, -1);
-		}
-
-		if (defined($value)) {
-			$value = constant($value);
-		}
-
-		return $value;
+		return true;
 	}
 }

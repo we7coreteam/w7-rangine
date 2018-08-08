@@ -4,7 +4,7 @@
  * @date 18-7-19 下午3:58
  */
 
-namespace W7\Core\Base\Command;
+namespace W7\Core\Command;
 
 interface CommandInterface
 {

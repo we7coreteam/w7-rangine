@@ -7,7 +7,6 @@
 namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
-use W7\Core\Base\Listener\ListenerInterface;
 use W7\Core\Config\Event;
 
 class FinishListener implements ListenerInterface

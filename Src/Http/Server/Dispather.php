@@ -7,25 +7,22 @@
 namespace W7\Http\Server;
 
 use Psr\Http\Message\ServerRequestInterface;
-use W7\Core\Base\Dispatcher\DispatcherAbstract;
-use W7\Core\Base\Middleware\MiddlewareHandler;
+use W7\Core\Dispatcher\DispatcherAbstract;
+use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Helper\Context;
-use W7\Core\Helper\Log\LogHelper;
 use W7\Core\Helper\Middleware;
+use W7\Core\Log\LogHelper;
 use w7\HttpRoute\HttpServer;
 
 class Dispather extends DispatcherAbstract
 {
 	public $lastMiddleware = \W7\Http\Middleware\RequestMiddleware::class;
 
-
-
-
 	public function dispatch(...$params)
 	{
 		try {
-			$request	   = $params[0];
-			$response	  = $params[1];
+			$request = $params[0];
+			$response = $params[1];
 			$serverContext = $params[2];
 			$psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
 			$psr7Response = new \w7\Http\Message\Server\Response($response);

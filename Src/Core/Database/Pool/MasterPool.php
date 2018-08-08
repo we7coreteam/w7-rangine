@@ -13,7 +13,7 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use W7\App;
-use W7\Core\Base\Pool\PoolAbstract;
+use W7\Core\Pool\PoolAbstract;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\Core\Database\Connector\SwooleMySqlConnector;
 use W7\Core\Database\DatabaseManager;
@@ -48,7 +48,7 @@ class MasterPool extends PoolAbstract
 		$container->instance('events', $dbDispatch);
 
 		//添加配置信息到容器
-		$dbconfig = \iconfig()->getUserCommonConfig('database');
+		$dbconfig = \iconfig()->getUserAppConfig('database');
 
 		$container->instance('config', new Fluent());
 		$container['config']['database.default'] = 'default';

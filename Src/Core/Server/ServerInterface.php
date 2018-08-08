@@ -5,7 +5,7 @@
  * @date 18-7-20 上午9:22
  */
 
-namespace W7\Core\Base\Server;
+namespace W7\Core\Server;
 
 interface ServerInterface
 {

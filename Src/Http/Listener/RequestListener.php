@@ -9,7 +9,7 @@ namespace W7\Http\Listener;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
-use W7\Core\Base\Listener\ListenerInterface;
+use W7\Core\Listener\ListenerInterface;
 use W7\Core\Helper\Context;
 
 class RequestListener implements ListenerInterface

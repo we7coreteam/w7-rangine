@@ -7,11 +7,12 @@
 namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
-use W7\Core\Base\Listener\ListenerInterface;
+use W7\App;
 
 class StartListener implements ListenerInterface
 {
 	public function run(Server $server)
 	{
+		\isetProcessTitle( 'w7swoole ' . App::$server->type . ' master process');
 	}
 }

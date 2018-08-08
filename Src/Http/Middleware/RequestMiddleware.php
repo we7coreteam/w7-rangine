@@ -10,7 +10,7 @@ namespace W7\Http\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Base\Middleware\MiddlewareAbstract;
+use W7\Core\Middleware\MiddlewareAbstract;
 use W7\Core\Helper\Context;
 use w7\HttpRoute\Exception\BadRequestException;
 use w7\HttpRoute\Exception\RouteNotFoundException;

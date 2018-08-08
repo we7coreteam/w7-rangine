@@ -6,7 +6,7 @@
 
 namespace W7\Http\Server;
 
-use W7\Core\Base\Server\ServerAbstract;
+use W7\Core\Server\ServerAbstract;
 use W7\Core\Config\Event;
 
 class Server extends ServerAbstract

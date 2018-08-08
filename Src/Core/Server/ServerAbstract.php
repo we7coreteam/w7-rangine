@@ -5,7 +5,7 @@
  * @date 18-7-20 上午9:32
  */
 
-namespace W7\Core\Base\Server;
+namespace W7\Core\Server;
 
 use W7\App;
 use W7\Core\Config\Event;
@@ -64,17 +64,18 @@ abstract class ServerAbstract implements ServerInterface
 
 	public function getStatus()
 	{
-		$this->setting['masterPid'] = $this->server->master_pid;
-		$this->setting['managerPid'] = $this->server->manager_pid;
-
+		$pidFile = $this->setting['pid_file'];
+		if (file_exists($pidFile)) {
+			$pids = explode(',', file_get_contents($pidFile));
+		}
 		return [
 			'host' => $this->connection['host'],
 			'port' => $this->connection['port'],
 			'type' => $this->connection['sock_type'],
 			'mode' => $this->connection['mode'],
 			'workerNum' => $this->setting['worker_num'],
-			'masterPid' => $this->setting['masterPid'],
-			'managerPid' => $this->setting['managerPid'],
+			'masterPid' => !empty($pids[0]) ? $pids[0] : 0,
+			'managerPid' => !empty($pids[1]) ? $pids[1] : 0,
 		];
 	}
 
@@ -95,14 +96,15 @@ abstract class ServerAbstract implements ServerInterface
 
 	public function stop()
 	{
+		$status = $this->getStatus();
 		$timeout = 20;
 		$startTime = time();
 		$result = true;
 
-		if (\swoole_process::kill($this->setting['masterPid'], 0)) {
-			\swoole_process::kill($this->setting['masterPid'], SIGTERM);
+		if (\swoole_process::kill($status['masterPid'], 0)) {
+			\swoole_process::kill($status['masterPid'], SIGTERM);
 			while (1) {
-				$masterIslive = \swoole_process::kill($this->setting['masterPid'], SIGTERM);
+				$masterIslive = \swoole_process::kill($status['masterPid'], SIGTERM);
 				if ($masterIslive) {
 					if (time() - $startTime >= $timeout) {
 						$result = false;
@@ -136,11 +138,7 @@ abstract class ServerAbstract implements ServerInterface
 	{
 		$processName = \iconfig()->getProcess();
 		foreach ($processName as $name) {
-			$process = iprocess($name, App::$server);
-			if (!$process) {
-				continue;
-			}
-			$this->server->addProcess($process);
+			\iprocess($name, App::$server);
 		}
 	}
 

@@ -6,7 +6,8 @@
 
 namespace W7;
 
-use W7\Core\Helper\Log\Logger;
+use W7\Core\Log\Logger;
+use W7\Core\Log\LogHelper;
 use W7\Http\Server\Server;
 
 class App
@@ -25,6 +26,16 @@ class App
 	private static $loader;
 	private static $logger;
 	public static $dbPool;
+
+	public function __construct()
+	{
+		/**
+		 * 设置错误信息接管
+		 * @var LogHelper $logHanler
+		 */
+		$logHanler = iloader()->singleton(LogHelper::class);
+		set_error_handler([$logHanler, 'errorHandler']);
+	}
 
 	public static function getLoader()
 	{
@@ -48,7 +59,7 @@ class App
 		 * @var Logger $logger
 		 */
 		static::$logger = iloader()->singleton(Logger::class);
-		static::$logger->init($defineConfig['log']['log_file'], $defineConfig['log']['level'], $defineConfig['log']['flushInterval']);
+		static::$logger->init($defineConfig['log']['log_file'], $defineConfig['log']['level'], $defineConfig['log']['flush_interval']);
 		return static::$logger;
 	}
 }

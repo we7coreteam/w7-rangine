@@ -4,7 +4,7 @@
  * @date 18-7-25 下午3:04
  */
 
-namespace W7\Core\Base\Process;
+namespace W7\Core\Process;
 
 use Swoole\Process;
 

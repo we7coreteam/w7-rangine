@@ -6,7 +6,7 @@
  */
 
 
-namespace W7\Core\Base\Middleware;
+namespace W7\Core\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

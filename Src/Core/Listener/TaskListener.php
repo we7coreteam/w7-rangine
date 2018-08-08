@@ -7,8 +7,6 @@
 namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
-use W7\Core\Base\Dispatcher\TaskDispatcher;
-use W7\Core\Base\Listener\ListenerInterface;
 
 class TaskListener implements ListenerInterface
 {

@@ -6,13 +6,13 @@
 
 namespace W7\Http\Console;
 
-use W7\Core\Base\Command\CommandInterface;
+use W7\Core\Command\CommandInterface;
 use W7\Http\Server\Server;
 
 class Command implements CommandInterface
 {
 	/**
-	 * @var \W7\Core\Base\ServerAbstract $server
+	 * @var \W7\Core\Server\ServerAbstract $server
 	 */
 	private $server;
 

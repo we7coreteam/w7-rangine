@@ -4,12 +4,12 @@
  * date: 18-8-3 上午9:38
  */
 
-namespace W7\Core\Base\Dispatcher;
+namespace W7\Core\Dispatcher;
 
-use W7\App\App;
+use W7\App;
 use W7\Core\Exception\TaskException;
-use W7\Core\Helper\Log\LogHelper;
 use W7\Core\Helper\TaskHelper;
+use W7\Core\Log\LogHelper;
 
 /**
  * Class TaskDispatcher

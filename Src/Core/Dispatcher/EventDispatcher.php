@@ -4,13 +4,13 @@
  * date: 18-8-3 上午9:38
  */
 
-namespace W7\Core\Base\Dispatcher;
+namespace W7\Core\Dispatcher;
 
 use W7\App;
-use W7\Core\Base\Listener\ListenerInterface;
+use W7\Core\Listener\ListenerInterface;
 use W7\Core\Config\Event;
 
-class EventDispatcher extends DispatcherFacade
+class EventDispatcher extends DispatcherAbstract
 {
 	private $listener = [];
 	private $serverType;
@@ -23,9 +23,36 @@ class EventDispatcher extends DispatcherFacade
 	 */
 	public function __construct()
 	{
-		$this->initListener();
-		$this->initServerType();
+		$this->serverType = App::$server->type;
 		$this->initAllowEvent();
+		//用户事件无需手动注册，自动获取即可
+		$this->register();
+	}
+
+	public function register()
+	{
+		//根据用户自定义事件列表，添加侦听队列
+		$event = \iconfig()->getEvent()['system'];
+		if (empty($event)) {
+			return true;
+		}
+
+		$serverSupport = \iconfig()->getServer();
+
+		$listenerClass = [];
+		foreach ($event as $eventName) {
+			$listenerClass[$eventName] = [];
+			$listenerClass[$eventName]['framework'] = sprintf("\\W7\\Core\\Listener\\%sListener", ucfirst($eventName));
+			foreach ($serverSupport as $serverName => $server) {
+				$class = sprintf("\\W7\\%s\\Listener\\%sListener", ucfirst($serverName), ucfirst($eventName));
+				if (class_exists($class)) {
+					$listenerClass[$eventName][$serverName] = $class;
+				}
+			}
+			$listenerClass[$eventName]['user'] = sprintf("\\W7\\App\\Listener\\%sListener", ucfirst($eventName));
+		}
+		$this->listener = $listenerClass;
+		return true;
 	}
 
 	/**
@@ -54,37 +81,6 @@ class EventDispatcher extends DispatcherFacade
 				}
 			}
 		}
-		return true;
-	}
-	
-
-	private function initServerType()
-	{
-		$this->serverType = App::$server->type;
-	}
-
-	private function initListener()
-	{
-		//根据用户自定义事件列表，添加侦听队列
-		$event = \iconfig()->getEvent()['system'];
-		if (empty($event)) {
-			return true;
-		}
-		$serverSupport = \iconfig()->getServer();
-
-		$listenerClass = [];
-		foreach ($event as $eventName) {
-			$listenerClass[$eventName] = [];
-			$listenerClass[$eventName]['framework'] = sprintf("\\W7\\Core\\Listener\\%sListener", ucfirst($eventName));
-			foreach ($serverSupport as $serverName => $server) {
-				$class = sprintf("\\W7\\%s\\Listener\\%sListener", ucfirst($serverName), ucfirst($eventName));
-				if (class_exists($class)) {
-					$listenerClass[$eventName][$serverName] = $class;
-				}
-			}
-			$listenerClass[$eventName]['user'] = sprintf("\\W7\\App\\Listener\\%sListener", ucfirst($eventName));
-		}
-		$this->listener = $listenerClass;
 		return true;
 	}
 
