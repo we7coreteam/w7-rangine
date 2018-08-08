@@ -9,30 +9,29 @@ namespace W7\Http\Listener;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
-use W7\Core\Base\ListenerInterface;
+use W7\Core\Base\Listener\ListenerInterface;
 use W7\Core\Helper\Context;
-use W7\Core\Helper\Log\LogHelper;
 
 class RequestListener implements ListenerInterface
 {
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @return \Psr\Http\Message\ResponseInterface|Response
-     * @throws \ReflectionException
-     */
-    public function run(Server $server, Request $request, Response $response)
-    {
+	/**
+	 * @param Request $request
+	 * @param Response $response
+	 * @return \Psr\Http\Message\ResponseInterface|Response
+	 * @throws \ReflectionException
+	 */
+	public function run(Server $server, Request $request, Response $response)
+	{
 
-        /**
-         * @var Context $serverContext
-         */
-        $serverContext = $server->context;
+		/**
+		 * @var Context $serverContext
+		 */
+		$serverContext = $server->context;
 
-        /**
-         * @var \W7\Http\Server\Dispather $dispather
-         */
-        $dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
-        $dispather->dispatch($request, $response, $serverContext);
-    }
+		/**
+		 * @var \W7\Http\Server\Dispather $dispather
+		 */
+		$dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
+		$dispather->dispatch($request, $response, $serverContext);
+	}
 }

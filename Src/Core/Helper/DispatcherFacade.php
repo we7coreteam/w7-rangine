@@ -8,15 +8,15 @@ namespace W7\Core\Helper;
 
 abstract class DispatcherFacade
 {
-    protected $resolvedInstance;
+	protected $resolvedInstance;
 
 
-    abstract public function getFacadeAccessor();
+	abstract public function getFacadeAccessor();
 
 
-    public function __call($method, $args)
-    {
-        $instance = $this->getFacadeRoot();
-        $instance->$method(...$args);
-    }
+	public function __call($method, $args)
+	{
+		$instance = $this->getFacadeRoot();
+		$instance->$method(...$args);
+	}
 }

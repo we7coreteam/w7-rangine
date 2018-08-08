@@ -8,33 +8,33 @@ namespace W7\Core\Helper;
 
 class TaskHelper
 {
-    /**
-     * @param string $taskName
-     * @param string $methodName
-     * @param array  $params
-     * @param string $type
-     *
-     * @return string
-     */
-    public function pack(string $taskName, string $methodName, array $params): string
-    {
-        $task = [
-            'name'   => $taskName,
-            'method' => $methodName,
-            'params' => $params,
-        ];
+	/**
+	 * @param string $taskName
+	 * @param string $methodName
+	 * @param array  $params
+	 * @param string $type
+	 *
+	 * @return string
+	 */
+	public function pack(string $taskName, string $methodName, array $params): string
+	{
+		$task = [
+			'name'   => $taskName,
+			'method' => $methodName,
+			'params' => $params,
+		];
 
-        /**
-         * @var Context $contextObj
-         */
-        $contextObj = iloader()->singleton(Context::class);
-        $task['logid']  = $contextObj->getLogid();
-        $task['spanid'] = $contextObj->getSpanid();
+		/**
+		 * @var Context $contextObj
+		 */
+		$contextObj = iloader()->singleton(Context::class);
+		$task['logid']  = $contextObj->getLogid();
+		$task['spanid'] = $contextObj->getSpanid();
 
-        return serialize($task);
-    }
+		return serialize($task);
+	}
 
-    public function unpack()
-    {
-    }
+	public function unpack()
+	{
+	}
 }

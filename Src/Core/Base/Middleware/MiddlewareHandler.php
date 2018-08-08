@@ -15,62 +15,62 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class MiddlewareHandler implements RequestHandlerInterface
 {
-    /**
-    * @var array
-    */
-    private $middlewares;
+	/**
+	* @var array
+	*/
+	private $middlewares;
 
-    /**
-     * @var string
-     */
-    private $default;
+	/**
+	 * @var string
+	 */
+	private $default;
 
-    /**
-     * @var integer
-     *
-     */
-    private $offset = 0;
+	/**
+	 * @var integer
+	 *
+	 */
+	private $offset = 0;
 
-    /**
-     * MiddlewareHandler constructor.
-     *
-     * @param array $middleware
-     * @param string $default
-     */
-    public function __construct(array $middleware)
-    {
-        $this->middlewares = \array_unique($middleware);
-    }
+	/**
+	 * MiddlewareHandler constructor.
+	 *
+	 * @param array $middleware
+	 * @param string $default
+	 */
+	public function __construct(array $middleware)
+	{
+		$this->middlewares = \array_unique($middleware);
+	}
 
-    /**
-     * Process the request using the current middleware.
-     *
-     * @param ServerRequestInterface $request
-     * @return ResponseInterface
-     * @throws \InvalidArgumentException
-     */
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        $handler = $this->middlewares[$this->offset];
-        $handler = iloader()->singleton($handler);
+	/**
+	 * Process the request using the current middleware.
+	 *
+	 * @param ServerRequestInterface $request
+	 * @return ResponseInterface
+	 * @throws \InvalidArgumentException
+	 */
+	public function handle(ServerRequestInterface $request): ResponseInterface
+	{
+		$handler = $this->middlewares[$this->offset];
+		$handler = iloader()->singleton($handler);
 
 
-        if (!$handler instanceof MiddlewareInterface) {
-            throw new \InvalidArgumentException('Invalid Handler. It must be an instance of MiddlewareInterface');
-        }
+		if (!$handler instanceof MiddlewareInterface) {
+			throw new \InvalidArgumentException('Invalid Handler. It must be an instance of MiddlewareInterface');
+		}
 
-        return $handler->process($request, $this->next());
-    }
+		return $handler->process($request, $this->next());
+	}
 
-    /**
-     * Get a handler pointing to the next middleware.
-     *
-     * @return static
-     */
-    private function next()
-    {
-        $clone = clone $this;
-        $clone->offset++;
-        return $clone;
-    }
+	/**
+	 * Get a handler pointing to the next middleware.
+	 *
+	 * @return static
+	 */
+	private function next()
+	{
+		$clone = clone $this;
+		$clone->offset++;
+		return $clone;
+	}
 }

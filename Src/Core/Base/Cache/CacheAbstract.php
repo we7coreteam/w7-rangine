@@ -1,7 +1,8 @@
 <?php
 /**
- * author: alex
- * date: 18-7-27 下午6:02
+ * 缓存接口类
+ * @author donknap
+ * @date 18-7-19 上午10:04
  */
 namespace W7\Core\Base\Cache;
 
@@ -18,35 +19,35 @@ use Psr\SimpleCache\CacheInterface;
  */
 abstract class CacheAbstract implements CacheInterface
 {
-    protected static $driverType;
+	protected static $driverType;
 
-    /**
-     * @var array
-     */
-    private $drivers = [];
+	/**
+	 * @var array
+	 */
+	private $drivers = [];
 
-    /**
-     * TODO add serializer mechanism
-     * @var null|string
-     */
-    private $serializer = null;
-    abstract public function getDriver(string $driverType = null);
-    /**
-     * @return array
-     */
-    protected function getDrivers(): array
-    {
-        return array_merge(static::$driverType, $this->defaultDrivers());
-    }
+	/**
+	 * TODO add serializer mechanism
+	 * @var null|string
+	 */
+	private $serializer = null;
+	abstract public function getDriver(string $driverType = null);
+	/**
+	 * @return array
+	 */
+	protected function getDrivers(): array
+	{
+		return array_merge(static::$driverType, $this->defaultDrivers());
+	}
 
-    /**
-     * @return array
-     */
-    protected function defaultDrivers()
-    {
-        return [
-            'memory' => '',
-        ];
-    }
-    abstract public function set($key, $value, $ttl=null);
+	/**
+	 * @return array
+	 */
+	protected function defaultDrivers()
+	{
+		return [
+			'memory' => '',
+		];
+	}
+	abstract public function set($key, $value, $ttl=null);
 }

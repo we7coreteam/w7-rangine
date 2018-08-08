@@ -9,37 +9,37 @@ namespace W7\Core\Base\Server;
 
 interface ServerInterface
 {
-    const TYPE_HTTP = 'http';
-    const TYPE_RPC = 'rpc';
-    const TYPE_TCP = 'tcp';
-    const TYPE_WEBSOCKET = 'websocket';
+	const TYPE_HTTP = 'http';
+	const TYPE_RPC = 'rpc';
+	const TYPE_TCP = 'tcp';
+	const TYPE_WEBSOCKET = 'websocket';
 
-    /**
-     * 服务启动
-     */
-    public function start();
+	/**
+	 * 服务启动
+	 */
+	public function start();
 
-    /**
-     * 服务停止
-     * @return mixed
-     */
-    public function stop();
+	/**
+	 * 服务停止
+	 * @return mixed
+	 */
+	public function stop();
 
-    /**
-     * 服务是否运行
-     * @return mixed
-     */
-    public function isRun();
+	/**
+	 * 服务是否运行
+	 * @return mixed
+	 */
+	public function isRun();
 
-    /**
-     * 获取服务对象
-     * @return mixed
-     */
-    public function getServer();
+	/**
+	 * 获取服务对象
+	 * @return mixed
+	 */
+	public function getServer();
 
-    /**
-     * 获取服务状态
-     * @return mixed
-     */
-    public function getStatus();
+	/**
+	 * 获取服务状态
+	 * @return mixed
+	 */
+	public function getStatus();
 }

@@ -10,15 +10,15 @@ use Swoole\Process;
 
 interface ProcessInterface
 {
-    /**
-     * 线程具体执行内容
-     * @return mixed
-     */
-    public function run(Process $process);
+	/**
+	 * 线程具体执行内容
+	 * @return mixed
+	 */
+	public function run(Process $process);
 
-    /**
-     * 检查线程是否可以执行，TRUE执行，FALSE不执行
-     * @return mixed
-     */
-    public function check();
+	/**
+	 * 检查线程是否可以执行，TRUE执行，FALSE不执行
+	 * @return mixed
+	 */
+	public function check();
 }
