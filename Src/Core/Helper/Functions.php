@@ -31,7 +31,7 @@ if (!function_exists("ievent")) {
 	function ievent($eventName, $args = [])
 	{
 		/**
-		 * @var EventDispatcher $dispatcherMaker
+		 * @var EventDispatcher $dispatcher
 		 */
 		$dispatcher = iloader()->singleton(EventDispatcher::class);
 		return $dispatcher->trigger($eventName, $args);

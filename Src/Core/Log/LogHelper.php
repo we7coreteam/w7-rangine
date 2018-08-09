@@ -6,6 +6,8 @@
 
 namespace W7\Core\Log;
 
+use W7\Core\Helper\Context;
+
 class LogHelper
 {
 	/**

@@ -33,19 +33,18 @@ class Context
 	 */
 	private static $context;
 
+	/**
+	 * 中间件
+	 */
+	const MIDDLEWARE_KEY = 'middleware';
 
 	/**
-	 *
+	 * 路由表
 	 */
-	const MIDDLEWARE_KEY = 'middleware_memory';
-
-	/**
-	 *
-	 */
-	const ROUTE_KEY = "http-route";
+	const ROUTE_KEY = "route";
 
 
-	const LOG_REQUEST_KEY = "request-log";
+	const LOG_REQUEST_KEY = "requestlog";
 
 	/**
 	 * @return \Psr\Http\Message\ServerRequestInterface|null

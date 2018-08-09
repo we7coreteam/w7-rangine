@@ -15,7 +15,7 @@ use W7\Core\Helper\Context;
 use w7\HttpRoute\Exception\BadRequestException;
 use w7\HttpRoute\Exception\RouteNotFoundException;
 
-class RequestMiddleware extends MiddlewareAbstract
+class LastMiddleware extends MiddlewareAbstract
 {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
 	{

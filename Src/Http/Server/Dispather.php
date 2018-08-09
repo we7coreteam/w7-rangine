@@ -10,13 +10,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Dispatcher\DispatcherAbstract;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Helper\Context;
-use W7\Core\Helper\Middleware;
 use W7\Core\Log\LogHelper;
 use w7\HttpRoute\HttpServer;
 
-class Dispather extends DispatcherAbstract
-{
-	public $lastMiddleware = \W7\Http\Middleware\RequestMiddleware::class;
+class Dispather extends DispatcherAbstract {
 
 	public function dispatch(...$params)
 	{
@@ -39,25 +36,17 @@ class Dispather extends DispatcherAbstract
 			$route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
 			$psr7Request = $psr7Request->withAddedHeader("route", json_encode($route));
 
-			/**
-			 * @var Middleware $middlewarehelper
-			 */
-			$middlewarehelper = iloader()->singleton(Middleware::class);
-			$middlewarehelper->initMiddleware($serverContext[Context::MIDDLEWARE_KEY]);
-			$middlewares = $middlewarehelper->getMiddlewareByRoute($route['controller'], $route['method']);
-			$middlewares = $middlewarehelper->setLastMiddleware($this->lastMiddleware, $middlewares);
+			$middlewares = $this->getMiddleware($serverContext[Context::MIDDLEWARE_KEY], $route['controller'], $route['method']);
 
 			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
 			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 
 			//ievent('beforeRequest');
 
-
 			$middlewareHandler = new MiddlewareHandler($middlewares);
-
 			$response = $middlewareHandler->handle($psr7Request);
-		} catch (\Throwable $throwable) {
 
+		} catch (\Throwable $throwable) {
 			/**
 			 * @var LogHelper $logHandler
 			 */
@@ -71,8 +60,7 @@ class Dispather extends DispatcherAbstract
 	}
 
 
-	private function getRoute(ServerRequestInterface $request, $routeInfo)
-	{
+	private function getRoute(ServerRequestInterface $request, $routeInfo) {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
 
@@ -89,8 +77,25 @@ class Dispather extends DispatcherAbstract
 		];
 	}
 
-	private function getRequestLogContextData($controller, $method)
-	{
+	private function getMiddleware($allMiddleware, $controller, $action) {
+		$result = [];
+		$controllerMiddlerwares = !empty($allMiddleware[$controller]) ? $allMiddleware[$controller] : [];
+
+		foreach ($controllerMiddlerwares as $method => $middlerware) {
+			if (strstr($method, $action) || $method == "default") {
+				$result = array_merge($result, $controllerMiddlerwares[$method]);
+			}
+		}
+
+		//附加最后中间件
+		if (!empty($allMiddleware['last'])) {
+			$result = array_merge($result, $allMiddleware['last']);
+		}
+
+		return $result;
+	}
+
+	private function getRequestLogContextData($controller, $method) {
 		$contextData = [
 			'controller'=>$controller,
 			'method'=>$method,

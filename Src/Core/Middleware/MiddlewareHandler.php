@@ -52,9 +52,11 @@ class MiddlewareHandler implements RequestHandlerInterface
 	public function handle(ServerRequestInterface $request): ResponseInterface
 	{
 		$handler = $this->middlewares[$this->offset];
+		if (!class_exists($handler)) {
+			throw new \InvalidArgumentException($handler . ' Handler not found.');
+		}
+
 		$handler = iloader()->singleton($handler);
-
-
 		if (!$handler instanceof MiddlewareInterface) {
 			throw new \InvalidArgumentException('Invalid Handler. It must be an instance of MiddlewareInterface');
 		}
