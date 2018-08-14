@@ -60,13 +60,32 @@ abstract class PoolAbstract implements PoolInterface
 		$this->resumeCount = 0;
 		$this->idleQueue = new \SplQueue();
 		$this->waitCoQueue = new \SplQueue();
+		ilogger()->info('pool construct ');
 	}
 
-	public function getConnection()
+	public function createConnection($config) {
+		$connection = new \Swoole\Coroutine\MySQL();
+		$connection->connect([
+			'host' => $config['host'],
+			'port' => !empty($config['port']) ? $config['port'] : '3306',
+			'user' => $config['username'],
+			'password' => $config['password'],
+			'database' => $config['database'],
+			'charset' => $config['charset'],
+			'strict_type' => false,
+			'fetch_mode' => true,
+		]);
+		ilogger()->info('connection id ' . spl_object_hash($connection));
+		if ($connection === false || !empty($connection->connect_errno)) {
+			throw new \RuntimeException($connection->connect_error);
+		}
+		return $connection;
+	}
+
+	public function getConnection($config)
 	{
 		ilogger()->info('coid ' . (Coroutine::getuid()));
 		ilogger()->info('workid ' . (App::$server->server->worker_id));
-
 
 		/**
 		 * 如果当前有空闲连接，并且连接大于要执行的数，直接返回连接
@@ -106,7 +125,7 @@ abstract class PoolAbstract implements PoolInterface
 			}
 		}
 
-		$connect = $this->createConnection();
+		$connect = $this->createConnection($config);
 		$this->busyCount++;
 		ilogger()->info('create connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
 
