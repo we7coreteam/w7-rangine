@@ -60,11 +60,6 @@ abstract class PoolAbstract implements PoolInterface
 		$this->resumeCount = 0;
 		$this->idleQueue = new \SplQueue();
 		$this->waitCoQueue = new \SplQueue();
-		$this->init();
-	}
-
-	protected function init()
-	{
 	}
 
 	public function getConnection()
@@ -72,9 +67,6 @@ abstract class PoolAbstract implements PoolInterface
 		ilogger()->info('coid ' . (Coroutine::getuid()));
 		ilogger()->info('workid ' . (App::$server->server->worker_id));
 
-		$connect = $this->createConnection();
-
-		return $connect;
 
 		/**
 		 * 如果当前有空闲连接，并且连接大于要执行的数，直接返回连接

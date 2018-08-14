@@ -26,6 +26,7 @@ class App
 	private static $loader;
 	private static $logger;
 	public static $dbPool;
+	public static $dbManager;
 
 	public function __construct()
 	{

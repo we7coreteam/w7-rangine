@@ -7,8 +7,18 @@
 
 namespace W7\Core\Server;
 
+use Illuminate\Container\Container;
+use Illuminate\Database\Connection;
+use Illuminate\Database\Connectors\ConnectionFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Fluent;
+use W7\Core\Database\Connection\SwooleMySqlConnection;
+use W7\Core\Database\Connector\SwooleMySqlConnector;
 use W7\App;
 use W7\Core\Config\Event;
+use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\Context;
 
@@ -168,7 +178,39 @@ abstract class ServerAbstract implements ServerInterface
 
 	private function registerDb()
 	{
-		App::$dbPool = \iloader()->singleton(\W7\Core\Database\Pool\MasterPool::class);
+		ilogger()->info('db pool init');
+
+		//新增swoole连接mysql的方式
+		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
+			return new SwooleMySqlConnection($connection, $database, $prefix, $config);
+		});
+
+		//新增swoole连接Mysql的容器
+		$container = new Container();
+		$container->instance('db.connector.swoolemysql', new SwooleMySqlConnector());
+
+		//侦听sql执行完后的事件，回收$connection
+		$dbDispatch = new Dispatcher($container);
+		$dbDispatch->listen(QueryExecuted::class, function ($data) {
+			$connection = $data->connection;
+			App::$dbPool->release($connection);
+		});
+		$container->instance('events', $dbDispatch);
+
+		//添加配置信息到容器
+		$dbconfig = \iconfig()->getUserAppConfig('database');
+
+		$container->instance('config', new Fluent());
+		$container['config']['database.default'] = 'default';
+		$container['config']['database.connections'] = [
+			'default' => $dbconfig['default'],
+		];
+
+		$factory = new ConnectionFactory($container);
+		$dbManager = new DatabaseManager($container, $factory);
+
+		Model::setConnectionResolver($dbManager);
+		return true;
 	}
 
 	private function registerEvent($event)
