@@ -22,7 +22,8 @@ class Command implements CommandInterface
 		$status = $server->getStatus();
 
 		if ($server->isRun()) {
-			\ioutputer()->writeln("The server have been running!(PID: {$status['masterPid']})", true, true);
+			\ioutputer()->writeln("The server have been running!(PID: {$status['masterPid']})", true);
+			return $this->restart();
 		}
 
 		// 信息面板
