@@ -192,10 +192,7 @@ abstract class ServerAbstract implements ServerInterface
 		//侦听sql执行完后的事件，回收$connection
 		$dbDispatch = new Dispatcher($container);
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
-			ilogger()->info('release start');
 			$connection = $data->connection;
-			ilogger()->info(var_export($connection, true));
-			//ilogger()->info(var_export($container->make('db.connector.swoolemysql')->pool, true));
 			$container->make('db.connector.swoolemysql')->pool->release($connection);
 		});
 		$container->instance('events', $dbDispatch);
