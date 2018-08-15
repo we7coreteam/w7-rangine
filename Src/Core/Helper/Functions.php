@@ -139,7 +139,7 @@ if (!function_exists("ientity")) {
 if (!function_exists("ilogger")) {
 	/**
 	 * 返回logger对象
-	 * @return Logger
+	 * @return \W7\Core\Log\Logger
 	 */
 	function ilogger()
 	{
