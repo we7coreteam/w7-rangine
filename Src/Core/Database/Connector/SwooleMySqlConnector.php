@@ -26,20 +26,23 @@ class SwooleMySqlConnector extends Connector implements ConnectorInterface
 				'slave' => $config['default']['read']['host'],
 			];
 		}
-
 	}
 
 	public function connect(array $config) {
-		//不加连接池
-		$this->pool = $this->getMasterPool();
-		return $this->pool->createConnection($config);
-
-		//检查传入的HOST是不是为读库
-		if (!empty($this->host) && ($config['host'] === $this->host['slave'] || in_array($config['host'], $this->host['slave']))) {
-			$this->pool = $this->getSlavePool();
-		} else {
+		if (empty($config['pool']['enable'])) {
+			//不加连接池
 			$this->pool = $this->getMasterPool();
+			return $this->pool->createConnection($config);
 		}
+
+		if (empty($this->host) || $config['host'] === $this->host['master'] || in_array($config['host'], $this->host['master'])) {
+			$this->pool = $this->getMasterPool();
+		} else {
+			$this->pool = $this->getSlavePool();
+		}
+
+		$this->pool->setMaxActive($config['pool']['max']);
+
 		return $this->pool->getConnection($config);
 	}
 

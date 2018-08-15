@@ -47,19 +47,14 @@ abstract class PoolAbstract implements PoolInterface
 	 */
 	protected $waitCount = 0;
 
-	/**
-	 * 正在执行数
-	 * @var int
-	 */
-	protected $resumeCount = 0;
-
 	public function __construct()
 	{
 		$this->busyCount = 0;
 		$this->waitCount = 0;
-		$this->resumeCount = 0;
-		$this->idleQueue = new \SplQueue();
+		//$this->idleQueue = new \SplQueue();
 		$this->waitCoQueue = new \SplQueue();
+
+		$this->idleQueue = new Coroutine\Channel($this->maxActive);
 		ilogger()->info('pool construct ');
 	}
 
@@ -90,19 +85,19 @@ abstract class PoolAbstract implements PoolInterface
 		/**
 		 * 如果当前有空闲连接，并且连接大于要执行的数，直接返回连接
 		 */
-		if (!$this->idleQueue->isEmpty() && $this->idleQueue->count() > $this->resumeCount) {
-			ilogger()->info('get by queue, count ' . $this->idleQueue->count() . '. resume count ' . $this->resumeCount);
+		if (!$this->idleQueue->isEmpty() && $this->idleQueue->length() > 0) {
+			ilogger()->info('get by queue, count ' . $this->idleQueue->length());
 			$connect = $this->getConnectionFromPool();
 			$this->busyCount++;
 			return $connect;
 		}
 
 		//如果 空闲队列数+执行队列数 等于 最大连接数，则挂起协程
-		ilogger()->info('busy count ' . $this->busyCount . '. queue count ' . $this->idleQueue->count() . ', maxactive' . $this->maxActive);
-		if ($this->busyCount + $this->idleQueue->count() >= $this->maxActive) {
+		ilogger()->info('busy count ' . $this->busyCount . '. queue count ' . $this->idleQueue->length() . ', maxactive' . $this->maxActive);
+		if ($this->busyCount + $this->idleQueue->length() >= $this->maxActive) {
 			//等待进程数++
 			$this->waitCount++;
-			ilogger()->info('suspend connection , count ' . $this->idleQueue->count() . '. wait count ' . $this->waitCount);
+			ilogger()->info('suspend connection , count ' . $this->idleQueue->length() . '. wait count ' . $this->waitCount);
 			//存放当前协程ID，以便恢复
 			$coid = Coroutine::getuid();
 			$this->waitCoQueue->push($coid);
@@ -113,21 +108,12 @@ abstract class PoolAbstract implements PoolInterface
 			}
 
 			//回收连接时，恢复了协程，则从空闲中取出连接继续执行
-			ilogger()->info('resume connection , count ' . $this->idleQueue->count() . '. resume count ' . $this->resumeCount);
-			$this->resumeCount--;
-
-			if ($this->idleQueue->count() > 0) {
-				$connect = $this->getConnectionFromPool();
-				$this->busyCount++;
-				return $connect;
-			} else {
-				return false;
-			}
+			ilogger()->info('resume connection , count ' . $this->idleQueue->length());
 		}
 
 		$connect = $this->createConnection($config);
 		$this->busyCount++;
-		ilogger()->info('create connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
+		ilogger()->info('create connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
 
 		return $connect;
 	}
@@ -135,12 +121,13 @@ abstract class PoolAbstract implements PoolInterface
 	public function release($connection)
 	{
 		$this->busyCount--;
-		ilogger()->info('release connection , count ' . $this->idleQueue->count() . '. busy count ' . $this->busyCount);
-		if ($this->idleQueue->count() < $this->maxActive) {
+		ilogger()->info('release connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
+		if ($this->idleQueue->length() < $this->maxActive) {
 			$this->idleQueue->push($connection);
+
+			ilogger()->info('release push connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
 			if ($this->waitCount > 0) {
 				$this->waitCount--;
-				$this->resumeCount++;
 				$coid = $this->getWaitCoFromPool();
 				if (!empty($coid)) {
 					\Swoole\Coroutine::resume($coid);
@@ -156,9 +143,16 @@ abstract class PoolAbstract implements PoolInterface
 		return true;
 	}
 
+	/**
+	 * @param int $maxActive
+	 */
+	public function setMaxActive(int $maxActive) {
+		$this->maxActive = $maxActive;
+	}
+
 	private function getConnectionFromPool()
 	{
-		return $this->idleQueue->shift();
+		return $this->idleQueue->pop();
 	}
 
 	private function getWaitCoFromPool()

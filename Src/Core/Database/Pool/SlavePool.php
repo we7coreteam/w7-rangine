@@ -8,4 +8,8 @@ namespace W7\Core\Database\Pool;
 use W7\Core\Pool\PoolAbstract;
 
 class SlavePool extends PoolAbstract {
+	public function release($connection) {
+		$connection = $connection->getReadPdo();
+		return parent::release($connection);
+	}
 }
