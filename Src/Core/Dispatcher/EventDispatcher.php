@@ -59,7 +59,7 @@ class EventDispatcher extends DispatcherAbstract
 	 * @param mixed ...$param
 	 * @return bool
 	 */
-	public function trigger(...$param)
+	public function dispatch(...$param)
 	{
 		$eventName = $param[0];
 		$args = $param[1];

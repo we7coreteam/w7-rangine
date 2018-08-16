@@ -129,7 +129,6 @@ class Logger
 
 		$arrMicro = explode(" ", microtime());
 		$content = '[' . date('Ymd H:i:s ');
-		$content .= !empty($coid) ? ('[coid ' . $coid . ']') : '';
 		$content .= sprintf("%06d", intval(1000000 * $arrMicro [0]));
 		$content .= '][';
 		$content .= $this->arr_desc [$level];

@@ -20,31 +20,15 @@ class LogHelper
 		$this->contextObj = iloader()->singleton(Context::class);
 	}
 
-	public function beforeRequestInit()
-	{
-		/**
-		 * @var Context $contextObj
-		 */
-		$contextObj = iloader()->singleton(Context::class);
-		$requestLogContextData = $contextObj->getContextDataByKey(Context::LOG_REQUEST_KEY);
-
-		$spanid = rand(1000000, 9999999);
-		$logid = iuuid();
-		ilogger()->addBasic("logid", $logid);
-		ilogger()->addBasic("spanid", $spanid);
-		ilogger()->addBasic("controller", $requestLogContextData['controller']);
-		ilogger()->addBasic('method', $requestLogContextData['method']);
-		$requestLogContextData['logid'] = $logid;
-		$requestLogContextData['spanid'] = $spanid;
-		$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
-	}
-
-	public function beforeTask($logid, $spanid, $taskName, $taskMethod)
-	{
-		ilogger()->addBasic("logid", $logid);
-		ilogger()->addBasic("spanid", $spanid);
-		ilogger()->addBasic("controller", $taskName);
-		ilogger()->addBasic('method', $taskMethod);
+	public function addContextInfo($workId, $taskId, $coId, $taskName, $taskMethod) {
+		ilogger()->addBasic("workid", $workId);
+		if (!empty($taskId)) {
+			ilogger()->addBasic("taskid", $taskId);
+		}
+		if (!empty($coId)) {
+			ilogger()->addBasic("coid", $coId);
+		}
+		ilogger()->addBasic("route", $taskName . '->' . $taskMethod);
 	}
 
 	/**

@@ -15,11 +15,17 @@ use w7\HttpRoute\HttpServer;
 
 class Dispather extends DispatcherAbstract {
 
-	public function dispatch(...$params)
-	{
+	public function dispatch(...$params) {
+		/**
+		 * @var LogHelper $logHelper
+		 */
+		$logHelper = iloader()->singleton(LogHelper::class);
 		try {
 			$request = $params[0];
 			$response = $params[1];
+			/**
+			 * @var Context $serverContext
+			 */
 			$serverContext = $params[2];
 			$psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
 			$psr7Response = new \w7\Http\Message\Server\Response($response);
@@ -41,17 +47,13 @@ class Dispather extends DispatcherAbstract {
 			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
 			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 
-			//ievent('beforeRequest');
+			$logHelper->addContextInfo($contextObj->getContextDataByKey('workid'), '', $contextObj->getContextDataByKey('coid'), $route['controller'], $route['method']);
 
 			$middlewareHandler = new MiddlewareHandler($middlewares);
 			$response = $middlewareHandler->handle($psr7Request);
 
 		} catch (\Throwable $throwable) {
-			/**
-			 * @var LogHelper $logHandler
-			 */
-			$logHandler = iloader()->singleton(LogHelper::class);
-			$logHandler->exceptionHandler($throwable);
+			$logHelper->exceptionHandler($throwable);
 			$response = $contextObj->getResponse()->json($throwable->getMessage(), $throwable->getCode());
 		}
 
