@@ -6,6 +6,7 @@
 
 namespace W7\Http\Listener;
 
+use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -20,18 +21,19 @@ class RequestListener implements ListenerInterface
 	 * @return \Psr\Http\Message\ResponseInterface|Response
 	 * @throws \ReflectionException
 	 */
-	public function run(Server $server, Request $request, Response $response)
-	{
+	public function run(Server $server, Request $request, Response $response) {
 
 		/**
-		 * @var Context $serverContext
+		 * @var Context $context
 		 */
-		$serverContext = $server->context;
+		$context = iloader()->singleton(Context::class);
+		$context->setContextDataByKey('workid', $server->worker_id);
+		$context->setContextDataByKey('coid', Coroutine::getuid());
 
 		/**
 		 * @var \W7\Http\Server\Dispather $dispather
 		 */
 		$dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
-		$dispather->dispatch($request, $response, $serverContext);
+		$dispather->dispatch($request, $response, $server->context);
 	}
 }

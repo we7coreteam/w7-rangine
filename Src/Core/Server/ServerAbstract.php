@@ -50,8 +50,7 @@ abstract class ServerAbstract implements ServerInterface
 	 * ServerAbstract constructor.
 	 * @throws CommandException
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		App::$server = $this;
 		$setting = \iconfig()->getServer();
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
@@ -66,14 +65,12 @@ abstract class ServerAbstract implements ServerInterface
 	 *
 	 * @return string
 	 */
-	public function getPname()
-	{
+	public function getPname() {
 		return $this->setting['pname'];
 	}
 
 
-	public function getStatus()
-	{
+	public function getStatus() {
 		$pidFile = $this->setting['pid_file'];
 		if (file_exists($pidFile)) {
 			$pids = explode(',', file_get_contents($pidFile));
@@ -89,13 +86,11 @@ abstract class ServerAbstract implements ServerInterface
 		];
 	}
 
-	public function getServer()
-	{
+	public function getServer() {
 		return $this->server;
 	}
 
-	public function isRun()
-	{
+	public function isRun() {
 		$status = $this->getStatus();
 		if (!empty($status['masterPid'])) {
 			return true;
@@ -104,8 +99,7 @@ abstract class ServerAbstract implements ServerInterface
 		}
 	}
 
-	public function stop()
-	{
+	public function stop() {
 		$status = $this->getStatus();
 		$timeout = 20;
 		$startTime = time();
@@ -135,8 +129,7 @@ abstract class ServerAbstract implements ServerInterface
 	}
 
 
-	public function registerService()
-	{
+	public function registerService() {
 		$this->registerSwooleEventListener();
 		$this->registerProcesser();
 		$this->registerServerContext();
@@ -144,16 +137,14 @@ abstract class ServerAbstract implements ServerInterface
 		return true;
 	}
 
-	protected function registerProcesser()
-	{
+	protected function registerProcesser() {
 		$processName = \iconfig()->getProcess();
 		foreach ($processName as $name) {
 			\iprocess($name, App::$server);
 		}
 	}
 
-	protected function registerSwooleEventListener()
-	{
+	protected function registerSwooleEventListener() {
 		$event = [$this->type, 'task', 'manage'];
 		
 		foreach ($event as $name) {
@@ -167,8 +158,7 @@ abstract class ServerAbstract implements ServerInterface
 	/**
 	 *
 	 */
-	protected function registerServerContext()
-	{
+	protected function registerServerContext() {
 		/**
 		 * @var Context $contextObj
 		 */
