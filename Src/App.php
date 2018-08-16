@@ -6,6 +6,7 @@
 
 namespace W7;
 
+use W7\Core\Helper\Context;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogHelper;
 use W7\Http\Server\Server;
@@ -21,12 +22,14 @@ class App
 	 */
 	public static $server;
 	/**
+	 * @var Context $context
+	 */
+	public static $context;
+	/**
 	 * @var \W7\Core\Helper\Loader;
 	 */
 	private static $loader;
 	private static $logger;
-	public static $dbPool;
-	public static $dbManager;
 
 	public function __construct()
 	{

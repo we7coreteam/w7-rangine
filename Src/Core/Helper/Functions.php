@@ -34,25 +34,23 @@ if (!function_exists("ievent")) {
 		 * @var EventDispatcher $dispatcher
 		 */
 		$dispatcher = iloader()->singleton(EventDispatcher::class);
-		return $dispatcher->trigger($eventName, $args);
+		return $dispatcher->dispatch($eventName, $args);
 	}
 }
 if (!function_exists("itask")) {
 	/**
 	 * @param string $taskName
-	 * @param string $methodName
 	 * @param array $params
 	 * @param int $timeout
 	 * @return false|int
 	 * @throws \W7\Core\Exception\TaskException
 	 */
-	function itask(string $taskName, string $methodName, array $params = [], int $timeout = 3)
-	{
+	function itask($taskName, $params = [], int $timeout = 3) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
 		$dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
-		return $dispatcherMaker->register($taskName, $methodName, $params, $timeout);
+		return $dispatcherMaker->register($taskName, 'run', $params, $timeout);
 	}
 }
 
@@ -70,7 +68,7 @@ if (!function_exists("iuuid")) {
 	}
 }
 
-if (!function_exists('getApp')) {
+if (!function_exists('iloader')) {
 	/**
 	 * 获取加载器
 	 * @return \W7\Core\Helper\Loader
@@ -174,8 +172,7 @@ if (!function_exists("getClientIp")) {
 }
 
 if (!function_exists("isWorkerStatus")) {
-	function isWorkerStatus()
-	{
+	function isWorkerStatus() {
 		if (App::$server === null) {
 			return false;
 		}
