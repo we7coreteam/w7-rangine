@@ -18,7 +18,10 @@ class ReloadProcess implements ProcessInterface
 	 *
 	 * @var string
 	 */
-	private $watchDir;
+	private $watchDir = [
+		APP_PATH,
+		BASE_PATH. DIRECTORY_SEPARATOR. 'config'
+	];
 
 	/**
 	 * the lasted md5 of dir
@@ -41,25 +44,22 @@ class ReloadProcess implements ProcessInterface
 	/**
 	 * 初始化方法
 	 */
-	public function __construct()
-	{
-		$this->watchDir = APP_PATH;
-		$this->md5File = FileHelper::md5File($this->watchDir);
+	public function __construct() {
+		$this->md5File = $this->getWatchDirMd5();
+
 		$reloadConfig = \iconfig()->getUserAppConfig('reload');
 		$this->interval = !empty($reloadConfig['interval']) ? $reloadConfig['interval'] : $this->interval;
 		$this->enabled = (bool)$reloadConfig['enabled'];
 		$this->debug = (bool)$reloadConfig['debug'];
 	}
-	public function check()
-	{
+	public function check() {
 		if ($this->enabled) {
 			return true;
 		}
 		return false;
 	}
 
-	public function run(Process $process)
-	{
+	public function run(Process $process) {
 		$server = App::$server;
 		while (true) {
 			$startReload = false;
@@ -67,7 +67,7 @@ class ReloadProcess implements ProcessInterface
 			if ($this->debug) {
 				$startReload = true;
 			} else {
-				$md5File = FileHelper::md5File($this->watchDir);
+				$md5File = $this->getWatchDirMd5();
 				$startReload = (strcmp($this->md5File, $md5File) !== 0);
 				$this->md5File = $md5File;
 			}
@@ -79,5 +79,13 @@ class ReloadProcess implements ProcessInterface
 			}
 			sleep($this->interval);
 		}
+	}
+
+	private function getWatchDirMd5() {
+		$md5 = [];
+		foreach ($this->watchDir as $dir) {
+			$md5[] = FileHelper::md5File($dir);
+		}
+		return md5(implode('', $md5));
 	}
 }
