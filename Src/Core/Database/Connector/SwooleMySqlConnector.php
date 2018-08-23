@@ -6,12 +6,11 @@
 
 namespace W7\Core\Database\Connector;
 
-use Illuminate\Database\Connectors\Connector;
-use Illuminate\Database\Connectors\ConnectorInterface;
+use Illuminate\Database\Connectors\MySqlConnector;
 use W7\Core\Database\Pool\MasterPool;
 use W7\Core\Database\Pool\SlavePool;
 
-class SwooleMySqlConnector extends Connector implements ConnectorInterface
+class SwooleMySqlConnector extends MySqlConnector
 {
 	public $pool;
 	private $host;
@@ -29,6 +28,11 @@ class SwooleMySqlConnector extends Connector implements ConnectorInterface
 	}
 
 	public function connect(array $config) {
+		//非work进程时不开启连接池，数据不共享
+		if (!isCo()) {
+			$this->pool = null;
+			return parent::connect($config);
+		}
 		if (empty($config['pool']['enable'])) {
 			//不加连接池
 			$this->pool = $this->getMasterPool();

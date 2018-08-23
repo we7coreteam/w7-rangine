@@ -183,7 +183,11 @@ abstract class ServerAbstract implements ServerInterface
 		$dbDispatch = new Dispatcher($container);
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
 			$connection = $data->connection;
-			$container->make('db.connector.swoolemysql')->pool->release($connection);
+			$pool = $container->make('db.connector.swoolemysql')->pool;
+			if (is_null($pool)) {
+				return false;
+			}
+			$pool->release($connection);
 		});
 		$container->instance('events', $dbDispatch);
 
