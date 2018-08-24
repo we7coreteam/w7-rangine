@@ -10,10 +10,9 @@ namespace W7\Http\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use W7\Core\Exception\HttpException;
 use W7\Core\Middleware\MiddlewareAbstract;
 use W7\Core\Helper\Context;
-use w7\HttpRoute\Exception\BadRequestException;
-use w7\HttpRoute\Exception\RouteNotFoundException;
 
 class LastMiddleware extends MiddlewareAbstract
 {
@@ -35,10 +34,8 @@ class LastMiddleware extends MiddlewareAbstract
 			$contextObj = iloader()->singleton(Context::class);
 			$response = $contextObj->getResponse()->json($response);
 			return $response;
-		} catch (RouteNotFoundException $routeNotFoundException) {
-			throw new BadRequestException($routeNotFoundException->getMessage(), 403);
 		} catch (\Throwable $throwable) {
-			throw new BadRequestException($throwable->getMessage(), $throwable->getCode());
+			throw new HttpException($throwable->getMessage(), $throwable->getCode());
 		}
 	}
 }

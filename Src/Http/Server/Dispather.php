@@ -6,12 +6,14 @@
 
 namespace W7\Http\Server;
 
+use FastRoute\Dispatcher;
+use FastRoute\Dispatcher\GroupCountBased;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Dispatcher\DispatcherAbstract;
+use W7\Core\Exception\HttpException;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Helper\Context;
 use W7\Core\Log\LogHelper;
-use w7\HttpRoute\HttpServer;
 
 class Dispather extends DispatcherAbstract {
 
@@ -20,23 +22,24 @@ class Dispather extends DispatcherAbstract {
 		 * @var LogHelper $logHelper
 		 */
 		$logHelper = iloader()->singleton(LogHelper::class);
+
+		$request = $params[0];
+		$response = $params[1];
+		/**
+		 * @var Context $serverContext
+		 */
+		$serverContext = $params[2];
+		$psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
+		$psr7Response = new \w7\Http\Message\Server\Response($response);
+		/**
+		 * @var Context $contextObj
+		 */
+
+		$contextObj = iloader()->singleton(Context::class);
+		$contextObj->setRequest($psr7Request);
+		$contextObj->setResponse($psr7Response);
+
 		try {
-			$request = $params[0];
-			$response = $params[1];
-			/**
-			 * @var Context $serverContext
-			 */
-			$serverContext = $params[2];
-			$psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
-			$psr7Response = new \w7\Http\Message\Server\Response($response);
-			/**
-			 * @var Context $contextObj
-			 */
-
-			$contextObj = iloader()->singleton(Context::class);
-			$contextObj->setRequest($psr7Request);
-			$contextObj->setResponse($psr7Response);
-
 			//根据router配置，获取到匹配的controller信息
 			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
 			$route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
@@ -66,16 +69,30 @@ class Dispather extends DispatcherAbstract {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
 
-		$fastRoute = new HttpServer();
-		$routeInfo = $fastRoute->dispathByData($httpMethod, $url, $routeInfo);
+		/**
+		 * @var GroupCountBased $fastRoute
+		 */
+		$fastRoute = new GroupCountBased($routeInfo);
+		$route = $fastRoute->dispatch($httpMethod, $url);
 
-		list($controller, $method) = explode("-", $routeInfo['handler']);
+		switch ($route[0]) {
+			case Dispatcher::NOT_FOUND:
+				throw new HttpException('Route not found', 404);
+				break;
+			case Dispatcher::METHOD_NOT_ALLOWED:
+				throw new HttpException('Route not allowed', 405);
+				break;
+			case Dispatcher::FOUND:
+				$controller = $method = '';
+				list($controller, $method) = explode("-", $route[1]);
+				break;
+		}
 
 		return [
 			"method" => $method,
 			'controller' => $controller,
 			'classname' => "W7\\App\\Controller\\" . ucfirst($controller) . "Controller",
-			'args' => $routeInfo['funArgs'],
+			'args' => $route[2],
 		];
 	}
 

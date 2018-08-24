@@ -6,7 +6,7 @@
 
 namespace W7\Core\Route;
 
-use w7\HttpRoute\HttpServer;
+use FastRoute\RouteCollector;
 
 class RouteMapping {
 
@@ -19,8 +19,7 @@ class RouteMapping {
 	/**
 	 * @return array|mixed
 	 */
-	public function getMapping()
-	{
+	public function getMapping() {
 		$routes = ['POST' => [], 'GET' => []];
 		if (empty($this->routeConfig)) {
 			return [];
@@ -32,13 +31,20 @@ class RouteMapping {
 			$routes['POST'] = array_merge($routes['POST'], $controllerRoute['POST']);
 			$routes['GET'] = array_merge($routes['GET'], $controllerRoute['GET']);
 		}
+
+		$routeCollector = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
+
 		//组装到fastroute中
 		$routeList = [];
-		$fastRoute = new HttpServer();
 		foreach ($routes as $httpMethod => $routeData) {
-			$routeList = array_merge_recursive($routeList, $fastRoute->addRoute($httpMethod, $routeData));
+			if (is_array($routeData)) {
+				foreach ($routeData as $hander => $url) {
+					$routeCollector->addRoute($httpMethod, $url, $hander);
+				}
+			}
 		}
-		return $routeList;
+
+		return $routeCollector->getData();
 	}
 
 	private function formatRouteForFastRoute($routeData, $controller) {
