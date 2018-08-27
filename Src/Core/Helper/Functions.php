@@ -204,3 +204,29 @@ if (!function_exists('isetProcessTitle')) {
 		return true;
 	}
 }
+
+if (!function_exists('iarray_depth')) {
+	/**
+	 * 计算一个数组的深度
+	 * @param array $array
+	 * @param bool $include_empty 空数组是否算一级，默认是算
+	 * @return int
+	 */
+	function iarray_depth(array $array, $include_empty_array = true) {
+		if (!is_array($array)) return 0;
+
+		if (empty($include_empty_array)) {
+			if (count($array) == 0) return 0;
+		}
+		$max_depth = 1;
+		foreach ($array as $value) {
+			if (is_array($value)) {
+				$depth = iarray_depth($value, $include_empty_array) + 1;
+				if ($depth > $max_depth) {
+					$max_depth = $depth;
+				}
+			}
+		}
+		return $max_depth;
+	}
+}

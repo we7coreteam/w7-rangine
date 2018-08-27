@@ -20,34 +20,39 @@ class RouteMapping {
 	 * @return array|mixed
 	 */
 	public function getMapping() {
-		$routes = ['POST' => [], 'GET' => []];
 		if (empty($this->routeConfig)) {
 			return [];
 		}
-
-		foreach ($this->routeConfig as $controller => $setting) {
-			$controllerRoute = $this->formatRouteForFastRoute($setting, $controller);
-
-			$routes['POST'] = array_merge($routes['POST'], $controllerRoute['POST']);
-			$routes['GET'] = array_merge($routes['GET'], $controllerRoute['GET']);
-		}
-
 		$routeCollector = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
 
-		//组装到fastroute中
-		$routeList = [];
-		foreach ($routes as $httpMethod => $routeData) {
-			if (is_array($routeData)) {
-				foreach ($routeData as $hander => $url) {
-					$routeCollector->addRoute($httpMethod, $url, $hander);
+		foreach ($this->routeConfig as $section => $setting) {
+			//以/开头的为目录，否则是控制器
+			if ($section[0] === '/') {
+				$group = $setting;
+				foreach ($group as $controller => $setting) {
+					$controllerRoute = $this->formatRouteForFastRoute($setting, $controller, ltrim($section, '/'));
+					if (!empty($controllerRoute)) {
+						$routeCollector->addGroup($section, function (RouteCollector $route) use ($controllerRoute) {
+							foreach ($controllerRoute as $action => $info) {
+								$route->addRoute($info['method'], $info['url'], $info['handler']);
+							}
+						});
+					}
+				}
+			} else {
+				$controller = $section;
+				$controllerRoute = $this->formatRouteForFastRoute($setting, $controller);
+				if (!empty($controllerRoute)) {
+					foreach ($controllerRoute as $action => $info) {
+						$routeCollector->addRoute($info['method'], $info['url'], $info['handler']);
+					}
 				}
 			}
 		}
-
 		return $routeCollector->getData();
 	}
 
-	private function formatRouteForFastRoute($routeData, $controller) {
+	private function formatRouteForFastRoute($routeData, $controller, $group = '') {
 		$routes = [];
 		foreach ($routeData as $action => $data) {
 			if (!isset($data['method']) || empty($data['method'])) {
@@ -56,8 +61,13 @@ class RouteMapping {
 			$query = isset($data['query']) ? $data['query'] : '';
 
 			$method = explode(',', $data['method']);
-			foreach ($method as $methodRow) {
-				$routes[$methodRow][$controller. '-' . $action] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . DIRECTORY_SEPARATOR . $query;
+
+			$routes[$action]['method'] = $method;
+			$routes[$action]['url'] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . DIRECTORY_SEPARATOR . $query;
+			$routes[$action]['handler'] = (!empty($group) ? ucfirst($group) . "\\" : '') . ucfirst($controller) . '-' . $action;
+
+			if (empty($query)) {
+				$routes[$action]['url'] = rtrim($routes[$action]['url'], DIRECTORY_SEPARATOR);
 			}
 		}
 		return $routes;
