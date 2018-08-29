@@ -24,8 +24,13 @@ class LastMiddleware extends MiddlewareAbstract
 			$route = json_decode($route[0], true);
 			$classObj = iloader()->singleton($route['classname']);
 			$controllerHandler = [$classObj, $route['method']];
-			$funArgs = $route['args'];
+
+			$funArgs = [];
 			$funArgs[] = $request;
+			if (is_array($route['args'])) {
+				$funArgs = array_merge($funArgs, $route['args']);
+			}
+
 			$response =  call_user_func_array($controllerHandler, $funArgs);
 			$response = is_array($response) ? $response : (array)$response;
 			/**
