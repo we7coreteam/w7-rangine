@@ -57,7 +57,14 @@ class Dispather extends DispatcherAbstract {
 
 		} catch (\Throwable $throwable) {
 			$logHelper->exceptionHandler($throwable);
-			$response = $contextObj->getResponse()->json($throwable->getMessage(), $throwable->getCode());
+			if ($throwable instanceof HttpException) {
+				$code = $throwable->getCode() ? $throwable->getCode() : '400';
+				$message = $throwable->getMessage();
+			} else {
+				$message = '服务内部错误';
+				$code = '500';
+			}
+			$response = $contextObj->getResponse()->json(['error' => $message], $code);
 		}
 
 		//ievent('afterRequest');

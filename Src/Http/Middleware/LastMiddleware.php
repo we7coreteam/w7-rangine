@@ -27,7 +27,7 @@ class LastMiddleware extends MiddlewareAbstract
 			$funArgs = $route['args'];
 			$funArgs[] = $request;
 			$response =  call_user_func_array($controllerHandler, $funArgs);
-			$response = is_array($response)?$response:(array)$response;
+			$response = is_array($response) ? $response : (array)$response;
 			/**
 			 * @var Context $contextObj
 			 */
@@ -35,7 +35,7 @@ class LastMiddleware extends MiddlewareAbstract
 			$response = $contextObj->getResponse()->json($response);
 			return $response;
 		} catch (\Throwable $throwable) {
-			throw new HttpException($throwable->getMessage(), $throwable->getCode());
+			throw $throwable;
 		}
 	}
 }
