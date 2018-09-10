@@ -56,8 +56,10 @@ class Dispather extends DispatcherAbstract {
 			$response = $middlewareHandler->handle($psr7Request);
 
 		} catch (\Throwable $throwable) {
+			$setting = iconfig()->getUserAppConfig('setting');
+
 			$logHelper->exceptionHandler($throwable);
-			if ($throwable instanceof HttpException) {
+			if ($throwable instanceof HttpException || !empty($setting['development'])) {
 				$code = $throwable->getCode() ? $throwable->getCode() : '400';
 				$message = $throwable->getMessage();
 			} else {
