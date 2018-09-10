@@ -12,6 +12,10 @@ class RouteMapping {
 
 	private $routeConfig;
 
+	public function ab() {
+
+	}
+
 	function __construct() {
 		$this->routeConfig = \iconfig()->getUserConfig("route");
 	}

@@ -47,8 +47,7 @@ abstract class PoolAbstract implements PoolInterface
 	 */
 	protected $waitCount = 0;
 
-	public function __construct()
-	{
+	public function __construct() {
 		$this->busyCount = 0;
 		$this->waitCount = 0;
 		//$this->idleQueue = new \SplQueue();
@@ -58,27 +57,7 @@ abstract class PoolAbstract implements PoolInterface
 		ilogger()->info('pool construct ');
 	}
 
-	public function createConnection($config) {
-		$connection = new \Swoole\Coroutine\MySQL();
-		$connection->connect([
-			'host' => $config['host'],
-			'port' => !empty($config['port']) ? $config['port'] : '3306',
-			'user' => $config['username'],
-			'password' => $config['password'],
-			'database' => $config['database'],
-			'charset' => $config['charset'],
-			'strict_type' => false,
-			'fetch_mode' => true,
-		]);
-		ilogger()->info('connection id ' . spl_object_hash($connection));
-		if ($connection === false || !empty($connection->connect_errno)) {
-			throw new \RuntimeException($connection->connect_error);
-		}
-		return $connection;
-	}
-
-	public function getConnection($config)
-	{
+	public function getConnection($config) {
 		ilogger()->info('coid ' . (Coroutine::getuid()));
 		ilogger()->info('workid ' . (App::$server->server->worker_id));
 
@@ -118,8 +97,7 @@ abstract class PoolAbstract implements PoolInterface
 		return $connect;
 	}
 
-	public function release($connection)
-	{
+	public function release($connection) {
 		$this->busyCount--;
 		ilogger()->info('release connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
 		if ($this->idleQueue->length() < $this->maxActive) {
@@ -137,8 +115,7 @@ abstract class PoolAbstract implements PoolInterface
 		}
 	}
 
-	public function setConnectionName($name)
-	{
+	public function setConnectionName($name) {
 		$this->connectionName = $name;
 		return true;
 	}
@@ -150,13 +127,11 @@ abstract class PoolAbstract implements PoolInterface
 		$this->maxActive = $maxActive;
 	}
 
-	private function getConnectionFromPool()
-	{
+	private function getConnectionFromPool() {
 		return $this->idleQueue->pop();
 	}
 
-	private function getWaitCoFromPool()
-	{
+	private function getWaitCoFromPool() {
 		return $this->waitCoQueue->shift();
 	}
 }

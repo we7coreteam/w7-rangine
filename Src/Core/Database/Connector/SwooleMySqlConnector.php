@@ -10,8 +10,7 @@ use Illuminate\Database\Connectors\MySqlConnector;
 use W7\Core\Database\Pool\MasterPool;
 use W7\Core\Database\Pool\SlavePool;
 
-class SwooleMySqlConnector extends MySqlConnector
-{
+class SwooleMySqlConnector extends MySqlConnector {
 	public $pool;
 	private $host;
 
@@ -33,10 +32,11 @@ class SwooleMySqlConnector extends MySqlConnector
 			$this->pool = null;
 			return parent::connect($config);
 		}
+
 		if (empty($config['pool']['enable'])) {
 			//不加连接池
-			$this->pool = $this->getMasterPool();
-			return $this->pool->createConnection($config);
+			$pool = $this->getMasterPool();
+			return $pool->createConnection($config);
 		}
 
 		if (empty($this->host) || $config['host'] === $this->host['master'] || in_array($config['host'], $this->host['master'])) {

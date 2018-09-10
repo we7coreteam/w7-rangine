@@ -17,6 +17,9 @@ class SwooleMySqlConnection extends MySqlConnection
 				return [];
 			}
 			$statement = $this->getPdoForSelect($useReadPdo)->prepare($query);
+			if (!empty($this->getPdoForSelect()->error)) {
+				throw new \RuntimeException($this->getPdo()->error);
+			}
 			$statement->execute($this->prepareBindings($bindings));
 			return $statement->fetchAll();
 		});
@@ -29,6 +32,9 @@ class SwooleMySqlConnection extends MySqlConnection
 				return true;
 			}
 			$statement = $this->getPdo()->prepare($query);
+			if (!empty($this->getPdo()->error)) {
+				throw new \RuntimeException($this->getPdo()->error);
+			}
 			$this->recordsHaveBeenModified();
 			return $statement->execute($this->prepareBindings($bindings));
 		});
@@ -42,7 +48,9 @@ class SwooleMySqlConnection extends MySqlConnection
 			}
 			$statement = $this->getPdo()->prepare($query);
 			$statement->execute($this->prepareBindings($bindings));
-			ilogger()->info('execute ' . $this->getPdo()->error);
+			if (!empty($this->getPdo()->error)) {
+				throw new \RuntimeException($this->getPdo()->error);
+			}
 			$this->recordsHaveBeenModified(
 				($count = $statement->affected_rows) > 0
 			);
