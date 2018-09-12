@@ -61,9 +61,10 @@ class ReloadProcess implements ProcessInterface
 
 	public function run(Process $process) {
 		$server = App::$server;
+		if ($this->debug) {
+			ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
+		}
 		while (true) {
-			$startReload = false;
-
 			if ($this->debug) {
 				$startReload = true;
 			} else {
@@ -72,10 +73,11 @@ class ReloadProcess implements ProcessInterface
 				$this->md5File = $md5File;
 			}
 			if ($startReload) {
-				ioutputer()->writeln("Start reloading in " . date('m-d H:i:s') . "...");
 				$server->isRun();
 				$server->getServer()->reload();
-				ioutputer()->writeln("Reloaded");
+				if (!$this->debug) {
+					ioutputer()->writeln("Reloaded in " . date('m-d H:i:s') . "...");
+				}
 			}
 			sleep($this->interval);
 		}

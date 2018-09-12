@@ -57,8 +57,6 @@ class Dispather extends DispatcherAbstract {
 
 		} catch (\Throwable $throwable) {
 			$setting = iconfig()->getUserAppConfig('setting');
-
-			$logHelper->exceptionHandler($throwable);
 			if ($throwable instanceof HttpException || !empty($setting['development'])) {
 				$code = $throwable->getCode() ? $throwable->getCode() : '400';
 				$message = $throwable->getMessage();

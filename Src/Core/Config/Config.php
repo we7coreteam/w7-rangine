@@ -107,7 +107,7 @@ class Config
 		if (!in_array($type, $this->allow_user_config)) {
 			return null;
 		}
-		$appConfigFile = IA_ROOT . '/config/'.$type.'.php';
+		$appConfigFile = BASE_PATH . '/config/'.$type.'.php';
 		if (file_exists($appConfigFile)) {
 			$appConfig = include $appConfigFile;
 		}

@@ -6,15 +6,15 @@
 
 namespace W7;
 
+use W7\Console\Console;
 use W7\Core\Helper\Context;
+use W7\Core\Helper\Loader;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogHelper;
 use W7\Http\Server\Server;
 
-class App
-{
-	const IA_ROOT = __DIR__;
-
+class App {
+	private static $self;
 	/**
 	 * 服务器对象
 	 *
@@ -26,44 +26,59 @@ class App
 	 */
 	public static $context;
 	/**
-	 * @var \W7\Core\Helper\Loader;
+	 * @var Loader
 	 */
-	private static $loader;
-	private static $logger;
+	private $loader;
+	/**
+	 * @var Logger
+	 */
+	private $logger;
 
-	public function __construct()
-	{
+	public static function getApp() {
+		if (!empty(self::$self)) {
+			return self::$self;
+		}
+		self::$self = new static();
+		self::$self->setErrorHandler();
+
+		return self::$self;
+	}
+
+	public function setErrorHandler() {
 		/**
 		 * 设置错误信息接管
 		 * @var LogHelper $logHanler
 		 */
 		$logHanler = iloader()->singleton(LogHelper::class);
 		set_error_handler([$logHanler, 'errorHandler']);
+		set_exception_handler($logHanler, 'exceptionHandler');
 	}
 
-	public static function getLoader()
-	{
-		if (empty(self::$loader)) {
-			self::$loader = new \W7\Core\Helper\Loader();
+	public function runConsole() {
+		/**
+		 * @var Console $console
+		 */
+		$console = iloader()->singleton(Console::class);
+		$console->run();
+
+	}
+
+	public function getLoader() {
+		if (empty($this->loader)) {
+			$this->loader = new Loader();
 		}
-		return self::$loader;
+		return $this->loader;
 	}
 
 	/**
 	 * @return Logger
 	 */
-	public static function getLogger()
-	{
+	public function getLogger() {
 		$defineConfig = iconfig()->getUserConfig('app');
-		if (!empty(static::$logger) && static::$logger instanceof Logger) {
-			return static::$logger;
+		if (empty($this->logger)) {
+			$this->logger = iloader()->singleton(Logger::class);
+			$this->logger->init($defineConfig['log']['log_file'], $defineConfig['log']['level'], $defineConfig['log']['flush_interval']);
 		}
-
-		/**
-		 * @var Logger $logger
-		 */
-		static::$logger = iloader()->singleton(Logger::class);
-		static::$logger->init($defineConfig['log']['log_file'], $defineConfig['log']['level'], $defineConfig['log']['flush_interval']);
-		return static::$logger;
+		return $this->logger;
 	}
 }

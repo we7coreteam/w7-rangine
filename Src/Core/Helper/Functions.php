@@ -11,8 +11,13 @@ use W7\Core\Dispatcher\ProcessDispather;
 use W7\Core\Dispatcher\TaskDispatcher;
 
 if (!function_exists('iprocess')) {
-	function iprocess($name, $server = null)
-	{
+	/**
+	 * 派发一个进程
+	 * @param $name
+	 * @param null $server
+	 * @return bool|swoole_process|void
+	 */
+	function iprocess($name, $server = null) {
 		/**
 		 * @var ProcessDispather $dispatcher
 		 */
@@ -23,6 +28,7 @@ if (!function_exists('iprocess')) {
 }
 if (!function_exists("ievent")) {
 	/**
+	 * 派发一个事件
 	 * @param $eventName
 	 * @param array $args
 	 * @return bool
@@ -39,6 +45,7 @@ if (!function_exists("ievent")) {
 }
 if (!function_exists("itask")) {
 	/**
+	 * 派发一个异步任务
 	 * @param string $taskName
 	 * @param array $params
 	 * @param int $timeout
@@ -55,13 +62,11 @@ if (!function_exists("itask")) {
 }
 
 if (!function_exists("iuuid")) {
-
 	/**
 	 * 获取UUID
 	 * @return string
 	 */
-	function iuuid()
-	{
+	function iuuid() {
 		$len = rand(2, 16);
 		$prefix = md5(substr(md5(Coroutine::getuid()), $len));
 		return uniqid($prefix);
@@ -73,17 +78,8 @@ if (!function_exists('iloader')) {
 	 * 获取加载器
 	 * @return \W7\Core\Helper\Loader
 	 */
-	function iloader()
-	{
-		return \W7\App::getLoader();
-	}
-}
-
-if (!function_exists('istudly')) {
-	function istudly($value)
-	{
-		$value = ucwords(str_replace(['-', '_'], ' ', $value));
-		return str_replace(' ', '', $value);
+	function iloader() {
+		return \W7\App::getApp()->getLoader();
 	}
 }
 
@@ -92,8 +88,7 @@ if (!function_exists('ioutputer')) {
 	 * 获取输出对象
 	 * @return W7\Console\Io\Output
 	 */
-	function ioutputer()
-	{
+	function ioutputer() {
 		return iloader()->singleton(\W7\Console\Io\Output::class);
 	}
 }
@@ -103,8 +98,7 @@ if (!function_exists('iinputer')) {
 	 * 输入对象
 	 * @return W7\Console\Io\Input
 	 */
-	function iinputer()
-	{
+	function iinputer() {
 		return iloader()->singleton(\W7\Console\Io\Input::class);
 	}
 }
@@ -114,23 +108,8 @@ if (!function_exists('iconfig')) {
 	 * 输入对象
 	 * @return W7\Core\Config\Config
 	 */
-	function iconfig()
-	{
+	function iconfig() {
 		return iloader()->singleton(\W7\Core\Config\Config::class);
-	}
-}
-
-if (!function_exists("ientity")) {
-	function ientity($name)
-	{
-		$nameSpace = "W7\App\Model\Entity";
-		if (class_exists($name)) {
-			return iloader()->singleton($name);
-		}
-		if (class_exists($nameSpace . '\\' . $name)) {
-			return iloader()->singleton($nameSpace . $name);
-		}
-		return false;
 	}
 }
 
@@ -139,9 +118,8 @@ if (!function_exists("ilogger")) {
 	 * 返回logger对象
 	 * @return \W7\Core\Log\Logger
 	 */
-	function ilogger()
-	{
-		return App::getLogger();
+	function ilogger() {
+		return App::getApp()->getLogger();
 	}
 }
 
@@ -150,15 +128,13 @@ if (!function_exists('isCo')) {
 	 * 是否是在协成
 	 * @return bool
 	 */
-	function isCo():bool
-	{
+	function isCo():bool {
 		return Coroutine::getuid()>0;
 	}
 }
 
 if (!function_exists("getClientIp")) {
-	function getClientIp()
-	{
+	function getClientIp() {
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
 			return $_SERVER['HTTP_CLIENT_IP'];
 		}
@@ -202,31 +178,5 @@ if (!function_exists('isetProcessTitle')) {
 			return swoole_set_process_name($title);
 		}
 		return true;
-	}
-}
-
-if (!function_exists('iarray_depth')) {
-	/**
-	 * 计算一个数组的深度
-	 * @param array $array
-	 * @param bool $include_empty 空数组是否算一级，默认是算
-	 * @return int
-	 */
-	function iarray_depth(array $array, $include_empty_array = true) {
-		if (!is_array($array)) return 0;
-
-		if (empty($include_empty_array)) {
-			if (count($array) == 0) return 0;
-		}
-		$max_depth = 1;
-		foreach ($array as $value) {
-			if (is_array($value)) {
-				$depth = iarray_depth($value, $include_empty_array) + 1;
-				if ($depth > $max_depth) {
-					$max_depth = $depth;
-				}
-			}
-		}
-		return $max_depth;
 	}
 }

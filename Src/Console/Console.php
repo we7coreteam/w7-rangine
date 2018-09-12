@@ -10,17 +10,15 @@ namespace W7\Console;
 
 use W7\Core\Command\CommandInterface;
 use W7\Core\Exception\CommandException;
+use W7\Core\Helper\StringHelper;
 
-class Console
-{
+class Console {
 	private $allowServer;
 
-	public function __construct()
-	{
+	public function __construct() {
 	}
 
-	public function run()
-	{
+	public function run() {
 		$this->checkEnv();
 		/**
 		 * @var \W7\Console\Io\Input $input
@@ -57,8 +55,7 @@ class Console
 		return true;
 	}
 
-	private function showDefaultCommand()
-	{
+	private function showDefaultCommand() {
 		$script = 'bin/server.php';
 		$commandList = [
 			'Usage:' => ["php $script {command} [arguments] [options]"],
@@ -84,8 +81,7 @@ class Console
 		return true;
 	}
 
-	private function showVersionCommand()
-	{
+	private function showVersionCommand() {
 		$frameworkVersion = \iconfig()::VERSION;
 		$phpVersion = PHP_VERSION;
 		$swooleVersion = SWOOLE_VERSION;
@@ -94,8 +90,7 @@ class Console
 		\ioutputer()->writeln("framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion\n", true);
 	}
 
-	private function checkEnv()
-	{
+	private function checkEnv() {
 		if (PHP_SAPI !== 'cli') {
 			throw new \RuntimeException('Must be running in php cli mode');
 		}
@@ -112,9 +107,8 @@ class Console
 		}
 	}
 
-	private function getServer($name)
-	{
-		$className = sprintf("\\W7\\%s\\Console\\Command", istudly($name));
+	private function getServer($name) {
+		$className = sprintf("\\W7\\%s\\Console\\Command", StringHelper::studly($name));
 		$object = new $className();
 		if (!($object instanceof CommandInterface)) {
 			throw new CommandException('Console command must implement CommandInterface class');
@@ -127,8 +121,7 @@ class Console
 	 * @return array
 	 * @throws \Exception
 	 */
-	private function supportServer()
-	{
+	private function supportServer() {
 		$result = [];
 		$setting = \iconfig()->getServer();
 

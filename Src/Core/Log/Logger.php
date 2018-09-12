@@ -141,7 +141,7 @@ class Logger
 		if (isset($arrTrace [1])) {
 			$line = $arrTrace [1] ['line'];
 			$file = $arrTrace [1] ['file'];
-			$file = substr($file, strlen(IA_ROOT) + 1);
+			$file = substr($file, strlen(BASE_PATH) + 1);
 			$content .= "[$file:$line]";
 		}
 
