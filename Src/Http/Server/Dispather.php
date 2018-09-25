@@ -29,8 +29,8 @@ class Dispather extends DispatcherAbstract {
 		 * @var Context $serverContext
 		 */
 		$serverContext = $params[2];
-		$psr7Request = \w7\Http\Message\Server\Request::loadFromSwooleRequest($request);
-		$psr7Response = new \w7\Http\Message\Server\Response($response);
+		$psr7Request = \W7\Http\Message\Server\Request::loadFromSwooleRequest($request);
+		$psr7Response = new \W7\Http\Message\Server\Response($response);
 		/**
 		 * @var Context $contextObj
 		 */

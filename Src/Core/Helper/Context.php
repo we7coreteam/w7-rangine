@@ -9,7 +9,7 @@ namespace W7\Core\Helper;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Coroutine;
-use w7\Http\Message\Server\Response;
+use W7\Http\Message\Server\Response;
 
 class Context
 {
