@@ -31,11 +31,7 @@
     "repositories": [
         {
             "type" : "vcs",
-            "url" : "git@gitee.com:we7coreteam/we7HttpMessage.git"
-        },
-        {
-            "type" : "vcs",
-            "url" : "git@gitee.com:we7coreteam/we7HttpRout.git"
+            "url" : "https://gitee.com/we7coreteam/we7HttpMessage.git"
         }
     ]
 }
