@@ -8,9 +8,6 @@ namespace W7\Core\Database;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use W7\App;
-use W7\Core\Database\Pool\MasterPool;
-use W7\Core\Process\MysqlPoolprocess;
 
 class ModelAbstract extends Model
 {
@@ -19,4 +16,9 @@ class ModelAbstract extends Model
 
 		$this->setAttribute($keyName, $id);
 	}
+
+	public function createOrUpdate($condition) {
+		return static::query()->updateOrCreate($condition, $this->getAttributes());
+	}
+
 }
