@@ -18,9 +18,6 @@
         "guzzlehttp/guzzle": "~6.0",
         "eaglewu/swoole-ide-helper": "dev-master"
     },
-    "require-dev": {
-        "eaglewu/swoole-ide-helper": "dev-master"
-    },
     "autoload": {
         "psr-4": {
             "W7\\": "Src/"
