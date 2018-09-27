@@ -15,7 +15,8 @@
         "nikic/fast-route": "^1.3",
         "psr/http-server-middleware": "^1.0",
         "w7/http-message": "dev-master",
-        "guzzlehttp/guzzle": "~6.0"
+        "guzzlehttp/guzzle": "~6.0",
+        "eaglewu/swoole-ide-helper": "dev-master"
     },
     "require-dev": {
         "eaglewu/swoole-ide-helper": "dev-master"
