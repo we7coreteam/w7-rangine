@@ -46,7 +46,6 @@ class Dispather extends DispatcherAbstract {
 			$psr7Request = $psr7Request->withAddedHeader("route", json_encode($route));
 
 			$middlewares = $this->getMiddleware($serverContext[Context::MIDDLEWARE_KEY], $route['controller'], $route['method']);
-
 			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
 			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 
@@ -106,7 +105,6 @@ class Dispather extends DispatcherAbstract {
 	private function getMiddleware($allMiddleware, $controller, $action) {
 		$result = [];
 		$controllerMiddlerwares = !empty($allMiddleware[$controller]) ? $allMiddleware[$controller] : [];
-
 		foreach ($controllerMiddlerwares as $method => $middlerware) {
 			if (strstr($method, $action) || $method == "default") {
 				$result = array_merge($result, $controllerMiddlerwares[$method]);

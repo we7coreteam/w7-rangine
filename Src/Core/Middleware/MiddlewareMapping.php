@@ -29,19 +29,33 @@ class MiddlewareMapping {
 	 * 根据路由配置获取中间件
 	 */
 	private function getByRouteConfig() {
-		$middlerwares = [];
+		$middlewares = [];
 
 		foreach ($this->routeConfig as $controller => $route) {
-			if (isset($route['common']) && !empty($route['common'])) {
-				$middlerwares[$controller]['default'] = $route['common'];
-			}
-			foreach ($route as $action => $data) {
-				if (isset($data['middleware']) && !empty($data['middleware'])) {
-					$middlerwares[$controller][$action] = $data['middleware'];
+			if ($controller[0] === '/') {
+				$path = ucfirst(ltrim($controller, '/')) . "\\";
+				$routeConfig = $route;
+				foreach ($routeConfig as $controller => $route) {
+					$middlewares[$path . ucfirst($controller)] = $this->getByControllerConfig($route);
 				}
+			} else {
+				$middlewares[$controller] = $this->getByControllerConfig($route);
 			}
 		}
-		return $middlerwares;
+		return $middlewares;
+	}
+
+	private function getByControllerConfig($route) {
+		$middleware = [];
+		if (isset($route['common']) && !empty($route['common'])) {
+			$middleware['default'] = $route['common'];
+		}
+		foreach ($route as $action => $data) {
+			if (isset($data['middleware']) && !empty($data['middleware'])) {
+				$middleware[$action] = $data['middleware'];
+			}
+		}
+		return $middleware;
 	}
 
 	private function getBySystemConfig() {
