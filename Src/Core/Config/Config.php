@@ -57,18 +57,17 @@ class Config
 		'event',
 		'app',
 		'route',
+		'log',
 	];
 
-	public function __construct()
-	{
+	public function __construct() {
 
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getEvent()
-	{
+	public function getEvent() {
 		if (!empty($this->event)) {
 			return $this->event;
 		}
@@ -80,8 +79,7 @@ class Config
 	/**
 	 * @return array
 	 */
-	public function getServer()
-	{
+	public function getServer() {
 		if (!empty($this->server)) {
 			return $this->server;
 		}
@@ -92,8 +90,7 @@ class Config
 	/**
 	 * @return array
 	 */
-	public function getProcess()
-	{
+	public function getProcess() {
 		return $this->process;
 	}
 
@@ -102,8 +99,7 @@ class Config
 	 * @param $type
 	 * @return mixed|null
 	 */
-	public function getUserConfig($type)
-	{
+	public function getUserConfig($type) {
 		if (!in_array($type, $this->allow_user_config)) {
 			return null;
 		}
@@ -119,8 +115,7 @@ class Config
 	 * @param $name
 	 * @return array
 	 */
-	public function getUserAppConfig($name)
-	{
+	public function getUserAppConfig($name) {
 		$commonConfig = $this->getUserConfig('app');
 		if (isset($commonConfig[$name])) {
 			return $commonConfig[$name];

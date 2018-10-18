@@ -7,10 +7,12 @@
 namespace W7;
 
 use W7\Console\Console;
+use W7\Core\Config\Config;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Loader;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogHelper;
+use W7\Core\Log\LogManager;
 use W7\Http\Server\Server;
 
 class App {
@@ -22,15 +24,11 @@ class App {
 	 */
 	public static $server;
 	/**
-	 * @var Context $context
-	 */
-	public static $context;
-	/**
 	 * @var Loader
 	 */
 	private $loader;
 	/**
-	 * @var Logger
+	 * @var LogManager
 	 */
 	private $logger;
 
@@ -50,8 +48,8 @@ class App {
 		 * @var LogHelper $logHanler
 		 */
 		$logHanler = iloader()->singleton(LogHelper::class);
-		set_error_handler([$logHanler, 'errorHandler']);
-		set_exception_handler($logHanler, 'exceptionHandler');
+		//set_error_handler([$logHanler, 'errorHandler']);
+		//set_exception_handler($logHanler, 'exceptionHandler');
 	}
 
 	public function runConsole() {
@@ -74,11 +72,21 @@ class App {
 	 * @return Logger
 	 */
 	public function getLogger() {
-		$defineConfig = iconfig()->getUserConfig('app');
-		if (empty($this->logger)) {
-			$this->logger = iloader()->singleton(Logger::class);
-			$this->logger->init($defineConfig['log']['log_file'], $defineConfig['log']['level'], $defineConfig['log']['flush_interval']);
-		}
-		return $this->logger;
+		/**
+		 * @var LogManager $logManager
+		 */
+		$logManager = iloader()->singleton(LogManager::class);
+		return $logManager->getDefaultChannel();
+	}
+
+	/**
+	 * @return Context
+	 */
+	public function getContext() {
+		return $this->getLoader()->singleton(Context::class);
+	}
+
+	public function getConfigger() {
+		return $this->getLoader()->singleton(Config::class);
 	}
 }

@@ -19,6 +19,7 @@ class LogHelper {
 	}
 
 	public function addContextInfo($workId, $taskId, $coId, $taskName, $taskMethod) {
+		return true;
 		ilogger()->addBasic("workid", $workId);
 		if (!empty($taskId)) {
 			ilogger()->addBasic("taskid", $taskId);

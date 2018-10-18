@@ -20,7 +20,7 @@ use W7\App;
 use W7\Core\Config\Event;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
-use W7\Core\Helper\Context;
+use W7\Core\Log\LogManager;
 
 abstract class ServerAbstract implements ServerInterface
 {
@@ -159,15 +159,11 @@ abstract class ServerAbstract implements ServerInterface
 	 *
 	 */
 	protected function registerServerContext() {
-		/**
-		 * @var Context $contextObj
-		 */
-		$contextObj = iloader()->singleton(\W7\Core\Helper\Context::class);
+		$contextObj = App::getApp()->getContext();
 		$this->server->context = $contextObj->getContextData();
 	}
 
-	private function registerDb()
-	{
+	private function registerDb() {
 		ilogger()->info('db pool init');
 
 		//新增swoole连接mysql的方式
@@ -205,8 +201,7 @@ abstract class ServerAbstract implements ServerInterface
 		return true;
 	}
 
-	private function registerEvent($event)
-	{
+	private function registerEvent($event) {
 		if (empty($event)) {
 			return true;
 		}

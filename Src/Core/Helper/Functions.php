@@ -109,7 +109,7 @@ if (!function_exists('iconfig')) {
 	 * @return W7\Core\Config\Config
 	 */
 	function iconfig() {
-		return iloader()->singleton(\W7\Core\Config\Config::class);
+		return App::getApp()->getConfigger();
 	}
 }
 
@@ -120,6 +120,16 @@ if (!function_exists("ilogger")) {
 	 */
 	function ilogger() {
 		return App::getApp()->getLogger();
+	}
+}
+
+if (!function_exists("icontext")) {
+	/**
+	 * 返回logger对象
+	 * @return \W7\Core\Helper\Context
+	 */
+	function icontext() {
+		return App::getApp()->getContext();
 	}
 }
 
@@ -178,5 +188,23 @@ if (!function_exists('isetProcessTitle')) {
 			return swoole_set_process_name($title);
 		}
 		return true;
+	}
+}
+
+if (!function_exists('irandom')) {
+	function irandom($length, $numeric = FALSE) {
+		$seed = base_convert(md5(microtime() . $_SERVER['DOCUMENT_ROOT']), 16, $numeric ? 10 : 35);
+		$seed = $numeric ? (str_replace('0', '', $seed) . '012340567890') : ($seed . 'zZ' . strtoupper($seed));
+		if ($numeric) {
+			$hash = '';
+		} else {
+			$hash = chr(rand(1, 26) + rand(0, 1) * 32 + 64);
+			$length--;
+		}
+		$max = strlen($seed) - 1;
+		for ($i = 0; $i < $length; $i++) {
+			$hash .= $seed{mt_rand(0, $max)};
+		}
+		return $hash;
 	}
 }
