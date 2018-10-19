@@ -10,39 +10,26 @@ use Monolog\Logger as MonoLogger;
 
 class LogManager {
 	private $channel = [];
-	private $handler;
-	private $logLevel = [
-		'debug' => MonoLogger::DEBUG,
-		'info' => MonoLogger::INFO,
-		'notice' => MonoLogger::NOTICE,
-		'warning' => MonoLogger::WARNING,
-		'error'  => MonoLogger::ERROR,
-		'critical' => MonoLogger::CRITICAL,
-		'alert' => MonoLogger::ALERT,
-		'emergency' => MonoLogger::EMERGENCY,
-	];
 	private $config;
+	private $commonProcessor;
+	private $commonHandler;
 
 	public function __construct() {
-		$this->init();
-	}
-
-	/**
-	 * 初始化通道
-	 */
-	public function init() {
-		$config = $this->getConfig();
-		if (empty($config['channel'])) {
+		$this->config = $this->getConfig();
+		if (empty($this->config['channel'])) {
 			throw new \RuntimeException('Invalid log config');
 		}
-		$this->initChannel($config['channel']);
+		//初始化全局附加的Handler, Processor, Formatter
+		//暂时不需要
+
+		$this->initChannel();
 	}
 
 	public function getDefaultChannel() {
 		if (empty($this->config['default'])) {
 			throw new \RuntimeException('It is not set default logger');
 		}
-		return $this->channel[$this->config['default']]['logger'];
+		return $this->getChannel($this->config['default']);
 	}
 
 	public function getChannel($name) {
@@ -53,9 +40,16 @@ class LogManager {
 		}
 	}
 
-	private function initChannel($channelConfig) {
+	/**
+	 * 初始化通道，
+	 * @param $channelConfig
+	 * @return bool
+	 */
+	private function initChannel() {
 		$stack = [];
-		//先初始化单个通道日志对象，保存起来Handler，然后处理多种通道时直接使用
+		$channelConfig = $this->config['channel'];
+
+		//先初始化单个通道，记录下相关的Handler，再初始化复合通道
 		foreach ($channelConfig as $name => $channel) {
 			if (empty($channel['driver'])) {
 				continue;
@@ -63,8 +57,8 @@ class LogManager {
 			if ($channel['driver'] == 'stack') {
 				$stack[$name] = $channel;
 			} else {
-				$handlerClass = sprintf("\\W7\\Core\\Log\\driver\\%sHandler", ucfirst($channel['driver']));
-				$handler = (new $handlerClass())->getHanlder($channel);
+				$handlerClass = sprintf("\\W7\\Core\\Log\\Driver\\%sHandler", ucfirst($channel['driver']));
+				$handler = (new $handlerClass())->getHandler($channel);
 
 				if (!is_null($handler)) {
 					$logger = $this->getLogger($name);
@@ -82,12 +76,14 @@ class LogManager {
 
 				if (is_array($setting['channel'])) {
 					foreach ($setting['channel'] as $channel) {
-						if (!empty($this->channel[$channel])) {
+						if (!empty($this->channel[$channel]) && !is_null($this->channel[$channel]['handler'])) {
 							$logger->pushHandler($this->channel[$channel]['handler']);
 						}
 					}
 				} else {
-					$logger->pushHandler($this->channel[$setting['channel']]['handler']);
+					if (!is_null($this->channel[$channel]['handler'])) {
+						$logger->pushHandler($this->channel[$setting['channel']]['handler']);
+					}
 				}
 				$this->channel[$name]['logger'] = $logger;
 			}
@@ -96,21 +92,20 @@ class LogManager {
 	}
 
 	private function getConfig() {
-		if (!empty($this->config)) {
-			return $this->config;
-		}
-		$this->config = iconfig()->getUserConfig('log');
+		$config = iconfig()->getUserConfig('log');
 		if (!empty($this->config['channel'])) {
 			foreach ($this->config['channel'] as $name => &$setting) {
 				if (!empty($setting['level'])) {
-					$setting['level'] = $this->logLevel[$setting['level']];
+					$setting['level'] = MonoLogger::toMonologLevel($setting['level']);
 				}
 			}
 		}
-		return $this->config;
+		return $config;
 	}
 
 	private function getLogger($name) {
-		return new Logger($name);
+		$logger = new Logger($name, [], []);
+
+		return $logger;
 	}
 }
