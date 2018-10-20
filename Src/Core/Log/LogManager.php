@@ -7,6 +7,8 @@
 namespace W7\Core\Log;
 
 use Monolog\Logger as MonoLogger;
+use Monolog\Processor\IntrospectionProcessor;
+use W7\Core\Log\Processor\SwooleProcessor;
 
 class LogManager {
 	private $channel = [];
@@ -20,7 +22,7 @@ class LogManager {
 			throw new \RuntimeException('Invalid log config');
 		}
 		//初始化全局附加的Handler, Processor, Formatter
-		//暂时不需要
+		$this->commonProcessor = $this->initCommonProcessor();
 
 		$this->initChannel();
 	}
@@ -91,6 +93,15 @@ class LogManager {
 		return true;
 	}
 
+	private function initCommonProcessor() {
+		$swooleProcessor = iloader()->singleton(SwooleProcessor::class);
+		$introProcessor = iloader()->singleton(IntrospectionProcessor::class);
+		return [
+			$swooleProcessor,
+			$introProcessor
+		];
+	}
+
 	private function getConfig() {
 		$config = iconfig()->getUserConfig('log');
 		if (!empty($this->config['channel'])) {
@@ -105,7 +116,11 @@ class LogManager {
 
 	private function getLogger($name) {
 		$logger = new Logger($name, [], []);
-
+		if (!empty($this->commonProcessor)) {
+			foreach ($this->commonProcessor as $processor) {
+				$logger->pushProcessor($processor);
+			}
+		}
 		return $logger;
 	}
 }

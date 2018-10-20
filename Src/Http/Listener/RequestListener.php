@@ -10,8 +10,8 @@ use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
+use W7\App;
 use W7\Core\Listener\ListenerInterface;
-use W7\Core\Helper\Context;
 
 class RequestListener implements ListenerInterface
 {
@@ -22,11 +22,7 @@ class RequestListener implements ListenerInterface
 	 * @throws \ReflectionException
 	 */
 	public function run(Server $server, Request $request, Response $response) {
-
-		/**
-		 * @var Context $context
-		 */
-		$context = iloader()->singleton(Context::class);
+		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 

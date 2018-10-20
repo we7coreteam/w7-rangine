@@ -13,16 +13,10 @@ use W7\Core\Dispatcher\DispatcherAbstract;
 use W7\Core\Exception\HttpException;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Helper\Context;
-use W7\Core\Log\LogHelper;
 
 class Dispather extends DispatcherAbstract {
 
 	public function dispatch(...$params) {
-		/**
-		 * @var LogHelper $logHelper
-		 */
-		$logHelper = iloader()->singleton(LogHelper::class);
-
 		$request = $params[0];
 		$response = $params[1];
 		/**
@@ -48,8 +42,6 @@ class Dispather extends DispatcherAbstract {
 			$middlewares = $this->getMiddleware($serverContext[Context::MIDDLEWARE_KEY], $route['controller'], $route['method']);
 			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
 			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
-
-			$logHelper->addContextInfo($contextObj->getContextDataByKey('workid'), '', $contextObj->getContextDataByKey('coid'), $route['controller'], $route['method']);
 
 			$middlewareHandler = new MiddlewareHandler($middlewares);
 			$response = $middlewareHandler->handle($psr7Request);

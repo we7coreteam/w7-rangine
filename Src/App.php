@@ -6,6 +6,7 @@
 
 namespace W7;
 
+use Monolog\ErrorHandler;
 use W7\Console\Console;
 use W7\Core\Config\Config;
 use W7\Core\Helper\Context;
@@ -47,9 +48,7 @@ class App {
 		 * 设置错误信息接管
 		 * @var LogHelper $logHanler
 		 */
-		$logHanler = iloader()->singleton(LogHelper::class);
-		//set_error_handler([$logHanler, 'errorHandler']);
-		//set_exception_handler($logHanler, 'exceptionHandler');
+		ErrorHandler::register($this->getLogger());
 	}
 
 	public function runConsole() {

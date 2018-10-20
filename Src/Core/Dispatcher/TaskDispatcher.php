@@ -6,10 +6,8 @@
 
 namespace W7\Core\Dispatcher;
 
-use Swoole\Coroutine;
 use W7\App;
 use W7\Core\Exception\TaskException;
-use W7\Core\Log\LogHelper;
 
 /**
  * Class TaskDispatcher
@@ -56,11 +54,9 @@ class TaskDispatcher extends DispatcherAbstract
 		$method = $taskData['method'] ?? 'run';
 		$params = $taskData['params'] ?? [];
 
-		/**
-		 * @var LogHelper $logerHelper
-		 */
-		$logerHelper = iloader()->singleton(LogHelper::class);
-		$logerHelper->addContextInfo($workId, $taskId, '', $name, $method);
+		$context = App::getApp()->getContext();
+		$context->setContextDataByKey('workid', $workId);
+		$context->setContextDataByKey('coid', $taskId);
 
 		if (!class_exists($name)) {
 			$name = "W7\\App\\Task\\". ucfirst($name);
