@@ -12,7 +12,6 @@ use W7\Core\Config\Config;
 use W7\Core\Helper\Context;
 use W7\Core\Helper\Loader;
 use W7\Core\Log\Logger;
-use W7\Core\Log\LogHelper;
 use W7\Core\Log\LogManager;
 use W7\Http\Server\Server;
 
@@ -28,10 +27,6 @@ class App {
 	 * @var Loader
 	 */
 	private $loader;
-	/**
-	 * @var LogManager
-	 */
-	private $logger;
 
 	public static function getApp() {
 		if (!empty(self::$self)) {
@@ -46,7 +41,6 @@ class App {
 	public function setErrorHandler() {
 		/**
 		 * 设置错误信息接管
-		 * @var LogHelper $logHanler
 		 */
 		ErrorHandler::register($this->getLogger());
 	}
