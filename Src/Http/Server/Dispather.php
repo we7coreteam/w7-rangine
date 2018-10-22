@@ -9,10 +9,11 @@ namespace W7\Http\Server;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
 use Psr\Http\Message\ServerRequestInterface;
+use W7\App;
 use W7\Core\Dispatcher\DispatcherAbstract;
 use W7\Core\Exception\HttpException;
 use W7\Core\Middleware\MiddlewareHandler;
-use W7\Core\Helper\Context;
+use W7\Core\Helper\Storage\Context;
 
 class Dispather extends DispatcherAbstract {
 
@@ -25,11 +26,8 @@ class Dispather extends DispatcherAbstract {
 		$serverContext = $params[2];
 		$psr7Request = \W7\Http\Message\Server\Request::loadFromSwooleRequest($request);
 		$psr7Response = new \W7\Http\Message\Server\Response($response);
-		/**
-		 * @var Context $contextObj
-		 */
 
-		$contextObj = iloader()->singleton(Context::class);
+		$contextObj = App::getApp()->getContext();
 		$contextObj->setRequest($psr7Request);
 		$contextObj->setResponse($psr7Response);
 

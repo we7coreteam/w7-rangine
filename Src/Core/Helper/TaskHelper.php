@@ -6,6 +6,8 @@
 
 namespace W7\Core\Helper;
 
+use W7\App;
+
 class TaskHelper
 {
 	/**
@@ -24,10 +26,7 @@ class TaskHelper
 			'params' => $params,
 		];
 
-		/**
-		 * @var Context $contextObj
-		 */
-		$contextObj = iloader()->singleton(Context::class);
+		$contextObj = App::getApp()->getContext();
 		$task['logid']  = $contextObj->getLogid();
 		$task['spanid'] = $contextObj->getSpanid();
 

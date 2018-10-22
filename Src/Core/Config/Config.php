@@ -7,10 +7,10 @@
 namespace W7\Core\Config;
 
 use W7\Core\Listener\FinishListener;
-use W7\Core\Listener\ManagerStart;
+use W7\Core\Listener\ManagerStartListener;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
-use W7\Core\Listener\WorkerStart;
+use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Process\MysqlPoolprocess;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
@@ -27,6 +27,9 @@ class Config
 	];
 
 	private $event;
+	/**
+	 * 系统内置的一些事件侦听，用户也可以在config/app.php中进行附加配置
+	 */
 	private $defaultEvent = [
 		'task' => [
 			Event::ON_TASK => TaskListener::class,
@@ -37,8 +40,8 @@ class Config
 		],
 		'manage' => [
 			Event::ON_START => StartListener::class,
-			Event::ON_MANAGER_START => ManagerStart::class,
-			Event::ON_WORKER_START => WorkerStart::class,
+			Event::ON_MANAGER_START => ManagerStartListener::class,
+			Event::ON_WORKER_START => WorkerStartListener::class,
 		],
 		'system' =>[
 			Event::ON_USER_BEFORE_START,

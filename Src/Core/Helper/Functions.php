@@ -126,7 +126,7 @@ if (!function_exists("ilogger")) {
 if (!function_exists("icontext")) {
 	/**
 	 * 返回logger对象
-	 * @return \W7\Core\Helper\Context
+	 * @return \W7\Core\Helper\Storage\Context
 	 */
 	function icontext() {
 		return App::getApp()->getContext();

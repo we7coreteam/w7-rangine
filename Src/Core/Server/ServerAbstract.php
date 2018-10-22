@@ -22,8 +22,7 @@ use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
 use W7\Core\Log\LogManager;
 
-abstract class ServerAbstract implements ServerInterface
-{
+abstract class ServerAbstract implements ServerInterface {
 
 	/**
 	 * @var \Swoole\Http\Server
@@ -155,9 +154,6 @@ abstract class ServerAbstract implements ServerInterface
 		}
 	}
 
-	/**
-	 *
-	 */
 	protected function registerServerContext() {
 		$contextObj = App::getApp()->getContext();
 		$this->server->context = $contextObj->getContextData();
@@ -185,6 +181,7 @@ abstract class ServerAbstract implements ServerInterface
 			}
 			$pool->release($connection);
 		});
+
 		$container->instance('events', $dbDispatch);
 
 		//添加配置信息到容器

@@ -7,16 +7,17 @@
 
 namespace W7\Http\Listener;
 
+use W7\App;
 use W7\Core\Listener\ListenerInterface;
-use W7\Core\Helper\Context;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\RouteMapping;
+use W7\Core\Helper\Storage\Context;
 
 class BeforeStartListener implements ListenerInterface
 {
 	public function run() {
 
-		$context = iloader()->singleton(Context::class);
+		$context = App::getApp()->getContext();
 		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());
 		$context->setContextDataByKey(Context::MIDDLEWARE_KEY, $this->getMiddleware());
 

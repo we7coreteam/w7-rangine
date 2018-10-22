@@ -6,10 +6,8 @@
 
 namespace W7\Core\Database;
 
-class DatabaseManager extends \Illuminate\Database\DatabaseManager
-{
-	public function connection($name = null)
-	{
+class DatabaseManager extends \Illuminate\Database\DatabaseManager {
+	public function connection($name = null) {
 		list($database, $type) = $this->parseConnectionName($name);
 		$name = $name ?: $database;
 		//这里不同于父函数，要做一个单例返回

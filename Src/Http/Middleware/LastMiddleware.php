@@ -10,9 +10,8 @@ namespace W7\Http\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Exception\HttpException;
+use W7\App;
 use W7\Core\Middleware\MiddlewareAbstract;
-use W7\Core\Helper\Context;
 
 class LastMiddleware extends MiddlewareAbstract
 {
@@ -33,10 +32,8 @@ class LastMiddleware extends MiddlewareAbstract
 
 			$response =  call_user_func_array($controllerHandler, $funArgs);
 			$response = is_array($response) ? $response : (array)$response;
-			/**
-			 * @var Context $contextObj
-			 */
-			$contextObj = iloader()->singleton(Context::class);
+
+			$contextObj = App::getApp()->getContext();
 			$response = $contextObj->getResponse()->json($response);
 			return $response;
 		} catch (\Throwable $throwable) {

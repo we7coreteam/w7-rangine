@@ -4,15 +4,14 @@
  * @author donknap & Swoft\Core
  * @date 18-7-24 下午3:09
  */
-namespace W7\Core\Helper;
+namespace W7\Core\Helper\Storage;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Coroutine;
 use W7\Http\Message\Server\Response;
 
-class Context
-{
+class Context {
 	/**
 	 * Key of request context share data
 	 */
