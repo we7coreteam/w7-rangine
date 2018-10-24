@@ -13,6 +13,6 @@ class WorkerStartListener implements ListenerInterface
 {
 	public function run(Server $server) {
 		\isetProcessTitle( 'w7swoole ' . App::$server->type . ' worker process');
-
+		\Swoole\Runtime::enableCoroutine();
 	}
 }

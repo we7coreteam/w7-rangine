@@ -15,6 +15,7 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
+use W7\Core\Database\Connector\PdoMySqlConnector;
 use W7\Core\Database\Connector\SwooleMySqlConnector;
 use W7\App;
 use W7\Core\Config\Event;
@@ -170,6 +171,7 @@ abstract class ServerAbstract implements ServerInterface {
 		//新增swoole连接Mysql的容器
 		$container = new Container();
 		$container->instance('db.connector.swoolemysql', new SwooleMySqlConnector());
+		$container->instance('db.connector.mysql', new PdoMySqlConnector());
 
 		//侦听sql执行完后的事件，回收$connection
 		$dbDispatch = new Dispatcher($container);

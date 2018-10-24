@@ -1,15 +1,16 @@
 <?php
 /**
  * @author donknap
- * @date 18-7-30 下午6:34
+ * @date 18-10-23 下午3:40
  */
 
 namespace W7\Core\Pool;
 
-use Swoole\Coroutine;
-use W7\App;
 
-abstract class PoolAbstract implements PoolInterface {
+use Swoole\Coroutine;
+use Swoole\Coroutine\Channel;
+
+abstract class CoPoolAbstract implements PoolInterface {
 	/**
 	 * 最大连接数据
 	 * @var int
@@ -30,9 +31,9 @@ abstract class PoolAbstract implements PoolInterface {
 
 	/**
 	 * 挂起协程ID队列，恢复时按顺序恢复
-	 * @var \SplQueue $waitCoQueue
+	 * @var \SplQueue
 	 */
-	protected $waitCoQueue;
+	protected $waitQueue;
 
 	/**
 	 * 等待数
@@ -43,88 +44,103 @@ abstract class PoolAbstract implements PoolInterface {
 	public function __construct() {
 		$this->busyCount = 0;
 		$this->waitCount = 0;
-		//$this->idleQueue = new \SplQueue();
-		$this->waitCoQueue = new \SplQueue();
 
-		$this->idleQueue = new Coroutine\Channel($this->maxActive);
-		ilogger()->info('pool construct ');
+		$this->waitQueue = new \SplQueue();
+		$this->idleQueue = new Channel($this->maxActive);
 	}
 
-	public function getConnection($config) {
-		ilogger()->info('coid ' . (Coroutine::getuid()));
-		ilogger()->info('workid ' . (App::$server->server->worker_id));
+	abstract function createConnection();
 
-		/**
-		 * 如果当前有空闲连接，并且连接大于要执行的数，直接返回连接
-		 */
-		if (!$this->idleQueue->isEmpty() && $this->idleQueue->length() > 0) {
-			ilogger()->info('get by queue, count ' . $this->idleQueue->length());
+	public function getConnection() {
+
+		if ($this->getIdleCount() > 0) {
+			ilogger()->info('get by queue, count ' . $this->getIdleCount());
+
 			$connect = $this->getConnectionFromPool();
 			$this->busyCount++;
 			return $connect;
 		}
 
 		//如果 空闲队列数+执行队列数 等于 最大连接数，则挂起协程
-		ilogger()->info('busy count ' . $this->busyCount . '. queue count ' . $this->idleQueue->length() . ', maxactive' . $this->maxActive);
-		if ($this->busyCount + $this->idleQueue->length() >= $this->maxActive) {
+		if ($this->busyCount + $this->getIdleCount() >= $this->getMaxCount()) {
 			//等待进程数++
 			$this->waitCount++;
+
 			ilogger()->info('suspend connection , count ' . $this->idleQueue->length() . '. wait count ' . $this->waitCount);
-			//存放当前协程ID，以便恢复
-			$coid = Coroutine::getuid();
-			$this->waitCoQueue->push($coid);
-			if (\Swoole\Coroutine::suspend($coid) == false) {
+
+			if ($this->suspendCurrentCo() == false) {
 				//挂起失败时，抛出异常，恢复等待数
 				$this->waitCount--;
 				throw new \RuntimeException('Reach max connections! Cann\'t pending fetch!');
 			}
-
 			//回收连接时，恢复了协程，则从空闲中取出连接继续执行
 			ilogger()->info('resume connection , count ' . $this->idleQueue->length());
 		}
 
-		$connect = $this->createConnection(``);
+		$connect = $this->createConnection();
 		$this->busyCount++;
 		ilogger()->info('create connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
 
 		return $connect;
 	}
 
-	public function release($connection) {
+	public function releaseConnection($connection) {
 		$this->busyCount--;
 		ilogger()->info('release connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
-		if ($this->idleQueue->length() < $this->maxActive) {
-			$this->idleQueue->push($connection);
+		if ($this->getIdleCount() < $this->getMaxCount()) {
 
+			$this->setConnectionFormPool($connection);
 			ilogger()->info('release push connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
+
 			if ($this->waitCount > 0) {
 				$this->waitCount--;
-				$coid = $this->getWaitCoFromPool();
-				if (!empty($coid)) {
-					\Swoole\Coroutine::resume($coid);
-				}
+				$this->resumeCo();
 			}
 			return true;
 		}
 	}
 
-	public function setConnectionName($name) {
-		$this->connectionName = $name;
-		return true;
+	public function getIdleCount() {
+		return $this->idleQueue->length();
+	}
+
+	public function getMaxCount() {
+		return $this->maxActive;
 	}
 
 	/**
 	 * @param int $maxActive
 	 */
-	public function setMaxActive(int $maxActive) {
+	public function setMaxCount(int $maxActive) {
 		$this->maxActive = $maxActive;
+	}
+
+	/**
+	 * 挂起当前协程，以便之后恢复
+	 */
+	private function suspendCurrentCo() {
+		$coid = Coroutine::getuid();
+		$this->waitQueue->push($coid);
+		return Coroutine::suspend($coid);
+	}
+
+	/**
+	 * 从队列里恢复一个挂起的协程继续执行
+	 * @return bool
+	 */
+	private function resumeCo() {
+		$coid = $this->waitQueue->shift();
+		if (!empty($coid)) {
+			Coroutine::resume($coid);
+		}
+		return true;
 	}
 
 	private function getConnectionFromPool() {
 		return $this->idleQueue->pop();
 	}
 
-	private function getWaitCoFromPool() {
-		return $this->waitCoQueue->shift();
+	private function setConnectionFormPool($connection) {
+		return $this->idleQueue->push($connection);
 	}
 }
