@@ -1,16 +1,17 @@
 <?php
 /**
  * @author donknap
- * @date 18-10-22 下午7:17
+ * @date 18-10-24 下午3:31
  */
 
-namespace W7\Core\Database\Connector;
+namespace W7\Core\Database;
 
 
 use Illuminate\Database\Connectors\MySqlConnector;
+use W7\Core\Database\Connector\SwooleMySqlConnector;
 use W7\Core\Database\Pool\Pool;
 
-class PdoMySqlConnector {
+class ConnectorManager {
 	private $poolconfig;
 	private $pool;
 	private $mySqlConnector;
@@ -18,7 +19,8 @@ class PdoMySqlConnector {
 
 	public function __construct() {
 		$this->poolconfig = \iconfig()->getUserAppConfig('pool')['database'] ?? [];
-		$this->mySqlConnector = new MySqlConnector();
+		$this->mySqlConnector = new SwooleMySqlConnector();
+		$this->swooleMySqlConnector = new SwooleMySqlConnector();
 	}
 
 	/**

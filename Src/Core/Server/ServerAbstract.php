@@ -15,13 +15,11 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
-use W7\Core\Database\Connector\PdoMySqlConnector;
-use W7\Core\Database\Connector\SwooleMySqlConnector;
 use W7\App;
 use W7\Core\Config\Event;
+use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
-use W7\Core\Log\LogManager;
 
 abstract class ServerAbstract implements ServerInterface {
 
@@ -170,18 +168,20 @@ abstract class ServerAbstract implements ServerInterface {
 
 		//新增swoole连接Mysql的容器
 		$container = new Container();
-		$container->instance('db.connector.swoolemysql', new SwooleMySqlConnector());
-		$container->instance('db.connector.mysql', new PdoMySqlConnector());
+		//$container->instance('db.connector.swoolemysql', new SwooleMySqlConnector());
+		//$container->instance('db.connector.mysql', new PdoMySqlConnector());
+		$container->instance('db.connector.swoolemysql', new ConnectorManager());
+		$container->instance('db.connector.mysql', new ConnectorManager());
 
 		//侦听sql执行完后的事件，回收$connection
 		$dbDispatch = new Dispatcher($container);
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
 			$connection = $data->connection;
-			$pool = $container->make('db.connector.swoolemysql')->pool;
-			if (is_null($pool)) {
-				return false;
-			}
-			$pool->release($connection);
+			//$pool = $container->make('db.connector.swoolemysql')->pool;
+			//if (is_null($pool)) {
+			//	return false;
+			//}
+			//$pool->release($connection);
 		});
 
 		$container->instance('events', $dbDispatch);
