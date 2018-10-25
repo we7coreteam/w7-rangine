@@ -30,14 +30,16 @@ class ConnectorManager {
 	 */
 	public function connect(array $config) {
 		//未设置连接池时，直接返回数据连接对象
-		if (!isset($this->poolconfig[$config['host']]) || $this->poolconfig[$config['host']]['enable'] == false) {
+		if (empty($this->poolconfig[$config['host']]) || $this->poolconfig[$config['host']]['enable'] == false) {
 			ilogger()->info('return connection');
 			return $this->getDefaultConnection($config);
 		}
-
 		$pool = $this->getPool($config['host'], $config);
-
 		return $pool->getConnection();
+	}
+
+	public function getCreatedPool($name) {
+		return $this->pool[$name];
 	}
 
 	/**
@@ -49,7 +51,7 @@ class ConnectorManager {
 			return $this->pool[$name];
 		}
 
-		$pool = new Pool();
+		$pool = new Pool($name);
 		$pool->setConfig($option);
 		$pool->setCreator($this->mySqlConnector);
 		$pool->setMaxCount($this->poolconfig[$name]['max']);

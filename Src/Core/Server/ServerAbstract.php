@@ -19,6 +19,7 @@ use W7\App;
 use W7\Core\Config\Event;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
+use W7\Core\Database\Driver\MySqlCoroutine;
 use W7\Core\Exception\CommandException;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -177,11 +178,21 @@ abstract class ServerAbstract implements ServerInterface {
 		$dbDispatch = new Dispatcher($container);
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
 			$connection = $data->connection;
-			//$pool = $container->make('db.connector.swoolemysql')->pool;
-			//if (is_null($pool)) {
-			//	return false;
-			//}
-			//$pool->release($connection);
+			$poolName = $connection->getPoolName();
+			if (empty($poolName)) {
+				return true;
+			}
+			$activePdo = $connection->getActiveConnection();
+			if (!($activePdo instanceof MySqlCoroutine)) {
+				return false;
+			}
+			$connectorManager = $container->make('db.connector.swoolemysql');
+			$pool = $connectorManager->getCreatedPool($poolName);
+			if (empty($pool)) {
+				return true;
+			}
+			$pool->releaseConnection($activePdo);
+			return true;
 		});
 
 		$container->instance('events', $dbDispatch);

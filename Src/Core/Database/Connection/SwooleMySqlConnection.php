@@ -7,11 +7,10 @@
 namespace W7\Core\Database\Connection;
 
 use Illuminate\Database\MySqlConnection;
+use W7\Core\Database\Driver\MySqlCoroutine;
 
-class SwooleMySqlConnection extends MySqlConnection
-{
-	public function select($query, $bindings = [], $useReadPdo = true)
-	{
+class SwooleMySqlConnection extends MySqlConnection {
+	public function select($query, $bindings = [], $useReadPdo = true) {
 		return $this->run($query, $bindings, function ($query, $bindings) use ($useReadPdo) {
 			if ($this->pretending()) {
 				return [];
@@ -25,8 +24,7 @@ class SwooleMySqlConnection extends MySqlConnection
 		});
 	}
 
-	public function statement($query, $bindings = [])
-	{
+	public function statement($query, $bindings = []) {
 		return $this->run($query, $bindings, function ($query, $bindings) {
 			if ($this->pretending()) {
 				return true;
@@ -40,8 +38,7 @@ class SwooleMySqlConnection extends MySqlConnection
 		});
 	}
 
-	public function affectingStatement($query, $bindings = [])
-	{
+	public function affectingStatement($query, $bindings = []) {
 		return $this->run($query, $bindings, function ($query, $bindings) {
 			if ($this->pretending()) {
 				return 0;
@@ -56,5 +53,26 @@ class SwooleMySqlConnection extends MySqlConnection
 			);
 			return $count;
 		});
+	}
+
+	public function getPoolName() {
+		if ($this->pdo instanceof MySqlCoroutine && !empty($this->pdo->poolName)) {
+			return $this->pdo->poolName;
+		}
+		if ($this->readPdo instanceof MySqlCoroutine && !empty($this->readPdo->poolName)) {
+			return $this->readPdo->poolName;
+		}
+		return '';
+	}
+
+	/**
+	 * 获取当前活动的查询连接
+	 */
+	public function getActiveConnection() {
+		if ($this->pdo instanceof MySqlCoroutine) {
+			return $this->pdo;
+		} else {
+			return $this->readPdo;
+		}
 	}
 }

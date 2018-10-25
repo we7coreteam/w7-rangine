@@ -18,7 +18,7 @@ class Pool extends CoPoolAbstract {
 	private $creator;
 	private $config;
 
-	public function setCreator(MySqlConnector $creator) {
+	public function setCreator($creator) {
 		$this->creator = $creator;
 	}
 
@@ -27,6 +27,7 @@ class Pool extends CoPoolAbstract {
 			throw new \RuntimeException('Invalid db creator');
 		}
 		$connection = $this->creator->connect($this->config);
+		$connection->poolName = $this->poolName;
 		return $connection;
 	}
 

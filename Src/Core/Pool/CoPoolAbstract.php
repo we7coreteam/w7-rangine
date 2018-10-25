@@ -11,6 +11,7 @@ use Swoole\Coroutine;
 use Swoole\Coroutine\Channel;
 
 abstract class CoPoolAbstract implements PoolInterface {
+	protected $poolName;
 	/**
 	 * 最大连接数据
 	 * @var int
@@ -41,7 +42,9 @@ abstract class CoPoolAbstract implements PoolInterface {
 	 */
 	protected $waitCount = 0;
 
-	public function __construct() {
+	public function __construct($name = '') {
+		$this->poolName = $name;
+
 		$this->busyCount = 0;
 		$this->waitCount = 0;
 
