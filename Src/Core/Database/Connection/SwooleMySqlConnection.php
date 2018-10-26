@@ -56,11 +56,9 @@ class SwooleMySqlConnection extends MySqlConnection {
 	}
 
 	public function getPoolName() {
-		if ($this->pdo instanceof MySqlCoroutine && !empty($this->pdo->poolName)) {
-			return $this->pdo->poolName;
-		}
-		if ($this->readPdo instanceof MySqlCoroutine && !empty($this->readPdo->poolName)) {
-			return $this->readPdo->poolName;
+		$activeConnection = $this->getActiveConnection();
+		if (!empty($activeConnection->poolName)) {
+			return $activeConnection->poolName;
 		}
 		return '';
 	}

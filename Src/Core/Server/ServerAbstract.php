@@ -14,12 +14,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
+use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\App;
 use W7\Core\Config\Event;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
-use W7\Core\Database\Driver\MySqlCoroutine;
 use W7\Core\Exception\CommandException;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -152,6 +152,9 @@ abstract class ServerAbstract implements ServerInterface {
 				$this->registerEvent($event);
 			}
 		}
+
+		//开启协程
+		\Swoole\Runtime::enableCoroutine();
 	}
 
 	protected function registerServerContext() {
@@ -165,6 +168,9 @@ abstract class ServerAbstract implements ServerInterface {
 		//新增swoole连接mysql的方式
 		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
 			return new SwooleMySqlConnection($connection, $database, $prefix, $config);
+		});
+		Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
+			return new PdoMysqlConnection($connection, $database, $prefix, $config);
 		});
 
 		//新增swoole连接Mysql的容器
@@ -182,11 +188,16 @@ abstract class ServerAbstract implements ServerInterface {
 			if (empty($poolName)) {
 				return true;
 			}
+			list($poolType, $poolName) = explode(':', $poolName);
+			if (empty($poolType)) {
+				$poolType = 'swoolemysql';
+			}
+
 			$activePdo = $connection->getActiveConnection();
-			if (!($activePdo instanceof MySqlCoroutine)) {
+			if (empty($activePdo)) {
 				return false;
 			}
-			$connectorManager = $container->make('db.connector.swoolemysql');
+			$connectorManager = $container->make('db.connector.' . $poolType);
 			$pool = $connectorManager->getCreatedPool($poolName);
 			if (empty($pool)) {
 				return true;

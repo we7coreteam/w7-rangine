@@ -1,5 +1,6 @@
 <?php
 /**
+ * 创建数据库连接管理器，将判断是直接返回还是创建连接池
  * @author donknap
  * @date 18-10-24 下午3:31
  */
@@ -14,13 +15,12 @@ use W7\Core\Database\Pool\Pool;
 class ConnectorManager {
 	private $poolconfig;
 	private $pool;
-	private $mySqlConnector;
+	private $mySqlConnector; //swoole的协程mysql连接
+	private $pdoConnector; //laravel原始的Pdo连接
 	private $defaultConnection;
 
 	public function __construct() {
 		$this->poolconfig = \iconfig()->getUserAppConfig('pool')['database'] ?? [];
-		$this->mySqlConnector = new SwooleMySqlConnector();
-		$this->swooleMySqlConnector = new SwooleMySqlConnector();
 	}
 
 	/**
@@ -30,8 +30,8 @@ class ConnectorManager {
 	 */
 	public function connect(array $config) {
 		//未设置连接池时，直接返回数据连接对象
-		if (empty($this->poolconfig[$config['host']]) || $this->poolconfig[$config['host']]['enable'] == false) {
-			ilogger()->info('return connection');
+		if (empty($this->poolconfig[$config['host']]) || empty($this->poolconfig[$config['host']]['enable'])) {
+			ilogger()->info('get connection');
 			return $this->getDefaultConnection($config);
 		}
 		$pool = $this->getPool($config['host'], $config);
@@ -53,19 +53,33 @@ class ConnectorManager {
 
 		$pool = new Pool($name);
 		$pool->setConfig($option);
-		$pool->setCreator($this->mySqlConnector);
+		$pool->setCreator($this->getDefaultConnector($option['driver']));
 		$pool->setMaxCount($this->poolconfig[$name]['max']);
 
 		$this->pool[$name] = $pool;
-
 		return $this->pool[$name];
+	}
+
+	private function getDefaultConnector($driver = 'swoolemysql') {
+		if ($driver == 'swoolemysql') {
+			if (empty($this->mySqlConnector)) {
+				$this->mySqlConnector = new SwooleMySqlConnector();
+			}
+			return $this->mySqlConnector;
+		} elseif ($driver == 'mysql') {
+			if (empty($this->pdoConnector)) {
+				$this->pdoConnector = new MySqlConnector();
+			}
+			return $this->pdoConnector;
+		}
+		throw new \RuntimeException('Invalid driver');
 	}
 
 	private function getDefaultConnection($config) {
 		if (!empty($this->defaultConnection)) {
 			//return $this->defaultConnection;
 		}
-		$this->defaultConnection = $this->mySqlConnector->connect($config);
+		$this->defaultConnection = $this->getDefaultConnector($config['driver'])->connect($config);
 		return $this->defaultConnection;
 	}
 }

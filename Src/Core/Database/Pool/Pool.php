@@ -27,7 +27,7 @@ class Pool extends CoPoolAbstract {
 			throw new \RuntimeException('Invalid db creator');
 		}
 		$connection = $this->creator->connect($this->config);
-		$connection->poolName = $this->poolName;
+		$connection->poolName = sprintf('%s:%s', $this->config['driver'], $this->poolName);
 		return $connection;
 	}
 

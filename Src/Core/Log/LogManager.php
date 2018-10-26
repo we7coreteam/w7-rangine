@@ -18,6 +18,11 @@ class LogManager {
 
 	public function __construct() {
 		$this->config = $this->getConfig();
+		$development = iconfig()->getUserAppConfig('setting')['development'];
+		//如果是开发模式，每次启动清理日志文件
+		if (!empty($development)) {
+			$this->cleanLogFile();
+		}
 		if (empty($this->config['channel'])) {
 			throw new \RuntimeException('Invalid log config');
 		}
@@ -122,5 +127,18 @@ class LogManager {
 			}
 		}
 		return $logger;
+	}
+
+	private function cleanLogFile() {
+		$logPath = RUNTIME_PATH . DS. 'logs/*';
+		$tree = glob($logPath);
+		if (!empty($tree)) {
+			foreach ($tree as $file) {
+				if (strstr($file, '.log') !== false) {
+					unlink($file);
+				}
+			}
+		}
+		return true;
 	}
 }
