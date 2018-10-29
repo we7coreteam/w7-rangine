@@ -9,8 +9,13 @@ namespace W7\Core\Database;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class ModelAbstract extends Model
-{
+/**
+ * Class ModelAbstract
+ * @package W7\Core\Database
+ *
+ * @method static find($id, $columns = ['*'])
+ */
+class ModelAbstract extends Model {
 	protected function insertAndSetId(Builder $query, $attributes) {
 		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
 

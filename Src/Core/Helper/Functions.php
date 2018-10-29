@@ -208,3 +208,9 @@ if (!function_exists('irandom')) {
 		return $hash;
 	}
 }
+
+if (!function_exists('idd')) {
+	function idd($var) {
+		return var_export($var, true);
+	}
+}

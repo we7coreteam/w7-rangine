@@ -184,6 +184,8 @@ abstract class ServerAbstract implements ServerInterface {
 		$dbDispatch = new Dispatcher($container);
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
 			$connection = $data->connection;
+			ilogger()->channel('database')->debug($data->sql . ', params: ' . implode(',', $data->bindings));
+
 			$poolName = $connection->getPoolName();
 			if (empty($poolName)) {
 				return true;
