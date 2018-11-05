@@ -46,17 +46,20 @@ class Dispather extends DispatcherAbstract {
 
 		} catch (\Throwable $throwable) {
 			$setting = iconfig()->getUserAppConfig('setting');
-			if ($throwable instanceof HttpException || !empty($setting['development'])) {
+			if ($throwable instanceof HttpException) {
 				$code = $throwable->getCode() ? $throwable->getCode() : '400';
 				$message = $throwable->getMessage();
 			} else {
-				$message = '服务内部错误';
-				$code = '500';
+				//开发模式下直接抛出异常，否则普通内部错误
+				if (!empty($setting['development'])) {
+					throw $throwable;
+				} else {
+					$message = '服务内部错误';
+					$code = '500';
+				}
 			}
 			$response = $contextObj->getResponse()->json(['error' => $message], $code);
 		}
-
-		//ievent('afterRequest');
 		$response->send();
 	}
 
