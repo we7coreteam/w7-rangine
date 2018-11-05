@@ -10,6 +10,7 @@ use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
+use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Process\MysqlPoolprocess;
 use W7\Core\Process\ReloadProcess;
@@ -42,6 +43,7 @@ class Config
 			Event::ON_START => StartListener::class,
 			Event::ON_MANAGER_START => ManagerStartListener::class,
 			Event::ON_WORKER_START => WorkerStartListener::class,
+			Event::ON_WORKER_ERROR => WorkerErrorListener::class,
 		],
 		'system' =>[
 			Event::ON_USER_BEFORE_START,

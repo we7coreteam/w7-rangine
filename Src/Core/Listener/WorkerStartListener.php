@@ -9,8 +9,7 @@ namespace W7\Core\Listener;
 use Swoole\Http\Server;
 use W7\App;
 
-class WorkerStartListener implements ListenerInterface
-{
+class WorkerStartListener implements ListenerInterface {
 	public function run(Server $server) {
 		\isetProcessTitle( 'w7swoole ' . App::$server->type . ' worker process');
 	}
