@@ -39,6 +39,9 @@ class Config
 		'http' => [
 			Event::ON_REQUEST => RequestListener::class,
 		],
+		'tcp' => [
+
+		],
 		'manage' => [
 			Event::ON_START => StartListener::class,
 			Event::ON_MANAGER_START => ManagerStartListener::class,

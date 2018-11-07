@@ -44,14 +44,17 @@ class Console {
 			return false;
 		}
 
-		$server = $this->getServer($command['command']);
-		if (!method_exists($server, $command['action'])) {
-			\ioutputer()->writeln(sprintf('Not support action of  %s', $command['action']), true);
-			$this->showDefaultCommand();
-			return false;
+		try {
+			$server = $this->getServer($command['command']);
+			if (!method_exists($server, $command['action'])) {
+				\ioutputer()->writeln(sprintf('Not support action of  %s', $command['action']), true);
+				$this->showDefaultCommand();
+				return false;
+			}
+			call_user_func_array(array($server, $command['action']), $command['option']);
+		} catch (\Throwable $e) {
+			\ioutputer()->writeln($e->getMessage(), true, true);
 		}
-
-		call_user_func_array(array($server, $command['action']), $command['option']);
 		return true;
 	}
 
@@ -109,8 +112,11 @@ class Console {
 
 	private function getServer($name) {
 		$className = sprintf("\\W7\\%s\\Console\\Command", StringHelper::studly($name));
+		if (!class_exists($className)) {
+			throw new CommandException('The ' . $name . ' server command not found');
+		}
 		$object = new $className();
-		if (!($object instanceof CommandInterface)) {
+		if (!($object instanceof CommandInterface) || empty($object)) {
 			throw new CommandException('Console command must implement CommandInterface class');
 		}
 		return $object;

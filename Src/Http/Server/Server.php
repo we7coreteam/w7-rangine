@@ -9,12 +9,10 @@ namespace W7\Http\Server;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Config\Event;
 
-class Server extends ServerAbstract
-{
+class Server extends ServerAbstract {
 	public $type = parent::TYPE_HTTP;
 
-	public function start()
-	{
+	public function start() {
 		if (!empty($this->setting['open_http2_protocol'])) {
 			$this->connection['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
