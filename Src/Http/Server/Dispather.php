@@ -45,21 +45,29 @@ class Dispather extends DispatcherAbstract {
 			$response = $middlewareHandler->handle($psr7Request);
 
 		} catch (\Throwable $throwable) {
+			$errorMessage = sprintf('Uncaught Exception %s: "%s" at %s line %s',
+				get_class($throwable),
+				$throwable->getMessage(),
+				$throwable->getFile(),
+				$throwable->getLine()
+			);
+			ilogger()->error($errorMessage, array('exception' => $throwable));
+
 			$setting = iconfig()->getUserAppConfig('setting');
 			if ($throwable instanceof HttpException) {
 				$code = $throwable->getCode() ? $throwable->getCode() : '400';
 				$message = $throwable->getMessage();
+			} elseif (!empty($setting['development'])) {
+				$message = $errorMessage;
+				$code = '400';
 			} else {
-				//开发模式下直接抛出异常，否则普通内部错误
-				if (!empty($setting['development'])) {
-					throw $throwable;
-				} else {
-					$message = '服务内部错误';
-					$code = '500';
-				}
+				$message = '服务内部错误';
+				$code = '500';
 			}
 			$response = $contextObj->getResponse()->json(['error' => $message], $code);
 		}
+
+		//ievent('afterRequest');
 		$response->send();
 	}
 
