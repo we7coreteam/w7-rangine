@@ -215,17 +215,29 @@ if (!function_exists('idd')) {
 	}
 }
 
-if (!function_exists('iraw')) {
-	function iraw($data) {
+if (!function_exists('iraw_encode')) {
+	function iraw_encode($data) {
 		if (!is_string($data)) {
 			$data = strval($data);
 		}
 		$token = '$$$$$$raw$$$$$$';
-		if (strpos($data, $token) === 0) {
-			$result = explode($token, $data);
-			return $result[1];
-		} else {
+		if (strpos($data, $token) === false) {
 			return sprintf('%s%s', $token, $data);
 		}
+		return $data;
+	}
+
+	function iraw_decode($data) {
+		if (!is_string($data)) {
+			return false;
+		}
+		$token = '$$$$$$raw$$$$$$';
+
+		if (strpos($data, $token) === false) {
+			return false;
+		}
+
+		$result = explode($token, $data);
+		return $result[1];
 	}
 }

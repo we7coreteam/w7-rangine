@@ -31,14 +31,14 @@ class LastMiddleware extends MiddlewareAbstract
 			}
 
 			$response =  call_user_func_array($controllerHandler, $funArgs);
-			$response = is_array($response) ? $response : $response;
 
 			$contextObj = App::getApp()->getContext();
-			if (is_string($response)) {
+
+			if (iraw_decode($response) !== false) {
 				return $contextObj->getResponse()->raw($response);
-			} else {
-				return $contextObj->getResponse()->json($response);
 			}
+
+			return $contextObj->getResponse()->json($response);
 		} catch (\Throwable $throwable) {
 			throw $throwable;
 		}
