@@ -31,7 +31,7 @@ class LastMiddleware extends MiddlewareAbstract
 			}
 
 			$response =  call_user_func_array($controllerHandler, $funArgs);
-			$response = is_array($response) ? $response : (array)$response;
+			$response = is_array($response) ? $response : $response;
 
 			$contextObj = App::getApp()->getContext();
 			$response = $contextObj->getResponse()->json($response);
