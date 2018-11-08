@@ -34,8 +34,11 @@ class LastMiddleware extends MiddlewareAbstract
 			$response = is_array($response) ? $response : $response;
 
 			$contextObj = App::getApp()->getContext();
-			$response = $contextObj->getResponse()->json($response);
-			return $response;
+			if (is_string($response)) {
+				return $contextObj->getResponse()->raw($response);
+			} else {
+				return $contextObj->getResponse()->json($response);
+			}
 		} catch (\Throwable $throwable) {
 			throw $throwable;
 		}
