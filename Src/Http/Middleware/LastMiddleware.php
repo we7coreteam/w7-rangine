@@ -35,7 +35,7 @@ class LastMiddleware extends MiddlewareAbstract
 			$contextObj = App::getApp()->getContext();
 
 			if (iraw_decode($response) !== false) {
-				return $contextObj->getResponse()->raw($response);
+				return $contextObj->getResponse()->raw(iraw_decode($response));
 			}
 
 			return $contextObj->getResponse()->json($response);
