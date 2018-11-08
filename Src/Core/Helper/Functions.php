@@ -214,3 +214,18 @@ if (!function_exists('idd')) {
 		return var_export($var, true);
 	}
 }
+
+if (!function_exists('iraw')) {
+	function iraw($data) {
+		if (!is_string($data)) {
+			$data = strval($data);
+		}
+		$token = '$$$$$$raw$$$$$$';
+		if (strpos($data, $token) === 0) {
+			$result = explode($token, $data);
+			return $result[1];
+		} else {
+			return sprintf('%s%s', $token, $data);
+		}
+	}
+}
