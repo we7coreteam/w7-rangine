@@ -15,8 +15,7 @@ use W7\Core\Middleware\MiddlewareAbstract;
 
 class LastMiddleware extends MiddlewareAbstract
 {
-	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
-	{
+	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		//此处处理调用控制器操作
 		try {
 			$route = $request->getHeader('route');
@@ -31,14 +30,17 @@ class LastMiddleware extends MiddlewareAbstract
 			}
 
 			$response =  call_user_func_array($controllerHandler, $funArgs);
+			ilogger()->info(var_export($response, true));
 
-			$contextObj = App::getApp()->getContext();
-
-			if (iraw_decode($response) !== false) {
-				return $contextObj->getResponse()->raw(iraw_decode($response));
+			//如果结果是一个response对象，则直接输出，否则按json输出
+			if ($response instanceof ResponseInterface) {
+				ilogger()->info(var_export($response, true));
+				return $response;
 			}
 
+			$contextObj = App::getApp()->getContext();
 			return $contextObj->getResponse()->json($response);
+
 		} catch (\Throwable $throwable) {
 			throw $throwable;
 		}

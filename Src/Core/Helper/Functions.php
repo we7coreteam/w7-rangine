@@ -214,30 +214,3 @@ if (!function_exists('idd')) {
 		return var_export($var, true);
 	}
 }
-
-if (!function_exists('iraw_encode')) {
-	function iraw_encode($data) {
-		if (!is_string($data)) {
-			$data = strval($data);
-		}
-		$token = '$$$$$$raw$$$$$$';
-		if (strpos($data, $token) === false) {
-			return sprintf('%s%s', $token, $data);
-		}
-		return $data;
-	}
-
-	function iraw_decode($data) {
-		if (!is_string($data)) {
-			return false;
-		}
-		$token = '$$$$$$raw$$$$$$';
-
-		if (strpos($data, $token) === false) {
-			return false;
-		}
-
-		$result = explode($token, $data);
-		return $result[1];
-	}
-}
