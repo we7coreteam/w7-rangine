@@ -7,12 +7,8 @@
 namespace W7\Core\Listener;
 
 
-use Swoole\Http\Server;
-
 class WorkerErrorListener implements ListenerInterface {
-	public function run(Server $server, $workId, $workPid, $exitCode, $signal) {
-		if ($exitCode == '255') {
+	public function run(...$params) {
 
-		}
 	}
 }

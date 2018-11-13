@@ -7,8 +7,8 @@
 namespace W7\Core\Listener;
 
 
-class BeforeRequestListener implements ListenerInterface
-{
-	public function run() {
+class BeforeRequestListener extends ListenerAbstract {
+	public function run(...$params) {
+
 	}
 }

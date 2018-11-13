@@ -30,14 +30,13 @@ class LastMiddleware extends MiddlewareAbstract
 			}
 
 			$response =  call_user_func_array($controllerHandler, $funArgs);
-			ilogger()->info(var_export($response, true));
 
 			//如果结果是一个response对象，则直接输出，否则按json输出
 			if ($response instanceof ResponseInterface) {
-				ilogger()->info(var_export($response, true));
 				return $response;
+			} elseif (!is_array($response)) {
+				$response = strval($response);
 			}
-
 			$contextObj = App::getApp()->getContext();
 			return $contextObj->getResponse()->json($response);
 

@@ -10,7 +10,7 @@ use Swoole\Http\Server;
 use W7\App;
 
 class WorkerStartListener implements ListenerInterface {
-	public function run(Server $server) {
+	public function run(...$params) {
 		\isetProcessTitle( 'w7swoole ' . App::$server->type . ' worker process');
 	}
 }

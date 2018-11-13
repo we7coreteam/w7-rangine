@@ -154,7 +154,9 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 
 		//开启协程
-		\Swoole\Runtime::enableCoroutine();
+		if (isCo()) {
+			\Swoole\Runtime::enableCoroutine();
+		}
 	}
 
 	protected function registerServerContext() {

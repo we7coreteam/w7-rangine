@@ -20,7 +20,8 @@
         "swiftmailer/swiftmailer": "^6.0"
     },
     "require-dev": {
-        "eaglewu/swoole-ide-helper": "dev-master"
+        "eaglewu/swoole-ide-helper": "dev-master",
+        "symfony/var-dumper": "^4.1"
     },
     "autoload": {
         "psr-4": {

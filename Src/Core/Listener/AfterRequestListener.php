@@ -6,9 +6,8 @@
 
 namespace W7\Core\Listener;
 
-class AfterRequestListener implements ListenerInterface
-{
-	public function run() {
+class AfterRequestListener extends ListenerAbstract {
+	public function run(...$params) {
 
 	}
 }

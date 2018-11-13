@@ -11,17 +11,22 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
 use W7\App;
-use W7\Core\Listener\ListenerInterface;
+use W7\Core\Listener\ListenerAbstract;
 
-class RequestListener implements ListenerInterface
-{
+class RequestListener extends ListenerAbstract {
+
+	public function run(...$params) {
+		list($server, $request, $response) = $params;
+		return $this->dispatch($server, $request, $response);
+	}
+
 	/**
 	 * @param Request $request
 	 * @param Response $response
 	 * @return \Psr\Http\Message\ResponseInterface|Response
 	 * @throws \ReflectionException
 	 */
-	public function run(Server $server, Request $request, Response $response) {
+	private function dispatch(Server $server, Request $request, Response $response) {
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());

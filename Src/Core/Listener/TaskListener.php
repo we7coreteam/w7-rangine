@@ -11,7 +11,12 @@ use W7\Core\Dispatcher\TaskDispatcher;
 
 class TaskListener implements ListenerInterface
 {
-	public function run(Server $server, $taskId, $workerId, $data) {
+	public function run(...$params) {
+		list($server, $taskId, $workId, $data) = $params;
+		return $this->dispatchTask($server, $taskId, $workId, $data);
+	}
+
+	private function dispatchTask(Server $server, $taskId, $workerId, $data) {
 		/**
 		 * @var TaskDispatcher $taskDispatcher
 		 */

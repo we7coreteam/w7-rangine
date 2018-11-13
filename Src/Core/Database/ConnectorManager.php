@@ -29,9 +29,12 @@ class ConnectorManager {
 	 * @param array $config
 	 */
 	public function connect(array $config) {
+		//异步任务不启用连接池，以后可以测试一下效率，不加查一条数据100/1000的QPS为468
+		if (!isCo()) {
+			return $this->getDefaultConnection($config);
+		}
 		//未设置连接池时，直接返回数据连接对象
 		if (empty($this->poolconfig[$config['host']]) || empty($this->poolconfig[$config['host']]['enable'])) {
-			ilogger()->info('get connection');
 			return $this->getDefaultConnection($config);
 		}
 		$pool = $this->getPool($config['host'], $config);
