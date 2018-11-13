@@ -15,7 +15,6 @@ class MiddlewareMapping {
 
 	function __construct() {
 		$this->routeConfig = \iconfig()->getUserConfig("route");
-		$this->appConfig = \iconfig()->getUserConfig("app");
 	}
 
 	public function getMapping() {
@@ -30,30 +29,45 @@ class MiddlewareMapping {
 	 */
 	private function getByRouteConfig() {
 		$middlewares = [];
+		//全局中间件
+		$commonMiddleware = [
+			'before' => $this->routeConfig['@middleware']['before'] ?? [],
+			'after' => $this->routeConfig['@middleware']['after'] ?? [],
+		];
+
+		unset($this->routeConfig['@middleware']);
 
 		foreach ($this->routeConfig as $controller => $route) {
+			$controllerCommonMiddleware = [];
 			if ($controller[0] === '/') {
 				$path = ucfirst(ltrim($controller, '/')) . "\\";
 				$routeConfig = $route;
 				foreach ($routeConfig as $controller => $route) {
-					$middlewares[$path . ucfirst($controller)] = $this->getByControllerConfig($route);
+					if ($controller === '@middleware') {
+						$controllerCommonMiddleware = array_merge($commonMiddleware['before'], (array)$route, $commonMiddleware['after']);
+						continue;
+					}
+					$middlewares[$path . ucfirst($controller)] = $this->getByControllerConfig($route, $controllerCommonMiddleware);
 				}
 			} else {
-				$middlewares[$controller] = $this->getByControllerConfig($route);
+				if ($controller === '@middleware') {
+					$controllerCommonMiddleware = array_merge($commonMiddleware['before'], (array)$route, $commonMiddleware['after']);
+					continue;
+				}
+				$middlewares[$controller] = $this->getByControllerConfig($route, $controllerCommonMiddleware);
 			}
 		}
 		return $middlewares;
 	}
 
-	private function getByControllerConfig($route) {
-		$middleware = [];
-		if (isset($route['common']) && !empty($route['common'])) {
-			$middleware['default'] = $route['common'];
+	private function getByControllerConfig($route, $commonMiddleware = []) {
+		if (!empty($commonMiddleware)) {
+			$commonMiddleware = array_unique($commonMiddleware);
 		}
+		$middleware = [];
 		foreach ($route as $action => $data) {
-			if (isset($data['middleware']) && !empty($data['middleware'])) {
-				$middleware[$action] = $data['middleware'];
-			}
+			$data['middleware'] = $data['middleware'] ?? [];
+			$middleware[$action] = array_merge($commonMiddleware, $data['middleware']);
 		}
 		return $middleware;
 	}
@@ -78,24 +92,23 @@ class MiddlewareMapping {
 		}
 	}
 
-	public function getMiddlewareByRoute(string $routeController, string $routeMethod)
-	{
+	public function getMiddlewareByRoute(string $routeController, string $routeMethod) {
 		$result = [];
-		$controllerMiddlerwares = !empty($this->middlewares[$routeController])?$this->middlewares[$routeController]:[];
+		$controllerMiddlerwares = !empty($this->middlewares[$routeController]) ? $this->middlewares[$routeController] : [];
 		foreach ($controllerMiddlerwares as $method => $middlerware) {
-			if (strstr($method, $routeMethod)|| $method == "default") {
+			if (strstr($method, $routeMethod) || $method == "default") {
 				$result = array_merge($result, $controllerMiddlerwares[$method]);
 			}
 		}
 		return $result;
 	}
+
 	/**
 	 * @param string $middlerware
 	 * @param array $dispather
 	 * @return array
 	 */
-	public function setLastMiddleware(string $lasteMiddlerware, array $middlewares)
-	{
+	public function setLastMiddleware(string $lasteMiddlerware, array $middlewares) {
 		array_push($middlewares, $lasteMiddlerware);
 		return $middlewares;
 	}
