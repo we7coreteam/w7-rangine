@@ -19,8 +19,7 @@ class MiddlewareMapping {
 
 	public function getMapping() {
 		$middlewares = $this->getByRouteConfig();
-		$systemMiddleware = $this->getBySystemConfig();
-		$middlewares = array_merge($systemMiddleware['before'], $middlewares, $systemMiddleware['after'], ['last' => $this->getLastMiddle()]);
+		$middlewares = array_merge($middlewares, ['last' => $this->getLastMiddle()]);
 		return $middlewares;
 	}
 
@@ -70,14 +69,6 @@ class MiddlewareMapping {
 			$middleware[$action] = array_merge($commonMiddleware, $data['middleware']);
 		}
 		return $middleware;
-	}
-
-	private function getBySystemConfig() {
-		$systemMiddlerwares = [
-			'before' => !empty($this->appConfig['middleware']['before']) ? $this->appConfig['middleware']['before'] : [],
-			'after' => !empty($this->appConfig['middleware']['after']) ? $this->appConfig['middleware']['after'] : [],
-		];
-		return $systemMiddlerwares;
 	}
 
 	/**
