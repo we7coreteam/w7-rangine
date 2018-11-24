@@ -50,6 +50,7 @@ abstract class ServerAbstract implements ServerInterface {
 	 * @throws CommandException
 	 */
 	public function __construct() {
+		date_default_timezone_set('Asia/Shanghai');
 		App::$server = $this;
 		$setting = \iconfig()->getServer();
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
