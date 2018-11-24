@@ -7,8 +7,7 @@
 
 namespace W7\Core\Helper;
 
-class Loader
-{
+class Loader {
 	//存储加载过的类
 	private $cache = array();
 	private $loadTypeMap = array();
@@ -18,8 +17,7 @@ class Loader
 	 * @param $name
 	 * @return mixed
 	 */
-	public function singleton($name)
-	{
+	public function singleton($name) {
 		if (isset($this->cache[$name])) {
 			return $this->cache[$name];
 		}
@@ -32,8 +30,7 @@ class Loader
 	 * @param $name
 	 * @return bool
 	 */
-	public function object($name)
-	{
+	public function object($name) {
 		if (class_exists($name)) {
 			return new $name();
 		} else {

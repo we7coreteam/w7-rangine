@@ -44,8 +44,9 @@ class ProcessDispather extends DispatcherAbstract {
 		 * @var \swoole_process $swooleProcess
 		 */
 		$swooleProcess = new \swoole_process(function (\swoole_process $worker) use ($process, $name) {
-			$worker->name('w7swoole ' . $name . ' process');
+			$worker->name('w7swoole ' . $name . '-' . $worker->pipe . ' process');
 			$process->run($worker);
+
 			//如果进程包含read方法，自动添加事件侦听，获取主进程发送的消息
 			if (method_exists($process, 'read')) {
 				//增加事件循环，将消息接收到类中
@@ -57,6 +58,7 @@ class ProcessDispather extends DispatcherAbstract {
 					sleep($process->readInterval);
 				});
 			}
+
 		}, false, SOCK_DGRAM);
 
 		self::$processes[$name] = $swooleProcess;

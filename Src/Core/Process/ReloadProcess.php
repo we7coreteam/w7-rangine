@@ -10,8 +10,7 @@ use Swoole\Process;
 use W7\App;
 use W7\Core\Helper\FileHelper;
 
-class ReloadProcess implements ProcessInterface
-{
+class ReloadProcess implements ProcessInterface {
 
 	/**
 	 * 监听文件变化的路径
