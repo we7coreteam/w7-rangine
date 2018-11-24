@@ -12,6 +12,7 @@ use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
+use W7\Core\Process\CrontabProcess;
 use W7\Core\Process\MysqlPoolprocess;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
@@ -57,7 +58,8 @@ class Config
 	];
 
 	private $process = [
-		ReloadProcess::class
+		ReloadProcess::class,
+		CrontabProcess::class,
 	];
 
 	private $allow_user_config = [
@@ -66,6 +68,7 @@ class Config
 		'app',
 		'route',
 		'log',
+		'crontab',
 	];
 
 	public function __construct() {
