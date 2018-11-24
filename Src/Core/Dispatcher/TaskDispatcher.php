@@ -10,13 +10,14 @@ use W7\App;
 use W7\Core\Exception\TaskException;
 
 /**
+ * 派发任务的时候，需要先注册任务，然后在OnTask事件中具体调用
  * Class TaskDispatcher
  * @package W7\Core\Helper\Dispather
  */
-class TaskDispatcher extends DispatcherAbstract
-{
+class TaskDispatcher extends DispatcherAbstract {
 
 	/**
+	 * 注册一个异步任务
 	 * @param string $taskName
 	 * @param string $methodName
 	 * @param array $params
@@ -25,8 +26,7 @@ class TaskDispatcher extends DispatcherAbstract
 	 * @return false|int
 	 * @throws TaskException
 	 */
-	public function register(...$params)
-	{
+	public function register(...$params) {
 		$taskName = $params[0];
 		$taskMethod = $params[1];
 		$taskParams = !empty($params[2]) ? $params[2] : [];
@@ -43,7 +43,19 @@ class TaskDispatcher extends DispatcherAbstract
 		return App::$server->getServer()->task($data);
 	}
 
+	/**
+	 * 注册一个协程任务
+	 */
+	public function registerCo(...$params) {
 
+	}
+
+
+	/**
+	 * 在OnTask事件中执行具体任务
+	 * @param mixed ...$params
+	 * @return bool|mixed|void
+	 */
 	public function dispatch(...$params) {
 		$taskData = unserialize($params[0]);
 		$taskId = $params[1];
