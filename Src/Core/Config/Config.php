@@ -8,6 +8,7 @@ namespace W7\Core\Config;
 
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
+use W7\Core\Listener\PipeMessageListener;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
@@ -48,6 +49,7 @@ class Config
 			Event::ON_MANAGER_START => ManagerStartListener::class,
 			Event::ON_WORKER_START => WorkerStartListener::class,
 			Event::ON_WORKER_ERROR => WorkerErrorListener::class,
+			Event::ON_PIPE_MESSAGE => PipeMessageListener::class,
 		],
 		'system' =>[
 			Event::ON_USER_BEFORE_START,
