@@ -65,6 +65,7 @@ class ReloadProcess implements ProcessInterface
 			ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
 		}
 		while (true) {
+			sleep($this->interval);
 			if ($this->debug) {
 				$startReload = true;
 			} else {
@@ -79,7 +80,6 @@ class ReloadProcess implements ProcessInterface
 					ioutputer()->writeln("Reloaded in " . date('m-d H:i:s') . "...");
 				}
 			}
-			sleep($this->interval);
 		}
 	}
 
