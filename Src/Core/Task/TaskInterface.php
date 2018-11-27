@@ -13,7 +13,10 @@ interface TaskInterface {
 	 * 线程具体执行内容
 	 * @return mixed
 	 */
-	public function run(...$params);
+	public function run(Server $server, $taskId, $workId, $data);
 
-	public function finish(Server $server, int $taskId, $data);
+	/**
+	 * 任务中定义完成回调
+	 */
+	public function finish(Server $server, $taskId, $data, $params);
 }

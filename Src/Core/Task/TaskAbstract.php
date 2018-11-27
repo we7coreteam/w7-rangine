@@ -10,7 +10,7 @@ namespace W7\Core\Task;
 use Swoole\Server;
 
 abstract class TaskAbstract implements TaskInterface {
-	public function finish(Server $server, int $taskId, $data) {
+	public function finish(Server $server, $taskId, $data, $params) {
 
 	}
 }
