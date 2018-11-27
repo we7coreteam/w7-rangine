@@ -8,7 +8,7 @@ namespace W7\Core\Listener;
 
 
 use Swoole\Http\Server;
-use W7\Core\Message\WorkerMessage;
+use W7\Core\Message\Message;
 
 class PipeMessageListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -16,10 +16,14 @@ class PipeMessageListener extends ListenerAbstract {
 		 * @var Server $server
 		 */
 		list($server, $workId, $data) = $params;
-		$message = WorkerMessage::unpack($data);
 
-		if ($message->isTaskAsync()) {
-			itask($message->data);
+		//管道不一定只能发送任务消息，需要先判断一下
+		$message = Message::unpack($data);
+
+		if ($message->messageType == Message::MESSAGE_TYPE_TASK) {
+			if ($message->isTaskAsync()) {
+				itask($message->task, $message->params);
+			}
 		}
 	}
 }
