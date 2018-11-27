@@ -8,6 +8,8 @@ namespace W7\Core\Dispatcher;
 
 use W7\App;
 use W7\Core\Exception\TaskException;
+use W7\Core\Message\Message;
+use W7\Core\Message\TaskMessage;
 
 /**
  * 派发任务的时候，需要先注册任务，然后在OnTask事件中具体调用
@@ -27,20 +29,24 @@ class TaskDispatcher extends DispatcherAbstract {
 	 * @throws TaskException
 	 */
 	public function register(...$params) {
-		$taskName = $params[0];
-		$taskMethod = $params[1];
-		$taskParams = !empty($params[2]) ? $params[2] : [];
+		/**
+		 * @var TaskMessage $message
+		 */
+		list($message) = $params;
 
-		$data = $this->pack($taskName, $taskMethod, $taskParams);
+		if (!($message instanceof TaskMessage)) {
+			throw new \RuntimeException('Invalid task message');
+		}
 
 		if (!isWorkerStatus()) {
 			throw new TaskException('Please deliver task by http!');
 		}
 
-		if (!class_exists($taskName)) {
-			throw new TaskException('Task ' . $taskName . ' not found');
+		if (!class_exists($message->task)) {
+			throw new TaskException('Task ' . $message->task . ' not found');
 		}
-		return App::$server->getServer()->task($data);
+
+		return App::$server->getServer()->task($message->pack());
 	}
 
 	/**
@@ -57,50 +63,31 @@ class TaskDispatcher extends DispatcherAbstract {
 	 * @return bool|mixed|void
 	 */
 	public function dispatch(...$params) {
-		$taskData = unserialize($params[0]);
-		$taskId = $params[1];
-		$workId = $params[2];
+		list($server, $taskId, $workId, $data) = $params;
 
-		$name = $taskData['name'];
-		$type = $taskData['type'] ?? '';
-		$method = $taskData['method'] ?? 'run';
-		$params = $taskData['params'] ?? [];
+		$message = Message::unpack($data);
 
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $workId);
 		$context->setContextDataByKey('coid', $taskId);
 
-		if (!class_exists($name)) {
-			$name = "W7\\App\\Task\\". ucfirst($name);
+		if (!class_exists($message->task)) {
+			$message->task = "W7\\App\\Task\\". ucfirst($message->task);
 		}
 
-		if (!class_exists($name)) {
-			ilogger()->warning("task name is wrong name is " . $name);
+		if (!class_exists($message->task)) {
+			ilogger()->warning("task name is wrong name is " . $message->task);
 			return false;
 		}
 
-		$task = iloader()->singleton($name);
-		$result = call_user_func_array([$task, $method], [$params]);
-		return $result;
-	}
+		$task = iloader()->singleton($message->task);
+		if (method_exists($task, 'finish')) {
+			$message->hasFinishCallback = true;
+		}
+		$message->result = call_user_func_array([$task, $message->method], $params);
 
-	/**
-	 * @param string $taskName
-	 * @param string $methodName
-	 * @param array  $params
-	 * @param string $type
-	 *
-	 * @return string
-	 */
-	private function pack(string $taskName, string $methodName, array $params) {
-		$task = [
-			'name'   => $taskName,
-			'method' => $methodName,
-			'params' => $params,
-		];
-		return serialize($task);
-	}
-
-	public function unpack() {
+		//return 时将消息传递给 onFinish 事件
+		//onFinish 回调还需要处理一下用户定义的任务回调方法
+		return $message;
 	}
 }
