@@ -6,7 +6,6 @@
 
 namespace W7\Core\Listener;
 
-use Swoole\Http\Server;
 use W7\App;
 
 class WorkerStartListener implements ListenerInterface {
