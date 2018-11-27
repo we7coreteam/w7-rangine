@@ -10,8 +10,11 @@ namespace W7\Core\Process;
 use Cron\CronExpression;
 use Swoole\Process;
 use W7\App;
+use W7\Core\Dispatcher\ProcessDispather;
 use W7\Core\Helper\Storage\MemoryTable;
-use W7\Core\Message\WorkerMessage;
+use W7\Core\Message\CrontabMessage;
+use W7\Core\Message\Message;
+use W7\Core\Message\TaskMessage;
 
 class CrontabProcess extends ProcessAbstract {
 	/**
@@ -42,20 +45,53 @@ class CrontabProcess extends ProcessAbstract {
 		}
 		//最小细度为一分钟
 		swoole_timer_tick(1 * 1000, function () {
-			$this->sendTask('W7\App\Task\CronTestTask');
+			$task = $this->getRunTask();
+			echo date('Y-m-d H:i:s') . PHP_EOL;
+			$result = [];
+			foreach ($this->table as $name1 => $row1) {
+				$row1['nextruntime'] = date('Y-m-d H:i:s', $row1['nextrun']);
+				$result[] = $row1;
+			}
+			ilogger()->info('这里是run方法' . idd($result));
 
-//			$task = $this->getRunTask();
-//			if (!empty($task)) {
-//				foreach ($task as $taskName) {
-//					\itask($taskName);
-//				}
-//			}
+			if (!empty($task)) {
+				foreach ($task as $name => $taskName) {
+					$this->sendTask($name, $taskName);
+				}
+			}
+
 		});
 	}
 
 	public function read(Process $process, $data) {
-		print_r($data);
+		$message = Message::unpack($data);
+
+		$taskData = $this->table->get($message->name);
+		$taskData['isrun'] = 0;
+		$this->table->set($message->name, $taskData);
+
+		$result = [];
+		foreach ($this->table as $name => $task) {
+			$result[] = $task;
+		}
+		ilogger()->info('这里是read方法' .  $message->name . idd($result));
 		return true;
+	}
+
+	/**
+	 * 任务执行完成后，标记状态
+	 * 因为此函数是在 onFinish 事件中调用到，此事件和当前进程不在同一个进程内
+	 * 所以需要需要通道发送数据到此进程的 read 函数中处理
+	 * 此方法逻辑上不应该在这里，但是为了方便代码维护，放到这里
+	 */
+	public function finishTask($server, $taskId, $result, $params) {
+		/**
+		 * @var ProcessDispather $processManager
+		 */
+		$processManager = iloader()->singleton(ProcessDispather::class);
+		$message = new CrontabMessage();
+		$message->name = $params['cronTask'];
+		$processManager->write(CrontabProcess::class, $message->pack());
 	}
 
 	/**
@@ -83,10 +119,15 @@ class CrontabProcess extends ProcessAbstract {
 			}
 
 			//时间到了，返回记录，清空表中数据
+			//如果当前任务还在执行中，则不返回任务，直接清空，跳过此次执行
 			if ($task['nextrun'] <= $timestamp) {
-				$result[] = $task['task'];
+				$result[$name] = $task['task'];
 				$task['nextrun'] = 0;
 				$this->table->set($name, $task);
+
+				if (!empty($task['isrun'])) {
+					unset($result[$name]);
+				}
 			}
 		}
 
@@ -109,6 +150,7 @@ class CrontabProcess extends ProcessAbstract {
 			'rule' => [MemoryTable::FIELD_TYPE_STRING, 30],
 			'task' => [MemoryTable::FIELD_TYPE_STRING, 50],
 			'nextrun' => [MemoryTable::FIELD_TYPE_INT, 4],
+			'isrun' => [MemoryTable::FIELD_TYPE_INT, 4],
 		]);
 		foreach ($this->config as $name => $setting) {
 			$this->table->set($name, [
@@ -116,8 +158,10 @@ class CrontabProcess extends ProcessAbstract {
 				'rule' => $setting['rule'],
 				'task' => $setting['task'],
 				'timer' => 0,
+				'isrun' => 0
 			]);
 		}
+
 		return true;
 	}
 
@@ -125,13 +169,19 @@ class CrontabProcess extends ProcessAbstract {
 	 * 自定义进程中没办法调用 $server->task() 方法来发起任务
 	 * 此处通过 $server->sendMessage() 将消息发送到 work 进程
 	 * 再由 work 进程侦听 pipeMessage 消息来发起任务
+	 * 发送任务时会将执行的任务标记为1，执行完调用 OnFinish 回调时，再变更状态
 	 */
-	private function sendTask($taskName) {
-		$message = new WorkerMessage();
-		$message->operation = WorkerMessage::OPERATION_TASK_ASYNC;
-		$message->data = $taskName;
-		$message->extra['callback'] = [static::class, 'read'];
+	private function sendTask($cronTask, $taskName) {
+		$taskMessage = new TaskMessage();
+		$taskMessage->type = TaskMessage::OPERATION_TASK_ASYNC;
+		$taskMessage->task = $taskName;
+		$taskMessage->params['cronTask'] = $cronTask;
+		$taskMessage->setFinishCallback(static::class, 'finishTask');
 
-		App::$server->getServer()->sendMessage($message->pack(), 0);
+		if (App::$server->getServer()->sendMessage($taskMessage->pack(), 0)) {
+			$taskData = $this->table->get($cronTask);
+			$taskData['isrun'] = 1;
+			$this->table->set($cronTask, $taskData);
+		}
 	}
 }
