@@ -53,11 +53,31 @@ if (!function_exists("itask")) {
 	 * @throws \W7\Core\Exception\TaskException
 	 */
 	function itask($taskName, $params = [], int $timeout = 3) {
+		//构造一个任务消息
+		$taskMessage = new \W7\Core\Message\TaskMessage();
+		$taskMessage->task = $taskName;
+		$taskMessage->params = $params;
+		$taskMessage->timeout = $timeout;
+		$taskMessage->type = \W7\Core\Message\TaskMessage::OPERATION_TASK_ASYNC;
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
 		$dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
-		return $dispatcherMaker->register($taskName, 'run', $params, $timeout);
+		return $dispatcherMaker->register($taskMessage);
+	}
+
+	function itaskCo($taskName, $params = [], int $timeout = 3) {
+		//构造一个任务消息
+		$taskMessage = new \W7\Core\Message\TaskMessage();
+		$taskMessage->task = $taskName;
+		$taskMessage->params = $params;
+		$taskMessage->timeout = $timeout;
+		$taskMessage->type = \W7\Core\Message\TaskMessage::OPERATION_TASK_CO;
+		/**
+		 * @var TaskDispatcher $dispatcherMaker
+		 */
+		$dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
+		return $dispatcherMaker->registerCo($taskMessage);
 	}
 }
 
