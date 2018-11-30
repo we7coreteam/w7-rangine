@@ -20,7 +20,7 @@ class LogManager {
 		$this->config = $this->getConfig();
 		$development = iconfig()->getUserAppConfig('setting')['development'];
 		//如果是开发模式，每次启动清理日志文件
-		if (!empty($development)) {
+		if (!empty($development) && $development == '2') {
 			$this->cleanLogFile();
 		}
 		if (empty($this->config['channel'])) {
