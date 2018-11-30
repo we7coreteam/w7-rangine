@@ -57,7 +57,6 @@ class RouteMapping {
 				}
 			}
 		}
-		print_r($routeCollector->getData());exit;
 		return $routeCollector->getData();
 	}
 
