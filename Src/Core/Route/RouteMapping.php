@@ -7,6 +7,7 @@
 namespace W7\Core\Route;
 
 use FastRoute\RouteCollector;
+use W7\Core\Helper\StringHelper;
 
 class RouteMapping {
 
@@ -34,6 +35,9 @@ class RouteMapping {
 			if ($section[0] === '/') {
 				$group = $setting;
 				foreach ($group as $controller => $setting) {
+					if (strpos($controller, '-') !== false) {
+						$controller = StringHelper::studly($controller);
+					}
 					$controllerRoute = $this->formatRouteForFastRoute($setting, $controller, ltrim($section, '/'));
 					if (!empty($controllerRoute)) {
 						$routeCollector->addGroup($section, function (RouteCollector $route) use ($controllerRoute) {
@@ -53,6 +57,7 @@ class RouteMapping {
 				}
 			}
 		}
+		print_r($routeCollector->getData());exit;
 		return $routeCollector->getData();
 	}
 
