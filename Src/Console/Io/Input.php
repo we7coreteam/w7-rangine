@@ -23,7 +23,7 @@ class Input
 		 */
 		$parser = iloader()->singleton(\W7\Console\Io\Parser::class);
 		$command = $parser->parse($argv);
-		list($temp, $this->command, $this->action) = $command[0];
+		@list($temp, $this->command, $this->action) = $command[0];
 		$this->option = array_merge([], $command[1], $command[2]);
 		return [
 			'command' => $this->command,
