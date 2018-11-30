@@ -82,6 +82,12 @@ class Dispather extends DispatcherAbstract {
 		$fastRoute = new GroupCountBased($routeInfo);
 		$route = $fastRoute->dispatch($httpMethod, $url);
 
+		if ($route[0] == Dispatcher::NOT_FOUND && strpos($url, '/index') === false) {
+			//如果未找到，加上默认方法名再试一次
+			$url = rtrim($url, '/') . '/index';
+			$route = $fastRoute->dispatch($httpMethod, $url);
+		}
+
 		switch ($route[0]) {
 			case Dispatcher::NOT_FOUND:
 				throw new HttpException('Route not found', 404);
@@ -91,14 +97,13 @@ class Dispather extends DispatcherAbstract {
 				break;
 			case Dispatcher::FOUND:
 				$controller = $method = '';
-				list($controller, $method) = explode("-", $route[1]);
+				list($controller, $method) = explode("@", $route[1]);
 				break;
 		}
 
 		return [
 			"method" => $method,
 			'controller' => $controller,
-			'classname' => "W7\\App\\Controller\\" . ucfirst($controller) . "Controller",
 			'args' => $route[2],
 		];
 	}

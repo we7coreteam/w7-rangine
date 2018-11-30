@@ -12,6 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use W7\App;
 use W7\Core\Middleware\MiddlewareAbstract;
+use W7\Http\Message\Helper\StringHelper;
 
 class LastMiddleware extends MiddlewareAbstract
 {
@@ -20,8 +21,12 @@ class LastMiddleware extends MiddlewareAbstract
 		try {
 			$route = $request->getHeader('route');
 			$route = json_decode($route[0], true);
-			$classObj = iloader()->singleton($route['classname']);
-			$controllerHandler = [$classObj, $route['method']];
+
+			$classname = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']) . "Controller";
+			$method = StringHelper::studly($route['method']);
+
+			$classObj = iloader()->singleton($classname);
+			$controllerHandler = [$classObj, $method];
 
 			$funArgs = [];
 			$funArgs[] = $request;

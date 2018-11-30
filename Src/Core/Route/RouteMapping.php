@@ -35,9 +35,6 @@ class RouteMapping {
 			if ($section[0] === '/') {
 				$group = $setting;
 				foreach ($group as $controller => $setting) {
-					if (strpos($controller, '-') !== false) {
-						$controller = StringHelper::studly($controller);
-					}
 					$controllerRoute = $this->formatRouteForFastRoute($setting, $controller, ltrim($section, '/'));
 					if (!empty($controllerRoute)) {
 						$routeCollector->addGroup($section, function (RouteCollector $route) use ($controllerRoute) {
@@ -72,7 +69,7 @@ class RouteMapping {
 
 			$routes[$action]['method'] = $method;
 			$routes[$action]['url'] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . DIRECTORY_SEPARATOR . $query;
-			$routes[$action]['handler'] = (!empty($group) ? ucfirst($group) . "\\" : '') . ucfirst($controller) . '-' . $action;
+			$routes[$action]['handler'] = (!empty($group) ? ucfirst($group) . "\\" : '') . ucfirst($controller) . '@' . $action;
 
 			if (empty($query)) {
 				$routes[$action]['url'] = rtrim($routes[$action]['url'], DIRECTORY_SEPARATOR);
