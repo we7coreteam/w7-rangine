@@ -85,6 +85,7 @@ class CrontabProcess extends ProcessAbstract {
 	 * 此方法逻辑上不应该在这里，但是为了方便代码维护，放到这里
 	 */
 	public function finishTask($server, $taskId, $result, $params) {
+		ilogger()->info($params['cronTask'] . ' finished');
 		/**
 		 * @var ProcessDispather $processManager
 		 */
