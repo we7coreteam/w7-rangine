@@ -8,14 +8,68 @@ namespace W7\Core\Database;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use W7\Core\Helper\Traiter\InstanceTraiter;
 
 /**
  * Class ModelAbstract
  * @package W7\Core\Database
  *
- * @method static find($id, $columns = ['*'])
+ * @method make(array $attributes = [])
+ * @method withGlobalScope($identifier, $scope)
+ * @method withoutGlobalScope($scope)
+ * @method withoutGlobalScopes(array $scopes = null)
+ * @method removedScopes()
+ * @method whereKey($id)
+ * @method whereKeyNot($id)
+ * @method where($column, $operator = null, $value = null, $boolean = 'and')
+ * @method orWhere($column, $operator = null, $value = null)
+ * @method hydrate(array $items)
+ * @method fromQuery($query, $bindings = [])
+ * @method find($id, $columns = ['*'])
+ * @method findMany($ids, $columns = ['*'])
+ * @method findOrFail($id, $columns = ['*'])
+ * @method findOrNew($id, $columns = ['*'])
+ * @method firstOrNew(array $attributes, array $values = [])
+ * @method firstOrCreate(array $attributes, array $values = [])
+ * @method updateOrCreate(array $attributes, array $values = [])
+ * @method firstOrFail($columns = ['*'])
+ * @method firstOr($columns = ['*'], Closure $callback = null)
+ * @method value($column)
+ * @method get($columns = ['*'])
+ * @method getModels($columns = ['*'])
+ * @method eagerLoadRelations(array $models)
+ * @method getRelation($name)
+ * @method cursor()
+ * @method chunkById($count, callable $callback, $column = null, $alias = null)
+ * @method pluck($column, $key = null)
+ * @method paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
+ * @method simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
+ * @method create(array $attributes = [])
+ * @method forceCreate(array $attributes)
+ * @method update(array $values)
+ * @method increment($column, $amount = 1, array $extra = [])
+ * @method decrement($column, $amount = 1, array $extra = [])
+ * @method delete()
+ * @method forceDelete()
+ * @method onDelete(Closure $callback)
+ * @method scopes(array $scopes)
+ * @method applyScopes()
+ * @method with($relations)
+ * @method without($relations)
+ * @method newModelInstance($attributes = [])
+ * @method getQuery()
+ * @method setQuery($query)
+ * @method toBase()
+ * @method getEagerLoads()
+ * @method setEagerLoads(array $eagerLoad)
+ * @method getModel()
+ * @method setModel(Model $model)
+ * @method qualifyColumn($column)
+ * @method getMacro($name)
  */
 abstract class ModelAbstract extends Model {
+	use InstanceTraiter;
+
 	protected function insertAndSetId(Builder $query, $attributes) {
 		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
 
@@ -43,13 +97,6 @@ abstract class ModelAbstract extends Model {
 	}
 
 	/**
-	 * 获取当前模型的实例化对象
-	 */
-	static public function getModel() {
-		return iloader()->singleton(static::class);
-	}
-
-	/**
 	 * 增加当前表的字段表前缀
 	 * @param array $columns
 	 */
@@ -57,7 +104,7 @@ abstract class ModelAbstract extends Model {
 		if (empty($columns)) {
 			return [];
 		}
-		$model = static::getModel();
+		$model = static::instance();
 		$result = [];
 		foreach ($columns as $field) {
 			$result[] = $model->qualifyColumn($field);
