@@ -68,7 +68,6 @@ use W7\Core\Helper\Traiter\InstanceTraiter;
  * @method getMacro($name)
  */
 abstract class ModelAbstract extends Model {
-	use InstanceTraiter;
 
 	protected function insertAndSetId(Builder $query, $attributes) {
 		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
@@ -94,6 +93,10 @@ abstract class ModelAbstract extends Model {
 	 */
 	public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null) {
 		return parent::hasManyThrough($related, $through, $firstKey, $secondKey, $localKey, $secondLocalKey);
+	}
+
+	static public function instance(){
+		return iloader()->singleton(static::class);
 	}
 
 	/**

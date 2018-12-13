@@ -6,10 +6,6 @@
 
 namespace W7\Core\Database;
 
-
-use W7\Core\Helper\Traiter\InstanceTraiter;
-
 abstract class LogicAbstract {
-	use InstanceTraiter;
 
 }
