@@ -63,12 +63,23 @@ class RouteMapping {
 			if (!isset($data['method']) || empty($data['method'])) {
 				continue;
 			}
-			$query = isset($data['query']) ? $data['query'] : '';
-
+			$query = isset($data['query']) ? trim($data['query']) : '';
 			$method = explode(',', $data['method']);
+			//清除掉Method两边的空格
+			if (!empty($method)) {
+				foreach ($method as &$value) {
+					$value = trim($value);
+				}
+				unset($value);
+			}
 
 			$routes[$action]['method'] = $method;
-			$routes[$action]['url'] = DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . DIRECTORY_SEPARATOR . $query;
+			if (!empty($data['rewrite'])) {
+				$routes[$action]['url'] =  DIRECTORY_SEPARATOR . $data['rewrite'];
+			} else {
+				$routes[$action]['url'] =  DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . $query;
+			}
+
 			$routes[$action]['handler'] = (!empty($group) ? ucfirst($group) . "\\" : '') . ucfirst($controller) . '@' . $action;
 
 			if (empty($query)) {
