@@ -11,8 +11,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use W7\App;
+use W7\Core\Helper\StringHelper;
 use W7\Core\Middleware\MiddlewareAbstract;
-use W7\Http\Message\Helper\StringHelper;
 
 class LastMiddleware extends MiddlewareAbstract
 {
