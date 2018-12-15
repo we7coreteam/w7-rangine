@@ -57,7 +57,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 	public function getConnection() {
 
 		if ($this->getIdleCount() > 0) {
-			ilogger()->info('get by queue, count ' . $this->getIdleCount());
+			ilogger()->info($this->poolName . ' get by queue , count ' . $this->getIdleCount());
 
 			$connect = $this->getConnectionFromPool();
 			$this->busyCount++;
@@ -82,18 +82,17 @@ abstract class CoPoolAbstract implements PoolInterface {
 
 		$connect = $this->createConnection();
 		$this->busyCount++;
-		ilogger()->info('create connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
+		ilogger()->info($this->poolName . ' create connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
 
 		return $connect;
 	}
 
 	public function releaseConnection($connection) {
 		$this->busyCount--;
-		ilogger()->info('release connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
 		if ($this->getIdleCount() < $this->getMaxCount()) {
 
 			$this->setConnectionFormPool($connection);
-			ilogger()->info('release push connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
+			ilogger()->info($this->poolName . ' release push connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
 
 			if ($this->waitCount > 0) {
 				$this->waitCount--;
