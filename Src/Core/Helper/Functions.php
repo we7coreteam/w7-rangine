@@ -143,6 +143,16 @@ if (!function_exists("ilogger")) {
 	}
 }
 
+if (!function_exists("idb")) {
+	/**
+	 * 返回一个数据库连接对象
+	 * @return \W7\Core\Database\DatabaseManager
+	 */
+	function idb() {
+		return \Illuminate\Database\Eloquent\Model::getConnectionResolver();
+	}
+}
+
 if (!function_exists("icontext")) {
 	/**
 	 * 返回logger对象
