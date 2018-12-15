@@ -34,10 +34,10 @@ class ConnectorManager {
 			return $this->getDefaultConnection($config);
 		}
 		//未设置连接池时，直接返回数据连接对象
-		if (empty($this->poolconfig[$config['host']]) || empty($this->poolconfig[$config['host']]['enable'])) {
+		if (empty($this->poolconfig[$config['database']]) || empty($this->poolconfig[$config['database']]['enable'])) {
 			return $this->getDefaultConnection($config);
 		}
-		$pool = $this->getPool($config['host'], $config);
+		$pool = $this->getPool($config['database'], $config);
 		return $pool->getConnection();
 	}
 
