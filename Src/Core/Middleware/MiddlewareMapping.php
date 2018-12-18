@@ -38,12 +38,15 @@ class MiddlewareMapping {
 
 		foreach ($this->routeConfig as $controller => $route) {
 			$controllerCommonMiddleware = [];
+
 			if ($controller[0] === '/') {
 				$path = ucfirst(ltrim($controller, '/')) . "\\";
 				$routeConfig = $route;
 				foreach ($routeConfig as $controller => $route) {
 					if ($controller === '@middleware') {
 						$controllerCommonMiddleware = array_merge($commonMiddleware['before'], (array)$route, $commonMiddleware['after']);
+						continue;
+					} elseif ($controller[0] == '@') {
 						continue;
 					}
 					$middlewares[$path . ucfirst($controller)] = $this->getByControllerConfig($route, $controllerCommonMiddleware);
@@ -63,10 +66,17 @@ class MiddlewareMapping {
 		if (!empty($commonMiddleware)) {
 			$commonMiddleware = array_unique($commonMiddleware);
 		}
+
+		$controllerCommonMiddleware = $route['@middleware'] ?? [];
+
 		$middleware = [];
 		foreach ($route as $action => $data) {
-			$data['middleware'] = $data['middleware'] ?? [];
-			$middleware[$action] = array_merge($commonMiddleware, $data['middleware']);
+			//跳过公共配置
+			if ($action[0] == '@') {
+				continue;
+			}
+			$data['@middleware'] = $data['@middleware'] ?? $controllerCommonMiddleware;
+			$middleware[$action] = array_merge($commonMiddleware, $data['@middleware']);
 		}
 		return $middleware;
 	}

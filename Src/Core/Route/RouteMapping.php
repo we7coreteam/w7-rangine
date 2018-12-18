@@ -7,6 +7,7 @@
 namespace W7\Core\Route;
 
 use FastRoute\RouteCollector;
+use Monolog\Handler\IFTTTHandler;
 use W7\Core\Helper\StringHelper;
 
 class RouteMapping {
@@ -29,12 +30,23 @@ class RouteMapping {
 			return [];
 		}
 		$routeCollector = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
+		unset($this->routeConfig['@middleware']);
 
 		foreach ($this->routeConfig as $section => $setting) {
 			//以/开头的为目录，否则是控制器
 			if ($section[0] === '/') {
+				$commonMethod = '';
 				$group = $setting;
 				foreach ($group as $controller => $setting) {
+					if ($controller == '@method') {
+						$commonMethod = $setting;
+					}
+					if ($controller[0] === '@') {
+						continue;
+					}
+					if (empty($setting['@method']) && !empty($commonMethod)) {
+						$setting['@method'] = $commonMethod;
+					}
 					$controllerRoute = $this->formatRouteForFastRoute($setting, $controller, ltrim($section, '/'));
 					if (!empty($controllerRoute)) {
 						$routeCollector->addGroup($section, function (RouteCollector $route) use ($controllerRoute) {
@@ -44,6 +56,8 @@ class RouteMapping {
 						});
 					}
 				}
+			} elseif ($section[0] === '@') {
+				continue;
 			} else {
 				$controller = $section;
 				$controllerRoute = $this->formatRouteForFastRoute($setting, $controller);
@@ -59,12 +73,19 @@ class RouteMapping {
 
 	private function formatRouteForFastRoute($routeData, $controller, $group = '') {
 		$routes = [];
+		$commonMethod = $routeData['@method'] ?? Route::METHOD_BOTH_GP;
+		$commonQuery = $routeData['@query'] ?? '';
+
 		foreach ($routeData as $action => $data) {
-			if (!isset($data['method']) || empty($data['method'])) {
+			//跳过公共配置
+			if ($action[0] == '@') {
 				continue;
 			}
-			$query = isset($data['query']) ? trim($data['query']) : '';
-			$method = explode(',', $data['method']);
+
+			$method = !empty($data['@method']) ? $data['@method'] : $commonMethod;
+			$query = $data['@query'] ?? $commonQuery;
+
+			$method = explode(',', $method);
 			//清除掉Method两边的空格
 			if (!empty($method)) {
 				foreach ($method as &$value) {
@@ -75,7 +96,7 @@ class RouteMapping {
 
 			$routes[$action]['method'] = $method;
 			if (!empty($data['rewrite'])) {
-				$routes[$action]['url'] =  DIRECTORY_SEPARATOR . $data['rewrite'];
+				$routes[$action]['url'] =  DIRECTORY_SEPARATOR . $data['@rewrite'];
 			} else {
 				$routes[$action]['url'] =  DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . $query;
 			}
