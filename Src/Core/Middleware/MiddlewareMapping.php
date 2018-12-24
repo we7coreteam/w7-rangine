@@ -59,6 +59,7 @@ class MiddlewareMapping {
 				$middlewares[$controller] = $this->getByControllerConfig($route, $controllerCommonMiddleware);
 			}
 		}
+
 		return $middlewares;
 	}
 
@@ -66,7 +67,6 @@ class MiddlewareMapping {
 		if (!empty($commonMiddleware)) {
 			$commonMiddleware = array_unique($commonMiddleware);
 		}
-
 		$controllerCommonMiddleware = $route['@middleware'] ?? [];
 
 		$middleware = [];
@@ -76,7 +76,7 @@ class MiddlewareMapping {
 				continue;
 			}
 			$data['@middleware'] = $data['@middleware'] ?? $controllerCommonMiddleware;
-			$middleware[$action] = array_merge($commonMiddleware, $data['@middleware']);
+			$middleware[$action] = array_merge($commonMiddleware, (array) $data['@middleware']);
 		}
 		return $middleware;
 	}
