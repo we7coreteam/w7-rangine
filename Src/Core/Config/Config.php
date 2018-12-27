@@ -117,6 +117,7 @@ class Config
 			return null;
 		}
 		$appConfigFile = BASE_PATH . '/config/'.$type.'.php';
+		$appConfig = [];
 		if (file_exists($appConfigFile)) {
 			$appConfig = include $appConfigFile;
 		}
