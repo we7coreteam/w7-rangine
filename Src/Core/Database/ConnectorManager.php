@@ -34,10 +34,10 @@ class ConnectorManager {
 			return $this->getDefaultConnection($config);
 		}
 		//未设置连接池时，直接返回数据连接对象
-		if (empty($this->poolconfig[$config['database']]) || empty($this->poolconfig[$config['database']]['enable'])) {
+		if (empty($this->poolconfig[$config['name']]) || empty($this->poolconfig[$config['name']]['enable'])) {
 			return $this->getDefaultConnection($config);
 		}
-		$pool = $this->getPool($config['database'], $config);
+		$pool = $this->getPool($config['name'], $config);
 		return $pool->getConnection();
 	}
 
@@ -53,7 +53,6 @@ class ConnectorManager {
 		if (!empty($this->pool[$name])) {
 			return $this->pool[$name];
 		}
-
 		$pool = new Pool($name);
 		$pool->setConfig($option);
 		$pool->setCreator($this->getDefaultConnector($option['driver']));
@@ -79,6 +78,8 @@ class ConnectorManager {
 	}
 
 	private function getDefaultConnection($config) {
+		ilogger()->channel('database')->debug('create connection without pool');
+
 		if (!empty($this->defaultConnection)) {
 			//return $this->defaultConnection;
 		}
