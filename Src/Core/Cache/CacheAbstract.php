@@ -1,53 +1,38 @@
 <?php
 /**
- * 缓存接口类
  * @author donknap
- * @date 18-7-19 上午10:04
+ * @date 18-12-30 下午5:38
  */
-namespace W7\Core\Base\Cache;
+
+namespace W7\Core\Cache;
+
 
 use Psr\SimpleCache\CacheInterface;
 
-/**
- * @method string|bool get($key, $default = null)
- * @method bool delete($key)
- * @method bool clear()
- * @method array getMultiple($keys, $default = null)
- * @method bool setMultiple($values, $ttl = null)
- * @method bool deleteMultiple($keys)
- * @method int has($key)
- */
-abstract class CacheAbstract implements CacheInterface
-{
-	protected static $driverType;
+abstract class CacheAbstract implements CacheInterface {
 
 	/**
-	 * @var array
+	 * @var ConnectorManager
 	 */
-	private $drivers = [];
+	protected $manager;
+
+	protected $connection;
 
 	/**
-	 * TODO add serializer mechanism
-	 * @var null|string
+	 * 选择一个缓存通道
+	 * @param $name
+	 * @return $this
 	 */
-	private $serializer = null;
-	abstract public function getDriver(string $driverType = null);
-	/**
-	 * @return array
-	 */
-	protected function getDrivers(): array
-	{
-		return array_merge(static::$driverType, $this->defaultDrivers());
+	public function channel($name) {
+		if (empty($name)) {
+			throw new \RuntimeException('Invalid cache channel name');
+		}
+		return new static($name);
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function defaultDrivers()
-	{
-		return [
-			'memory' => '',
-		];
+	public function __construct($name = 'default') {
+		$this->manager = iloader()->singleton(ConnectorManager::class);
+		$this->connection = $this->manager->connect($name);
+		return $this;
 	}
-	abstract public function set($key, $value, $ttl=null);
 }

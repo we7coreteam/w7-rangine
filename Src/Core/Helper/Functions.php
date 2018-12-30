@@ -163,6 +163,15 @@ if (!function_exists("icontext")) {
 	}
 }
 
+if (!function_exists("icache")) {
+	/**
+	 * @return \W7\Core\Cache\Cache
+	 */
+	function icache() {
+		return App::getApp()->getCacher();
+	}
+}
+
 if (!function_exists('isCo')) {
 	/**
 	 * 是否是在协成
