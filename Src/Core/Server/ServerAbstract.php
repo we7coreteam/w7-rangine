@@ -166,8 +166,6 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	private function registerDb() {
-		ilogger()->info('db pool init');
-
 		//新增swoole连接mysql的方式
 		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
 			return new SwooleMySqlConnection($connection, $database, $prefix, $config);
