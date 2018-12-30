@@ -7,7 +7,6 @@
 namespace W7\Core\Cache;
 
 
-
 class Cache extends CacheAbstract {
 
 	public function get($key, $default = null) {
