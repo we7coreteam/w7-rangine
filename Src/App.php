@@ -8,6 +8,7 @@ namespace W7;
 
 use Monolog\ErrorHandler;
 use W7\Console\Console;
+use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
 use W7\Core\Helper\Loader;
 use W7\Core\Log\Logger;
@@ -81,5 +82,12 @@ class App {
 
 	public function getConfigger() {
 		return $this->getLoader()->singleton(Config::class);
+	}
+
+	/**
+	 * @return Cache
+	 */
+	public function getCacher() {
+		return $this->getLoader()->singleton(Cache::class);
 	}
 }
