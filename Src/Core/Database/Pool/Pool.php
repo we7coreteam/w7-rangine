@@ -16,7 +16,6 @@ class Pool extends CoPoolAbstract {
 	 * @var MySqlConnector
 	 */
 	private $creator;
-	private $config;
 
 	public function setCreator($creator) {
 		$this->creator = $creator;
@@ -29,12 +28,5 @@ class Pool extends CoPoolAbstract {
 		$connection = $this->creator->connect($this->config);
 		$connection->poolName = sprintf('%s:%s', $this->config['driver'], $this->poolName);
 		return $connection;
-	}
-
-	/**
-	 * @param mixed $config
-	 */
-	public function setConfig($config) {
-		$this->config = $config;
 	}
 }

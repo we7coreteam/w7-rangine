@@ -42,6 +42,8 @@ abstract class CoPoolAbstract implements PoolInterface {
 	 */
 	protected $waitCount = 0;
 
+	protected $config;
+
 	public function __construct($name = '') {
 		$this->poolName = $name;
 
@@ -57,7 +59,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 	public function getConnection() {
 
 		if ($this->getIdleCount() > 0) {
-			ilogger()->info($this->poolName . ' get by queue , count ' . $this->getIdleCount());
+			ilogger()->channel('database')->debug($this->poolName . ' get by queue , count ' . $this->getIdleCount());
 
 			$connect = $this->getConnectionFromPool();
 			$this->busyCount++;
@@ -69,7 +71,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 			//等待进程数++
 			$this->waitCount++;
 
-			ilogger()->info('suspend connection , count ' . $this->idleQueue->length() . '. wait count ' . $this->waitCount);
+			ilogger()->channel('database')->debug($this->poolName . ' suspend connection , count ' . $this->idleQueue->length() . '. wait count ' . $this->waitCount);
 
 			if ($this->suspendCurrentCo() == false) {
 				//挂起失败时，抛出异常，恢复等待数
@@ -77,12 +79,12 @@ abstract class CoPoolAbstract implements PoolInterface {
 				throw new \RuntimeException('Reach max connections! Cann\'t pending fetch!');
 			}
 			//回收连接时，恢复了协程，则从空闲中取出连接继续执行
-			ilogger()->info('resume connection , count ' . $this->idleQueue->length());
+			ilogger()->channel('database')->debug($this->poolName . ' resume connection , count ' . $this->idleQueue->length());
 		}
 
 		$connect = $this->createConnection();
 		$this->busyCount++;
-		ilogger()->info($this->poolName . ' create connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
+		ilogger()->channel('database')->debug($this->poolName . ' create connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
 
 		return $connect;
 	}
@@ -92,7 +94,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 		if ($this->getIdleCount() < $this->getMaxCount()) {
 
 			$this->setConnectionFormPool($connection);
-			ilogger()->info($this->poolName . ' release push connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
+			ilogger()->channel('database')->debug($this->poolName . ' release push connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
 
 			if ($this->waitCount > 0) {
 				$this->waitCount--;
@@ -115,6 +117,10 @@ abstract class CoPoolAbstract implements PoolInterface {
 	 */
 	public function setMaxCount(int $maxActive) {
 		$this->maxActive = $maxActive;
+	}
+
+	public function setConfig($config) {
+		$this->config = $config;
 	}
 
 	/**
