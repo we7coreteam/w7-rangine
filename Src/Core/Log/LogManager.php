@@ -43,7 +43,8 @@ class LogManager {
 		if (isset($this->channel[$name]) && $this->channel[$name]['logger'] instanceof MonoLogger) {
 			return $this->channel[$name]['logger'];
 		} else {
-			throw new \RuntimeException('It is not set ' . $name . ' log handler');
+			//不存在指定的日志通道时，返回默认
+			return $this->getDefaultChannel();
 		}
 	}
 
