@@ -38,8 +38,8 @@ class ConnectorManager {
 	}
 
 	public function connect($name = 'default') {
-		$config = $this->config['connection'][$name];
-		$poolConfig = $this->config['pool'][$name];
+		$config = $this->config['connection'][$name] ?? [];
+		$poolConfig = $this->config['pool'][$name] ?? [];
 
 		if (empty($config)) {
 			throw new \RuntimeException('Cache is not configured.');

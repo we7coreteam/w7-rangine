@@ -10,7 +10,6 @@ namespace W7\Core\Cache\Connection;
 interface ConnectionInterface {
 	/**
 	 * 创建一个连接
-	 * @return mixed
 	 */
 	public function connect(array $config);
 }
