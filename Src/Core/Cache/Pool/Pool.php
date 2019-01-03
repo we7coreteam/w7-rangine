@@ -25,4 +25,14 @@ class Pool extends CoPoolAbstract {
 		$connection->poolName = sprintf('%s:%s', $this->config['driver'], $this->poolName);
 		return $connection;
 	}
+
+	public function getConnection() {
+		$connect = parent::getConnection();
+		try {
+			$result = $connect->ping();
+			return $connect;
+		} catch (\Throwable $e) {
+			return $this->createConnection();
+		}
+	}
 }
