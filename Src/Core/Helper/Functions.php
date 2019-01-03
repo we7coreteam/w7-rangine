@@ -178,7 +178,7 @@ if (!function_exists('isCo')) {
 	 * @return bool
 	 */
 	function isCo():bool {
-		return Coroutine::getuid()>0;
+		return Coroutine::getuid() > 0;
 	}
 }
 
