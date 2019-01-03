@@ -29,4 +29,9 @@ class Pool extends CoPoolAbstract {
 		$connection->poolName = sprintf('%s:%s', $this->config['driver'], $this->poolName);
 		return $connection;
 	}
+
+	public function getConnection() {
+		$connect = parent::getConnection();
+		return $connect;
+	}
 }
