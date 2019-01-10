@@ -111,17 +111,13 @@ class Dispather extends DispatcherAbstract {
 	private function getMiddleware($allMiddleware, $controller, $action) {
 		$result = [];
 		$controllerMiddlerwares = !empty($allMiddleware[$controller]) ? $allMiddleware[$controller] : [];
-		foreach ($controllerMiddlerwares as $method => $middlerware) {
-			if (strstr($method, $action) || $method == "default") {
-				$result = array_merge($result, $controllerMiddlerwares[$method]);
-			}
-		}
+
+		$result = $controllerMiddlerwares[$action];
 
 		//附加最后中间件
 		if (!empty($allMiddleware['last'])) {
 			$result = array_merge($result, $allMiddleware['last']);
 		}
-
 		return $result;
 	}
 
