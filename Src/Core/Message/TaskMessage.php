@@ -83,7 +83,7 @@ class TaskMessage extends MessageAbstract {
 	}
 
 	public function getFinishCallback() {
-		$callback = $this->params['finish'];
+		$callback = $this->params['finish'] ?? null;
 		if (empty($callback)) {
 			return false;
 		}

@@ -8,7 +8,6 @@ namespace W7\Core\Database;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use W7\Core\Helper\Traiter\InstanceTraiter;
 
 /**
  * Class ModelAbstract
