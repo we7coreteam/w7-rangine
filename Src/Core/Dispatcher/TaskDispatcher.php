@@ -53,7 +53,24 @@ class TaskDispatcher extends DispatcherAbstract {
 	 * 注册一个协程任务
 	 */
 	public function registerCo(...$params) {
+		/**
+		 * @var TaskMessage $message
+		 */
+		list($message) = $params;
 
+		if (!($message instanceof TaskMessage)) {
+			throw new \RuntimeException('Invalid task message');
+		}
+
+		if (!isWorkerStatus()) {
+			throw new TaskException('Please deliver task by http!');
+		}
+
+		if (!class_exists($message->task)) {
+			throw new TaskException('Task ' . $message->task . ' not found');
+		}
+
+		return App::$server->getServer()->taskCo($message->pack());
 	}
 
 
@@ -84,8 +101,12 @@ class TaskDispatcher extends DispatcherAbstract {
 		if (method_exists($task, 'finish')) {
 			$message->hasFinishCallback = true;
 		}
-		$message->result = call_user_func_array([$task, $message->method], $params);
 
+		try {
+			$message->result = call_user_func_array([$task, $message->method], $params);
+		} catch (\Throwable $e) {
+			throw $e;
+		}
 		//return 时将消息传递给 onFinish 事件
 		//onFinish 回调还需要处理一下用户定义的任务回调方法
 		return $message;
