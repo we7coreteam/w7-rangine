@@ -31,8 +31,11 @@ class ConnectorManager {
 	public function connect(array $config) {
 		//异步任务不启用连接池，以后可以测试一下效率，不加查一条数据100/1000的QPS为468
 		if (!isCo()) {
+			\Swoole\Runtime::enableCoroutine(false);
 			return $this->getDefaultConnection($config);
 		}
+
+		\Swoole\Runtime::enableCoroutine(true);
 		//未设置连接池时，直接返回数据连接对象
 		if (empty($this->poolconfig[$config['name']]) || empty($this->poolconfig[$config['name']]['enable'])) {
 			return $this->getDefaultConnection($config);
