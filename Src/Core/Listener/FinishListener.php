@@ -7,6 +7,7 @@
 namespace W7\Core\Listener;
 
 use W7\Core\Config\Event;
+use W7\Core\Message\MessageAbstract;
 use W7\Core\Message\TaskMessage;
 
 /**
@@ -18,6 +19,10 @@ class FinishListener implements ListenerInterface {
 		 * @var TaskMessage $taskMessage
 		 */
 		list($server, $task_id, $taskMessage) = $params;
+
+		if (!($taskMessage instanceof MessageAbstract)) {
+			throw new \RuntimeException($taskMessage);
+		}
 
 		//echo '这里是回调函数' . $task_id . PHP_EOL;
 		//处理在消息中设置的回调方法，如果未指定，则看任务中是否包含 finish 函数，否则什么不执行
