@@ -9,6 +9,7 @@ namespace W7\Core\Helper\Storage;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Coroutine;
+use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 
 class Context {
@@ -46,7 +47,7 @@ class Context {
 	const LOG_REQUEST_KEY = "requestlog";
 
 	/**
-	 * @return \Psr\Http\Message\ServerRequestInterface|null
+	 * @return Request|null
 	 */
 	public function getRequest()
 	{

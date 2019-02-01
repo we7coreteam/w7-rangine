@@ -51,15 +51,31 @@ abstract class ControllerAbstract {
 		return $this->response()->withHeader('Content-Type', 'text/html;charset=utf-8')->withContent($data);
 	}
 
-	public function validate() {
+	public function validate(array $rules, array $messages = [], array $customAttributes = []) {
+		$request = App::getApp()->getContext()->getRequest();
+		if (empty($request)) {
+			return true;
+		}
+		$requestData = array_merge([], $request->getQueryParams(), $request->post());
+		$result = $this->getValidater()->make($requestData, $rules, $messages, $customAttributes)
+			->validate();
+
+		print_r($result);exit;
+	}
+
+	/**
+	 * @return Factory;
+	 */
+	private function getValidater() {
 		$translator = iloader()->withClass(Translator::class)->withSingle()->withParams([
 			'loader' => new ArrayLoader(),
 			'locale' => 'zh-CN',
-		]);
+		])->get();
+
 		$validate = iloader()->withClass(Factory::class)->withSingle()->withParams([
 			'translator' => $translator,
-		]);
+		])->get();
 
-		print_r($validate);exit;
+		return $validate;
 	}
 }
