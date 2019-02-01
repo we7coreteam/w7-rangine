@@ -14,6 +14,7 @@ use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use W7\App;
 use W7\Core\Exception\HttpException;
+use W7\Http\Message\Server\Request;
 
 abstract class ControllerAbstract {
 
@@ -53,8 +54,7 @@ abstract class ControllerAbstract {
 		return $this->response()->withHeader('Content-Type', 'text/html;charset=utf-8')->withContent($data);
 	}
 
-	public function validate(array $rules, array $messages = [], array $customAttributes = []) {
-		$request = App::getApp()->getContext()->getRequest();
+	public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = []) {
 		if (empty($request)) {
 			throw new HttpException('Request object not found');
 		}
