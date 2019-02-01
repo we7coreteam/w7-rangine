@@ -13,6 +13,7 @@ use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use W7\App;
+use W7\Core\Exception\HttpException;
 
 abstract class ControllerAbstract {
 
