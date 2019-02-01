@@ -32,7 +32,7 @@ abstract class ControllerAbstract {
 
 	/**
 	 * 获取一个Request对象
-	 * @return null|\Psr\Http\Message\ServerRequestInterface
+	 * @return null|Request
 	 */
 	protected function request() {
 		$request = App::getApp()->getContext()->getRequest();
