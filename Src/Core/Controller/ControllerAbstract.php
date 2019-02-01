@@ -56,7 +56,7 @@ abstract class ControllerAbstract {
 	public function validate(array $rules, array $messages = [], array $customAttributes = []) {
 		$request = App::getApp()->getContext()->getRequest();
 		if (empty($request)) {
-			return true;
+			throw new HttpException('Request object not found');
 		}
 		$requestData = array_merge([], $request->getQueryParams(), $request->post());
 		try {
@@ -70,7 +70,7 @@ abstract class ControllerAbstract {
 			}
 			throw new HttpException(implode($errorMessage, '; '));
 		}
-		return true;
+		return $result;
 	}
 
 
