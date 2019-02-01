@@ -8,6 +8,9 @@
 namespace W7\Core\Controller;
 
 
+use Illuminate\Translation\ArrayLoader;
+use Illuminate\Translation\Translator;
+use Illuminate\Validation\Factory;
 use W7\App;
 
 abstract class ControllerAbstract {
@@ -46,5 +49,17 @@ abstract class ControllerAbstract {
 
 	protected function responseHtml($data) {
 		return $this->response()->withHeader('Content-Type', 'text/html;charset=utf-8')->withContent($data);
+	}
+
+	public function validate() {
+		$translator = iloader()->withClass(Translator::class)->withSingle()->withParams([
+			'loader' => new ArrayLoader(),
+			'locale' => 'zh-CN',
+		]);
+		$validate = iloader()->withClass(Factory::class)->withSingle()->withParams([
+			'translator' => $translator,
+		]);
+
+		print_r($validate);exit;
 	}
 }
