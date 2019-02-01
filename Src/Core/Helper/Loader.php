@@ -110,7 +110,9 @@ class Loader {
 
 		$args = [];
 		foreach ($paramsPlace as $place) {
-			$args[$place->getName()] = $params[$place->getName()];
+			if (isset($params[$place->getName()])) {
+				$args[$place->getName()] = $params[$place->getName()];
+			}
 		}
 
 		return $reflection->newInstanceArgs($args);
