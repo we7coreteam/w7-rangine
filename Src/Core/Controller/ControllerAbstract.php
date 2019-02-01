@@ -11,6 +11,7 @@ namespace W7\Core\Controller;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationException;
 use W7\App;
 
 abstract class ControllerAbstract {
@@ -57,11 +58,20 @@ abstract class ControllerAbstract {
 			return true;
 		}
 		$requestData = array_merge([], $request->getQueryParams(), $request->post());
-		$result = $this->getValidater()->make($requestData, $rules, $messages, $customAttributes)
-			->validate();
-
-		print_r($result);exit;
+		try {
+			$result = $this->getValidater()->make($requestData, $rules, $messages, $customAttributes)
+				->validate();
+		} catch (ValidationException $e) {
+			$errorMessage = [];
+			$errors = $e->errors();
+			foreach ($errors as $field => $message) {
+				$errorMessage[] = $field . ' : ' . $message[0];
+			}
+			throw new HttpException(implode($errorMessage, '; '));
+		}
+		return true;
 	}
+
 
 	/**
 	 * @return Factory;
