@@ -18,6 +18,7 @@ use W7\Http\Server\Server;
 
 class App {
 	private static $self;
+
 	/**
 	 * 服务器对象
 	 *
