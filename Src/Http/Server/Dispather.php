@@ -66,8 +66,6 @@ class Dispather extends DispatcherAbstract {
 			}
 			$response = $contextObj->getResponse()->json(['error' => $message], $code);
 		}
-
-		//ievent('afterRequest');
 		$response->send();
 	}
 

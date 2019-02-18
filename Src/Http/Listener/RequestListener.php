@@ -11,6 +11,7 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
 use W7\App;
+use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
 
 class RequestListener extends ListenerAbstract {
@@ -27,6 +28,8 @@ class RequestListener extends ListenerAbstract {
 	 * @throws \ReflectionException
 	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
+		ievent(Event::ON_USER_BEFORE_REQUEST);
+
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());
@@ -36,5 +39,7 @@ class RequestListener extends ListenerAbstract {
 		 */
 		$dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
 		$dispather->dispatch($request, $response, $server->context);
+
+		ievent(Event::ON_USER_AFTER_REQUEST);
 	}
 }
