@@ -19,4 +19,9 @@ class Logger extends \Monolog\Logger {
 		$logManager = iloader()->singleton(LogManager::class);
 		return $logManager->getChannel($name);
 	}
+
+	public function addRecord($level, $message, array $context = array()) {
+		var_dump($this->development);
+		return parent::addRecord($level, $message, $context);
+	}
 }
