@@ -7,8 +7,6 @@
 namespace W7\Core\Route;
 
 use FastRoute\RouteCollector;
-use Monolog\Handler\IFTTTHandler;
-use W7\Core\Helper\StringHelper;
 
 class RouteMapping {
 

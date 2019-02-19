@@ -59,7 +59,6 @@ class MiddlewareMapping {
 				$middlewares[$controller] = $this->getByControllerConfig($route, $controllerCommonMiddleware);
 			}
 		}
-
 		return $middlewares;
 	}
 
@@ -76,7 +75,7 @@ class MiddlewareMapping {
 				continue;
 			}
 			$data['@middleware'] = $data['@middleware'] ?? $controllerCommonMiddleware;
-			$middleware[$action] = array_merge($commonMiddleware, (array) $data['@middleware']);
+			$middleware[$action] = array_merge($commonMiddleware, (array) $data['@middleware'], $this->getLastMiddle());
 		}
 		return $middleware;
 	}

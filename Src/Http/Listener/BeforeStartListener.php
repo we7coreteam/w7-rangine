@@ -12,6 +12,7 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Helper\Storage\Context;
+use FastRoute\Dispatcher\GroupCountBased;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -22,8 +23,12 @@ class BeforeStartListener extends ListenerAbstract {
 		return true;
 	}
 
+	/**
+	 * @return GroupCountBased
+	 */
 	private function getRoute() {
-		return iloader()->singleton(RouteMapping::class)->getMapping();
+		$routeInfo = iloader()->singleton(RouteMapping::class)->getMapping();
+		return new GroupCountBased($routeInfo);
 	}
 
 	private function getMiddleware() {

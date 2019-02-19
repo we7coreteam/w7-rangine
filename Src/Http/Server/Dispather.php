@@ -7,7 +7,6 @@
 namespace W7\Http\Server;
 
 use FastRoute\Dispatcher;
-use FastRoute\Dispatcher\GroupCountBased;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\App;
 use W7\Core\Dispatcher\DispatcherAbstract;
@@ -70,14 +69,10 @@ class Dispather extends DispatcherAbstract {
 	}
 
 
-	private function getRoute(ServerRequestInterface $request, $routeInfo) {
+	private function getRoute(ServerRequestInterface $request, $fastRoute) {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
 
-		/**
-		 * @var GroupCountBased $fastRoute
-		 */
-		$fastRoute = new GroupCountBased($routeInfo);
 		$route = $fastRoute->dispatch($httpMethod, $url);
 
 		if ($route[0] == Dispatcher::NOT_FOUND && strpos($url, '/index') === false) {
@@ -109,13 +104,7 @@ class Dispather extends DispatcherAbstract {
 	private function getMiddleware($allMiddleware, $controller, $action) {
 		$result = [];
 		$controllerMiddlerwares = !empty($allMiddleware[$controller]) ? $allMiddleware[$controller] : [];
-
 		$result = $controllerMiddlerwares[$action];
-
-		//附加最后中间件
-		if (!empty($allMiddleware['last'])) {
-			$result = array_merge($result, $allMiddleware['last']);
-		}
 		return $result;
 	}
 
