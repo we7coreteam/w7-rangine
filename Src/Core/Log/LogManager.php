@@ -104,10 +104,12 @@ class LogManager {
 
 	private function initCommonProcessor() {
 		$swooleProcessor = iloader()->singleton(SwooleProcessor::class);
-		$introProcessor = iloader()->singleton(IntrospectionProcessor::class);
+		//不记录产生日志的文件和行号
+		//异常中会带，普通日志函数又是一样的
+		//$introProcessor = iloader()->singleton(IntrospectionProcessor::class);
 		return [
 			$swooleProcessor,
-			$introProcessor
+			//$introProcessor
 		];
 	}
 
