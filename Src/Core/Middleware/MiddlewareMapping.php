@@ -56,7 +56,7 @@ class MiddlewareMapping {
 					$controllerCommonMiddleware = array_merge($commonMiddleware['before'], (array)$route, $commonMiddleware['after']);
 					continue;
 				}
-				$middlewares[$controller] = $this->getByControllerConfig($route, $controllerCommonMiddleware);
+				$middlewares[ucfirst($controller)] = $this->getByControllerConfig($route, $controllerCommonMiddleware);
 			}
 		}
 		return $middlewares;
