@@ -9,8 +9,8 @@ namespace W7\Core\Log\Driver;
 
 use W7\Core\Log\HandlerInterface;
 
-class ErrorlogHandler implements HandlerInterface {
-	public function getHandler($config) {
-		return new \Monolog\Handler\ErrorLogHandler();
+class ErrorlogHandler extends \Monolog\Handler\ErrorLogHandler  implements HandlerInterface {
+	static public function getHandler($config) {
+		return new static();
 	}
 }

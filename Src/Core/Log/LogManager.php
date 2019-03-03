@@ -69,7 +69,7 @@ class LogManager {
 				$stack[$name] = $channel;
 			} else {
 				$handlerClass = sprintf("\\W7\\Core\\Log\\Driver\\%sHandler", ucfirst($channel['driver']));
-				$handler = (new $handlerClass())->getHandler($channel);
+				$handler = $handlerClass::getHandler($channel);
 
 				if (!is_null($handler)) {
 					$logger = $this->getLogger($name);

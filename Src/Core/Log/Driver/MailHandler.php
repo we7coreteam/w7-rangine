@@ -10,7 +10,7 @@ use Monolog\Handler\SwiftMailerHandler;
 use W7\Core\Log\HandlerInterface;
 
 class MailHandler implements HandlerInterface {
-	public function getHandler($config) {
+	static public function getHandler($config) {
 		if (empty($config['to']) || empty($config['subject']) || empty($config['username']) || empty($config['password'])) {
 			return null;
 		}

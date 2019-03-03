@@ -9,8 +9,8 @@ namespace W7\Core\Log\Driver;
 
 use W7\Core\Log\HandlerInterface;
 
-class SyslogHandler implements HandlerInterface {
-	public function getHandler($config) {
-		return new \Monolog\Handler\SyslogHandler('w7-', LOG_USER, $config['level']);
+class SyslogHandler extends \Monolog\Handler\SyslogHandler implements HandlerInterface {
+	static public function getHandler($config) {
+		return new static('w7-', LOG_USER, $config['level']);
 	}
 }

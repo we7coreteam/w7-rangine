@@ -8,5 +8,5 @@ namespace W7\Core\Log;
 
 
 interface HandlerInterface {
-	public function getHandler($config);
+	static public function getHandler($config);
 }
