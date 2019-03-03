@@ -23,7 +23,7 @@ class DailyHandler extends RotatingFileHandler implements HandlerInterface {
 
 	protected function write(array $record) {
 		go(function() use ($record) {
-			parent::write($record);
+			@parent::write($record);
 		});
 	}
 }

@@ -89,6 +89,10 @@ class App {
 	 * @return Cache
 	 */
 	public function getCacher() {
-		return $this->getLoader()->singleton(Cache::class);
+		/**
+		 * @var Cache $cache;
+		 */
+		$cache = $this->getLoader()->singleton(Cache::class);
+		return $cache;
 	}
 }

@@ -22,7 +22,8 @@ class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInt
 
 	protected function write(array $record) {
 		go(function() use ($record) {
-			parent::write($record);
+			@parent::write($record);
 		});
 	}
+
 }
