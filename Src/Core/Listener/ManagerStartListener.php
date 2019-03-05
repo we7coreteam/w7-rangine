@@ -6,7 +6,6 @@
 
 namespace W7\Core\Listener;
 
-use Swoole\Http\Server;
 use W7\App;
 
 class ManagerStartListener extends ListenerAbstract {
@@ -14,7 +13,7 @@ class ManagerStartListener extends ListenerAbstract {
 		$this->setServerTitle($params[0]);
 	}
 
-	private function setServerTitle(Server $server) {
+	private function setServerTitle($server) {
 		\isetProcessTitle( 'w7swoole ' . App::$server->type . ' manager process');
 	}
 }
