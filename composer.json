@@ -35,12 +35,8 @@
     },
     "repositories": [
         {
-            "type" : "vcs",
-            "url" : "https://gitee.com/we7coreteam/we7HttpMessage.git"
-        },
-        {
-            "type" : "git",
-            "url" : "https://gitee.com/we7coreteam/w7-laravel-cache-model.git"
+            "type" : "composer",
+            "url" : "https://packagist.rangine.com/"
         }
     ]
 }
