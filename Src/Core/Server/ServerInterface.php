@@ -7,13 +7,7 @@
 
 namespace W7\Core\Server;
 
-interface ServerInterface
-{
-	const TYPE_HTTP = 'http';
-	const TYPE_RPC = 'rpc';
-	const TYPE_TCP = 'tcp';
-	const TYPE_WEBSOCKET = 'websocket';
-
+interface ServerInterface {
 	/**
 	 * 服务启动
 	 */

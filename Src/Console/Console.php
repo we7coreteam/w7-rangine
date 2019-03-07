@@ -11,9 +11,12 @@ namespace W7\Console;
 use W7\Core\Command\CommandInterface;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\StringHelper;
+use W7\Core\Server\ServerAbstract;
 
 class Console {
 	private $allowServer;
+
+	const OPTION_ENABLE_TCP = 'enable-tcp';
 
 	public function __construct() {
 	}
@@ -36,8 +39,8 @@ class Console {
 			return false;
 		}
 
-
 		$supportServer = $this->supportServer();
+
 		if (!in_array($command['command'], $supportServer)) {
 			\ioutputer()->writeln(sprintf('Not support server of %s', $command['command']), true);
 			$this->showDefaultCommand();
@@ -45,13 +48,17 @@ class Console {
 		}
 
 		try {
-			$server = $this->getServer($command['command']);
-			if (!method_exists($server, $command['action'])) {
+			$serverConsole = $this->getServerConsole($command['command']);
+			//根据传入的参数，附加相应服务的console
+			if (!empty($command['option'][self::OPTION_ENABLE_TCP]) && in_array(ServerAbstract::TYPE_TCP, $supportServer)) {
+				$serverConsole->tcpServerConsole = $this->getServerConsole('tcp');
+			}
+			if (!method_exists($serverConsole, $command['action'])) {
 				\ioutputer()->writeln(sprintf('Not support action of  %s', $command['action']), true);
 				$this->showDefaultCommand();
 				return false;
 			}
-			call_user_func_array(array($server, $command['action']), $command['option']);
+			call_user_func_array(array($serverConsole, $command['action']), [$command['option']]);
 		} catch (\Throwable $e) {
 			\ioutputer()->writeln($e->getMessage(), true, true);
 		}
@@ -110,7 +117,7 @@ class Console {
 		}
 	}
 
-	private function getServer($name) {
+	private function getServerConsole($name) {
 		$className = sprintf("\\W7\\%s\\Console\\Command", StringHelper::studly($name));
 		if (!class_exists($className)) {
 			throw new CommandException('The ' . $name . ' server command not found');

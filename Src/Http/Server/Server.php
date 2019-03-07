@@ -16,7 +16,7 @@ class Server extends ServerAbstract {
 		if (!empty($this->setting['open_http2_protocol'])) {
 			$this->connection['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
-		$this->server = new \swoole_http_server($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+		$this->server = $this->getServer();
 		$this->server->set($this->setting);
 
 		ievent(Event::ON_USER_BEFORE_START);
@@ -24,5 +24,12 @@ class Server extends ServerAbstract {
 		$this->registerService();
 
 		$this->server->start();
+	}
+
+	public function getServer() {
+		if (empty($this->server)) {
+			$this->server = new \swoole_http_server($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+		}
+		return $this->server;
 	}
 }

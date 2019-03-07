@@ -7,7 +7,7 @@
 namespace W7\Core\Database;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use W7\Laravel\CacheModel\Model;
 
 /**
  * Class ModelAbstract

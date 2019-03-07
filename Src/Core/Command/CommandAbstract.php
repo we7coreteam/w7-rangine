@@ -7,14 +7,25 @@
 namespace W7\Core\Command;
 
 
+use W7\App;
+
 abstract class CommandAbstract implements CommandInterface {
 
 	protected $server;
 
-	public function start() {
+	/**
+	 * Console 的参数
+	 * @var
+	 */
+	private $option;
+
+	public function start($option = []) {
 		$this->server = $server = $this->createServer();
 		$status = $server->getStatus();
 
+		if (!empty($option)) {
+			$this->option = $option;
+		}
 		if ($server->isRun()) {
 			\ioutputer()->writeln("The server have been running!(PID: {$status['masterPid']})", true);
 			return $this->restart();
@@ -25,11 +36,27 @@ abstract class CommandAbstract implements CommandInterface {
 			$statusInfo .= " $key: $value, ";
 		}
 
+		$tcpLines = 'tcp  |  disable ( --enable-tcp )';
+		//附加TCP服务
+		if (!empty($this->option['enable-tcp'])) {
+			$tcpServer = $this->tcpServerConsole->createServer();
+			$tcpServer->listener($server->getServer());
+
+			$tcpStatusInfo = '';
+			foreach ($tcpServer->getStatus() as $key => $value) {
+				$tcpStatusInfo .= " $key: $value, ";
+			}
+			$tcpLines = "{$tcpServer->type}  | " . rtrim($tcpStatusInfo, ', ');
+		}
+
+		App::getApp()::$server = $server;
+
 		// 信息面板
 		$lines = [
 			'						 Server Information					  ',
 			'********************************************************************',
 			"* {$server->type} | " . rtrim($statusInfo, ', '),
+			"* {$tcpLines}",
 			'********************************************************************',
 		];
 

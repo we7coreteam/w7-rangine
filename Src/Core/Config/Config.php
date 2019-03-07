@@ -17,17 +17,15 @@ use W7\Core\Process\CrontabProcess;
 use W7\Core\Process\MysqlPoolprocess;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
+use W7\Tcp\Listener\CloseListener;
+use W7\Tcp\Listener\ConnectListener;
+use W7\Tcp\Listener\ReceiveListener;
 
-class Config
-{
+class Config {
 	const VERSION = '1.0.0';
 
 	private $server;
-	private $defaultServer = [
-		'websocket' => [
-			'host' => '0.0.0.0'
-		]
-	];
+	private $defaultServer = [];
 
 	private $event;
 	/**
@@ -42,7 +40,9 @@ class Config
 			Event::ON_REQUEST => RequestListener::class,
 		],
 		'tcp' => [
-
+			Event::ON_RECEIVE => ReceiveListener::class,
+			Event::ON_CONNECT => ConnectListener::class,
+			Event::ON_CLOSE => CloseListener::class,
 		],
 		'manage' => [
 			Event::ON_START => StartListener::class,

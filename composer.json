@@ -23,7 +23,7 @@
         "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
-        "eaglewu/swoole-ide-helper": "dev-master",
+        "eaglewu/swoole-ide-helper": "dev-dev",
         "symfony/var-dumper": "^4.1"
     },
     "autoload": {
