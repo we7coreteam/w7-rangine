@@ -21,9 +21,13 @@ class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInt
 	}
 
 	protected function write(array $record) {
-		go(function() use ($record) {
+		if (isCo()) {
+			go(function() use ($record) {
+				@parent::write($record);
+			});
+		} else {
 			@parent::write($record);
-		});
+		}
 	}
 
 }

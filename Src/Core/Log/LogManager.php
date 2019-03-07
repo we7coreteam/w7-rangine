@@ -59,7 +59,6 @@ class LogManager {
 	private function initChannel() {
 		$stack = [];
 		$channelConfig = $this->config['channel'];
-
 		//先初始化单个通道，记录下相关的Handler，再初始化复合通道
 		foreach ($channelConfig as $name => $channel) {
 			if (empty($channel['driver'])) {
@@ -99,6 +98,7 @@ class LogManager {
 				$this->channel[$name]['logger'] = $logger;
 			}
 		}
+
 		return true;
 	}
 
