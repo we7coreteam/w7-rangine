@@ -21,8 +21,14 @@ use W7\Core\Config\Event;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
+use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
+
+	const TYPE_HTTP = 'http';
+	const TYPE_RPC = 'rpc';
+	const TYPE_TCP = 'tcp';
+	const TYPE_WEBSOCKET = 'websocket';
 
 	/**
 	 * @var \Swoole\Http\Server
@@ -134,6 +140,7 @@ abstract class ServerAbstract implements ServerInterface {
 		$this->registerProcesser();
 		$this->registerServerContext();
 		$this->registerDb();
+		$this->registerCacheModel();
 		return true;
 	}
 
@@ -225,7 +232,7 @@ abstract class ServerAbstract implements ServerInterface {
 		return true;
 	}
 
-	private function registerEvent($event) {
+	protected function registerEvent($event) {
 		if (empty($event)) {
 			return true;
 		}
@@ -242,6 +249,13 @@ abstract class ServerAbstract implements ServerInterface {
 			} else {
 				$this->server->on($eventName, [$object, 'run']);
 			}
+		}
+	}
+
+	protected function registerCacheModel() {
+		$config = iconfig()->getUserAppConfig('cache');
+		if (!empty($config['default']) && !empty($config['default']['host']) && !empty($config['default']['port'])) {
+			Cache::setCacheResolver(icache());
 		}
 	}
 }
