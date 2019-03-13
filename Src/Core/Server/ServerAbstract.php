@@ -254,7 +254,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	protected function registerCacheModel() {
 		$config = iconfig()->getUserAppConfig('cache');
-		if (!empty($config['default']) && !empty($config['default']['host']) && !empty($config['default']['port'])) {
+		if (!empty($config['default']) && !empty($config['default']['model']) && !empty($config['default']['host']) && !empty($config['default']['port'])) {
 			Cache::setCacheResolver(icache());
 		}
 	}
