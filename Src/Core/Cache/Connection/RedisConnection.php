@@ -20,6 +20,9 @@ class RedisConnection extends ConnectionAbstract {
 			$error = sprintf('Redis connection failure host=%s port=%d', $config['host'], $config['port']);
 			throw new \Exception($error);
 		}
+		if (!empty($config['password'])) {
+			$redis->auth($config['password']);
+		}
 		if (!empty($config['database'])) {
 			$redis->select(intval($config['database']));
 		}
