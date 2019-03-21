@@ -66,7 +66,7 @@ use W7\Laravel\CacheModel\Model;
  * @method qualifyColumn($column)
  * @method getMacro($name)
  */
-abstract class ModelAbstract extends Model {
+abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 
 	protected function insertAndSetId(Builder $query, $attributes) {
 		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
