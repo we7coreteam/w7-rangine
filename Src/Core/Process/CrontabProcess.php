@@ -28,6 +28,14 @@ class CrontabProcess extends ProcessAbstract {
 	public function __construct() {
 		$this->config = \iconfig()->getUserConfig(self::NAMEKEY);
 		$this->cronExpress = CronExpression::factory('* * * * *');
+		$this->setting = \iconfig()->getUserAppConfig('crontab');
+
+		$this->setting['interval'] = intval($this->setting['interval']);
+		if (empty($this->setting['interval'])) {
+			$this->setting['interval'] = 1 * 1000;
+		} else {
+			$this->setting['interval'] *= 1000;
+		}
 	}
 
 	public function check() {
@@ -39,27 +47,28 @@ class CrontabProcess extends ProcessAbstract {
 	}
 
 	public function run(Process $process) {
+		if (isset($this->setting['enabled']) && empty($this->setting['enabled'])) {
+			$process->exit();
+		}
+
 		$this->registerTable();
 		if ($this->table->count() == 0) {
 			$process->exit();
 		}
+
 		//最小细度为一分钟
-		swoole_timer_tick(1 * 1000, function () {
+		swoole_timer_tick($this->setting['interval'], function () {
 			$task = $this->getRunTask();
-			echo date('Y-m-d H:i:s') . PHP_EOL;
 			$result = [];
 			foreach ($this->table as $name1 => $row1) {
 				$row1['nextruntime'] = date('Y-m-d H:i:s', $row1['nextrun']);
 				$result[] = $row1;
 			}
-			ilogger()->info('这里是run方法' . idd($result));
-
 			if (!empty($task)) {
 				foreach ($task as $name => $taskName) {
 					$this->sendTask($name, $taskName);
 				}
 			}
-
 		});
 	}
 
