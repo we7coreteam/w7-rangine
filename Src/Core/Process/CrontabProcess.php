@@ -59,6 +59,10 @@ class CrontabProcess extends ProcessAbstract {
 		}
 		//最小细度为一分钟
 		swoole_timer_tick($this->setting['interval'], function () {
+			if (!empty($this->development)) {
+				echo 'Crontab run at ' . date('Y-m-d H:i:s') . PHP_EOL;
+			}
+
 			$task = $this->getRunTask();
 
 			if (!empty($this->development)) {
@@ -71,10 +75,6 @@ class CrontabProcess extends ProcessAbstract {
 			}
 
 			if (!empty($task)) {
-				if (!empty($this->development)) {
-					echo 'Crontab run at ' . date('Y-m-d H:i:s') . PHP_EOL;
-				}
-
 				foreach ($task as $name => $taskName) {
 					$this->sendTask($name, $taskName);
 				}
