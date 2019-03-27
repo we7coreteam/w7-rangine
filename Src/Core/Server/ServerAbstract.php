@@ -147,7 +147,7 @@ abstract class ServerAbstract implements ServerInterface {
 	protected function registerProcesser() {
 		$processName = \iconfig()->getProcess();
 		foreach ($processName as $name) {
-			\iprocess($name, App::$server);
+			\iprocess($name, App::$server->server);
 		}
 	}
 

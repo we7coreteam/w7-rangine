@@ -63,7 +63,7 @@ class ProcessDispather extends DispatcherAbstract {
 
 		self::$processes[$name] = $swooleProcess;
 		if (!empty($server)) {
-			$server->server->addProcess($swooleProcess);
+			$server->addProcess($swooleProcess);
 		} else {
 			$swooleProcess->useQueue();
 			$swooleProcess->start();
