@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
+use Illuminate\Support\Str;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\App;
@@ -148,6 +149,26 @@ abstract class ServerAbstract implements ServerInterface {
 		$processName = \iconfig()->getProcess();
 		foreach ($processName as $name) {
 			\iprocess($name, App::$server->server);
+		}
+
+		//启动用户配置的进程
+		$process = iconfig()->getUserAppConfig('process');
+		if (!empty($process)) {
+			foreach ($process as $name => $row) {
+				if (empty($row['enable'])) {
+					continue;
+				}
+
+				if (!class_exists($row['class'])) {
+					$row['class'] = sprintf("\\W7\\App\\Process\\%s", Str::studly($row['class']));
+				}
+
+				if (!class_exists($row['class'])) {
+					continue;
+				}
+
+				\iprocess($row['class'], App::$server->server);
+			}
 		}
 	}
 
