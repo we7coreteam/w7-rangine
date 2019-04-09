@@ -13,8 +13,7 @@ class Input
 	private $action;
 	private $option;
 
-	public function getCommand($argv = null)
-	{
+	public function getCommand($argv = null) {
 		if (null === $argv) {
 			$argv = $_SERVER['argv'];
 		}
@@ -25,6 +24,11 @@ class Input
 		$command = $parser->parse($argv);
 		@list($temp, $this->command, $this->action) = $command[0];
 		$this->option = array_merge([], $command[1], $command[2]);
+
+		if (!empty($this->option['env'])) {
+			putenv('ENV_NAME=' . $this->option['env']);
+		}
+
 		return [
 			'command' => $this->command,
 			'action' => $this->action,
@@ -32,11 +36,20 @@ class Input
 		];
 	}
 
-	public function isVersionCommand()
-	{
+	public function isVersionCommand() {
 		$command = $this->getCommand();
 
 		if (isset($command['option']['v']) || isset($command['option']['version'])) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public function isHelpCommand() {
+		$command = $this->getCommand();
+
+		if (isset($command['option']['h']) || isset($command['option']['help'])) {
 			return true;
 		} else {
 			return false;

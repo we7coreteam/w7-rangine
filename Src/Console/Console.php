@@ -33,6 +33,11 @@ class Console {
 			return false;
 		}
 
+		if ($input->isHelpCommand()) {
+			$this->showDefaultCommand();
+			return false;
+		}
+
 		$command = $input->getCommand();
 		if (empty($command['command']) && empty($command['action'])) {
 			$this->showDefaultCommand();
@@ -76,8 +81,10 @@ class Console {
 				'restart' => 'Restart the service',
 			],
 			'Options:' => [
-				'-h, --help'	=> 'Display help information',
+				'-h, --help' => 'Display help information',
 				'-v, --version' => 'Display version information',
+				'--env' => 'Set the startup environment configuration file',
+				'--enable-tcp' => 'Start Tcp service when non-Tcp service'
 			]
 		];
 
