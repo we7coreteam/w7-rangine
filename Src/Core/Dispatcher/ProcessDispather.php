@@ -6,6 +6,7 @@
 
 namespace W7\Core\Dispatcher;
 
+use Swoole\Process;
 use W7\Core\Process\ProcessAbstract;
 
 class ProcessDispather extends DispatcherAbstract {
@@ -92,11 +93,22 @@ class ProcessDispather extends DispatcherAbstract {
 		/**
 		 * @var \swoole_process $process
 		 */
-		$process = self::$processes[$name];
+		$process = self::$processes[$name] ?? null;
 		if (empty($process)) {
 			throw new \RuntimeException('Process not exists');
 		}
 
 		return $process;
+	}
+
+	public function quit($name) {
+		try {
+			$process = $this->getProcess($name);
+			Process::kill($process->pid);
+			unset(self::$processes[$name]);
+			return true;
+		} catch (\Throwable $e) {
+			return true;
+		}
 	}
 }

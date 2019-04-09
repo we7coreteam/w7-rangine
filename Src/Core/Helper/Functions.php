@@ -33,6 +33,14 @@ if (!function_exists('iprocess')) {
 		$dispatcher->write($name, $data);
 	}
 
+	function iprocessExit($name) {
+		/**
+		 * @var ProcessDispather $dispatcher
+		 */
+		$dispatcher = iloader()->singleton(ProcessDispather::class);
+		$dispatcher->quit($name);
+	}
+
 	function iprocessGet($name) {
 		/**
 		 * @var ProcessDispather $dispatcher
