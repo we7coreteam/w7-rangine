@@ -35,7 +35,6 @@ class App {
 			return self::$self;
 		}
 		self::$self = new static();
-		self::$self->setErrorHandler();
 
 		return self::$self;
 	}
@@ -54,6 +53,8 @@ class App {
 		$console = iloader()->singleton(Console::class);
 		$console->run();
 
+		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
+		$this->setErrorHandler();
 	}
 
 	public function getLoader() {
