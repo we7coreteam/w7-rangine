@@ -167,7 +167,14 @@ abstract class ServerAbstract implements ServerInterface {
 					continue;
 				}
 
-				\iprocess($row['class'], App::$server->server);
+				$row['number'] = intval($row['number']);
+				if (!isset($row['number']) || empty($row['number']) || $row['number'] < 0) {
+					\iprocess($row['class'], App::$server->server);
+				} else {
+					for ($i = 1; $i <= $row['number']; $i++) {
+						\iprocess($row['class'], App::$server->server);
+					}
+				}
 			}
 		}
 	}
@@ -245,7 +252,7 @@ abstract class ServerAbstract implements ServerInterface {
 		$container->instance('config', new Fluent());
 		$container['config']['database.default'] = 'default';
 		$container['config']['database.connections'] = $dbconfig;
-
+		print_r($dbconfig);exit;
 		$factory = new ConnectionFactory($container);
 		$dbManager = new DatabaseManager($container, $factory);
 
