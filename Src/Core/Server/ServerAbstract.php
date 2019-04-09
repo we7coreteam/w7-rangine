@@ -252,7 +252,6 @@ abstract class ServerAbstract implements ServerInterface {
 		$container->instance('config', new Fluent());
 		$container['config']['database.default'] = 'default';
 		$container['config']['database.connections'] = $dbconfig;
-		print_r($dbconfig);exit;
 		$factory = new ConnectionFactory($container);
 		$dbManager = new DatabaseManager($container, $factory);
 
