@@ -23,7 +23,22 @@ if (!function_exists('iprocess')) {
 		 */
 		$dispatcher = iloader()->singleton(ProcessDispather::class);
 		return $dispatcher->dispatch($name, $server);
+	}
 
+	function iprocessWrite($name, $data) {
+		/**
+		 * @var ProcessDispather $dispatcher
+		 */
+		$dispatcher = iloader()->singleton(ProcessDispather::class);
+		$dispatcher->write($name, $data);
+	}
+
+	function iprocessGet($name) {
+		/**
+		 * @var ProcessDispather $dispatcher
+		 */
+		$dispatcher = iloader()->singleton(ProcessDispather::class);
+		return $dispatcher->getProcess($name);
 	}
 }
 if (!function_exists("ievent")) {

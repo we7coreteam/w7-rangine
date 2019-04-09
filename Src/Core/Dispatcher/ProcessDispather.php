@@ -28,7 +28,7 @@ class ProcessDispather extends DispatcherAbstract {
 		}
 
 		if (!class_exists($name)) {
-			ilogger()->warning("Process is worng name is %s", $name);
+			ilogger()->warning(sprintf("Process is worng name is %s", $name));
 			return false;
 		}
 		/**
@@ -46,7 +46,6 @@ class ProcessDispather extends DispatcherAbstract {
 		$swooleProcess = new \swoole_process(function (\swoole_process $worker) use ($process, $name) {
 			$worker->name('w7swoole ' . $name . '-' . $worker->pipe . ' process');
 			$process->run($worker);
-
 			//如果进程包含read方法，自动添加事件侦听，获取主进程发送的消息
 			if (method_exists($process, 'read')) {
 				//增加事件循环，将消息接收到类中
@@ -87,5 +86,17 @@ class ProcessDispather extends DispatcherAbstract {
 		}
 
 		$process->write($data);
+	}
+
+	public function getProcess($name) {
+		/**
+		 * @var \swoole_process $process
+		 */
+		$process = self::$processes[$name];
+		if (empty($process)) {
+			throw new \RuntimeException('Process not exists');
+		}
+
+		return $process;
 	}
 }
