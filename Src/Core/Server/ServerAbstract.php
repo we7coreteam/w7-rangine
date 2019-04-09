@@ -168,7 +168,7 @@ abstract class ServerAbstract implements ServerInterface {
 				}
 
 				$row['number'] = intval($row['number']);
-				if (!isset($row['number']) || empty($row['number']) || $row['number'] < 0) {
+				if (!isset($row['number']) || empty($row['number']) || $row['number'] <= 1) {
 					\iprocess($row['class'], App::$server->server);
 				} else {
 					for ($i = 1; $i <= $row['number']; $i++) {
