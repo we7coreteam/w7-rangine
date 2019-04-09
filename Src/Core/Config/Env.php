@@ -26,14 +26,12 @@ class Env {
 	}
 
 	public function load() {
-		//加载默认的.env
-		$dotEnv = Dotenv::create($this->envPath, $this->defaultName);
-		$dotEnv->load();
-
 		//加载当前环境的.env，覆盖默认的.env数据
-		$envName = getenv('ENV_NAME') ?? $this->hostName;
+		$envName = getenv('ENV_NAME') ?: 'default';
+
 		$envFileName = $this->getEnvFileByHostName($envName);
 		if (!empty($envFileName)) {
+			putenv('ENV_NAME=' . $envFileName);
 			$_ENV['ENV_NAME'] = $envFileName;
 			$dotEnv = Dotenv::create($this->envPath, $envFileName);
 			$dotEnv->overload();
@@ -44,6 +42,10 @@ class Env {
 		if (empty($hostname)) {
 			$hostname = $this->hostName;
 		}
+		if ($hostname == 'default') {
+			return $this->defaultName;
+		}
+
 		$fileTree = glob(sprintf('%s/.env*', $this->envPath));
 		if (empty($fileTree)) {
 			return '';
