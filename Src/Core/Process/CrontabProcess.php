@@ -41,6 +41,10 @@ class CrontabProcess extends ProcessAbstract {
 	}
 
 	public function check() {
+		if (isset($this->setting['enabled']) && empty($this->setting['enabled'])) {
+			return false;
+		}
+
 		if (!empty($this->config)) {
 			return true;
 		} else {
