@@ -20,7 +20,8 @@
         "monolog/monolog": "^1.23",
         "swiftmailer/swiftmailer": "^6.0",
         "dragonmantank/cron-expression": "^2.2",
-        "psr/http-server-middleware": "^1.0"
+        "psr/http-server-middleware": "^1.0",
+        "vlucas/phpdotenv": "^3.3"
     },
     "require-dev": {
         "eaglewu/swoole-ide-helper": "dev-dev",

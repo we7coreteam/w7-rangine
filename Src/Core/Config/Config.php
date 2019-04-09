@@ -6,6 +6,7 @@
 
 namespace W7\Core\Config;
 
+use Illuminate\Support\Str;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
 use W7\Core\Listener\PipeMessageListener;
@@ -73,8 +74,18 @@ class Config {
 		'crontab',
 	];
 
-	public function __construct() {
+	private $config = [];
 
+	private $path = BASE_PATH . '/config/';
+
+	public function __construct() {
+		//初始化evn配置数据
+		/**
+		 * @var Env $env
+		 */
+		$env = new Env(BASE_PATH);
+		$env->load();
+		unset($env);
 	}
 
 	/**
@@ -116,10 +127,15 @@ class Config {
 		if (!in_array($type, $this->allow_user_config)) {
 			return null;
 		}
+
+		if (!empty($this->config[$type])) {
+			return $this->config[$type];
+		}
+
 		$appConfigFile = BASE_PATH . '/config/'.$type.'.php';
 		$appConfig = [];
 		if (file_exists($appConfigFile)) {
-			$appConfig = include $appConfigFile;
+			$appConfig = $this->config[$type] = include $appConfigFile;
 		}
 		return $appConfig;
 	}
@@ -137,4 +153,5 @@ class Config {
 			return [];
 		}
 	}
+
 }
