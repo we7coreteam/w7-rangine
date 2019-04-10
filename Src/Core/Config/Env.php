@@ -30,7 +30,7 @@ class Env {
 		$envName = getenv('ENV_NAME') ?: 'default';
 
 		$envFileName = $this->getEnvFileByHostName($envName);
-		if (!empty($envFileName)) {
+		if (!empty($envFileName) && file_exists($this->envPath . '/' . $envFileName)) {
 			putenv('ENV_NAME=' . $envFileName);
 			$_ENV['ENV_NAME'] = $envFileName;
 			$dotEnv = Dotenv::create($this->envPath, $envFileName);
