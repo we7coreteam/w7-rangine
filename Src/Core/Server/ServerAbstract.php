@@ -171,6 +171,8 @@ abstract class ServerAbstract implements ServerInterface {
 				if (!isset($row['number']) || empty($row['number']) || $row['number'] <= 1) {
 					\iprocess($row['class'], App::$server->server);
 				} else {
+					//多个进程时，通过进程池管理
+
 					for ($i = 1; $i <= $row['number']; $i++) {
 						\iprocess($row['class'], App::$server->server);
 					}

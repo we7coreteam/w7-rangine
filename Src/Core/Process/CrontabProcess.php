@@ -10,7 +10,7 @@ namespace W7\Core\Process;
 use Cron\CronExpression;
 use Swoole\Process;
 use W7\App;
-use W7\Core\Dispatcher\ProcessDispather;
+use W7\Core\Dispatcher\ProcessDispatcher;
 use W7\Core\Helper\Storage\MemoryTable;
 use W7\Core\Message\CrontabMessage;
 use W7\Core\Message\Message;
@@ -111,12 +111,11 @@ class CrontabProcess extends ProcessAbstract {
 	public function finishTask($server, $taskId, $result, $params) {
 		ilogger()->info($params['cronTask'] . ' finished');
 		/**
-		 * @var ProcessDispather $processManager
+		 * @var ProcessDispatcher $processManager
 		 */
-		$processManager = iloader()->singleton(ProcessDispather::class);
 		$message = new CrontabMessage();
 		$message->name = $params['cronTask'];
-		$processManager->write(CrontabProcess::class, $message->pack());
+		iprocessManager()->get(CrontabProcess::class)->write($message->pack());
 	}
 
 	/**

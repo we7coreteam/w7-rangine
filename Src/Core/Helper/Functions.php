@@ -7,7 +7,6 @@
 use Swoole\Coroutine;
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
-use W7\Core\Dispatcher\ProcessDispather;
 use W7\Core\Dispatcher\TaskDispatcher;
 
 if (!function_exists('iprocess')) {
@@ -19,34 +18,38 @@ if (!function_exists('iprocess')) {
 	 */
 	function iprocess($name, $server = null) {
 		/**
-		 * @var ProcessDispather $dispatcher
+		 * @var \W7\Core\Dispatcher\ProcessDispatcher $dispatcher
 		 */
-		$dispatcher = iloader()->singleton(ProcessDispather::class);
+		$dispatcher = iloader()->singleton(\W7\Core\Dispatcher\ProcessDispatcher::class);
 		return $dispatcher->dispatch($name, $server);
 	}
 
-	function iprocessWrite($name, $data) {
-		/**
-		 * @var ProcessDispather $dispatcher
-		 */
-		$dispatcher = iloader()->singleton(ProcessDispather::class);
-		$dispatcher->write($name, $data);
+	/**
+	 * 返回进程管理器
+	 * @return \W7\Core\Dispatcher\ProcessDispatcher
+	 */
+	function iprocessManager() {
+		$dispatcher = iloader()->singleton(\W7\Core\Dispatcher\ProcessDispatcher::class);
+		return $dispatcher;
 	}
 
-	function iprocessExit($name) {
-		/**
-		 * @var ProcessDispather $dispatcher
-		 */
-		$dispatcher = iloader()->singleton(ProcessDispather::class);
-		$dispatcher->quit($name);
+	/**
+	 * 派发一个进程池
+	 * @param $name
+	 * @param null $server
+	 * @return bool|swoole_process|void
+	 */
+	function iprocessPool($name, $number) {
+
 	}
 
-	function iprocessGet($name) {
-		/**
-		 * @var ProcessDispather $dispatcher
-		 */
-		$dispatcher = iloader()->singleton(ProcessDispather::class);
-		return $dispatcher->getProcess($name);
+	/**
+	 * 返回一个进程池管理
+	 * @return \W7\Core\Dispatcher\ProcessPoolDispatcher
+	 */
+	function iprocessPoolManager() {
+		$dispatcher = iloader()->singleton(\W7\Core\Dispatcher\ProcessPoolDispatcher::class);
+		return $dispatcher;
 	}
 }
 if (!function_exists("ievent")) {

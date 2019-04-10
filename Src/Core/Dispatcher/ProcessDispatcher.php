@@ -9,7 +9,7 @@ namespace W7\Core\Dispatcher;
 use Swoole\Process;
 use W7\Core\Process\ProcessAbstract;
 
-class ProcessDispather extends DispatcherAbstract {
+class ProcessDispatcher extends DispatcherAbstract {
 
 	/**
 	 * @var array
@@ -24,10 +24,6 @@ class ProcessDispather extends DispatcherAbstract {
 		$name = $params[0];
 		$server = $params[1];
 
-		if (isset(self::$processes[$name])) {
-			return self::$processes[$name];
-		}
-
 		if (!class_exists($name)) {
 			ilogger()->warning(sprintf("Process is worng name is %s", $name));
 			return false;
@@ -35,7 +31,7 @@ class ProcessDispather extends DispatcherAbstract {
 		/**
 		 * @var ProcessAbstract $process
 		 */
-		$process = iloader()->singleton($name);
+		$process = new $name();
 		$checkInfo = call_user_func([$process, "check"]);
 		if (!$checkInfo) {
 			return false;
@@ -61,7 +57,12 @@ class ProcessDispather extends DispatcherAbstract {
 
 		}, false, SOCK_DGRAM);
 
-		self::$processes[$name] = $swooleProcess;
+		//可能相同的进程会注册多个
+		if (!isset(self::$processes[$name]) || !is_array(self::$processes[$name])) {
+			self::$processes[$name] = [];
+		}
+		array_push(self::$processes[$name], $swooleProcess);
+
 		if (!empty($server)) {
 			$server->addProcess($swooleProcess);
 		} else {
@@ -73,38 +74,27 @@ class ProcessDispather extends DispatcherAbstract {
 	}
 
 	/**
-	 * 发送信息到一个进程内，进程内需要实现read方法来接收
 	 * @param $name
-	 * @param $data
+	 * @param int $index
+	 * @return \swoole_process
 	 */
-	public function write($name, $data) {
-		/**
-		 * @var \swoole_process $process
-		 */
-		$process = self::$processes[$name];
-		if (empty($process)) {
-			throw new \RuntimeException('Process not exists');
-		}
-
-		$process->write($data);
-	}
-
-	public function getProcess($name) {
+	public function get($name, $index = 0) {
 		/**
 		 * @var \swoole_process $process
 		 */
 		$process = self::$processes[$name] ?? null;
-		if (empty($process)) {
+		if (empty($process) || empty($process[$index])) {
 			throw new \RuntimeException('Process not exists');
 		}
 
-		return $process;
+		return $process[$index];
 	}
 
 	public function quit($name) {
 		try {
-			$process = $this->getProcess($name);
-			Process::kill($process->pid);
+			foreach (self::$processes[$name] as $i => $process) {
+				Process::kill($process->pid);
+			}
 			unset(self::$processes[$name]);
 			return true;
 		} catch (\Throwable $e) {
