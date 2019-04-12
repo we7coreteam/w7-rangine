@@ -40,6 +40,8 @@ class LastMiddleware extends MiddlewareAbstract
 				return $response;
 			} elseif (is_object($response)) {
 				$response = 'Illegal type ' . get_class($response) . ', Must be a response object, an array, or a string';
+			} elseif (is_array($response)) {
+
 			} else {
 				$response = strval($response);
 			}
