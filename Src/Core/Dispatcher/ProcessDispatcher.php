@@ -41,7 +41,9 @@ class ProcessDispatcher extends DispatcherAbstract {
 		 * @var \swoole_process $swooleProcess
 		 */
 		$swooleProcess = new \swoole_process(function (\swoole_process $worker) use ($process, $name) {
-			$worker->name('w7swoole ' . $name . '-' . $worker->pipe . ' process');
+			if (\stripos(PHP_OS, 'Darwin') === false) {
+				$worker->name('w7swoole ' . $name . '-' . $worker->pipe . ' process');
+			}
 			$process->run($worker);
 			//如果进程包含read方法，自动添加事件侦听，获取主进程发送的消息
 			if (method_exists($process, 'read')) {
