@@ -66,7 +66,7 @@ class EventDispatcher extends DispatcherAbstract
 		if (!in_array($eventName, $this->systemEvent)) {
 			return true;
 		}
-		$type = ['framework', $this->serverType, 'user'];
+		$type = ['user', $this->serverType, 'framework'];
 		foreach ($type as $item) {
 			if (!isset($this->listener[$eventName][$item])) {
 				continue;
@@ -76,12 +76,12 @@ class EventDispatcher extends DispatcherAbstract
 				if (class_exists($class)) {
 					$object = \iloader()->singleton($class);
 					if ($object instanceof ListenerInterface) {
-						return call_user_func_array([$object, 'run'], $args);
+                        $args = call_user_func_array([$object, 'run'], $args);
 					}
 				}
 			}
 		}
-		return true;
+		return $args;
 	}
 
 	/**
