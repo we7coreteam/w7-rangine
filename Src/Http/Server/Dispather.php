@@ -63,9 +63,11 @@ class Dispather extends DispatcherAbstract {
 				$message = '服务内部错误';
 				$code = '500';
 			}
-			$response = $contextObj->getResponse()->json(['error' => $message], $code);
+            $response = $contextObj->getResponse()->error($message, $code);
+//			$response = $contextObj->getResponse()->json(['error' => $message], $code);
 		}
-		$response->send();
+
+		return $response;
 	}
 
 

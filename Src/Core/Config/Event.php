@@ -39,11 +39,10 @@ class Event
 	/**
 	 * 自定义事件
 	 */
-	const ON_USER_BEFORE_START = 'beforeStart';
-	const ON_USER_AFTER_START = 'afterStart';
-	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
-	const ON_USER_AFTER_REQUEST = 'afterRequest';
-	const ON_USER_TASK_FINISH = 'afterTaskFinish';
-    const ON_USER_BEFORE_RECEIVE = 'beforeReceive';
-    const ON_USER_AFTER_RECEIVE = 'afterReceive';
+
+    const ON_USER_BEFORE_START = 'beforeStart';
+    const ON_USER_AFTER_START = 'afterStart';
+    const ON_USER_BEFORE_REQUEST = 'beforeRequest';
+    const ON_USER_AFTER_REQUEST = 'afterRequest';
+    const ON_USER_TASK_FINISH = 'afterTaskFinish';
 }

@@ -9,6 +9,6 @@ namespace W7\Core\Listener;
 
 class BeforeRequestListener extends ListenerAbstract {
 	public function run(...$params) {
-
+        return $params;
 	}
 }

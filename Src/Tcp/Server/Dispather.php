@@ -9,20 +9,17 @@ namespace W7\Tcp\Server;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
+use W7\Core\Config\Event;
 use W7\Core\Dispatcher\DispatcherAbstract;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Helper\Storage\Context;
 
-
 class Dispather extends DispatcherAbstract {
 	public function dispatch(...$params) {
-        $fd = $params[0];
-        $body = $params[1];
-        $server = $params[2];
+        $body = $params[0];
+        $serverContext = $params[1];
 
-        /**
-         * test
-         */
+
         $psr7Request = new \W7\Http\Message\Server\Request($body['method'], $body['url'], [], null, $body['protocol']);
         $psr7Request->withQueryParams($body['data']);
         $psr7Response = new Response();
@@ -35,10 +32,10 @@ class Dispather extends DispatcherAbstract {
 		try {
 			//根据router配置，获取到匹配的controller信息
 			//获取到全部中间件数据，最后附加tcp组件的特定的last中间件，用于处理调用Controller
-			$route = $this->getRoute($psr7Request, $server->context[Context::ROUTE_KEY]);
+			$route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
 			$psr7Request = $psr7Request->withAddedHeader("route", json_encode($route));
 
-			$middlewares = $this->getMiddleware($server->context[Context::MIDDLEWARE_KEY], $route['controller'], $route['method']);
+			$middlewares = $this->getMiddleware($serverContext[Context::MIDDLEWARE_KEY], $route['controller'], $route['method']);
 			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
 			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 
@@ -65,10 +62,12 @@ class Dispather extends DispatcherAbstract {
 				$message = '服务内部错误';
 				$code = '500';
 			}
-			$response = $contextObj->getResponse()->json(['error' => $message], $code);
+
+//			$response = $contextObj->getResponse()->error($message, $code);
+            $response = $contextObj->getResponse()->json(['error' => $message], $code);
 		}
 
-		$server->send($fd, $response->getContent());
+		return $response;
 	}
 
 

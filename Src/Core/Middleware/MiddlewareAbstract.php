@@ -31,11 +31,16 @@ abstract class MiddlewareAbstract implements MiddlewareInterface {
                 $funArgs = array_merge($funArgs, $route['args']);
             }
 
-            $response =  call_user_func_array($controllerHandler, $funArgs);
-            //如果结果是一个response对象，则直接输出，否则按json输出
-            if ($response instanceof ResponseInterface) {
-                return $response;
-            } elseif (is_object($response)) {
+            $response = $classObj->before($request);
+            if ($response === true) {
+                $response =  call_user_func_array($controllerHandler, $funArgs);
+                if ($response instanceof ResponseInterface) {
+                    return $response;
+                }
+            }
+            $response = $classObj->after($response);
+
+            if (is_object($response)) {
                 $response = 'Illegal type ' . get_class($response) . ', Must be a response object, an array, or a string';
             } elseif (is_array($response)) {
 
@@ -44,7 +49,8 @@ abstract class MiddlewareAbstract implements MiddlewareInterface {
             }
 
             $contextObj = App::getApp()->getContext();
-            return $contextObj->getResponse()->json($response);
+//
+            return $contextObj->getResponse()->withContent($response);
 
         } catch (\Throwable $throwable) {
             throw $throwable;

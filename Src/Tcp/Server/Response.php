@@ -3,6 +3,7 @@
 namespace W7\Tcp\Server;
 
 use W7\Http\Message\Helper\JsonHelper;
+use W7\Http\Message\Stream\SwooleStream;
 
 /**
  * Class Response
@@ -17,6 +18,19 @@ class Response extends \W7\Http\Message\Base\Response {
             'data' => $data,
             'code' => $status
         ], $encodingOptions);
+        return $this;
+    }
+
+    /**
+     * 设置Body内容，使用默认的Stream
+     *
+     * @param string $content
+     * @return \W7\Http\Message\Server\Response
+     */
+    public function withContent($content)
+    {
+        $this->content = $content;
+
         return $this;
     }
 

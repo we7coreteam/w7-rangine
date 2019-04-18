@@ -8,6 +8,6 @@ namespace W7\Core\Listener;
 
 class AfterRequestListener extends ListenerAbstract {
 	public function run(...$params) {
-
+        return $params;
 	}
 }
