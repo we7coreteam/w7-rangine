@@ -76,7 +76,7 @@ class EventDispatcher extends DispatcherAbstract
 				if (class_exists($class)) {
 					$object = \iloader()->singleton($class);
 					if ($object instanceof ListenerInterface) {
-						call_user_func_array([$object, 'run'], $args);
+						return call_user_func_array([$object, 'run'], $args);
 					}
 				}
 			}

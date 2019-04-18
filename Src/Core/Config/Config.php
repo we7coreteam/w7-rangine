@@ -57,6 +57,9 @@ class Config {
 			Event::ON_USER_BEFORE_REQUEST,
 			Event::ON_USER_AFTER_REQUEST,
 			Event::ON_USER_TASK_FINISH,
+            Event::ON_USER_AFTER_REQUEST,
+            Event::ON_USER_BEFORE_RECEIVE,
+            Event::ON_USER_AFTER_RECEIVE
 		],
 	];
 

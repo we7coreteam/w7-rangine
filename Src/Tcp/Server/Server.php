@@ -6,7 +6,6 @@
 
 namespace W7\Tcp\Server;
 
-
 use W7\Core\Config\Event;
 use W7\Core\Server\ServerAbstract;
 
@@ -21,7 +20,7 @@ class Server extends ServerAbstract {
 		$this->server = new \swoole_server($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
 		$this->server->set($this->setting);
 
-		ievent(Event::ON_USER_BEFORE_START);
+        ievent(Event::ON_USER_BEFORE_START, [$this->server]);
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
