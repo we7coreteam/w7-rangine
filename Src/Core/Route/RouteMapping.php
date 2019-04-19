@@ -6,105 +6,67 @@
 
 namespace W7\Core\Route;
 
-use FastRoute\RouteCollector;
 
 class RouteMapping {
 
 	private $routeConfig;
 
-	public function ab() {
-
-	}
-
 	function __construct() {
-		$this->routeConfig = \iconfig()->getUserConfig("route");
+		$this->routeConfig = \iconfig()->getRouteConfig();
+		/**
+		 * @todo 增加引入扩展机制的路由
+		 */
 	}
 
 	/**
 	 * @return array|mixed
 	 */
 	public function getMapping() {
-		if (empty($this->routeConfig)) {
-			return [];
-		}
-		$routeCollector = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
-		unset($this->routeConfig['@middleware']);
-
-		foreach ($this->routeConfig as $section => $setting) {
-			//以/开头的为目录，否则是控制器
-			if ($section[0] === '/') {
-				$commonMethod = '';
-				$group = $setting;
-				foreach ($group as $controller => $setting) {
-					if ($controller == '@method') {
-						$commonMethod = $setting;
-					}
-					if ($controller[0] === '@') {
-						continue;
-					}
-					if (empty($setting['@method']) && !empty($commonMethod)) {
-						$setting['@method'] = $commonMethod;
-					}
-					$controllerRoute = $this->formatRouteForFastRoute($setting, $controller, ltrim($section, '/'));
-					if (!empty($controllerRoute)) {
-						$routeCollector->addGroup($section, function (RouteCollector $route) use ($controllerRoute) {
-							foreach ($controllerRoute as $action => $info) {
-								$route->addRoute($info['method'], $info['url'], $info['handler']);
-							}
-						});
-					}
-				}
-			} elseif ($section[0] === '@') {
-				continue;
-			} else {
-				$controller = $section;
-				$controllerRoute = $this->formatRouteForFastRoute($setting, $controller);
-				if (!empty($controllerRoute)) {
-					foreach ($controllerRoute as $action => $info) {
-						$routeCollector->addRoute($info['method'], $info['url'], $info['handler']);
-					}
-				}
-			}
-		}
+		$routeCollector = irouter();
+		$this->initRouteByConfig($routeCollector, $this->routeConfig);
 		return $routeCollector->getData();
 	}
 
-	private function formatRouteForFastRoute($routeData, $controller, $group = '') {
-		$routes = [];
-		$commonMethod = $routeData['@method'] ?? Route::METHOD_BOTH_GP;
-		$commonQuery = $routeData['@query'] ?? '';
+	private function initRouteByConfig($route, $config, $prefix = '') {
+		if (empty($config) || !is_array($config)) {
+			return [];
+		}
 
-		foreach ($routeData as $action => $data) {
-			//跳过公共配置
-			if ($action[0] == '@') {
+		foreach ($config as $section => $routeItem) {
+			//包含prefix时，做为URL的前缀
+			if ($section == 'prefix') {
+				$prefix .= $routeItem;
 				continue;
 			}
 
-			$method = !empty($data['@method']) ? $data['@method'] : $commonMethod;
-			$query = $data['@query'] ?? $commonQuery;
+			if ($section == 'middleware') {
 
-			$method = explode(',', $method);
-			//清除掉Method两边的空格
-			if (!empty($method)) {
-				foreach ($method as &$value) {
-					$value = trim($value);
-				}
-				unset($value);
+				continue;
 			}
 
-			$routes[$action]['method'] = $method;
-			if (!empty($data['rewrite'])) {
-				$routes[$action]['url'] =  DIRECTORY_SEPARATOR . $data['@rewrite'];
+			//仅当下属节点不包含prefix时，才会拼接键名
+			if (empty($routeItem['prefix'])) {
+				$uri = sprintf('%s/%s', $prefix, ltrim($section, '/'));
 			} else {
-				$routes[$action]['url'] =  DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . $query;
+				$uri = sprintf('%s', $prefix);
 			}
 
-			$routes[$action]['handler'] = (!empty($group) ? ucfirst($group) . "\\" : '') . ucfirst($controller) . '@' . $action;
+			if (is_array($routeItem) && empty($routeItem['method']) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
+				$this->initRouteByConfig($route, $routeItem, $uri ?? '');
+			} else {
+				if (!empty($routeItem['uri'])) {
+					$uri = $routeItem['uri'];
+				}
+				if (empty($uri) || empty($routeItem['handler'])) {
+					continue;
+				}
 
-			if (empty($query)) {
-				$routes[$action]['url'] = rtrim($routes[$action]['url'], DIRECTORY_SEPARATOR);
+				if (is_string($routeItem['method'])) {
+					$routeItem['method'] = explode(',', $routeItem['method']);
+				}
+
+				$route->add(array_map('strtoupper', $routeItem['method']), $uri, $routeItem['handler']);
 			}
 		}
-		return $routes;
 	}
 }

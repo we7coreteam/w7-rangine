@@ -23,6 +23,10 @@ class MiddlewareMapping {
 		return $middlewares;
 	}
 
+	public function setMiddleware() {
+
+	}
+
 	/**
 	 * 根据路由配置获取中间件
 	 */
