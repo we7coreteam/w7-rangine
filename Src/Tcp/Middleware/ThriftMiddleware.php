@@ -25,9 +25,6 @@ class ThriftMiddleware extends MiddlewareAbstract {
         $process = $socket->server->context['thrift_process'];
         $process->process($protocol, $protocol);
 
-        /**
-         * test response
-         */
-        return new Response();
+        return App::getApp()->getContext()->getResponse();
     }
 }
