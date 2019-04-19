@@ -3,7 +3,6 @@
 namespace W7\Tcp\Server;
 
 use W7\Http\Message\Helper\JsonHelper;
-use W7\Http\Message\Stream\SwooleStream;
 
 /**
  * Class Response
@@ -14,10 +13,10 @@ class Response extends \W7\Http\Message\Base\Response {
     protected $content;
 
     public function json($data = [], $status = 200, int $encodingOptions = JSON_UNESCAPED_UNICODE) {
-        $this->content = JsonHelper::encode([
+        $this->withContent(JsonHelper::encode([
             'data' => $data,
             'code' => $status
-        ], $encodingOptions);
+        ], $encodingOptions));
         return $this;
     }
 
@@ -27,10 +26,8 @@ class Response extends \W7\Http\Message\Base\Response {
      * @param string $content
      * @return \W7\Http\Message\Server\Response
      */
-    public function withContent($content)
-    {
+    public function withContent($content) {
         $this->content = $content;
-
         return $this;
     }
 
