@@ -72,18 +72,17 @@ class RouteMapping {
 					continue;
 				}
 
+				if (is_string($routeItem['method'])) {
+					$routeItem['method'] = explode(',', $routeItem['method']);
+				}
+
 				//组合中间件
 				if (empty($routeItem['middleware'])) {
 					$routeItem['middleware'] = [];
 				}
 				$routeItem['middleware'] = array_merge([], $middleware, (array) $routeItem['middleware']);
-				$this->middlewareMapping->setMiddleware($uri, $routeItem['middleware']);
 
-				if (is_string($routeItem['method'])) {
-					$routeItem['method'] = explode(',', $routeItem['method']);
-				}
-
-				$route->add(array_map('strtoupper', $routeItem['method']), $uri, $routeItem['handler']);
+				$route->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $uri, $routeItem['handler']);
 			}
 		}
 	}

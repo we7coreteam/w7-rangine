@@ -8,6 +8,7 @@ namespace W7\Core\Route;
 
 
 use FastRoute\RouteCollector;
+use W7\Core\Middleware\MiddlewareMapping;
 
 class Route {
 	const METHOD_POST = 'POST';
@@ -21,8 +22,20 @@ class Route {
 
 	private $router;
 
+	/**
+	 * @var MiddlewareMapping
+	 */
+	private $middlewareMapping;
+
+	/**
+	 * 当前路由中间件
+	 * @var array
+	 */
+	private $currentMiddleware = [];
+
 	public function __construct() {
 		$this->router = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
+		$this->middlewareMapping = iloader()->singleton(MiddlewareMapping::class);
 	}
 
 
@@ -97,6 +110,11 @@ class Route {
 		}
 		unset($value);
 
+		if (!empty($this->currentMiddleware)) {
+			$this->middlewareMapping->setMiddleware(implode('@', $handler), $this->currentMiddleware);
+			$this->currentMiddleware = [];
+		}
+
 		return $this->router->addRoute(array_map('strtoupper', (array) $methods), $uri, $handler);
 	}
 
@@ -125,6 +143,17 @@ class Route {
 	}
 
 	public function middleware($name) {
+		if (!is_array($name)) {
+			$name = func_get_args();
+			$name = [$name];
+		}
+		foreach ($name as $i => $row) {
+			if (!is_array($row)) {
+				$row = [$row];
+			}
+			$this->currentMiddleware[] = $row;
+		}
+
 		return $this;
 	}
 

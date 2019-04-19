@@ -90,7 +90,7 @@ class Dispather extends DispatcherAbstract {
 				break;
 			case Dispatcher::FOUND:
 				$controller = $method = '';
-				list($controller, $method) = explode("@", $route[1]);
+				list($controller, $method) = $route[1];
 				break;
 		}
 
@@ -102,9 +102,7 @@ class Dispather extends DispatcherAbstract {
 	}
 
 	private function getMiddleware($allMiddleware, $controller, $action) {
-		$result = [];
-		$controllerMiddlerwares = !empty($allMiddleware[$controller]) ? $allMiddleware[$controller] : [];
-		$result = $controllerMiddlerwares[$action];
+		$result = $allMiddleware[$controller . '@' . $action] ?? [];
 		return $result;
 	}
 
