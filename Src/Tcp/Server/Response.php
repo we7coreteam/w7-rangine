@@ -7,7 +7,7 @@ use W7\Http\Message\Helper\JsonHelper;
 /**
  * Class Response
  * @package W7\Tcp\Server
- * test
+ * need modify
  */
 class Response extends \W7\Http\Message\Base\Response {
     protected $content;
@@ -21,7 +21,7 @@ class Response extends \W7\Http\Message\Base\Response {
     }
 
     /**
-     * 设置Body内容，使用默认的Stream
+     * 设置content内容
      *
      * @param string $content
      * @return \W7\Http\Message\Server\Response

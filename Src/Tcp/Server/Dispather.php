@@ -17,17 +17,11 @@ use W7\Core\Helper\Storage\Context;
 class Dispather extends DispatcherAbstract {
 
 	public function dispatch(...$params) {
-	    $method = $params[0];
-        $url = $params[1];
-        $data = $params[2];
+        $psr7Request = $params[0];
+        $psr7Response = new Response();
         $serverContext = App::$server->server->context;
 
-        $psr7Request = new \W7\Http\Message\Server\Request($method, $url, [], null);
-        $psr7Request->withParsedBody($data);
-        $psr7Response = new Response();
-
         $contextObj = App::getApp()->getContext();
-        $contextObj->setRequest($psr7Request);
         $contextObj->setResponse($psr7Response);
 
         try {

@@ -6,13 +6,12 @@
 
 namespace W7\Tcp\Listener;
 
-
 use W7\App;
 use Swoole\Coroutine;
 use Swoole\Server;
 use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Middleware\MiddlewareHandler;
+use W7\Tcp\Protocol\IDispatcher;
 
 class ReceiveListener extends ListenerAbstract {
     public function run(...$params) {
@@ -20,6 +19,7 @@ class ReceiveListener extends ListenerAbstract {
          * @var Server $server
          */
         list($server, $fd, $reactorId, $data) = $params;
+
         $this->dispatch($server, $reactorId, $fd, $data);
     }
 
@@ -35,21 +35,31 @@ class ReceiveListener extends ListenerAbstract {
         $context = App::getApp()->getContext();
         $context->setContextDataByKey('reactorid', $reactorId);
         $context->setContextDataByKey('workid', $server->worker_id);
-        $context->setContextDataByKey('fd', $fd);
         $context->setContextDataByKey('coid', Coroutine::getuid());
 
-        $psr7Request = new \W7\Http\Message\Server\Request('POST', '', [], null);
-        $psr7Request = $psr7Request->withParsedBody($data);
-
-        $middlewareHandler = new MiddlewareHandler($this->getMiddlewares());
-        $middlewareHandler->handle($psr7Request);
+        $dispatcher = $this->getDispatcher();
+        $dispatcher->dispatch($server, $fd, $data);
 
         ievent(Event::ON_USER_AFTER_REQUEST);
     }
 
-    private function getMiddlewares() {
-        return [
-            '\\W7\\Tcp\\Middleware\\ThriftMiddleware'
-        ];
+    private function getDispatcher() : IDispatcher {
+        $serverConf = iconfig()->getServer();
+        $protocol = $serverConf['protocol'] ?? 'thrift';
+
+        $class = '';
+        switch ($protocol) {
+	        case 'json':
+		        $class = '\\W7\\Tcp\\Protocol\\Json\\Dispatcher';
+		        break;
+            case 'grpc':
+                $class = '\\W7\\Tcp\\Protocol\\Grpc\\Dispatcher';
+                break;
+            case 'thrift':
+            default:
+                $class = '\\W7\\Tcp\\Protocol\\Thrift\\Dispatcher';
+        }
+
+        return \iloader()->singleton($class);
     }
 }
