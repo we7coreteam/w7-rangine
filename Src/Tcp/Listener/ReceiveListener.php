@@ -11,7 +11,7 @@ use Swoole\Coroutine;
 use Swoole\Server;
 use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Tcp\Protocol\IDispatcher;
+use W7\Tcp\Protocol\Dispatcher;
 
 class ReceiveListener extends ListenerAbstract {
     public function run(...$params) {
@@ -37,29 +37,9 @@ class ReceiveListener extends ListenerAbstract {
         $context->setContextDataByKey('workid', $server->worker_id);
         $context->setContextDataByKey('coid', Coroutine::getuid());
 
-        $dispatcher = $this->getDispatcher();
-        $dispatcher->dispatch($server, $fd, $data);
+        $protocol = $serverConf['protocol'] ?? '';
+        Dispatcher::dispatch($protocol, $server, $fd, $data);
 
         ievent(Event::ON_USER_AFTER_REQUEST);
-    }
-
-    private function getDispatcher() : IDispatcher {
-        $serverConf = iconfig()->getServer();
-        $protocol = $serverConf['protocol'] ?? 'thrift';
-
-        $class = '';
-        switch ($protocol) {
-	        case 'json':
-		        $class = '\\W7\\Tcp\\Protocol\\Json\\Dispatcher';
-		        break;
-            case 'grpc':
-                $class = '\\W7\\Tcp\\Protocol\\Grpc\\Dispatcher';
-                break;
-            case 'thrift':
-            default:
-                $class = '\\W7\\Tcp\\Protocol\\Thrift\\Dispatcher';
-        }
-
-        return \iloader()->singleton($class);
     }
 }
