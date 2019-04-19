@@ -7,6 +7,7 @@ use Thrift\Protocol\TMultiplexedProtocol;
 use Thrift\Transport\TFramedTransport;
 use Thrift\Transport\TSocket;
 use W7\Client\Protocol\ClientAbstract;
+use W7\Client\Protocol\Thrift\Core\DispatcherClient;
 
 class Client extends ClientAbstract
 {
@@ -27,14 +28,13 @@ class Client extends ClientAbstract
 	    $service = new TMultiplexedProtocol($protocol, 'Dispatcher');
 	    $transport->open();
 
-	    $client = new \W7\Client\Protocol\Thrift\Core\DispatcherClient($service);
+	    $client = new DispatcherClient($service);
 	    $body = [
 		    'url' => $url
 	    ];
 	    if ($data) {
 	    	$body['data'] = $data;
 	    }
-	    var_dump($body);
 	    $ret = $client->run(json_encode($body));
 	    $transport->close();
 
