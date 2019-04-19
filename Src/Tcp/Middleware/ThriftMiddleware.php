@@ -7,7 +7,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use W7\App;
 use W7\Core\Middleware\MiddlewareAbstract;
-use W7\Tcp\Server\Response;
 use W7\Tcp\Services\RpcSocket;
 
 class ThriftMiddleware extends MiddlewareAbstract {
