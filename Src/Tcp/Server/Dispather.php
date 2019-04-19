@@ -22,8 +22,8 @@ class Dispather extends DispatcherAbstract {
         $data = $params[2];
         $serverContext = App::$server->server->context;
 
-        $psr7Request = new \W7\Http\Message\Server\Request($method, $url, [], null, 'rpc');
-        $psr7Request->withQueryParams($data);
+        $psr7Request = new \W7\Http\Message\Server\Request($method, $url, [], null);
+        $psr7Request->withParsedBody($data);
         $psr7Response = new Response();
 
         $contextObj = App::getApp()->getContext();
