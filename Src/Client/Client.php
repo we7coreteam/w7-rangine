@@ -38,12 +38,12 @@ class Client {
     	if (!$this->handle) {
 		    $class = '';
 		    switch ($this->protocol) {
-			    case 'json':
-				    $class = '\\W7\\Client\\Protocol\\Json\\Client';
-				    break;
-			    case 'grpc':
-				    $class = '\\W7\\Client\\Protocol\\Grpc\\Client';
-				    break;
+//			    case 'json':
+//				    $class = '\\W7\\Client\\Protocol\\Json\\Client';
+//				    break;
+//			    case 'grpc':
+//				    $class = '\\W7\\Client\\Protocol\\Grpc\\Client';
+//				    break;
 			    case 'thrift':
 			    default:
 				    $class = '\\W7\\Client\\Protocol\\Thrift\\Client';
