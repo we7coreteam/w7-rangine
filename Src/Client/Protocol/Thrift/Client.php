@@ -15,9 +15,13 @@ class Client extends ClientAbstract
 	private $port;
 
 	public function __construct($host) {
-		$host = explode(':', $host);
-		$this->host = $host[0];
-		$this->port = $host[1] ?? '';
+		$pos = strrpos($host, ':');
+		if ($pos !== false) {
+			$this->host = substr($host, 0, $pos);
+			$this->port = substr($host, $pos + 1);
+		} else {
+			$this->host = $host;
+		}
 	}
 
 	public function call($url, $data = null)
