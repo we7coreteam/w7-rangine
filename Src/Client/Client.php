@@ -9,7 +9,7 @@ class Client {
     private $protocol;
     private $handle;
 
-    public function __construct($params = [
+    public function __construct(array $params = [
     	'protocol' => 'thrift'
     ]) {
 		$this->baseUrl = $params['base_url'] ?? '';
