@@ -7,11 +7,19 @@
 namespace W7\Core\Route;
 
 
+use W7\Core\Middleware\MiddlewareMapping;
+
 class RouteMapping {
 
 	private $routeConfig;
 
+	/**
+	 * @var MiddlewareMapping
+	 */
+	private $middlewareMapping;
+
 	function __construct() {
+		$this->middlewareMapping = iloader()->singleton(MiddlewareMapping::class);
 		$this->routeConfig = \iconfig()->getRouteConfig();
 		/**
 		 * @todo 增加引入扩展机制的路由
@@ -27,7 +35,7 @@ class RouteMapping {
 		return $routeCollector->getData();
 	}
 
-	private function initRouteByConfig($route, $config, $prefix = '') {
+	private function initRouteByConfig($route, $config, $prefix = '', $middleware = []) {
 		if (empty($config) || !is_array($config)) {
 			return [];
 		}
@@ -39,11 +47,6 @@ class RouteMapping {
 				continue;
 			}
 
-			if ($section == 'middleware') {
-
-				continue;
-			}
-
 			//仅当下属节点不包含prefix时，才会拼接键名
 			if (empty($routeItem['prefix'])) {
 				$uri = sprintf('%s/%s', $prefix, ltrim($section, '/'));
@@ -51,15 +54,30 @@ class RouteMapping {
 				$uri = sprintf('%s', $prefix);
 			}
 
+			if ($section == 'middleware') {
+				$middleware = array_merge([], $middleware, (array) $routeItem);
+			}
+
 			if (is_array($routeItem) && empty($routeItem['method']) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
-				$this->initRouteByConfig($route, $routeItem, $uri ?? '');
+				$this->initRouteByConfig($route, $routeItem, $uri ?? '', $middleware);
 			} else {
+				if (!is_array($routeItem) || empty($routeItem['handler'])) {
+					continue;
+				}
+
 				if (!empty($routeItem['uri'])) {
 					$uri = $routeItem['uri'];
 				}
 				if (empty($uri) || empty($routeItem['handler'])) {
 					continue;
 				}
+
+				//组合中间件
+				if (empty($routeItem['middleware'])) {
+					$routeItem['middleware'] = [];
+				}
+				$routeItem['middleware'] = array_merge([], $middleware, (array) $routeItem['middleware']);
+				$this->middlewareMapping->setMiddleware($uri, $routeItem['middleware']);
 
 				if (is_string($routeItem['method'])) {
 					$routeItem['method'] = explode(',', $routeItem['method']);
