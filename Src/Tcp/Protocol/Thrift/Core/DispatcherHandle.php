@@ -20,6 +20,6 @@ class DispatcherHandle implements DispatcherIf {
         $dispather = \iloader()->singleton(Dispather::class);
         $psr7Response = $dispather->dispatch($psr7Request);
 
-        return $psr7Response->getContent();
+        return $psr7Response->getBody()->getContents();
     }
 }

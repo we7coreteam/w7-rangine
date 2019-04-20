@@ -13,15 +13,16 @@ use W7\Core\Dispatcher\DispatcherAbstract;
 use W7\Core\Exception\HttpException;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Helper\Storage\Context;
+use W7\Http\Message\Server\Response;
 
 class Dispather extends DispatcherAbstract {
 
 	public function dispatch(...$params) {
         $psr7Request = $params[0];
-        $psr7Response = new Response();
         $serverContext = App::$server->server->context;
 
         $contextObj = App::getApp()->getContext();
+		$psr7Response = new Response();
         $contextObj->setResponse($psr7Response);
 
         try {
