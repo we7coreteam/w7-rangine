@@ -13,6 +13,8 @@ use W7\Core\Dispatcher\DispatcherAbstract;
 use W7\Core\Exception\HttpException;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Helper\Storage\Context;
+use W7\Http\Message\Server\Request;
+use W7\Http\Message\Server\Response;
 
 class Dispather extends DispatcherAbstract {
 
@@ -23,8 +25,9 @@ class Dispather extends DispatcherAbstract {
 		 * @var Context $serverContext
 		 */
 		$serverContext = $params[2];
-		$psr7Request = \W7\Http\Message\Server\Request::loadFromSwooleRequest($request);
-		$psr7Response = new \W7\Http\Message\Server\Response($response);
+
+		$psr7Request = Request::loadFromSwooleRequest($request);
+		$psr7Response = Response::loadFromSwooleResponse($response);
 
 		$contextObj = App::getApp()->getContext();
 		$contextObj->setRequest($psr7Request);
@@ -63,11 +66,9 @@ class Dispather extends DispatcherAbstract {
 				$message = '服务内部错误';
 				$code = '500';
 			}
-            $response = $contextObj->getResponse()->error($message, $code);
-//			$response = $contextObj->getResponse()->json(['error' => $message], $code);
+			$response = $contextObj->getResponse()->json(['error' => $message], $code);
 		}
-
-		return $response;
+		$response->send();
 	}
 
 
