@@ -6,14 +6,14 @@ use Thrift\Protocol\TBinaryProtocol;
 use Thrift\Protocol\TMultiplexedProtocol;
 use Thrift\Transport\TFramedTransport;
 use Thrift\Transport\TSocket;
+use W7\Client\Protocol\ClientAbstract;
 use W7\Client\Protocol\IClient;
 use W7\Client\Protocol\Thrift\Core\DispatcherClient;
 
-class Client implements IClient
+class Client extends ClientAbstract implements IClient
 {
 	private $host;
 	private $port;
-	private $packFormat;
 
 	public function __construct(array $params) {
 		$host = $params['host'];
@@ -49,27 +49,5 @@ class Client implements IClient
 	    $transport->close();
 
 	    return $this->unpack($ret);
-    }
-
-	public function pack($body) {
-	    switch ($this->packFormat) {
-		    case 'serialize':
-			    return serialize($body);
-			    break;
-		    case 'json':
-		    default:
-			    return json_encode($body);
-	    }
-    }
-
-	public function unpack($body) {
-		switch ($this->packFormat) {
-			case 'serialize':
-				return unserialize($body);
-				break;
-			case 'json':
-			default:
-				return json_decode($body, true);
-		}
     }
 }

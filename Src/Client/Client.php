@@ -42,35 +42,6 @@ class Client {
     	return $client->call($url, $params);
     }
 
-//    private function pack($url, $params = null) {
-//	    $body = [
-//		    'url' => $url
-//	    ];
-//	    if ($params) {
-//		    $body['data'] = $params;
-//	    }
-//
-//	    switch ($this->packFormat) {
-//		    case 'serialize':
-//			    return serialize($body);
-//			    break;
-//		    case 'json':
-//		    default:
-//			    return json_encode($body);
-//	    }
-//    }
-
-//	private function unpack($data) {
-//		switch ($this->packFormat) {
-//			case 'serialize':
-//				return unserialize($data);
-//				break;
-//			case 'json':
-//			default:
-//				return json_decode($data, true);
-//		}
-//	}
-
     private function getClient() : IClient {
     	if (!$this->handle) {
 		    $class = '';
