@@ -2,66 +2,61 @@
 
 namespace W7\Client;
 
-use W7\Client\Protocol\IClient;
+use W7\Client\Protocol\ClientInterface;
+use W7\Client\Protocol\Thrift\Client as ClientThrift;
 
 class Client {
-    private $baseUrl;
-    private $protocol;
-    private $packFormat;
-    private $handle;
+	private $baseUrl;
+	private $protocol;
+	private $packFormat;
+	private $handle;
 
-    public function __construct(array $params = [
-    	'base_url' => '',
-    	'protocol' => 'thrift',
-	    'pack_format' => 'json'
-    ]) {
+	private $protocolMap = [
+		'thrift' => ClientThrift::class
+	];
+
+	public function __construct(array $params = [
+		'base_url' => '',
+		'protocol' => 'thrift'
+	]) {
 		$this->baseUrl = $params['base_url'] ?? '';
-	    $this->protocol = $params['protocol'] ?? 'thrift';
-	    $this->packFormat = $params['pack_format'] ?? 'json';
-    }
+		$this->protocol = $params['protocol'] ?? 'thrift';
+		$this->packFormat = 'json';
+	}
 
-    public function setBaseUrl($url) {
-    	$this->baseUrl = $url;
-	    $this->handle = null;
+	public function setBaseUrl($url) {
+		$this->baseUrl = $url;
+		$this->handle = null;
 
-	    return $this;
-    }
+		return $this;
+	}
 
-    public function setProtocol($protocol) {
-    	if ($this->protocol !== $protocol) {
-    		$this->handle = null;
-	    }
-    	$this->protocol = $protocol;
+	public function setProtocol($protocol) {
+		if ($this->protocol !== $protocol) {
+			$this->handle = null;
+		}
+		$this->protocol = $protocol;
 
-    	return $this;
-    }
+		return $this;
+	}
 
-	public function call($url, $params = null)
-    {
-    	$client = $this->getClient();
-    	return $client->call($url, $params);
-    }
+	public function call($url, $params = null) {
+		$client = $this->getClient();
+		return $client->call($url, $params);
+	}
 
-    private function getClient() : IClient {
-    	if (!$this->handle) {
-		    $class = '';
-		    switch ($this->protocol) {
-//			    case 'json':
-//				    $class = '\\W7\\Client\\Protocol\\Json\\Client';
-//				    break;
-//			    case 'grpc':
-//				    $class = '\\W7\\Client\\Protocol\\Grpc\\Client';
-//				    break;
-			    case 'thrift':
-			    default:
-				    $class = '\\W7\\Client\\Protocol\\Thrift\\Client';
-		    }
-		    $this->handle = new $class([
-		    	'base_url' => $this->baseUrl,
-			    'pack_format' => $this->packFormat
-		    ]);
-    	}
+	private function getClient() : ClientInterface {
+		if (!$this->handle) {
+			if (empty($this->protocolMap[$this->protocol])) {
+				$this->protocol = 'thrift';
+			}
+			$class = $this->protocolMap[$this->protocol];
+			$this->handle = new $class([
+				'base_url' => $this->baseUrl,
+				'pack_format' => $this->packFormat
+			]);
+		}
 
-	    return $this->handle;
-    }
+		return $this->handle;
+	}
 }

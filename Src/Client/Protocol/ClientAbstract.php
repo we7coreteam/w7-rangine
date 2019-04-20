@@ -5,14 +5,14 @@ namespace W7\Client\Protocol;
 class ClientAbstract {
 	protected $packFormat;
 
-	public function pack($body) {
+	public function pack( $body) {
 		switch ($this->packFormat) {
 			case 'serialize':
 				return serialize($body);
-				break;
 			case 'json':
-			default:
 				return json_encode($body);
+			default:
+				return $body;
 		}
 	}
 
@@ -20,10 +20,10 @@ class ClientAbstract {
 		switch ($this->packFormat) {
 			case 'serialize':
 				return unserialize($body);
-				break;
 			case 'json':
-			default:
 				return json_decode($body, true);
+			default:
+				return $body;
 		}
 	}
 }

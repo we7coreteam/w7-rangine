@@ -6,13 +6,16 @@
 
 namespace W7\Http\Listener;
 
+use W7\App;
 use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
-use W7\App;
 use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Http\Message\Server\Request as Psr7Request;
+use W7\Http\Message\Server\Response as Psr7Response;
+use W7\Http\Server\Dispather;
 
 class RequestListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -27,17 +30,19 @@ class RequestListener extends ListenerAbstract {
 	 * @throws \ReflectionException
 	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
-		ievent(Event::ON_BEFORE_REQUEST);
+		ievent(Event::ON_USER_BEFORE_REQUEST);
 
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 
-		$dispather = \iloader()->singleton(\W7\Http\Server\Dispather::class);
-		$response = $dispather->dispatch($request, $response, $server->context);
+		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
+		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
 
-        $data = ievent(Event::ON_AFTER_REQUEST, [$response->getContent()]);
+		$dispather = \iloader()->singleton(Dispather::class);
+		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
+		$psr7Response->send();
 
-        $response->send($data);
+		ievent(Event::ON_USER_AFTER_REQUEST);
 	}
 }

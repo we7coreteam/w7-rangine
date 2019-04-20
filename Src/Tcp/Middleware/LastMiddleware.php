@@ -7,13 +7,8 @@
 
 namespace W7\Tcp\Middleware;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use W7\App;
-use W7\Core\Helper\StringHelper;
-use W7\Core\Middleware\MiddlewareAbstract;
+use W7\Core\Middleware\ControllerMiddleware;
 
-class LastMiddleware extends MiddlewareAbstract {
+class LastMiddleware extends ControllerMiddleware {
 
 }

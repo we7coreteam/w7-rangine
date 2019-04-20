@@ -14,32 +14,33 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Tcp\Protocol\Dispatcher;
 
 class ReceiveListener extends ListenerAbstract {
-    public function run(...$params) {
-        /**
-         * @var Server $server
-         */
-        list($server, $fd, $reactorId, $data) = $params;
+	public function run(...$params) {
+		/**
+		* @var Server $server
+		*/
+		list($server, $fd, $reactorId, $data) = $params;
 
-        $this->dispatch($server, $reactorId, $fd, $data);
-    }
+		$this->dispatch($server, $reactorId, $fd, $data);
+	}
 
-    /**
+	/**
+	 * 根据用户选择的protocol，把data传到对应protocol的dispatcher
      * @param server $server
      * @param reactorId $reactorId
      * @param fd $fd
      * @param data $data
      */
-    private function dispatch(Server $server, $reactorId, $fd, $data) {
-        ievent(Event::ON_USER_BEFORE_REQUEST);
+	private function dispatch(Server $server, $reactorId, $fd, $data) {
+		ievent(Event::ON_USER_BEFORE_REQUEST);
 
-        $context = App::getApp()->getContext();
-        $context->setContextDataByKey('reactorid', $reactorId);
-        $context->setContextDataByKey('workid', $server->worker_id);
-        $context->setContextDataByKey('coid', Coroutine::getuid());
+		$context = App::getApp()->getContext();
+		$context->setContextDataByKey('reactorid', $reactorId);
+		$context->setContextDataByKey('workid', $server->worker_id);
+		$context->setContextDataByKey('coid', Coroutine::getuid());
 
-        $protocol = $serverConf['protocol'] ?? '';
-        Dispatcher::dispatch($protocol, $server, $fd, $data);
+		$protocol = $serverConf['protocol'] ?? '';
+		Dispatcher::dispatch($protocol, $server, $fd, $data);
 
-        ievent(Event::ON_USER_AFTER_REQUEST);
-    }
+		ievent(Event::ON_USER_AFTER_REQUEST);
+	}
 }
