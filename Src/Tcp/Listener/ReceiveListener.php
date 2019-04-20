@@ -42,5 +42,7 @@ class ReceiveListener extends ListenerAbstract {
 		Dispatcher::dispatch($protocol, $server, $fd, $data);
 
 		ievent(Event::ON_USER_AFTER_REQUEST);
+
+		$context->destroy();
 	}
 }
