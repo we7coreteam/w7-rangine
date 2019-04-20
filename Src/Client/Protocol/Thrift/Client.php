@@ -6,15 +6,17 @@ use Thrift\Protocol\TBinaryProtocol;
 use Thrift\Protocol\TMultiplexedProtocol;
 use Thrift\Transport\TFramedTransport;
 use Thrift\Transport\TSocket;
-use W7\Client\Protocol\ClientAbstract;
+use W7\Client\Protocol\IClient;
 use W7\Client\Protocol\Thrift\Core\DispatcherClient;
 
-class Client extends ClientAbstract
+class Client implements IClient
 {
 	private $host;
 	private $port;
+	private $packFormat;
 
-	public function __construct($host) {
+	public function __construct(array $params) {
+		$host = $params['host'];
 		$pos = strrpos($host, ':');
 		if ($pos !== false) {
 			$this->host = substr($host, 0, $pos);
@@ -22,9 +24,11 @@ class Client extends ClientAbstract
 		} else {
 			$this->host = $host;
 		}
+
+		$this->packFormat = $params['pack_format'];
 	}
 
-	public function call($url, $data = null)
+	public function call($url, $params = null)
     {
 	    $socket = new TSocket($this->host, $this->port);
 	    $transport = new TFramedTransport($socket);
@@ -32,16 +36,40 @@ class Client extends ClientAbstract
 	    $service = new TMultiplexedProtocol($protocol, 'Dispatcher');
 	    $transport->open();
 
-	    $client = new DispatcherClient($service);
 	    $body = [
-		    'url' => $url
+	    	'url' => $url
 	    ];
-	    if ($data) {
-	    	$body['data'] = $data;
+	    if ($params) {
+	    	$body['data'] = $params;
 	    }
-	    $ret = $client->run(json_encode($body));
+	    $body = $this->pack($body);
+
+	    $client = new DispatcherClient($service);
+	    $ret = $client->run($body);
 	    $transport->close();
 
-	    return $ret;
+	    return $this->unpack($ret);
+    }
+
+	public function pack($body) {
+	    switch ($this->packFormat) {
+		    case 'serialize':
+			    return serialize($body);
+			    break;
+		    case 'json':
+		    default:
+			    return json_encode($body);
+	    }
+    }
+
+	public function unpack($body) {
+		switch ($this->packFormat) {
+			case 'serialize':
+				return unserialize($body);
+				break;
+			case 'json':
+			default:
+				return json_decode($body, true);
+		}
     }
 }
