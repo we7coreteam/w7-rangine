@@ -31,12 +31,16 @@ class RouteMapping {
 	 */
 	public function getMapping() {
 		$routeCollector = irouter();
-		$this->initRouteByConfig($routeCollector, $this->routeConfig);
+		if (!empty($this->routeConfig)) {
+			foreach ($this->routeConfig as $index => $routeConfig) {
+				$this->initRouteByConfig($routeCollector, $routeConfig);
+			}
+		}
 		return $routeCollector->getData();
 	}
 
-	private function initRouteByConfig($route, $config, $prefix = '', $middleware = []) {
-		if (empty($config) || !is_array($config)) {
+	private function initRouteByConfig($route, $config, $prefix = '', $middleware = [], $method = '') {
+		if (!is_array($config)) {
 			return [];
 		}
 
@@ -44,6 +48,12 @@ class RouteMapping {
 			//包含prefix时，做为URL的前缀
 			if ($section == 'prefix') {
 				$prefix .= $routeItem;
+				continue;
+			}
+
+			//包含method时，做为默认method
+			if ($section == 'method') {
+				$method = $routeItem;
 				continue;
 			}
 
@@ -58,18 +68,35 @@ class RouteMapping {
 				$middleware = array_merge([], $middleware, (array) $routeItem);
 			}
 
-			if (is_array($routeItem) && empty($routeItem['method']) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
-				$this->initRouteByConfig($route, $routeItem, $uri ?? '', $middleware);
+			if (is_array($routeItem) && !empty($routeItem) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
+				$this->initRouteByConfig($route, $routeItem, $uri ?? '', $middleware, $method);
 			} else {
-				if (!is_array($routeItem) || empty($routeItem['handler'])) {
+				if (!is_array($routeItem) || $section == 'middleware' || $section == 'method') {
+					continue;
+				}
+				//如果没有指定Uri,则根据数组结构生成uri
+				if (empty($routeItem['uri'])) {
+					$routeItem['uri'] = $uri;
+				}
+				if (empty($routeItem['uri'])) {
 					continue;
 				}
 
-				if (!empty($routeItem['uri'])) {
-					$uri = $routeItem['uri'];
+				//如果没有指定handler，则按数组层级生成命名空间+Controller@当前键名
+				if (empty($routeItem['handler'])) {
+					$namespace = explode('/', ltrim($uri, '/'));
+					$namespace = array_slice($namespace, 0, -1);
+
+					$namespace = array_map('ucfirst', $namespace);
+					$routeItem['handler'] = sprintf('%sController@%s', implode("\\", $namespace), $section);
 				}
-				if (empty($uri) || empty($routeItem['handler'])) {
-					continue;
+
+				if (empty($routeItem['method'])) {
+					$routeItem['method'] = $method;
+				}
+
+				if (empty($routeItem['method'])) {
+					$routeItem['method'] = Route::METHOD_BOTH_GP;
 				}
 
 				if (is_string($routeItem['method'])) {
@@ -81,8 +108,7 @@ class RouteMapping {
 					$routeItem['middleware'] = [];
 				}
 				$routeItem['middleware'] = array_merge([], $middleware, (array) $routeItem['middleware']);
-
-				$route->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $uri, $routeItem['handler']);
+				$route->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler']);
 			}
 		}
 	}

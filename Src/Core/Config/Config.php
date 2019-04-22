@@ -168,7 +168,7 @@ class Config {
 		foreach ($configFileTree as $path) {
 			$appConfig = include $path;
 			if (is_array($appConfig)) {
-				$this->routeConfig = array_merge([], $this->routeConfig, $appConfig);
+				$this->routeConfig[] = $appConfig;
 			}
 		}
 		return $this->routeConfig;
