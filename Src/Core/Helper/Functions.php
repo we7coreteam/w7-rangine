@@ -198,6 +198,15 @@ if (!function_exists("icache")) {
 	}
 }
 
+if (!function_exists("irouter")) {
+	/**
+	 * @return \W7\Core\Route\Route
+	 */
+	function irouter() {
+		return iloader()->singleton(\W7\Core\Route\Route::class);
+	}
+}
+
 if (!function_exists('isCo')) {
 	/**
 	 * 是否是在协成

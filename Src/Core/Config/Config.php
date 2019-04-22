@@ -70,12 +70,12 @@ class Config {
 		'server',
 		'event',
 		'app',
-		'route',
 		'log',
 		'crontab',
 	];
 
 	private $config = [];
+	private $routeConfig = [];
 
 	private $path = BASE_PATH . '/config/';
 
@@ -155,4 +155,23 @@ class Config {
 		}
 	}
 
+	public function getRouteConfig() {
+		if (!empty($this->routeConfig)) {
+			return $this->routeConfig;
+		}
+
+		$configFileTree = glob(BASE_PATH . '/route/*.php');
+
+		if (empty($configFileTree)) {
+			return [];
+		}
+
+		foreach ($configFileTree as $path) {
+			$appConfig = include $path;
+			if (is_array($appConfig)) {
+				$this->routeConfig[] = $appConfig;
+			}
+		}
+		return $this->routeConfig;
+	}
 }
