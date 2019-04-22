@@ -22,10 +22,13 @@ class LastMiddleware extends MiddlewareAbstract
 			$route = $request->getHeader('route');
 			$route = json_decode($route[0], true);
 
-			$classname = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']) . "Controller";
-			$method = StringHelper::studly($route['method']);
+			if (!class_exists($route['controller'])) {
+				$route['controller'] = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']) . "Controller";
+			}
 
-			$classObj = iloader()->singleton($classname);
+			$method = StringHelper::studly($route['method']);
+			$classObj = iloader()->singleton($route['controller']);
+
 			$controllerHandler = [$classObj, $method];
 
 			$funArgs = [];
@@ -35,6 +38,7 @@ class LastMiddleware extends MiddlewareAbstract
 			}
 
 			$response =  call_user_func_array($controllerHandler, $funArgs);
+
 			//如果结果是一个response对象，则直接输出，否则按json输出
 			if ($response instanceof ResponseInterface) {
 				return $response;

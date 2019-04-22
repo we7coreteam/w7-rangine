@@ -103,6 +103,7 @@ class Dispather extends DispatcherAbstract {
 
 	private function getMiddleware($allMiddleware, $controller, $action) {
 		$result = $allMiddleware[$controller . '@' . $action] ?? [];
+		array_push($result, $allMiddleware['last']);
 		return $result;
 	}
 
