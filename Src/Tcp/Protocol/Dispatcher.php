@@ -3,11 +3,13 @@
 namespace W7\Tcp\Protocol;
 
 use Swoole\Server;
-use W7\Tcp\Protocol\Thrift\Dispatcher as DispatcherThrift;
+use W7\Tcp\Protocol\Thrift\Dispatcher as ThriftDispatcher;
+use W7\Tcp\Protocol\Json\Dispatcher as JsonDispatcher;
 
 class Dispatcher {
 	private static $protocolMap = [
-		'thrift' => DispatcherThrift::class
+		'thrift' => ThriftDispatcher::class,
+		'json' => JsonDispatcher::class
 	];
 
 	/**解析data数据，并转到对应的控制器下
@@ -25,6 +27,7 @@ class Dispatcher {
 		if (empty(self::$protocolMap[$protocol])) {
 			$protocol = 'thrift';
 		}
+
 		return \iloader()->singleton(self::$protocolMap[$protocol]);
 	}
 }
