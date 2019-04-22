@@ -14,10 +14,6 @@ class Server extends ServerAbstract {
 	public $type = parent::TYPE_TCP;
 
 	public function start() {
-		if (!empty($this->setting['open_http2_protocol'])) {
-			$this->connection['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
-		}
-
 		$this->server = new \swoole_server($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
 		$this->server->set($this->setting);
 
