@@ -6,105 +6,110 @@
 
 namespace W7\Core\Route;
 
-use FastRoute\RouteCollector;
+
+use W7\Core\Middleware\MiddlewareMapping;
 
 class RouteMapping {
 
 	private $routeConfig;
 
-	public function ab() {
-
-	}
+	/**
+	 * @var MiddlewareMapping
+	 */
+	private $middlewareMapping;
 
 	function __construct() {
-		$this->routeConfig = \iconfig()->getUserConfig("route");
+		$this->middlewareMapping = iloader()->singleton(MiddlewareMapping::class);
+		$this->routeConfig = \iconfig()->getRouteConfig();
+		/**
+		 * @todo 增加引入扩展机制的路由
+		 */
 	}
 
 	/**
 	 * @return array|mixed
 	 */
 	public function getMapping() {
-		if (empty($this->routeConfig)) {
-			return [];
-		}
-		$routeCollector = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
-		unset($this->routeConfig['@middleware']);
-
-		foreach ($this->routeConfig as $section => $setting) {
-			//以/开头的为目录，否则是控制器
-			if ($section[0] === '/') {
-				$commonMethod = '';
-				$group = $setting;
-				foreach ($group as $controller => $setting) {
-					if ($controller == '@method') {
-						$commonMethod = $setting;
-					}
-					if ($controller[0] === '@') {
-						continue;
-					}
-					if (empty($setting['@method']) && !empty($commonMethod)) {
-						$setting['@method'] = $commonMethod;
-					}
-					$controllerRoute = $this->formatRouteForFastRoute($setting, $controller, ltrim($section, '/'));
-					if (!empty($controllerRoute)) {
-						$routeCollector->addGroup($section, function (RouteCollector $route) use ($controllerRoute) {
-							foreach ($controllerRoute as $action => $info) {
-								$route->addRoute($info['method'], $info['url'], $info['handler']);
-							}
-						});
-					}
-				}
-			} elseif ($section[0] === '@') {
-				continue;
-			} else {
-				$controller = $section;
-				$controllerRoute = $this->formatRouteForFastRoute($setting, $controller);
-				if (!empty($controllerRoute)) {
-					foreach ($controllerRoute as $action => $info) {
-						$routeCollector->addRoute($info['method'], $info['url'], $info['handler']);
-					}
-				}
+		$routeCollector = irouter();
+		if (!empty($this->routeConfig)) {
+			foreach ($this->routeConfig as $index => $routeConfig) {
+				$this->initRouteByConfig($routeCollector, $routeConfig);
 			}
 		}
 		return $routeCollector->getData();
 	}
 
-	private function formatRouteForFastRoute($routeData, $controller, $group = '') {
-		$routes = [];
-		$commonMethod = $routeData['@method'] ?? Route::METHOD_BOTH_GP;
-		$commonQuery = $routeData['@query'] ?? '';
+	private function initRouteByConfig($route, $config, $prefix = '', $middleware = [], $method = '') {
+		if (!is_array($config)) {
+			return [];
+		}
 
-		foreach ($routeData as $action => $data) {
-			//跳过公共配置
-			if ($action[0] == '@') {
+		foreach ($config as $section => $routeItem) {
+			//包含prefix时，做为URL的前缀
+			if ($section == 'prefix') {
+				$prefix .= $routeItem;
 				continue;
 			}
 
-			$method = !empty($data['@method']) ? $data['@method'] : $commonMethod;
-			$query = $data['@query'] ?? $commonQuery;
-
-			$method = explode(',', $method);
-			//清除掉Method两边的空格
-			if (!empty($method)) {
-				foreach ($method as &$value) {
-					$value = trim($value);
-				}
-				unset($value);
+			//包含method时，做为默认method
+			if ($section == 'method') {
+				$method = $routeItem;
+				continue;
 			}
 
-			$routes[$action]['method'] = $method;
-			if (!empty($data['rewrite'])) {
-				$routes[$action]['url'] =  DIRECTORY_SEPARATOR . $data['@rewrite'];
+			//仅当下属节点不包含prefix时，才会拼接键名
+			if (empty($routeItem['prefix'])) {
+				$uri = sprintf('%s/%s', $prefix, ltrim($section, '/'));
 			} else {
-				$routes[$action]['url'] =  DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action . $query;
+				$uri = sprintf('%s', $prefix);
 			}
 
-			$routes[$action]['handler'] = (!empty($group) ? ucfirst($group) . "\\" : '') . ucfirst($controller) . '@' . $action;
+			if ($section == 'middleware') {
+				$middleware = array_merge([], $middleware, (array) $routeItem);
+			}
 
-			if (empty($query)) {
-				$routes[$action]['url'] = rtrim($routes[$action]['url'], DIRECTORY_SEPARATOR);
+			if (is_array($routeItem) && !empty($routeItem) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
+				$this->initRouteByConfig($route, $routeItem, $uri ?? '', $middleware, $method);
+			} else {
+				if (!is_array($routeItem) || $section == 'middleware' || $section == 'method') {
+					continue;
+				}
+				//如果没有指定Uri,则根据数组结构生成uri
+				if (empty($routeItem['uri'])) {
+					$routeItem['uri'] = $uri;
+				}
+				if (empty($routeItem['uri'])) {
+					continue;
+				}
+
+				//如果没有指定handler，则按数组层级生成命名空间+Controller@当前键名
+				if (empty($routeItem['handler'])) {
+					$namespace = explode('/', ltrim($uri, '/'));
+					$namespace = array_slice($namespace, 0, -1);
+
+					$namespace = array_map('ucfirst', $namespace);
+					$routeItem['handler'] = sprintf('%sController@%s', implode("\\", $namespace), $section);
+				}
+
+				if (empty($routeItem['method'])) {
+					$routeItem['method'] = $method;
+				}
+
+				if (empty($routeItem['method'])) {
+					$routeItem['method'] = Route::METHOD_BOTH_GP;
+				}
+
+				if (is_string($routeItem['method'])) {
+					$routeItem['method'] = explode(',', $routeItem['method']);
+				}
+
+				//组合中间件
+				if (empty($routeItem['middleware'])) {
+					$routeItem['middleware'] = [];
+				}
+				$routeItem['middleware'] = array_merge([], $middleware, (array) $routeItem['middleware']);
+				$route->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler']);
 			}
 		}
-		return $routes;
 	}
 }

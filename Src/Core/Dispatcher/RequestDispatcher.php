@@ -90,16 +90,15 @@ class RequestDispatcher extends DispatcherAbstract {
 	}
 
 	private function getMiddleware($allMiddleware, $controller, $action) {
-		$result = [];
-		$controllerMiddlerwares = !empty($allMiddleware[$controller]) ? $allMiddleware[$controller] : [];
-		$result = $controllerMiddlerwares[$action];
+		$result = $allMiddleware[$controller . '@' . $action] ?? [];
+		array_push($result, $allMiddleware['last']);
 		return $result;
 	}
 
 	private function getRequestLogContextData($controller, $method) {
 		$contextData = [
-			'controller'=>$controller,
-			'method'=>$method,
+			'controller' => $controller,
+			'method' => $method,
 			'requestTime' => microtime(true),
 		];
 		return $contextData;

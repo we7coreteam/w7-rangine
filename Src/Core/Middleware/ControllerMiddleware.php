@@ -15,10 +15,13 @@ class ControllerMiddleware extends MiddlewareAbstract {
 			$route = $request->getHeader('route');
 			$route = json_decode($route[0], true);
 
-			$classname = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']) . "Controller";
-			$method = StringHelper::studly($route['method']);
+			if (!class_exists($route['controller'])) {
+				$route['controller'] = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']) . "Controller";
+			}
 
-			$classObj = iloader()->singleton($classname);
+			$method = StringHelper::studly($route['method']);
+			$classObj = iloader()->singleton($route['controller']);
+
 			$controllerHandler = [$classObj, $method];
 
 			$funArgs = [];

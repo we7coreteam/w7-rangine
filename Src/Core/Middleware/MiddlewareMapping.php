@@ -9,75 +9,28 @@ namespace W7\Core\Middleware;
 use W7\App;
 
 class MiddlewareMapping {
-	protected $middlewares;
-	private $routeConfig;
-	private $appConfig;
+	protected $middlewares = [];
 
 	function __construct() {
-		$this->routeConfig = \iconfig()->getUserConfig("route");
+
 	}
 
 	public function getMapping() {
-		$middlewares = $this->getByRouteConfig();
-		$middlewares = array_merge($middlewares, ['last' => $this->getLastMiddle()]);
+		$middlewares = array_merge($this->middlewares, ['last' => $this->getLastMiddle()]);
 		return $middlewares;
 	}
 
-	/**
-	 * 根据路由配置获取中间件
-	 */
-	private function getByRouteConfig() {
-		$middlewares = [];
-		//全局中间件
-		$commonMiddleware = [
-			'before' => $this->routeConfig['@middleware']['before'] ?? [],
-			'after' => $this->routeConfig['@middleware']['after'] ?? [],
-		];
-
-		unset($this->routeConfig['@middleware']);
-
-		foreach ($this->routeConfig as $controller => $route) {
-			$controllerCommonMiddleware = [];
-
-			if ($controller[0] === '/') {
-				$path = ucfirst(ltrim($controller, '/')) . "\\";
-				$routeConfig = $route;
-				foreach ($routeConfig as $controller => $route) {
-					if ($controller === '@middleware') {
-						$controllerCommonMiddleware = array_merge($commonMiddleware['before'], (array)$route, $commonMiddleware['after']);
-						continue;
-					} elseif ($controller[0] == '@') {
-						continue;
-					}
-					$middlewares[$path . ucfirst($controller)] = $this->getByControllerConfig($route, $controllerCommonMiddleware);
-				}
-			} else {
-				if ($controller === '@middleware') {
-					$controllerCommonMiddleware = array_merge($commonMiddleware['before'], (array)$route, $commonMiddleware['after']);
-					continue;
-				}
-				$middlewares[ucfirst($controller)] = $this->getByControllerConfig($route, $controllerCommonMiddleware);
-			}
+	public function setMiddleware($handler, $middleware) {
+		if (!is_array($middleware)) {
+			$middleware = [$middleware];
 		}
-		return $middlewares;
-	}
 
-	private function getByControllerConfig($route, $commonMiddleware = []) {
-		if (!empty($commonMiddleware)) {
-			$commonMiddleware = array_unique($commonMiddleware);
+		if (empty($this->middlewares[$handler])) {
+			$this->middlewares[$handler] = [];
 		}
-		$controllerCommonMiddleware = $route['@middleware'] ?? [];
 
-		$middleware = [];
-		foreach ($route as $action => $data) {
-			//跳过公共配置
-			if ($action[0] == '@') {
-				continue;
-			}
-			$data['@middleware'] = $data['@middleware'] ?? $controllerCommonMiddleware;
-			$middleware[$action] = array_merge($commonMiddleware, (array) $data['@middleware'], $this->getLastMiddle());
-		}
-		return $middleware;
+		$this->middlewares[$handler] = array_merge([], (array) $this->middlewares[$handler], (array) $middleware);
+		return true;
 	}
 
 	/**

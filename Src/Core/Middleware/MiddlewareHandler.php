@@ -37,8 +37,7 @@ class MiddlewareHandler implements RequestHandlerInterface
 	 * @param array $middleware
 	 * @param string $default
 	 */
-	public function __construct(array $middleware)
-	{
+	public function __construct(array $middleware) {
 		$this->middlewares = \array_unique($middleware);
 	}
 
@@ -49,9 +48,10 @@ class MiddlewareHandler implements RequestHandlerInterface
 	 * @return ResponseInterface
 	 * @throws \InvalidArgumentException
 	 */
-	public function handle(ServerRequestInterface $request): ResponseInterface
-	{
-		$handler = $this->middlewares[$this->offset];
+	public function handle(ServerRequestInterface $request): ResponseInterface {
+		$handlerMiddleware = $this->middlewares[$this->offset];
+
+		$handler = $handlerMiddleware[0];
 		if (!class_exists($handler)) {
 			throw new \InvalidArgumentException($handler . ' Handler not found.');
 		}
@@ -69,8 +69,7 @@ class MiddlewareHandler implements RequestHandlerInterface
 	 *
 	 * @return static
 	 */
-	private function next()
-	{
+	private function next() {
 		$clone = clone $this;
 		$clone->offset++;
 		return $clone;
