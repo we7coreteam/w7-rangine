@@ -38,7 +38,7 @@ class MiddlewareHandler implements RequestHandlerInterface
 	 * @param string $default
 	 */
 	public function __construct(array $middleware) {
-		$this->middlewares = \array_unique($middleware);
+		$this->middlewares = $middleware;
 	}
 
 	/**
@@ -50,7 +50,6 @@ class MiddlewareHandler implements RequestHandlerInterface
 	 */
 	public function handle(ServerRequestInterface $request): ResponseInterface {
 		$handlerMiddleware = $this->middlewares[$this->offset];
-
 		$handler = $handlerMiddleware[0];
 		if (!class_exists($handler)) {
 			throw new \InvalidArgumentException($handler . ' Handler not found.');

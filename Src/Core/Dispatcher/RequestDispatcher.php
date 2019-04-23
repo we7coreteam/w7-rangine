@@ -78,7 +78,7 @@ class RequestDispatcher extends DispatcherAbstract {
 				break;
 			case Dispatcher::FOUND:
 				$controller = $method = '';
-				list($controller, $method) = explode("@", $route[1]);
+				list($controller, $method) = $route[1];
 				break;
 		}
 

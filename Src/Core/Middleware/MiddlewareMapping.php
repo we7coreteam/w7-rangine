@@ -6,6 +6,7 @@
 
 namespace W7\Core\Middleware;
 
+use Illuminate\Support\Str;
 use W7\App;
 
 class MiddlewareMapping {
@@ -23,6 +24,18 @@ class MiddlewareMapping {
 	public function setMiddleware($handler, $middleware) {
 		if (!is_array($middleware)) {
 			$middleware = [$middleware];
+		}
+		foreach ($middleware as $index => $class) {
+			if (!is_array($class)) {
+				$class = [$class];
+			}
+			if (!class_exists($class[0])) {
+				$class[0] = "W7\\App\\Middleware\\" . Str::studly($class[0]);
+			}
+			if (!class_exists($class[0])) {
+				unset($middleware[$index]);
+			}
+			$middleware[$index] = $class;
 		}
 
 		if (empty($this->middlewares[$handler])) {
@@ -43,26 +56,5 @@ class MiddlewareMapping {
 		} else {
 			return [];
 		}
-	}
-
-	public function getMiddlewareByRoute(string $routeController, string $routeMethod) {
-		$result = [];
-		$controllerMiddlerwares = !empty($this->middlewares[$routeController]) ? $this->middlewares[$routeController] : [];
-		foreach ($controllerMiddlerwares as $method => $middlerware) {
-			if (strstr($method, $routeMethod) || $method == "default") {
-				$result = array_merge($result, $controllerMiddlerwares[$method]);
-			}
-		}
-		return $result;
-	}
-
-	/**
-	 * @param string $middlerware
-	 * @param array $dispather
-	 * @return array
-	 */
-	public function setLastMiddleware(string $lasteMiddlerware, array $middlewares) {
-		array_push($middlewares, $lasteMiddlerware);
-		return $middlewares;
 	}
 }
