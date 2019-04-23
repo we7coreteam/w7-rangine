@@ -12,6 +12,7 @@ use W7\Core\Command\CommandInterface;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerAbstract;
+use W7\Gerent\Console\Command;
 
 class Console {
 	private $allowServer;
@@ -35,6 +36,11 @@ class Console {
 
 		if ($input->isHelpCommand()) {
 			$this->showDefaultCommand();
+			return false;
+		}
+
+		if ($input->isGerentCommand()) {
+			$this->showGerentCommand($input->getCommand());
 			return false;
 		}
 
@@ -105,6 +111,12 @@ class Console {
 
 		\ioutputer()->writeLogo();
 		\ioutputer()->writeln("framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion\n", true);
+	}
+
+	private function showGerentCommand($command) {
+		$gerentCommand = new Command();
+		\ioutputer()->writeLogo();
+		\ioutputer()->writeList($gerentCommand->run($command));
 	}
 
 	private function checkEnv() {

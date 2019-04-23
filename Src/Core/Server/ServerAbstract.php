@@ -12,6 +12,9 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Database\Events\TransactionBeginning;
+use Illuminate\Database\Events\TransactionCommitted;
+use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
@@ -227,29 +230,25 @@ abstract class ServerAbstract implements ServerInterface {
 		//侦听sql执行完后的事件，回收$connection
 		$dbDispatch = new Dispatcher($container);
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
-			$connection = $data->connection;
-			ilogger()->channel('database')->debug($data->sql . ', params: ' . implode(',', $data->bindings));
-
-			$poolName = $connection->getPoolName();
-			if (empty($poolName)) {
-				return true;
-			}
-			list($poolType, $poolName) = explode(':', $poolName);
-			if (empty($poolType)) {
-				$poolType = 'swoolemysql';
-			}
-
-			$activePdo = $connection->getActiveConnection();
-			if (empty($activePdo)) {
+			/**
+			 *检测是否是事物里面的query
+			 */
+			if (App::getApp()->getContext()->getContextDataByKey('db-transaction')) {
 				return false;
 			}
-			$connectorManager = $container->make('db.connector.' . $poolType);
-			$pool = $connectorManager->getCreatedPool($poolName);
-			if (empty($pool)) {
-				return true;
-			}
-			$pool->releaseConnection($activePdo);
-			return true;
+			return $this->releaseDb($data, $container);
+		});
+		$dbDispatch->listen(TransactionBeginning::class, function ($data) {
+			$connection = $data->connection;
+			App::getApp()->getContext()->setContextDataByKey('db-transaction', $connection);
+		});
+		$dbDispatch->listen(TransactionCommitted::class, function ($data) use ($container) {
+			App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
+			return $this->releaseDb($data, $container);
+		});
+		$dbDispatch->listen(TransactionRolledBack::class, function ($data) use ($container) {
+			App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
+			return $this->releaseDb($data, $container);
 		});
 
 		$container->instance('events', $dbDispatch);
@@ -264,6 +263,32 @@ abstract class ServerAbstract implements ServerInterface {
 		$dbManager = new DatabaseManager($container, $factory);
 
 		Model::setConnectionResolver($dbManager);
+		return true;
+	}
+
+	private function releaseDb($data, $container) {
+		$connection = $data->connection;
+		ilogger()->channel('database')->debug($data->sql ?? '' . ', params: ' . implode(',', $data->bindings ?? []));
+
+		$poolName = $connection->getPoolName();
+		if (empty($poolName)) {
+			return true;
+		}
+		list($poolType, $poolName) = explode(':', $poolName);
+		if (empty($poolType)) {
+			$poolType = 'swoolemysql';
+		}
+
+		$activePdo = $connection->getActiveConnection();
+		if (empty($activePdo)) {
+			return false;
+		}
+		$connectorManager = $container->make('db.connector.' . $poolType);
+		$pool = $connectorManager->getCreatedPool($poolName);
+		if (empty($pool)) {
+			return true;
+		}
+		$pool->releaseConnection($activePdo);
 		return true;
 	}
 

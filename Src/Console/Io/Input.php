@@ -55,4 +55,13 @@ class Input
 			return false;
 		}
 	}
+
+	public function isGerentCommand() {
+		$command = $this->getCommand();
+
+		if (isset($command['command']) && $command['command'] === 'gerent') {
+			return true;
+		}
+		return false;
+	}
 }

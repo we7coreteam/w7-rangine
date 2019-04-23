@@ -19,6 +19,10 @@ class Output
 	 */
 	const LEFT_CHAR = '  ';
 
+	private function writeKey($key) {
+		echo "\033[0;32m$key \e[0m";
+	}
+
 	/**
 	 * 输出一行数据
 	 *
@@ -83,26 +87,46 @@ __      _______ _______                   _
 	 * 显示命令列表一块数据
 	 *
 	 * @param array  $items	数据
-	 * @param string $cmdStyle 命令样式
 	 */
-	private function writeItems($items)
+	private function writeItems($items, $level = 1)
 	{
 		foreach ($items as $cmd => $desc) {
 			// 没有命令，只是一行数据
 			if (\is_int($cmd)) {
-				$message = self::LEFT_CHAR . $desc;
-				$this->writeln($message);
-				continue;
+				$cmd = '';
 			}
 
-			// 命令和描述
 			$maxLength = $this->getCmdMaxLength(array_keys($items));
 			$cmd = \str_pad($cmd, $maxLength, ' ');
-			$cmd = "$cmd";
-			$message = self::LEFT_CHAR . $cmd . self::GAP_CHAR . $desc;
+			$this->writeKey($this->writeLeft($level) . $cmd);
 
-			$this->writeln($message);
+			if (is_array($desc)) {
+				if (!empty($desc)) {
+					$this->writeln();
+					$this->writeItems($desc, $level + 2);
+					continue;
+				} else {
+					$desc = '[]';
+				}
+			}
+
+			if ($desc === false) {
+				$desc = 'false';
+			}
+			if ($desc === true) {
+				$desc = 'true';
+			}
+
+			$this->writeln(self::GAP_CHAR . $desc);
 		}
+	}
+
+	private function writeLeft($level) {
+		$left = '';
+		for ($i = 0; $i < $level; $i++) {
+			$left .= self::LEFT_CHAR;
+		}
+		return $left;
 	}
 
 	/**
