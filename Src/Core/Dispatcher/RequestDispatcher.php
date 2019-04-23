@@ -5,6 +5,7 @@ namespace W7\Core\Dispatcher;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
+use W7\Core\Exception\HttpException;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Middleware\MiddlewareHandler;
 
@@ -41,7 +42,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			ilogger()->error($errorMessage, array('exception' => $throwable));
 
 			$setting = iconfig()->getUserAppConfig('setting');
-			if ($throwable instanceof \LogicException) {
+			if ($throwable instanceof HttpException) {
 				$code = $throwable->getCode() ? $throwable->getCode() : '400';
 				$message = $throwable->getMessage();
 			} elseif (!empty($setting['development'])) {
@@ -71,10 +72,10 @@ class RequestDispatcher extends DispatcherAbstract {
 
 		switch ($route[0]) {
 			case Dispatcher::NOT_FOUND:
-				throw new \LogicException('Route not found', 404);
+				throw new HttpException('Route not found', 404);
 				break;
 			case Dispatcher::METHOD_NOT_ALLOWED:
-				throw new \LogicException('Route not allowed', 405);
+				throw new HttpException('Route not allowed', 405);
 				break;
 			case Dispatcher::FOUND:
 				$controller = $method = '';
