@@ -97,7 +97,7 @@ class Route {
 		$handler = $this->checkHandler($handler);
 
 		if (empty($methods)) {
-			$methods = SELF::METHOD_ALL;
+			$methods = SELF::METHOD_BOTH_GP;
 		}
 
 		if (!is_array($methods)) {
@@ -106,7 +106,7 @@ class Route {
 
 		//清除掉Method两边的空格
 		foreach ($methods as &$value) {
-			$value = trim($value);
+			$value = strtoupper(trim($value));
 		}
 		unset($value);
 
@@ -115,7 +115,7 @@ class Route {
 			$this->currentMiddleware = [];
 		}
 
-		return $this->router->addRoute(array_map('strtoupper', (array) $methods), $uri, $handler);
+		return $this->router->addRoute($methods, $uri, $handler);
 	}
 
 	/**
