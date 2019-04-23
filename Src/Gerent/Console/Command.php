@@ -19,6 +19,8 @@ class Command {
 		$options = explode(':', $option);
 		if ($options[0] === 'route') {
 			$config = iconfig()->getRouteConfig();
+		} else if ($options[0] === 'server') {
+			$config = iconfig()->getServer();
 		} else {
 			$config = iconfig()->getUserAppConfig($options[0]);
 		}
