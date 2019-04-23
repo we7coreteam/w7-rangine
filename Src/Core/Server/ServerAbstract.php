@@ -202,6 +202,12 @@ abstract class ServerAbstract implements ServerInterface {
 		$this->server->context = $contextObj->getContextData();
 	}
 
+	/**
+	 * model -> newQuery -> DatabaseMananger -> function connection ->
+	 *      Factory -> createConnector 拿到一个Pdo连接 （ConnectorManager -> 从连接池里拿一个Pdo连接） -> createConnection 放置Pdo连接，生成连接操作对象 (PdoMysqlConnection)
+	 *
+	 * @return bool
+	 */
 	private function registerDb() {
 		//新增swoole连接mysql的方式
 		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
