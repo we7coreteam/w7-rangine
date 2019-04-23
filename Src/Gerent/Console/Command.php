@@ -12,16 +12,17 @@ class Command {
 		if (!$action) {
 			return $this->defaultCommand();
 		}
-		return $this->formatData($this->$action($option), $action);
-	}
-
-	private function route($option) {
-		return iconfig()->getRouteConfig();
+		return $this->formatData($this->getConfig($action), $action);
 	}
 
 	private function getConfig($option) {
 		$options = explode(':', $option);
-		$config = iconfig()->getUserAppConfig($options[0]);
+		if ($options[0] === 'route') {
+			$config = iconfig()->getRouteConfig();
+		} else {
+			$config = iconfig()->getUserAppConfig($options[0]);
+		}
+
 		array_shift($options);
 
 		return $this->getData($options, $config);
@@ -54,14 +55,8 @@ class Command {
 				'cache' => [
 					'app cache config',
 					':default' => 'app cache default config'
-				],
-				''
+				]
 			]
 		];
-	}
-
-	public function __call($name, $arguments) {
-		// TODO: Implement __call() method.
-		return $this->getConfig($name);
 	}
 }

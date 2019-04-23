@@ -87,33 +87,37 @@ __      _______ _______                   _
 	 * 显示命令列表一块数据
 	 *
 	 * @param array  $items	数据
-	 * @param string $cmdStyle 命令样式
 	 */
 	private function writeItems($items, $level = 1)
 	{
 		foreach ($items as $cmd => $desc) {
 			// 没有命令，只是一行数据
 			if (\is_int($cmd)) {
-				$message = $this->writeLeft($level) . $desc;
-				$this->writeln($message);
-				continue;
+				$cmd = '';
 			}
 
-			if (is_array($desc)) {
-				$this->writeKey($this->writeLeft($level) . $cmd);
-				$this->writeln();
-				$this->writeItems($desc, $level + 2);
-				continue;
-			}
-
-			// 命令和描述
 			$maxLength = $this->getCmdMaxLength(array_keys($items));
 			$cmd = \str_pad($cmd, $maxLength, ' ');
-			$cmd = "$cmd";
 			$this->writeKey($this->writeLeft($level) . $cmd);
-			$message = self::GAP_CHAR . $desc;
 
-			$this->writeln($message);
+			if (is_array($desc)) {
+				if (!empty($desc)) {
+					$this->writeln();
+					$this->writeItems($desc, $level + 2);
+					continue;
+				} else {
+					$desc = '[]';
+				}
+			}
+
+			if ($desc === false) {
+				$desc = 'false';
+			}
+			if ($desc === true) {
+				$desc = 'true';
+			}
+
+			$this->writeln(self::GAP_CHAR . $desc);
 		}
 	}
 
