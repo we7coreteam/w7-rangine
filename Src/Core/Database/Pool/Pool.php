@@ -32,6 +32,13 @@ class Pool extends CoPoolAbstract {
 
 	public function getConnection() {
 		$connect = parent::getConnection();
+
+		//连接不可用时，直接生成一个新的连接
+		try {
+			$connect->getAttribute(\PDO::ATTR_SERVER_INFO);
+		} catch (\Throwable $e) {
+			$connect = $this->createConnection();
+		}
 		return $connect;
 	}
 }
