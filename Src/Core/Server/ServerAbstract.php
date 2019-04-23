@@ -7,7 +7,6 @@
 
 namespace W7\Core\Server;
 
-use function foo\func;
 use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
