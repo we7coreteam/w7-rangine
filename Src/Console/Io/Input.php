@@ -35,24 +35,4 @@ class Input
 			'option' => $this->option,
 		];
 	}
-
-	public function isVersionCommand() {
-		$command = $this->getCommand();
-
-		if (isset($command['option']['v']) || isset($command['option']['version'])) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public function isHelpCommand() {
-		$command = $this->getCommand();
-
-		if (isset($command['option']['h']) || isset($command['option']['help'])) {
-			return true;
-		} else {
-			return false;
-		}
-	}
 }
