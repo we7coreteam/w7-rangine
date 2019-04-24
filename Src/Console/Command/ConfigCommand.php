@@ -1,18 +1,16 @@
 <?php
-/**
- * @author donknap
- * @date 18-11-6 下午2:31
- */
 
-namespace W7\Gerent\Console;
+namespace W7\Console\Command;
 
-class Command {
-	public function run($option) {
-		$action = $option['action'];
-		if (!$action) {
-			return $this->defaultCommand();
-		}
+class ConfigCommand implements CommandInterface {
+	public function run($action, $options = []) {
 		return $this->formatData($this->getConfig($action), $action);
+	}
+
+	private function formatData($data, $action) {
+		return [
+			'your app ' . $action. ' config:' => $data
+		];
 	}
 
 	private function getConfig($option) {
@@ -40,13 +38,7 @@ class Command {
 		return $config;
 	}
 
-	private function formatData($data, $action) {
-		return [
-			'your app ' . $action. ' config:' => $data
-		];
-	}
-
-	private function defaultCommand() {
+	public function help() {
 		return  [
 			'Arguments:' => [
 				'route' => 'app route config',

@@ -8,98 +8,77 @@
 
 namespace W7\Console;
 
-use W7\Core\Command\CommandInterface;
+use W7\Console\Command\CommandInterface;
+use W7\Console\Io\Input;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\StringHelper;
-use W7\Core\Server\ServerAbstract;
-use W7\Gerent\Console\Command;
 
 class Console {
-	private $allowServer;
-
-	const OPTION_ENABLE_TCP = 'enable-tcp';
-
-	public function __construct() {
-	}
-
 	public function run() {
 		$this->checkEnv();
-		/**
-		 * @var \W7\Console\Io\Input $input
-		 */
-		$input = iloader()->singleton(\W7\Console\Io\Input::class);
+		\ioutputer()->writeLogo();
+
+		$input = iloader()->singleton(Input::class);
+		$command = $input->getCommand();
 
 		if ($input->isVersionCommand()) {
 			$this->showVersionCommand();
 			return false;
 		}
 
-		if ($input->isHelpCommand()) {
-			$this->showDefaultCommand();
-			return false;
+		if (empty($_SERVER['!server'])) {
+			$tmp = $command['command'];
+			$command['command'] = 'Server';
+			array_unshift($command['option'], $command['action']);
+			$command['action'] = $tmp;
 		}
-
-		if ($input->isGerentCommand()) {
-			$this->showGerentCommand($input->getCommand());
-			return false;
-		}
-
-		$command = $input->getCommand();
 		if (empty($command['command']) && empty($command['action'])) {
 			$this->showDefaultCommand();
 			return false;
 		}
 
-		$supportServer = $this->supportServer();
-
-		if (!in_array($command['command'], $supportServer)) {
-			\ioutputer()->writeln(sprintf('Not support server of %s', $command['command']), true);
-			$this->showDefaultCommand();
-			return false;
-		}
-
-		try {
-			$serverConsole = $this->getServerConsole($command['command']);
-			//根据传入的参数，附加相应服务的console
-			if (!empty($command['option'][self::OPTION_ENABLE_TCP]) && in_array(ServerAbstract::TYPE_TCP, $supportServer)) {
-				$serverConsole->tcpServerConsole = $this->getServerConsole('tcp');
+		$commandInstance = null;
+		try{
+			$commandInstance = $this->getCommandInstance($command['command']);
+			if (empty($command['action']) || $input->isHelpCommand()) {
+				$ret = $commandInstance->help();
+			} else {
+				$ret = $commandInstance->run($command['action'], $command['option']);
 			}
-			if (!method_exists($serverConsole, $command['action'])) {
-				\ioutputer()->writeln(sprintf('Not support action of  %s', $command['action']), true);
+
+			if ($ret) {
+				\ioutputer()->writeList($ret);
+			}
+		}catch (\Throwable $e) {
+			\ioutputer()->writeln($e->getMessage());
+			if ($commandInstance) {
+				\ioutputer()->writeList($commandInstance->help());
+			} else {
 				$this->showDefaultCommand();
-				return false;
 			}
-			call_user_func_array(array($serverConsole, $command['action']), [$command['option']]);
-		} catch (\Throwable $e) {
-			\ioutputer()->writeln($e->getMessage(), true, true);
 		}
+
 		return true;
 	}
 
 	private function showDefaultCommand() {
-		$script = 'bin/server.php';
 		$commandList = [
-			'Usage:' => ["php $script {command} [arguments] [options]"],
-			'Commands:' => [],
+			'Usage:' => [
+				"php bin/gerent.php {command} [arguments] [options]"
+			],
+			'Commands:' => [
+				'config'
+			],
 			'Arguments:' => [
-				'start' => 'Start the service.',
-				'stop' => 'Stop the service.',
-				'restart' => 'Restart the service',
+				'route' => 'get app route config',
+				'server' => 'get app server config',
+				'cache' => 'get app cache config',
 			],
 			'Options:' => [
 				'-h, --help' => 'Display help information',
 				'-v, --version' => 'Display version information',
-				'--env' => 'Set the startup environment configuration file',
-				'--enable-tcp' => 'Start Tcp service when non-Tcp service'
 			]
 		];
-
-		$server = $this->supportServer();
-		foreach ($server as $item) {
-			$commandList['Commands:'][$item] = 'Start the ' . $item . ' service.';
-		}
-
-		\ioutputer()->writeLogo();
 		\ioutputer()->writeList($commandList, 'comment', 'info');
 		return true;
 	}
@@ -109,14 +88,7 @@ class Console {
 		$phpVersion = PHP_VERSION;
 		$swooleVersion = SWOOLE_VERSION;
 
-		\ioutputer()->writeLogo();
 		\ioutputer()->writeln("framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion\n", true);
-	}
-
-	private function showGerentCommand($command) {
-		$gerentCommand = new Command();
-		\ioutputer()->writeLogo();
-		\ioutputer()->writeList($gerentCommand->run($command));
 	}
 
 	private function checkEnv() {
@@ -136,36 +108,11 @@ class Console {
 		}
 	}
 
-	private function getServerConsole($name) {
-		$className = sprintf("\\W7\\%s\\Console\\Command", StringHelper::studly($name));
+	private function getCommandInstance($command) : CommandInterface {
+		$className = sprintf("\\W7\\Console\\Command\\%s", StringHelper::studly($command) . 'Command');
 		if (!class_exists($className)) {
-			throw new CommandException('The ' . $name . ' server command not found');
+			throw new CommandException('The ' . $command . ' command not found');
 		}
-		$object = new $className();
-		if (!($object instanceof CommandInterface) || empty($object)) {
-			throw new CommandException('Console command must implement CommandInterface class');
-		}
-		return $object;
-	}
-
-	/**
-	 * 获取当前支持哪些服务，主是看config/server.php中是否定义服务配置
-	 * @return array
-	 * @throws \Exception
-	 */
-	private function supportServer() {
-		$result = [];
-		$setting = \iconfig()->getServer();
-
-		if (empty($setting)) {
-			throw new \Exception('Service information is not defined in the config file');
-		}
-		foreach ($setting as $serverName => $config) {
-			if ($serverName == 'common' || empty($config['host']) || empty($config['port'])) {
-				continue;
-			}
-			$result[] = $serverName;
-		}
-		return $result;
+		return new $className();
 	}
 }
