@@ -2,9 +2,9 @@
 
 namespace W7\Console\Command;
 
-class ConfigCommand implements CommandInterface {
-	public function run($action, $options = []) {
-		return $this->formatData($this->getConfig($action), $action);
+class ConfigCommand extends CommandAbstract {
+	public function dispatch($action, $options = []) {
+		ioutputer()->writeList($this->formatData($this->getConfig($action), $action));
 	}
 
 	private function formatData($data, $action) {
@@ -39,7 +39,7 @@ class ConfigCommand implements CommandInterface {
 	}
 
 	public function help() {
-		return  [
+		$commandList = [
 			'Arguments:' => [
 				'route' => 'app route config',
 				'database' => [
@@ -50,7 +50,12 @@ class ConfigCommand implements CommandInterface {
 					'app cache config',
 					':default' => 'app cache default config'
 				]
+			],
+			'Options:' => [
+				'-h, --help' => 'Display help information',
+				'-v, --version' => 'Display version information'
 			]
 		];
+		ioutputer()->writeList($commandList);
 	}
 }

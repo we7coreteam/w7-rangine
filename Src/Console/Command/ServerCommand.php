@@ -7,24 +7,24 @@ use W7\Console\Command\CommandInterface;
 use W7\Core\Command\CommandInterface as ServerCommandInterface;
 use W7\Core\Helper\StringHelper;
 
-class ServerCommand implements CommandInterface {
-	public function run($action, $options = []) {
-		return $this->dispatch($action, $options);
-	}
-
-	private function dispatch($action, $options) {
+class ServerCommand extends CommandAbstract {
+	public function dispatch($action, $options) {
 		$supportServer = $this->supportServer();
 		if (!in_array($action, $supportServer)) {
 			throw new CommandException(sprintf('Not support server of %s', $action));
 		}
 
 		$serverConsole = $this->getServerConsole($action);
-		$command = array_shift($options);
+		if (!$options) {
+			throw new CommandException('arguments not be empty');
+		}
+		$command = array_keys($options)[0];
+		array_shift($options);
 		if (!method_exists($serverConsole, $command)) {
 			throw new CommandException(sprintf('Not support arguments of  %s', $command));
 		}
 
-		return call_user_func_array(array($serverConsole, $command), [$options]);
+		call_user_func_array(array($serverConsole, $command), [$options]);
 	}
 
 	private function getServerConsole($name) : ServerCommandInterface {
@@ -57,7 +57,7 @@ class ServerCommand implements CommandInterface {
 	}
 
 	public function help() {
-		return [
+		$commandList = [
 			'Commands:' => [
 				'http',
 				'tcp'
@@ -74,5 +74,6 @@ class ServerCommand implements CommandInterface {
 				'--enable-tcp' => 'Start Tcp service when non-Tcp service'
 			]
 		];
+		ioutputer()->writeList($commandList);
 	}
 }
