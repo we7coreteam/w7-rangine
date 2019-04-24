@@ -166,28 +166,32 @@ class Route {
 	}
 
 	private function checkHandler($handler) {
-		$error = $handler;
-
 		if ($handler instanceof \Closure) {
 			return true;
 		}
-
 		if (is_string($handler)) {
 			$handler = explode('@', $handler);
 		}
-
 		list($className, $action) = $handler;
-
 		if (empty($action)) {
 			$action = 'index';
 		}
 
-		if (!class_exists($className)) {
+		if (strpos($className, "\\W7\\App\\Controller\\") === false && strpos($className, "W7\\App\\Controller\\") === false) {
 			$className = "\\W7\\App\\Controller\\{$className}";
 		}
 
-		if (!class_exists($className)) {
-			throw new \InvalidArgumentException('Invalid ' . $error);
+		$realpath = BASE_PATH . '/app';
+		foreach ($path = explode("\\", $className) as $key => $row) {
+			if (empty($row) || $row == 'W7' || $row == 'App') {
+				continue;
+			}
+
+			$realpath .= '/' . $row;
+		}
+
+		if (!file_exists($realpath . '.php')) {
+			throw new \RuntimeException('Route configuration controller not found');
 		}
 
 		return [
