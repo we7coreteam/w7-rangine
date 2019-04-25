@@ -30,8 +30,6 @@ class Route {
 	private $currentMiddleware = [];
 
 	private $groupBegin = false;
-	//组添加时，用于记录组的前缀，添加中间件时使用
-	private $groupPrefix = '';
 
 	public function __construct() {
 		$this->router = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
@@ -40,16 +38,13 @@ class Route {
 
 	public function group($prefix, callable $callback) {
 		$this->groupBegin = true;
-		$this->groupPrefix = $prefix;
 
-		$result = $this->router->addGroup($prefix, function (RouteCollector $route) use ($callback) {
+		$result = $this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix) {
 			$callback($this);
 		});
 
 		$this->currentMiddleware = [];
 		$this->groupBegin = false;
-		$this->groupPrefix = '';
-
 		return $result;
 	}
 
@@ -129,7 +124,7 @@ class Route {
 			$routeHandler['middleware']['before'] = array_merge([], $routeHandler['middleware']['before'], $this->checkMiddleware($this->currentMiddleware));
 		}
 
-		if (empty($this->beginGroup)) {
+		if (empty($this->groupBegin)) {
 			$this->currentMiddleware = [];
 		}
 
