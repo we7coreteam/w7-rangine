@@ -12,7 +12,7 @@ class WorkerStartListener implements ListenerInterface {
 	public function run(...$params) {
 		\isetProcessTitle( 'w7swoole ' . App::$server->type . ' worker process');
 		//设置安全限制目录
-		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?: [];
+		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?? [];
 		if (is_array($openBaseDirConfig)) {
 			$openBaseDirConfig = implode(':', $openBaseDirConfig);
 		}
