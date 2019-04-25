@@ -26,6 +26,10 @@ class RouteMapping {
 		 */
 	}
 
+	public function setRouteConfig($routeConfig) {
+		$this->routeConfig = $routeConfig;
+	}
+
 	/**
 	 * @return array|mixed
 	 */
