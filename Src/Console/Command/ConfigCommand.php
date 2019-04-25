@@ -42,6 +42,7 @@ class ConfigCommand extends CommandAbstract {
 		$commandList = [
 			'Arguments:' => [
 				'route' => 'app route config',
+				'server' => 'app server config',
 				'database' => [
 					'app database config',
 					':default' => 'app database default config'

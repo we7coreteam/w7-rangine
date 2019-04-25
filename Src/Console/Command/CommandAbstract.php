@@ -72,8 +72,4 @@ abstract class CommandAbstract {
 			}
 		}
 	}
-
-	public function help() {
-
-	}
 }
