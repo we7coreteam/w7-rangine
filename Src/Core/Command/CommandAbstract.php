@@ -8,6 +8,7 @@ namespace W7\Core\Command;
 
 
 use W7\App;
+use W7\Tcp\Console\Command;
 
 abstract class CommandAbstract implements CommandInterface {
 
@@ -39,7 +40,8 @@ abstract class CommandAbstract implements CommandInterface {
 		$tcpLines = 'tcp  |  disable ( --enable-tcp )';
 		//附加TCP服务
 		if (!empty($this->option['enable-tcp'])) {
-			$tcpServer = $this->tcpServerConsole->createServer();
+			$tcpServerConsole = new Command();
+			$tcpServer = $tcpServerConsole->createServer();
 			$tcpServer->listener($server->getServer());
 
 			$tcpStatusInfo = '';
@@ -53,7 +55,7 @@ abstract class CommandAbstract implements CommandInterface {
 
 		// 信息面板
 		$lines = [
-			'						 Server Information					  ',
+			'			 Server Information					  ',
 			'********************************************************************',
 			"* {$server->type} | " . rtrim($statusInfo, ', '),
 			"* {$tcpLines}",
