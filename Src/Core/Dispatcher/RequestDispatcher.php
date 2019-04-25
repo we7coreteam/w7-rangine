@@ -8,9 +8,15 @@ use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Exception\HttpException;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Middleware\MiddlewareHandler;
+use W7\Http\Message\Server\Request;
+use W7\Http\Message\Server\Response;
 
 class RequestDispatcher extends DispatcherAbstract {
 	public function dispatch(...$params) {
+		/**
+		 * @var Request $psr7Request
+		 * @var Response $psr7Response
+		 */
 		$psr7Request = $params[0];
 		$psr7Response = $params[1];
 		$serverContext = App::$server->server->context;
@@ -23,9 +29,9 @@ class RequestDispatcher extends DispatcherAbstract {
 			//根据router配置，获取到匹配的controller信息
 			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
 			$route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
-			$psr7Request = $psr7Request->withAddedHeader("route", json_encode($route));
+			$psr7Request = $psr7Request->withAttribute('route', $route);
 
-			$middlewares = $this->getMiddleware($serverContext[Context::MIDDLEWARE_KEY], $route['controller'], $route['method']);
+			$middlewares = $this->getMiddleware($route, $serverContext[Context::MIDDLEWARE_KEY]);
 			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
 			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 
@@ -64,12 +70,7 @@ class RequestDispatcher extends DispatcherAbstract {
 
 		$route = $fastRoute->dispatch($httpMethod, $url);
 
-		if ($route[0] == Dispatcher::NOT_FOUND && strpos($url, '/index') === false) {
-			//如果未找到，加上默认方法名再试一次
-			$url = rtrim($url, '/') . '/index';
-			$route = $fastRoute->dispatch($httpMethod, $url);
-		}
-
+		$controller = $method = '';
 		switch ($route[0]) {
 			case Dispatcher::NOT_FOUND:
 				throw new HttpException('Route not found', 404);
@@ -78,8 +79,12 @@ class RequestDispatcher extends DispatcherAbstract {
 				throw new HttpException('Route not allowed', 405);
 				break;
 			case Dispatcher::FOUND:
-				$controller = $method = '';
-				list($controller, $method) = $route[1];
+				if ($route[1]['handler'] instanceof \Closure) {
+					$controller = $route[1]['handler'];
+					$method = '';
+				} else {
+					list($controller, $method) = $route[1]['handler'];
+				}
 				break;
 		}
 
@@ -87,12 +92,13 @@ class RequestDispatcher extends DispatcherAbstract {
 			"method" => $method,
 			'controller' => $controller,
 			'args' => $route[2],
+			'middleware' => $route[1]['middleware']['before'],
 		];
 	}
 
-	private function getMiddleware($allMiddleware, $controller, $action) {
-		$result = $allMiddleware[$controller . '@' . $action] ?? [];
-		array_push($result, $allMiddleware['last']);
+	private function getMiddleware($route, $lastMiddleware) {
+		$result = $route['middleware'];
+		array_push($result, $lastMiddleware);
 		return $result;
 	}
 

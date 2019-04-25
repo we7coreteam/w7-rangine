@@ -19,8 +19,7 @@ class BeforeStartListener extends ListenerAbstract {
 		$context = App::getApp()->getContext();
 		//注册路由的时候会调用中间件生成，所以要先生成路由再中间件
 		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());
-		$context->setContextDataByKey(Context::MIDDLEWARE_KEY, $this->getMiddleware());
-
+		$context->setContextDataByKey(Context::MIDDLEWARE_KEY, $this->getLastMiddleware());
 		return true;
 	}
 
@@ -32,11 +31,11 @@ class BeforeStartListener extends ListenerAbstract {
 		return new GroupCountBased($routeInfo);
 	}
 
-	private function getMiddleware() {
+	private function getLastMiddleware() {
 		/**
 		 * @var MiddlewareMapping $middlerwareObj
 		 */
 		$middlerwareObj = iloader()->singleton(MiddlewareMapping::class);
-		return $middlerwareObj->getMapping();
+		return $middlerwareObj->getLastMiddle();
 	}
 }

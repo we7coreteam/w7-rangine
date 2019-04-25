@@ -8,6 +8,7 @@ namespace W7\Core\Route;
 
 
 use FastRoute\RouteCollector;
+use Illuminate\Support\Str;
 use W7\Core\Middleware\MiddlewareMapping;
 
 class Route {
@@ -23,26 +24,28 @@ class Route {
 	private $router;
 
 	/**
-	 * @var MiddlewareMapping
-	 */
-	private $middlewareMapping;
-
-	/**
 	 * 当前路由中间件
 	 * @var array
 	 */
 	private $currentMiddleware = [];
 
+	private $groupBegin = false;
+
 	public function __construct() {
 		$this->router = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
-		$this->middlewareMapping = iloader()->singleton(MiddlewareMapping::class);
 	}
 
 
 	public function group($prefix, callable $callback) {
-		return $this->router->addGroup($prefix, function (RouteCollector $route) use ($callback) {
+		$this->groupBegin = true;
+
+		$result = $this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix) {
 			$callback($this);
 		});
+
+		$this->currentMiddleware = [];
+		$this->groupBegin = false;
+		return $result;
 	}
 
 
@@ -99,23 +102,33 @@ class Route {
 		if (empty($methods)) {
 			$methods = SELF::METHOD_BOTH_GP;
 		}
-
 		if (!is_array($methods)) {
 			$methods = [$methods];
 		}
-
 		//清除掉Method两边的空格
 		foreach ($methods as &$value) {
 			$value = strtoupper(trim($value));
 		}
 		unset($value);
 
+		$routeHandler = [
+			'handler' => $handler,
+			'middleware' => [
+				'before' => [],
+				'after' => [],
+			],
+		];
+		//添加完本次路由后，要清空掉当前Middleware值，以便下次使用
+		//如果是在group内，则由group函数来处理清空操作
 		if (!empty($this->currentMiddleware)) {
-			$this->middlewareMapping->setMiddleware(implode('@', $handler), $this->currentMiddleware);
+			$routeHandler['middleware']['before'] = array_merge([], $routeHandler['middleware']['before'], $this->checkMiddleware($this->currentMiddleware));
+		}
+
+		if (empty($this->groupBegin)) {
 			$this->currentMiddleware = [];
 		}
 
-		return $this->router->addRoute($methods, $uri, $handler);
+		return $this->router->addRoute($methods, $uri, $routeHandler);
 	}
 
 	/**
@@ -165,9 +178,10 @@ class Route {
 		return $this->router->getData();
 	}
 
+
 	private function checkHandler($handler) {
 		if ($handler instanceof \Closure) {
-			return true;
+			return $handler;
 		}
 		if (is_string($handler)) {
 			$handler = explode('@', $handler);
@@ -191,12 +205,31 @@ class Route {
 		}
 
 		if (!file_exists($realpath . '.php')) {
-			throw new \RuntimeException('Route configuration controller not found');
+			throw new \RuntimeException('Route configuration controller not found. ' . $realpath);
 		}
 
 		return [
 			$className,
 			$action,
 		];
+	}
+
+	private function checkMiddleware($middleware) {
+		if (!is_array($middleware)) {
+			$middleware = [$middleware];
+		}
+		foreach ($middleware as $index => $class) {
+			if (!is_array($class)) {
+				$class = [$class];
+			}
+			if (!class_exists($class[0])) {
+				$class[0] = "W7\\App\\Middleware\\" . Str::studly($class[0]);
+			}
+			if (!class_exists($class[0])) {
+				unset($middleware[$index]);
+			}
+			$middleware[$index] = $class;
+		}
+		return $middleware;
 	}
 }

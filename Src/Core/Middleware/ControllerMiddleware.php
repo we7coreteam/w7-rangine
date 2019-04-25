@@ -12,17 +12,19 @@ class ControllerMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		//此处处理调用控制器操作
 		try {
-			$route = $request->getHeader('route');
-			$route = json_decode($route[0], true);
+			$route = $request->getAttribute('route');
 
-			if (!class_exists($route['controller'])) {
-				$route['controller'] = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']) . "Controller";
+			//非闭包函数时实列化对象
+			if ($route['controller'] instanceof \Closure) {
+				$controllerHandler = $route['controller'];
+			} else {
+				if (!class_exists($route['controller'])) {
+					$route['controller'] = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']) . "Controller";
+				}
+				$method = StringHelper::studly($route['method']);
+				$classObj = iloader()->singleton($route['controller']);
+				$controllerHandler = [$classObj, $method];
 			}
-
-			$method = StringHelper::studly($route['method']);
-			$classObj = iloader()->singleton($route['controller']);
-
-			$controllerHandler = [$classObj, $method];
 
 			$funArgs = [];
 			$funArgs[] = $request;

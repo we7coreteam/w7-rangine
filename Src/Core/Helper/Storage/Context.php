@@ -36,7 +36,7 @@ class Context {
 	/**
 	 * 中间件
 	 */
-	const MIDDLEWARE_KEY = 'middleware';
+	const MIDDLEWARE_KEY = 'lastMiddleware';
 
 	/**
 	 * 路由表
