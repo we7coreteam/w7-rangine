@@ -17,18 +17,48 @@ class ConfigCommand extends CommandAbstract {
 
 	private function getConfig($option) {
 		$options = explode(':', $option);
-		if ($options[0] === 'route') {
+		$cmd = array_shift($options);
+		if ($cmd === 'route') {
 			iloader()->singleton(RouteMapping::class)->getMapping();
-			$config = irouter()->getData();
-		} else if ($options[0] === 'server') {
+			$config = $this->parseRouteData(irouter()->getData());
+		} else if ($cmd === 'server') {
 			$config = iconfig()->getServer();
 		} else {
-			$config = iconfig()->getUserAppConfig($options[0]);
+			$config = iconfig()->getUserAppConfig($cmd);
 		}
 
-		array_shift($options);
-
 		return $this->getData($options, $config);
+	}
+
+	private function parseRouteData($data) {
+		$routes = [];
+		foreach ($data[0] as $method => $route) {
+			foreach ($route as $key => $item) {
+				$routeKey = implode('-', $item);
+				if (empty($routes[$routeKey])) {
+					$routes[$routeKey] = [
+						'handle' => str_replace("W7\App\Controller\\", '', $item[0]),
+						'action' => $item[1],
+						'uri' => $key
+					];
+				}
+
+				if (empty($routes[$routeKey]['methods'])) {
+					$routes[$routeKey]['methods'] = '';
+				}
+				$routes[$routeKey]['methods'] .= $method . ' ';
+			}
+		}
+
+		foreach ($data[1] as $method => $regexRoute) {
+			foreach ($regexRoute as $route) {
+				foreach ($route['routeMap'] as $item)
+					$routes[implode('-', $item[0])]['params'] = implode(' ', array_values($item[1]));
+			}
+		}
+		$routes = array_combine(array_column($routes, 'uri'), $routes);
+
+		return $routes;
 	}
 
 	private function getData($options, $config) {
