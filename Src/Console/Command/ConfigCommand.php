@@ -2,6 +2,8 @@
 
 namespace W7\Console\Command;
 
+use W7\Core\Route\RouteMapping;
+
 class ConfigCommand extends CommandAbstract {
 	public function dispatch($action, $options = []) {
 		ioutputer()->writeList($this->formatData($this->getConfig($action), $action));
@@ -16,7 +18,8 @@ class ConfigCommand extends CommandAbstract {
 	private function getConfig($option) {
 		$options = explode(':', $option);
 		if ($options[0] === 'route') {
-			$config = iconfig()->getRouteConfig();
+			iloader()->singleton(RouteMapping::class)->getMapping();
+			$config = irouter()->getData();
 		} else if ($options[0] === 'server') {
 			$config = iconfig()->getServer();
 		} else {
