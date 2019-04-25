@@ -66,18 +66,8 @@ class Config {
 		CrontabProcess::class,
 	];
 
-	private $allow_user_config = [
-		'server',
-		'event',
-		'app',
-		'log',
-		'crontab',
-	];
-
 	private $config = [];
 	private $routeConfig = [];
-
-	private $path = BASE_PATH . '/config/';
 
 	public function __construct() {
 		//初始化evn配置数据
@@ -87,6 +77,9 @@ class Config {
 		$env = new Env(BASE_PATH);
 		$env->load();
 		unset($env);
+
+		//加载所有的配置到内存中
+		$this->loadConfig('config');
 	}
 
 	/**
@@ -125,20 +118,10 @@ class Config {
 	 * @return mixed|null
 	 */
 	public function getUserConfig($type) {
-		if (!in_array($type, $this->allow_user_config)) {
-			return null;
+		if (!empty($this->config['config'][$type])) {
+			return $this->config['config'][$type];
 		}
-
-		if (!empty($this->config[$type])) {
-			return $this->config[$type];
-		}
-
-		$appConfigFile = BASE_PATH . '/config/'.$type.'.php';
-		$appConfig = [];
-		if (file_exists($appConfigFile)) {
-			$appConfig = $this->config[$type] = include $appConfigFile;
-		}
-		return $appConfig;
+		return [];
 	}
 
 	/**
@@ -156,22 +139,39 @@ class Config {
 	}
 
 	public function getRouteConfig() {
-		if (!empty($this->routeConfig)) {
-			return $this->routeConfig;
+		$this->loadConfig('route');
+		return $this->config['route'];
+	}
+
+	/**
+	 * 加载所有的配置文件到内存中
+	 */
+	private function loadConfig($section) {
+		$allowSection = [
+			'route',
+			'config',
+		];
+
+		if (!in_array($section, $allowSection)) {
+			throw new \RuntimeException('Path not allowed');
 		}
 
-		$configFileTree = glob(BASE_PATH . '/route/*.php');
+		if (!empty($this->config) && !empty($this->config[$section])) {
+			return $this->config[$section];
+		}
+		$this->config[$section] = [];
 
+		$configFileTree = glob(BASE_PATH . '/' . $section . '/*.php');
 		if (empty($configFileTree)) {
 			return [];
 		}
-
 		foreach ($configFileTree as $path) {
+			$key = pathinfo($path, PATHINFO_FILENAME);
 			$appConfig = include $path;
 			if (is_array($appConfig)) {
-				$this->routeConfig[] = $appConfig;
+				$this->config[$section][$key] = $appConfig;
 			}
 		}
-		return $this->routeConfig;
+		return $this->config;
 	}
 }
