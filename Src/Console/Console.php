@@ -8,34 +8,43 @@
 
 namespace W7\Console;
 
-use W7\Console\Command\CommandAbstract;
+use Symfony\Component\Console\Application;
+use W7\Console\Command\ConfigCommand;
 use W7\Console\Command\DefaultCommand;
-use W7\Console\Io\Input;
-use W7\Core\Helper\StringHelper;
+use W7\Console\Command\RouteCommand;
+use W7\Console\Command\ServerCommand;
 
 class Console {
 	public function run() {
-		\ioutputer()->writeLogo();
+		$console = new Application();
 
-		$input = iloader()->singleton(Input::class);
-		$command = $input->getCommand();
+		$commands = glob(__DIR__  . '/Command/*/' . '*Command.php');
+		$systemCommands = [];
+		foreach ($commands as $key => &$item) {
+			$item = str_replace(__DIR__, '', $item);
+			$item = str_replace('.php', '', $item);
+			$item = str_replace('/', '\\', $item);
 
-		$commandInstance = $this->getCommandInstance($command['command']);
-		$commandInstance->run($command);
+			$info = explode('\\', $item);
+			$name = substr($info[3], 0, strlen($info[3]) - 7);
+			$name = strtolower($info[2] . ':' . $name);
+
+			$systemCommands[$name] = "\\W7\\Console" . $item;
+		}
+
+		$userCommands = iconfig()->getUserConfig('command');
+		$commands = array_merge($systemCommands, $userCommands);
+
+		foreach ($commands as $name => $class) {
+			$commandObj = new $class($name);
+			$console->add($commandObj);
+		}
+
+		$defaultCommand = new DefaultCommand('default');
+		$console->add($defaultCommand);
+		$console->setDefaultCommand('default');
+		$console->run();
 
 		return true;
-	}
-
-	private function getCommandInstance($command) : CommandAbstract {
-		if (!$command) {
-			$command = 'default';
-		}
-		$className = sprintf("\\W7\\Console\\Command\\%s", StringHelper::studly($command) . 'Command');
-		if (!class_exists($className)) {
-			$className = DefaultCommand::class;
-			\ioutputer()->writeln('The ' . $command . ' command not found');
-		}
-		
-		return new $className();
 	}
 }

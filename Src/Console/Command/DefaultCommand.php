@@ -2,35 +2,35 @@
 
 namespace W7\Console\Command;
 
-class DefaultCommand extends CommandAbstract {
-	protected $cmds = [
-		'h|-h|help|-help' => 'help',
-		'v|-v|version|-version' => 'version'
-	];
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-	protected function version() {
+class DefaultCommand extends Command {
+	protected function execute(InputInterface $input, OutputInterface $output) {
+		$logo = "
+			__      _______ _______                   _      
+			\ \    / /  ___  / ___|_      _____   ___ | | ___ 
+			 \ \ /\ / /   / /\___ \ \ /\ / / _ \ / _ \| |/ _ \
+			  \ V  V /   / /  ___) \ V  V / (_) | (_) | |  __/
+			   \_/\_/   /_/  |____/ \_/\_/ \___/ \___/|_|\___|
+			";
+		$output->writeln($logo);
+
+		if ($input->getOption('verbose')) {
+			$this->version($output);
+		} else {
+			$input = new ArrayInput(['command' => 'list']);
+			$this->getApplication()->run($input);
+		}
+	}
+
+	protected function version(OutputInterface $output) {
 		$frameworkVersion = \iconfig()::VERSION;
 		$phpVersion = PHP_VERSION;
 		$swooleVersion = SWOOLE_VERSION;
 
-		\ioutputer()->writeln("framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion\n", true);
-	}
-
-	public function help() {
-		$commands = glob(__DIR__ . '/*Command.php');
-		foreach ($commands as &$command) {
-			$command = str_replace(__DIR__ . DS, '', $command);
-			$command = str_replace('.php', '', $command);
-			if ($command === 'DefaultCommand') {
-				continue;
-			}
-
-			ioutputer()->writeln('-----------------------------------------------------');
-			ioutputer()->writeln(str_replace('Command', '', $command) . ':');
-			ioutputer()->writeln();
-			$command = "\\W7\\Console\\Command\\" . $command;
-			$command = new $command();
-			$command->help();
-		}
+		$output->writeln("framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion\n", true);
 	}
 }
