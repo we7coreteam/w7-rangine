@@ -120,6 +120,7 @@ class Route {
 				'before' => [],
 				'after' => [],
 			],
+			'uri' => $uri
 		];
 		//添加完本次路由后，要清空掉当前Middleware值，以便下次使用
 		//如果是在group内，则由group函数来处理清空操作
