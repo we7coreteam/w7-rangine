@@ -7,7 +7,6 @@
 
 namespace W7\Tcp\Listener;
 
-use Thrift\TMultiplexedProcessor;
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Middleware\MiddlewareMapping;

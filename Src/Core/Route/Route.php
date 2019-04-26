@@ -9,7 +9,6 @@ namespace W7\Core\Route;
 
 use FastRoute\RouteCollector;
 use Illuminate\Support\Str;
-use W7\Core\Middleware\MiddlewareMapping;
 
 class Route {
 	const METHOD_POST = 'POST';
@@ -18,7 +17,8 @@ class Route {
 	const METHOD_PUT = 'PUT';
 	const METHOD_PATCH = 'PATCH';
 	const METHOD_DELETE = 'DELETE';
-	const METHOD_HEAD = 'head';
+	const METHOD_HEAD = 'HEAD';
+	const METHOD_OPTIONS = 'OPTIONS';
 	const METHOD_ALL = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 
 	private $router;
@@ -89,6 +89,9 @@ class Route {
 		return $this->add(self::METHOD_HEAD, $uri, $handler);
 	}
 
+	public function options($uri, $handler) {
+		return $this->add(self::METHOD_OPTIONS, $uri, $handler);
+	}
 
 	/**
 	 * 注册一个支持多种协议的路由
@@ -153,6 +156,10 @@ class Route {
 
 	public function resource() {
 		throw new \InvalidArgumentException('还未实现');
+	}
+
+	public function apiResource($prefix, $handler) {
+
 	}
 
 	public function middleware($name) {
