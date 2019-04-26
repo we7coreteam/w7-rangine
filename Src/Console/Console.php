@@ -9,10 +9,7 @@
 namespace W7\Console;
 
 use Symfony\Component\Console\Application;
-use W7\Console\Command\ConfigCommand;
 use W7\Console\Command\DefaultCommand;
-use W7\Console\Command\RouteCommand;
-use W7\Console\Command\ServerCommand;
 
 class Console {
 	public function run() {
