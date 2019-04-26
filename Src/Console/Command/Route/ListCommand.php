@@ -48,7 +48,7 @@ class ListCommand extends Command {
 				$middleware .= $data . ' ';
 			});
 			$routes[$routeKey] = [
-				'uri' => $item['url'],
+				'uri' => $item['uri'],
 				'handle' => str_replace("W7\App\Controller\\", '', $item['handler'][0]) . '@' . $item['handler'][1],
 				'params' => '',
 				'middleware' => $middleware
