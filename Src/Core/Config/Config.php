@@ -17,7 +17,9 @@ use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Process\CrontabProcess;
 use W7\Core\Process\MysqlPoolprocess;
 use W7\Core\Process\ReloadProcess;
+use W7\Http\Console\HttpCommand;
 use W7\Http\Listener\RequestListener;
+use W7\Tcp\Console\TcpCommand;
 use W7\Tcp\Listener\CloseListener;
 use W7\Tcp\Listener\ConnectListener;
 use W7\Tcp\Listener\ReceiveListener;
@@ -59,6 +61,11 @@ class Config {
 			Event::ON_USER_TASK_FINISH,
             Event::ON_USER_AFTER_REQUEST
 		],
+	];
+
+	private $serverCommand = [
+		'server:http' => HttpCommand::class,
+		'server:tcp' => TcpCommand::class
 	];
 
 	private $process = [
@@ -103,6 +110,10 @@ class Config {
 		}
 		$this->server = array_merge([], $this->defaultServer, $this->getUserConfig('server'));
 		return $this->server;
+	}
+
+	public function getServerCommand() {
+		return $this->serverCommand;
 	}
 
 	/**
