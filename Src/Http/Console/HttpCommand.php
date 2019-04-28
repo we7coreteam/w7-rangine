@@ -8,7 +8,7 @@ use W7\Http\Server\Server;
 class HttpCommand extends ServerCommandAbstract {
 	protected function configure() {
 		parent::configure();
-		$this->addOption('--enable-tcp');
+		$this->addOption('--enable-tcp', null, null, '开启tcp服务');
 	}
 
 	protected function createServer() {

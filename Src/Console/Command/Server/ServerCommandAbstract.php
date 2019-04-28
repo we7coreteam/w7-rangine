@@ -2,20 +2,20 @@
 
 namespace W7\Console\Command\Server;
 
-use W7\App;
 use Symfony\Component\Console\Input\InputOption;
+use W7\App;
 use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
 use W7\Tcp\Console\TcpCommand;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
 	protected function configure() {
-		$this->addOption('--operate', '-o', InputOption::VALUE_REQUIRED, 'start|stop|restart');
+		$this->addArgument('operate',InputOption::VALUE_REQUIRED,'start|stop|restart');
 	}
 
 	protected function handle($options) {
-		if (!empty($options['operate']) && method_exists($this, $options['operate'])) {
-			$operate = $options['operate'];
+		$operate = $this->input->getArgument('operate');
+		if ($operate && method_exists($this, $operate)) {
 			$this->$operate($options);
 			return true;
 		}
@@ -25,7 +25,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	abstract protected function createServer();
 
-	protected function start($option) {
+	protected function start($option = []) {
 		$server = $this->createServer();
 		$status = $server->getStatus();
 
