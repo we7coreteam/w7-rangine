@@ -7,7 +7,10 @@
 
 namespace W7\Console\Io;
 
-class Output
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
+class Output extends ConsoleOutput
 {
 	/**
 	 * 间隙字符
@@ -23,43 +26,11 @@ class Output
 		echo "\033[0;32m$key \e[0m";
 	}
 
-	/**
-	 * 输出一行数据
-	 *
-	 * @param string|array $messages 信息
-	 * @param bool   $newline  是否换行
-	 * @param bool   $quit	 是否退出
-	 */
-	public function writeln($messages = '', $newline = true, $quit = false)
-	{
-		if (\is_array($messages)) {
-			$messages = \implode($newline ? PHP_EOL : '', $messages);
-		}
-		// 输出文字
-		echo $messages;
-		if ($newline) {
-			echo "\n";
-		}
-
-		// 是否退出
-		if ($quit) {
-			exit;
-		}
-	}
-
-	/**
-	 * 输出显示LOGO图标
-	 */
-	public function writeLogo()
-	{
-		$logo = "
-__      _______ _______                   _      
-\ \    / /  ___  / ___|_      _____   ___ | | ___ 
- \ \ /\ / /   / /\___ \ \ /\ / / _ \ / _ \| |/ _ \
-  \ V  V /   / /  ___) \ V  V / (_) | (_) | |  __/
-   \_/\_/   /_/  |____/ \_/\_/ \___/ \___/|_|\___|
-";
-		$this->writeln(' ' . \ltrim($logo));
+	public function writeTable($header, $rows) {
+		$table = new Table($this);
+		$table->setHeaders($header);
+		$table->setRows($rows);
+		$table->render();
 	}
 
 	/**
@@ -105,7 +76,7 @@ __      _______ _______                   _
 					if (count($desc) == 1) {
 						$desc = array_shift($desc);
 					}
-					$this->writeln();
+					$this->writeln('');
 					$this->writeItems($desc, $level + 1);
 					continue;
 				} else {
