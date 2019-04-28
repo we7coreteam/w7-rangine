@@ -8,17 +8,14 @@ use W7\Core\Exception\CommandException;
 
 class ListCommand extends CommandAbstract {
 	protected function configure() {
-		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED);
+		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED, '需要搜索的配置，例如：app.database.default');
 	}
 
 	protected function handle($options) {
 		$key = $options['search'] ?? '';
 		if ($key) {
-			$options = explode(':', $key);
+			$options = explode('.', $key);
 			$config = iconfig()->getUserConfig($options[0]);
-			if (!$config) {
-				$config = iconfig()->getUserAppConfig($options[0]);
-			}
 			array_shift($options);
 
 			$config = $this->getData($options, $config);

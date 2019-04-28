@@ -10,7 +10,7 @@ use W7\Core\Route\RouteMapping;
 
 class ListCommand extends CommandAbstract {
 	protected function configure() {
-		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED);
+		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED, '需要搜索的路由uri');
 	}
 
 	protected function handle($options) {
@@ -40,14 +40,14 @@ class ListCommand extends CommandAbstract {
 		if (empty($routes[$routeKey])) {
 			$middleware = '';
 			array_walk_recursive($item['middleware'],  function ($data) use (&$middleware) {
-				$middleware .= $data . ' ';
+				$middleware .= str_replace("W7\\App\\Middleware\\", ' ', $data) . "\n";
 			});
 			$routes[$routeKey] = [
 				'name' => $item['handler']['name'] ?? '',
 				'uri' => $item['uri'],
 				'handle' => str_replace("W7\App\Controller\\", '', $item['handler'][0]) . '@' . $item['handler'][1],
 				'params' => '',
-				'middleware' => $middleware
+				'middleware' => rtrim($middleware, "\n")
 			];
 		}
 
