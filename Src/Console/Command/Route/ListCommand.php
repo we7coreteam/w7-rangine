@@ -31,7 +31,7 @@ class ListCommand extends CommandAbstract {
 			}
 		}
 
-		$header = ['name', 'uri', 'handle','params', 'middleware', 'methods'];
+		$header = ['name', 'uri', 'handle', 'middleware', 'methods'];
 		$this->output->writeTable($header, $routes);
 	}
 
@@ -46,7 +46,6 @@ class ListCommand extends CommandAbstract {
 				'name' => $item['handler']['name'] ?? '',
 				'uri' => $item['uri'],
 				'handle' => str_replace("W7\App\Controller\\", '', $item['handler'][0]) . '@' . $item['handler'][1],
-				'params' => '',
 				'middleware' => rtrim($middleware, "\n")
 			];
 		}
@@ -64,14 +63,6 @@ class ListCommand extends CommandAbstract {
 				$this->parseRouteItem($routes, $item, $method);
 			}
 		}
-
-		foreach ($data[1] as $method => $regexRoute) {
-			foreach ($regexRoute as $route) {
-				foreach ($route['routeMap'] as $item)
-					$routes[implode('-', $item[0]['handler'])]['params'] = implode(' ', array_values($item[1]));
-			}
-		}
-		$routes = array_combine(array_column($routes, 'uri'), $routes);
 
 		return $routes;
 	}
