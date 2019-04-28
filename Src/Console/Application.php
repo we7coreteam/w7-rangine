@@ -72,7 +72,7 @@ class Application extends SymfontApplication {
 	private function registerCommands() {
 		$commands = glob(RANGINE_FRAMEWORK_PATH  . '/Console/Command/*/' . '*Command.php');
 		$systemCommands = [];
-		foreach ($commands as $key => &$item) {
+		foreach ($commands as $key => $item) {
 			$item = str_replace(RANGINE_FRAMEWORK_PATH . '/Console/Command/', '', $item);
 			$info = pathinfo($item);
 			$name = strtolower(rtrim($info['dirname'] . ':' . $info['filename'], 'Command'));
