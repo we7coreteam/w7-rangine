@@ -10,7 +10,7 @@ use W7\Core\Route\RouteMapping;
 
 class ListCommand extends CommandAbstract {
 	protected function configure() {
-		$this->addOption('--search', null, InputOption::VALUE_REQUIRED);
+		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED);
 	}
 
 	protected function handle($options) {

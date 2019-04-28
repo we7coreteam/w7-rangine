@@ -10,7 +10,7 @@ use W7\Tcp\Console\TcpCommand;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
 	protected function configure() {
-		$this->addOption('--operate', null, InputOption::VALUE_REQUIRED, 'start|stop|restart');
+		$this->addOption('--operate', '-o', InputOption::VALUE_REQUIRED, 'start|stop|restart');
 	}
 
 	protected function handle($options) {

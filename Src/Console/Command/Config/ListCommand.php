@@ -8,7 +8,7 @@ use W7\Core\Exception\CommandException;
 
 class ListCommand extends CommandAbstract {
 	protected function configure() {
-		$this->addOption('--search', null, InputOption::VALUE_REQUIRED);
+		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED);
 	}
 
 	protected function handle($options) {
