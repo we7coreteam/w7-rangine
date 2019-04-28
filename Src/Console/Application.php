@@ -47,12 +47,13 @@ class Application extends SymfontApplication {
 	}
 
 	public function doRun(InputInterface $input, OutputInterface $output) {
-		$output->writeln($this->logo());
 		if (true === $input->hasParameterOption(['--version', '-v','vv', 'vvv', '--verbose'], true)) {
+			$output->writeln($this->logo());
 			$output->writeln($this->getLongVersion());
 			return 0;
 		}
 		if (true === $input->hasParameterOption(['--help', '-h'], true)) {
+			$output->writeln($this->logo());
 			if (!$this->getCommandName($input)) {
 				$input = new ArgvInput(['command' => 'list']);
 			}
