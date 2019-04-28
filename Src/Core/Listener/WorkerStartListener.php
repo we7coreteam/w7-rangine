@@ -19,6 +19,7 @@ class WorkerStartListener implements ListenerInterface {
 
 		$openBaseDir = [
 			'/tmp',
+			sys_get_temp_dir(),
 			APP_PATH,
 			RUNTIME_PATH,
 			BASE_PATH . '/vendor',
