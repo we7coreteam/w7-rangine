@@ -3,25 +3,22 @@
 namespace W7\Console\Command\Route;
 
 use FastRoute\Dispatcher\GroupCountBased;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use W7\Console\Command\CommandAbstract;
 use W7\Core\Route\Route;
 use W7\Core\Route\RouteMapping;
 
-class ListCommand extends Command {
+class ListCommand extends CommandAbstract {
 	protected function configure() {
 		$this->addOption('--search', null, InputOption::VALUE_REQUIRED);
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output) {
+	protected function handle($options) {
 		iloader()->singleton(RouteMapping::class)->getMapping();
 		$config = irouter()->getData();
 
 		$routes = [];
-		$key = $input->getOption('search');
+		$key = $options['search'] ?? '';
 		if (!$key) {
 			$routes = $this->parseRouteData($config);
 		} else {
@@ -34,10 +31,8 @@ class ListCommand extends Command {
 			}
 		}
 
-		$table = new Table($output);
-		$table->setHeaders([ 'uri', 'handle','params', 'middleware', 'methods']);
-		$table->setRows($routes);
-		$table->render();
+		$header = ['name', 'uri', 'handle','params', 'middleware', 'methods'];
+		$this->output->writeTable($header, $routes);
 	}
 
 	private function parseRouteItem(&$routes, $item, $method) {
@@ -48,6 +43,7 @@ class ListCommand extends Command {
 				$middleware .= $data . ' ';
 			});
 			$routes[$routeKey] = [
+				'name' => $item['handler']['name'] ?? '',
 				'uri' => $item['uri'],
 				'handle' => str_replace("W7\App\Controller\\", '', $item['handler'][0]) . '@' . $item['handler'][1],
 				'params' => '',

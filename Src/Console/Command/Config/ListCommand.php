@@ -2,19 +2,17 @@
 
 namespace W7\Console\Command\Config;
 
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use W7\Console\Command\CommandAbstract;
+use W7\Core\Exception\CommandException;
 
-class ListCommand extends Command {
+class ListCommand extends CommandAbstract {
 	protected function configure() {
 		$this->addOption('--search', null, InputOption::VALUE_REQUIRED);
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output) {
-		$key = $input->getOption('search');
+	protected function handle($options) {
+		$key = $options['search'] ?? '';
 		if ($key) {
 			$options = explode(':', $key);
 			$config = iconfig()->getUserConfig($options[0]);
@@ -25,12 +23,12 @@ class ListCommand extends Command {
 
 			$config = $this->getData($options, $config);
 
-			ioutputer()->writeList($this->formatData($config, $key));
-		} else {
-			$this->getApplication()->setDefaultCommand($this->getName());
-			$input = new ArrayInput(['--help' => true]);
-			$this->getApplication()->run($input);
+			$this->output->writeList($this->formatData($config, $key));
+
+			return true;
 		}
+
+		throw new CommandException('the option --search not be empty');
 	}
 
 	private function getData($options, $config) {
