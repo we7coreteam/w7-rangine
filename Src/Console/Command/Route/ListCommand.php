@@ -44,7 +44,7 @@ class ListCommand extends CommandAbstract {
 				$middleware .= str_replace("W7\\App\\Middleware\\", ' ', $data) . "\n";
 			});
 			$routes[$routeKey] = [
-				'name' => $item['handler']['name'] ?? '',
+				'name' => $item['name'] ?? '',
 				'uri' => $item['uri'],
 				'handle' => str_replace("W7\App\Controller\\", '', $item['handler'][0]) . '@' . $item['handler'][1],
 				'middleware' => rtrim($middleware, "\n")
