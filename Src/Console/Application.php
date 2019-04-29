@@ -47,7 +47,7 @@ class Application extends SymfontApplication {
 	}
 
 	public function doRun(InputInterface $input, OutputInterface $output) {
-		if (true === $input->hasParameterOption(['--version', '-v','vv', 'vvv', '--verbose'], true)) {
+		if (true === $input->hasParameterOption(['--version', '-v'], true)) {
 			$output->writeln($this->logo());
 			$output->writeln($this->getLongVersion());
 			return 0;
