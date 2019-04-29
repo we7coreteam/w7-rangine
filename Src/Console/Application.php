@@ -11,7 +11,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use W7\Console\Io\Output;
-use W7\Core\Exception\CommandException;
 
 class Application extends SymfontApplication {
 	public function __construct() {
@@ -52,21 +51,19 @@ class Application extends SymfontApplication {
 			$output->writeln($this->getLongVersion());
 			return 0;
 		}
-		if (true === $input->hasParameterOption(['--help', '-h'], true)) {
+
+		if (!$this->checkCommand($input)) {
 			$output->writeln($this->logo());
-			if (!$this->getCommandName($input)) {
-				$input = new ArgvInput(['command' => 'list']);
-			}
+			$input = new ArgvInput(['command' => 'list']);
+		} else if (true === $input->hasParameterOption(['--help', '-h'], true)) {
+			$output->writeln($this->logo());
 		}
 
 		try{
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
-			$this->renderException($e, $output);
-			if ($e instanceof CommandException) {
-				$input = new ArrayInput(['--help' => true,'command' => $this->getCommandName($input)]);
-				$this->run($input);
-			}
+			$input = new ArrayInput(['--help' => true,'command' => $this->getCommandName($input)]);
+			$this->run($input);
 		}
 	}
 
@@ -80,7 +77,6 @@ class Application extends SymfontApplication {
 
 			$systemCommands[$name] = "\\W7\\Console\\Command\\" . $info['dirname'] . "\\" . $info['filename'];
 		}
-		$systemCommands = array_merge($systemCommands, iconfig()->getServerCommand());
 
 		$userCommands = iconfig()->getUserConfig('command');
 		$commands = array_merge($systemCommands, $userCommands);
@@ -89,6 +85,14 @@ class Application extends SymfontApplication {
 			$commandObj = new $class($name);
 			$this->add($commandObj);
 		}
+	}
+
+	private function checkCommand($input) {
+		$command = $this->getCommandName($input);
+		if ($this->has($command) && strpos($command, ':') !== false) {
+			return true;
+		}
+		return false;
 	}
 
 	private function logo() {
