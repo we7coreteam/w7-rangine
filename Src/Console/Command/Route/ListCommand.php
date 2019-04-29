@@ -11,6 +11,7 @@ use W7\Core\Route\RouteMapping;
 class ListCommand extends CommandAbstract {
 	protected function configure() {
 		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED, '需要搜索的路由uri');
+		$this->setDescription('获取路由信息');
 	}
 
 	protected function handle($options) {
