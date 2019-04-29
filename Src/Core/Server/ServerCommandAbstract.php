@@ -1,28 +1,12 @@
 <?php
 
-namespace W7\Console\Command\Server;
+namespace W7\Core\Server;
 
-use Symfony\Component\Console\Input\InputOption;
 use W7\App;
 use W7\Console\Command\CommandAbstract;
-use W7\Core\Exception\CommandException;
-use W7\Tcp\Console\TcpCommand;
+use W7\Tcp\Server\Server;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
-	protected function configure() {
-		$this->addArgument('operate',InputOption::VALUE_REQUIRED,'start|stop|restart');
-	}
-
-	protected function handle($options) {
-		$operate = $this->input->getArgument('operate');
-		if ($operate && method_exists($this, $operate)) {
-			$this->$operate($options);
-			return true;
-		}
-
-		throw new CommandException('the option --operate not be empty');
-	}
-
 	abstract protected function createServer();
 
 	protected function start($option = []) {
@@ -43,8 +27,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$tcpLines = 'tcp  |  disable ( --enable-tcp )';
 		//附加TCP服务
 		if (!empty($option['enable-tcp'])) {
-			$tcpServerConsole = new TcpCommand();
-			$tcpServer = $tcpServerConsole->createServer();
+			$tcpServer = new Server();
 			$tcpServer->listener($server->getServer());
 
 			$tcpStatusInfo = '';
