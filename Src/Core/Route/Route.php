@@ -178,12 +178,13 @@ class Route {
 		throw new \InvalidArgumentException('还未实现');
 	}
 
-	public function resource() {
-		throw new \InvalidArgumentException('还未实现');
+	public function resource($name, $controller, $options = []) {
+		$resouse = new ResourceRoute(new ResourceRegister($this), $name, $controller, $options);
+		return $resouse->register();
 	}
 
-	public function apiResource($prefix, $handler) {
-
+	public function apiResource($name, $controller, $options = []) {
+		return new ResourceRoute(new ResourceRegister($this), $name, $controller, $options);
 	}
 
 	public function middleware($name) {
