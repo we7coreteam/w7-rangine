@@ -31,6 +31,8 @@ class Route {
 
 	private $groupBegin = false;
 
+	private $name = '';
+
 	public function __construct() {
 		$this->router = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
 	}
@@ -39,13 +41,13 @@ class Route {
 	public function group($prefix, callable $callback) {
 		$this->groupBegin = true;
 
-		$result = $this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix) {
+		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix) {
 			$callback($this);
 		});
 
 		$this->currentMiddleware = [];
 		$this->groupBegin = false;
-		return $result;
+		return true;
 	}
 
 
@@ -66,31 +68,38 @@ class Route {
 	 * 注册一个Post 路由
 	 */
 	public function post($uri, $handler) {
-		return $this->add(self::METHOD_POST, $uri, $handler);
+		$result = $this->add(self::METHOD_POST, $uri, $handler);
+		return $result;
 	}
 
 	public function get($uri, $handler) {
-		return $this->add(self::METHOD_GET, $uri, $handler);
+		$result = $this->add(self::METHOD_GET, $uri, $handler);
+		return $result;
 	}
 
 	public function put($uri, $handler) {
-		return $this->add(self::METHOD_PUT, $uri, $handler);
+		$result = $this->add(self::METHOD_PUT, $uri, $handler);
+		return $result;
 	}
 
 	public function delete($uri, $handler) {
-		return $this->add(self::METHOD_DELETE, $uri, $handler);
+		$result = $this->add(self::METHOD_DELETE, $uri, $handler);
+		return $result;
 	}
 
 	public function patch($uri, $handler) {
-		return $this->add(self::METHOD_PATCH, $uri, $handler);
+		$result = $this->add(self::METHOD_PATCH, $uri, $handler);
+		return $result;
 	}
 
 	public function head($uri, $handler) {
-		return $this->add(self::METHOD_HEAD, $uri, $handler);
+		$result = $this->add(self::METHOD_HEAD, $uri, $handler);
+		return $result;
 	}
 
 	public function options($uri, $handler) {
-		return $this->add(self::METHOD_OPTIONS, $uri, $handler);
+		$result = $this->add(self::METHOD_OPTIONS, $uri, $handler);
+		return $result;
 	}
 
 	/**
@@ -99,7 +108,7 @@ class Route {
 	 * @param $uri
 	 * @param $handler
 	 */
-	public function add($methods, $uri, $handler) {
+	public function add($methods, $uri, $handler, $name = '') {
 		$handler = $this->checkHandler($handler);
 
 		if (empty($methods)) {
@@ -122,6 +131,18 @@ class Route {
 			],
 			'uri' => $uri
 		];
+
+		if (empty($name)) {
+			$name = $this->name;
+		}
+		//如果是在group内，则以前缀+方法名的规则来命名组内URI
+		if (!empty($this->groupBegin) && !($handler instanceof \Closure)) {
+			$name = sprintf('%s.%s', $name, $handler[1]);
+		}
+		if (!empty($name)) {
+			$routeHandler['name'] = $name;
+		}
+
 		//添加完本次路由后，要清空掉当前Middleware值，以便下次使用
 		//如果是在group内，则由group函数来处理清空操作
 		if (!empty($this->currentMiddleware)) {
@@ -131,8 +152,10 @@ class Route {
 		if (empty($this->groupBegin)) {
 			$this->currentMiddleware = [];
 		}
+		$this->name = '';
 
-		return $this->router->addRoute($methods, $uri, $routeHandler);
+		$this->router->addRoute($methods, $uri, $routeHandler);
+		return true;
 	}
 
 	/**
@@ -175,6 +198,15 @@ class Route {
 			$this->currentMiddleware[] = $row;
 		}
 
+		return $this;
+	}
+
+	/**
+	 * 指定该路由的名字，用于验权之类的操作
+	 * @param $name
+	 */
+	public function name($name) {
+		$this->name = $name;
 		return $this;
 	}
 

@@ -17,4 +17,6 @@ abstract class CommandAbstract extends Command {
 
 		$this->handle($this->input->getOptions());
 	}
+
+	abstract protected function handle($options);
 }

@@ -11,7 +11,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use W7\Console\Io\Output;
-use W7\Core\Exception\CommandException;
 
 class Application extends SymfontApplication {
 	public function __construct() {
@@ -47,39 +46,37 @@ class Application extends SymfontApplication {
 	}
 
 	public function doRun(InputInterface $input, OutputInterface $output) {
-		$output->writeln($this->logo());
-		if (true === $input->hasParameterOption(['--version', '-v','vv', 'vvv', '--verbose'], true)) {
+		if (true === $input->hasParameterOption(['--version', '-v'], true)) {
+			$output->writeln($this->logo());
 			$output->writeln($this->getLongVersion());
 			return 0;
 		}
-		if (true === $input->hasParameterOption(['--help', '-h'], true)) {
-			if (!$this->getCommandName($input)) {
-				$input = new ArgvInput(['command' => 'list']);
-			}
+
+		if (!$this->checkCommand($input)) {
+			$output->writeln($this->logo());
+			$input = new ArgvInput(['command' => 'list']);
+		} else if (true === $input->hasParameterOption(['--help', '-h'], true)) {
+			$output->writeln($this->logo());
 		}
 
 		try{
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
-			$this->renderException($e, $output);
-			if ($e instanceof CommandException) {
-				$input = new ArrayInput(['--help' => true,'command' => $this->getCommandName($input)]);
-				$this->run($input);
-			}
+			$input = new ArrayInput(['--help' => true,'command' => $this->getCommandName($input)]);
+			$this->run($input);
 		}
 	}
 
 	private function registerCommands() {
 		$commands = glob(RANGINE_FRAMEWORK_PATH  . '/Console/Command/*/' . '*Command.php');
 		$systemCommands = [];
-		foreach ($commands as $key => &$item) {
+		foreach ($commands as $key => $item) {
 			$item = str_replace(RANGINE_FRAMEWORK_PATH . '/Console/Command/', '', $item);
 			$info = pathinfo($item);
 			$name = strtolower(rtrim($info['dirname'] . ':' . $info['filename'], 'Command'));
 
 			$systemCommands[$name] = "\\W7\\Console\\Command\\" . $info['dirname'] . "\\" . $info['filename'];
 		}
-		$systemCommands = array_merge($systemCommands, iconfig()->getServerCommand());
 
 		$userCommands = iconfig()->getUserConfig('command');
 		$commands = array_merge($systemCommands, $userCommands);
@@ -88,6 +85,14 @@ class Application extends SymfontApplication {
 			$commandObj = new $class($name);
 			$this->add($commandObj);
 		}
+	}
+
+	private function checkCommand($input) {
+		$command = $this->getCommandName($input);
+		if ($this->has($command) && strpos($command, ':') !== false) {
+			return true;
+		}
+		return false;
 	}
 
 	private function logo() {
