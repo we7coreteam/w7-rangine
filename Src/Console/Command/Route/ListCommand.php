@@ -65,6 +65,24 @@ class ListCommand extends CommandAbstract {
 			}
 		}
 
+		foreach ($data[1] as $method => $routeGroup) {
+			foreach ($routeGroup as $route) {
+				foreach ($route['routeMap'] as $item) {
+					$item = $item[0];
+					$this->parseRouteItem($routes, $item, $method);
+				}
+			}
+		}
+
+		uasort($routes, function ($item1, $item2) {
+			if($item1['uri']<$item2['uri']){
+				return -1;
+			}else if($item1['uri']>$item2['uri']){
+				return 1;
+			}else{
+				return 0;
+			}
+		});
 		return $routes;
 	}
 }
