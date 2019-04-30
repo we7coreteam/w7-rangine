@@ -35,8 +35,7 @@ class ResourceRegister {
 	 * @param  array  $options
 	 * @return array
 	 */
-	protected function getResourceActions($options)
-	{
+	protected function getResourceActions($options) {
 		$methods = $this->resourceDefaults;
 
 		if (isset($options['only'])) {
@@ -55,8 +54,7 @@ class ResourceRegister {
 	 * @param  string  $value
 	 * @return string
 	 */
-	protected function getResourceWildcard($value)
-	{
+	protected function getResourceWildcard($value) {
 		if (isset($this->parameters[$value])) {
 			$value = $this->parameters[$value];
 		}
