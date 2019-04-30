@@ -30,8 +30,6 @@ class Route {
 	private $currentMiddleware = [];
 	private $groupMiddleware = [];
 
-	private $groupBegin = false;
-
 	private $name = '';
 
 	public function __construct() {
@@ -45,21 +43,17 @@ class Route {
 	 * @return bool
 	 */
 	public function group($prefix, callable $callback) {
-		$this->groupBegin = true;
-
 		$parentPrefix = $this->router->getCurrentGroupPrefix();
 		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, &$prefix, $parentPrefix) {
 			$prefix = $this->router->getCurrentGroupPrefix();
 			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], ...$this->currentMiddleware);
 			$this->groupMiddleware[$prefix] = $groupMiddleware;
 			$this->currentMiddleware = [];
-			$this->name = str_replace('/', '.', trim($this->router->getCurrentGroupPrefix(), '/'));
 
 			$callback($this);
 		});
 
 		$this->groupMiddleware[$prefix] = [];
-		$this->groupBegin = false;
 		return true;
 	}
 
@@ -145,16 +139,16 @@ class Route {
 			'uri' => $this->router->getCurrentGroupPrefix() . $uri
 		];
 
-		if (empty($name)) {
-			$name = $this->name;
+		if (!$name) {
+			if ($this->name) {
+				$name = $this->name;
+			} else {
+				$name = str_replace('/', '.', trim($this->router->getCurrentGroupPrefix(), '/'));
+				$name = trim($name . '.' . $handler[1], '.');
+			}
 		}
-		//如果是在group内，则以前缀+方法名的规则来命名组内URI
-		if (!empty($this->groupBegin) && !($handler instanceof \Closure)) {
-			$name = sprintf('%s.%s', $name, $handler[1]);
-		}
-		if (!empty($name)) {
-			$routeHandler['name'] = $name;
-		}
+
+		$routeHandler['name'] = $name;
 
 		//先获取上级的middleware
 		//添加完本次路由后，要清空掉当前Middleware值，以便下次使用
@@ -227,7 +221,6 @@ class Route {
 	public function getData() {
 		return $this->router->getData();
 	}
-
 
 	private function checkHandler($handler) {
 		if ($handler instanceof \Closure) {
