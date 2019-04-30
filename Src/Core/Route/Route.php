@@ -28,6 +28,7 @@ class Route {
 	 * @var array
 	 */
 	private $currentMiddleware = [];
+	private $groupMiddleware = [];
 
 	private $groupBegin = false;
 
@@ -37,16 +38,26 @@ class Route {
 		$this->router = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
 	}
 
-
+	/**
+	 * middleware按照分组隔开，子分组的middleware始终含有父的middleware
+	 * @param $prefix
+	 * @param callable $callback
+	 * @return bool
+	 */
 	public function group($prefix, callable $callback) {
 		$this->groupBegin = true;
 
-		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix) {
+		$parentPrefix = $this->router->getCurrentGroupPrefix();
+		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix, $parentPrefix) {
+			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], ...$this->currentMiddleware);
+			$this->groupMiddleware[$this->router->getCurrentGroupPrefix()] = $groupMiddleware;
+			$this->currentMiddleware = [];
 			$this->name = str_replace('/', '.', trim($this->router->getCurrentGroupPrefix(), '/'));
+
 			$callback($this);
 		});
 
-		$this->currentMiddleware = [];
+		$this->groupMiddleware[$prefix] = [];
 		$this->groupBegin = false;
 		return true;
 	}
@@ -144,15 +155,12 @@ class Route {
 			$routeHandler['name'] = $name;
 		}
 
+		//先获取上级的middleware
 		//添加完本次路由后，要清空掉当前Middleware值，以便下次使用
-		//如果是在group内，则由group函数来处理清空操作
-		if (!empty($this->currentMiddleware)) {
-			$routeHandler['middleware']['before'] = array_merge([], $routeHandler['middleware']['before'], $this->checkMiddleware($this->currentMiddleware));
-		}
+		$groupMiddleware = $this->groupMiddleware[$this->router->getCurrentGroupPrefix()] ?? [];
+		$routeHandler['middleware']['before'] = array_merge($groupMiddleware, $routeHandler['middleware']['before'], $this->checkMiddleware($this->currentMiddleware));
 
-		if (empty($this->groupBegin)) {
-			$this->currentMiddleware = [];
-		}
+		$this->currentMiddleware = [];
 		$this->name = '';
 
 		$this->router->addRoute($methods, $uri, $routeHandler);
