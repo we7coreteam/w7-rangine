@@ -7,7 +7,7 @@
 namespace W7\Core\Route;
 
 
-use FastRoute\RouteCollector;
+use W7\Core\Route\RouteCollector;
 use Illuminate\Support\Str;
 
 class Route {
@@ -129,7 +129,7 @@ class Route {
 				'before' => [],
 				'after' => [],
 			],
-			'uri' => $uri
+			'uri' => $this->router->getCurrentGroupPrefix() . $uri
 		];
 
 		if (empty($name)) {
@@ -179,8 +179,7 @@ class Route {
 	}
 
 	public function resource($name, $controller, $options = []) {
-		$resouse = new ResourceRoute(new ResourceRegister($this), $name, $controller, $options);
-		return $resouse->register();
+		return new ResourceRoute(new ResourceRegister($this), $name, $controller, $options);
 	}
 
 	public function apiResource($name, $controller, $options = []) {

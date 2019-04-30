@@ -8,6 +8,7 @@ class ResourceRoute {
 	private $name;
 	private $controller;
 	private $options = [];
+	private $registered;
 
 	public function __construct(ResourceRegister $register, $name, $controller, $options = []) {
 		$this->register = $register;
@@ -52,6 +53,11 @@ class ResourceRoute {
 		return $this;
 	}
 
+	/**
+	 * 暂不支持
+	 * @param $middleware
+	 * @return $this
+	 */
 	public function middleware($middleware) {
 		$this->options['middleware'] = $middleware;
 
@@ -59,8 +65,19 @@ class ResourceRoute {
 	}
 
 	public function register() {
+		$this->registered = true;
 		return $this->register->register(
 			$this->name, $this->controller, $this->options
 		);
+	}
+
+	/**
+	 * 如果没有手动注册的话执行自动注册
+	 */
+	public function __destruct()
+	{
+		if (! $this->registered) {
+			$this->register();
+		}
 	}
 }

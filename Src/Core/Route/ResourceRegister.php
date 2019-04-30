@@ -93,20 +93,19 @@ class ResourceRegister {
 				$name = $options['names'][$action];
 			}
 		}
+		$this->router->name($name);
 
-		if ($name) {
-			return [$controller . '@' . $action, $name];
+		if (!empty($options['middleware'])) {
+			$this->router->middleware($options['middleware']);
 		}
 
 		return $controller . '@' . $action;
 	}
 
-	protected function getResourcePrefix($name)
-	{
-		$segments = trim(strrchr($name,'/'), '/');
-		$prefix = rtrim($name, '/' . $segments);
-
-		return [$segments, $prefix];
+	protected function getResourcePrefix($name) {
+		$segments = explode('/', $name);
+		$prefix = implode('/', array_slice($segments, 0, -1));
+		return [end($segments), $prefix];
 	}
 
 	/**
@@ -128,7 +127,6 @@ class ResourceRegister {
 
 	protected function addResourceIndex($name, $base, $controller, $options) {
 		$uri = $this->getResourceUri($name) . '/index';
-
 		$handler = $this->getResourceHandler($controller, 'index', $options);
 
 		$this->router->get($uri, $handler);
@@ -136,7 +134,6 @@ class ResourceRegister {
 
 	protected function addResourceCreate($name, $base, $controller, $options) {
 		$uri = $this->getResourceUri($name) . '/create';
-
 		$handler = $this->getResourceHandler($controller, 'create', $options);
 
 		$this->router->get($uri, $handler);
@@ -144,7 +141,6 @@ class ResourceRegister {
 
 	protected function addResourceStore($name, $base, $controller, $options) {
 		$uri = $this->getResourceUri($name);
-
 		$handler = $this->getResourceHandler($controller, 'store', $options);
 
 		$this->router->post($uri, $handler);
@@ -152,7 +148,6 @@ class ResourceRegister {
 
 	protected function addResourceShow($name, $base, $controller, $options) {
 		$uri = $this->getResourceUri($name).'/{'.$base.'}';
-
 		$handler = $this->getResourceHandler($controller, 'show', $options);
 
 		$this->router->get($uri, $handler);
@@ -160,7 +155,6 @@ class ResourceRegister {
 
 	protected function addResourceEdit($name, $base, $controller, $options) {
 		$uri = $this->getResourceUri($name).'/{'.$base.'}/edit';
-
 		$handler = $this->getResourceHandler($controller, 'edit', $options);
 
 		$this->router->get($uri, $handler);
@@ -168,7 +162,6 @@ class ResourceRegister {
 
 	protected function addResourceUpdate($name, $base, $controller, $options) {
 		$uri = $this->getResourceUri($name).'/{'.$base.'}';
-
 		$handler = $this->getResourceHandler($controller, 'update', $options);
 
 		$this->router->put($uri, $handler);
@@ -177,7 +170,6 @@ class ResourceRegister {
 
 	protected function addResourceDestroy($name, $base, $controller, $options) {
 		$uri = $this->getResourceUri($name).'/{'.$base.'}';
-
 		$handler = $this->getResourceHandler($controller, 'destroy', $options);
 
 		$this->router->delete($uri, $handler);
