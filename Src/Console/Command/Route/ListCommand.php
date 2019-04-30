@@ -10,8 +10,8 @@ use W7\Core\Route\RouteMapping;
 
 class ListCommand extends CommandAbstract {
 	protected function configure() {
-		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED, '需要搜索的路由uri');
-		$this->setDescription('获取路由信息');
+		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED, 'the routing uri to search for');
+		$this->setDescription('get routing information');
 	}
 
 	protected function handle($options) {

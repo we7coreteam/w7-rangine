@@ -4,7 +4,7 @@ namespace W7\Console\Command\Tcp;
 
 class RestartCommand extends TcpCommandAbstract {
 	protected function configure() {
-		$this->setDescription('重启tcp服务');
+		$this->setDescription('restart tcp service');
 	}
 
 	protected function handle($options) {

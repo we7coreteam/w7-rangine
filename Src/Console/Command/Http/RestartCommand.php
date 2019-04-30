@@ -4,7 +4,7 @@ namespace W7\Console\Command\Http;
 
 class RestartCommand extends HttpCommandAbstract {
 	protected function configure() {
-		$this->setDescription('重启http服务');
+		$this->setDescription('restart the http service');
 	}
 
 	protected function handle($options) {

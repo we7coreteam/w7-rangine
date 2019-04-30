@@ -8,8 +8,8 @@ use W7\Core\Exception\CommandException;
 
 class ListCommand extends CommandAbstract {
 	protected function configure() {
-		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED, '需要搜索的配置，例如：app.database.default');
-		$this->setDescription('获取用户配置信息');
+		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED, 'configuration to search for, for example:  app.database.default');
+		$this->setDescription('gets user configuration information');
 	}
 
 	protected function handle($options) {

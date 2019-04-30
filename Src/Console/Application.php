@@ -25,8 +25,7 @@ class Application extends SymfontApplication {
 	 *
 	 * @return InputDefinition An InputDefinition instance
 	 */
-	protected function getDefaultInputDefinition()
-	{
+	protected function getDefaultInputDefinition() {
 		return new InputDefinition([
 			new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
 
