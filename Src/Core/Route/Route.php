@@ -7,7 +7,7 @@
 namespace W7\Core\Route;
 
 
-use FastRoute\RouteCollector;
+use W7\Core\Route\RouteCollector;
 use Illuminate\Support\Str;
 
 class Route {
@@ -28,8 +28,7 @@ class Route {
 	 * @var array
 	 */
 	private $currentMiddleware = [];
-
-	private $groupBegin = false;
+	private $groupMiddleware = [];
 
 	private $name = '';
 
@@ -37,16 +36,24 @@ class Route {
 		$this->router = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
 	}
 
-
+	/**
+	 * middleware按照分组隔开，子分组的middleware始终含有父的middleware
+	 * @param $prefix
+	 * @param callable $callback
+	 * @return bool
+	 */
 	public function group($prefix, callable $callback) {
-		$this->groupBegin = true;
+		$parentPrefix = $this->router->getCurrentGroupPrefix();
+		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, &$prefix, $parentPrefix) {
+			$prefix = $this->router->getCurrentGroupPrefix();
+			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], ...$this->currentMiddleware);
+			$this->groupMiddleware[$prefix] = $groupMiddleware;
+			$this->currentMiddleware = [];
 
-		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix) {
 			$callback($this);
 		});
 
-		$this->currentMiddleware = [];
-		$this->groupBegin = false;
+		$this->groupMiddleware[$prefix] = [];
 		return true;
 	}
 
@@ -127,31 +134,28 @@ class Route {
 			'handler' => $handler,
 			'middleware' => [
 				'before' => [],
-				'after' => [],
+				'after' => []
 			],
-			'uri' => $uri
+			'uri' => $this->router->getCurrentGroupPrefix() . $uri
 		];
 
-		if (empty($name)) {
-			$name = $this->name;
-		}
-		//如果是在group内，则以前缀+方法名的规则来命名组内URI
-		if (!empty($this->groupBegin) && !($handler instanceof \Closure)) {
-			$name = sprintf('%s.%s', $name, $handler[1]);
-		}
-		if (!empty($name)) {
-			$routeHandler['name'] = $name;
+		if (!$name) {
+			if ($this->name) {
+				$name = $this->name;
+			} else {
+				$name = str_replace('/', '.', trim($this->router->getCurrentGroupPrefix(), '/'));
+				$name = trim($name . '.' . $handler[1], '.');
+			}
 		}
 
+		$routeHandler['name'] = $name;
+
+		//先获取上级的middleware
 		//添加完本次路由后，要清空掉当前Middleware值，以便下次使用
-		//如果是在group内，则由group函数来处理清空操作
-		if (!empty($this->currentMiddleware)) {
-			$routeHandler['middleware']['before'] = array_merge([], $routeHandler['middleware']['before'], $this->checkMiddleware($this->currentMiddleware));
-		}
+		$groupMiddleware = $this->groupMiddleware[$this->router->getCurrentGroupPrefix()] ?? [];
+		$routeHandler['middleware']['before'] = array_merge($groupMiddleware, $routeHandler['middleware']['before'], $this->checkMiddleware($this->currentMiddleware));
 
-		if (empty($this->groupBegin)) {
-			$this->currentMiddleware = [];
-		}
+		$this->currentMiddleware = [];
 		$this->name = '';
 
 		$this->router->addRoute($methods, $uri, $routeHandler);
@@ -178,12 +182,12 @@ class Route {
 		throw new \InvalidArgumentException('还未实现');
 	}
 
-	public function resource() {
-		throw new \InvalidArgumentException('还未实现');
+	public function resource($name, $controller, $options = []) {
+		return new ResourceRoute(new ResourceRegister($this), $name, $controller, $options);
 	}
 
-	public function apiResource($prefix, $handler) {
-
+	public function apiResource($name, $controller, $options = []) {
+		return new ResourceRoute(new ResourceRegister($this), $name, $controller, $options);
 	}
 
 	public function middleware($name) {
@@ -217,7 +221,6 @@ class Route {
 	public function getData() {
 		return $this->router->getData();
 	}
-
 
 	private function checkHandler($handler) {
 		if ($handler instanceof \Closure) {
