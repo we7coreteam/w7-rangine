@@ -53,11 +53,6 @@ class ResourceRoute {
 		return $this;
 	}
 
-	/**
-	 * 暂不支持
-	 * @param $middleware
-	 * @return $this
-	 */
 	public function middleware($middleware) {
 		$this->options['middleware'] = $middleware;
 
