@@ -42,6 +42,7 @@ class Route {
 		$this->groupBegin = true;
 
 		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix) {
+			$this->name = str_replace('/', '.', trim($this->router->getCurrentGroupPrefix(), '/'));
 			$callback($this);
 		});
 
@@ -127,7 +128,7 @@ class Route {
 			'handler' => $handler,
 			'middleware' => [
 				'before' => [],
-				'after' => [],
+				'after' => []
 			],
 			'uri' => $this->router->getCurrentGroupPrefix() . $uri
 		];

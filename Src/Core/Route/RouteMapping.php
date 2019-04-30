@@ -43,7 +43,7 @@ class RouteMapping {
 		return $routeCollector->getData();
 	}
 
-	private function initRouteByConfig($route, $config, $prefix = '', $middleware = [], $method = '') {
+	private function initRouteByConfig($route, $config, $prefix = '', $middleware = [], $method = '', $name = '') {
 		if (!is_array($config)) {
 			return [];
 		}
@@ -73,7 +73,10 @@ class RouteMapping {
 			}
 
 			if (is_array($routeItem) && !empty($routeItem) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
-				$this->initRouteByConfig($route, $routeItem, $uri ?? '', $middleware, $method);
+				if ($name && strpos($name, '.') === false) {
+					$name .= '.';
+				}
+				$this->initRouteByConfig($route, $routeItem, $uri ?? '', $middleware, $method, $name . $section);
 			} else {
 				if (!is_array($routeItem) || $section == 'middleware' || $section == 'method') {
 					continue;
@@ -107,12 +110,16 @@ class RouteMapping {
 					$routeItem['method'] = explode(',', $routeItem['method']);
 				}
 
+				if (empty($routeItem['name'])) {
+					$routeItem['name'] = $name . '.' .$section;
+				}
+
 				//组合中间件
 				if (empty($routeItem['middleware'])) {
 					$routeItem['middleware'] = [];
 				}
 				$routeItem['middleware'] = array_merge([], $middleware, (array) $routeItem['middleware']);
-				$route->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler']);
+				$route->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler'], $routeItem['name']);
 			}
 		}
 	}
