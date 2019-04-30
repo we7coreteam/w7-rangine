@@ -6,7 +6,6 @@
 
 namespace W7\Core\Config;
 
-use Illuminate\Support\Str;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
 use W7\Core\Listener\PipeMessageListener;
@@ -80,6 +79,10 @@ class Config {
 
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
+
+		if (!defined('RANGINE_FRAMEWORK_PATH')) {
+			define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
+		}
 	}
 
 	/**
