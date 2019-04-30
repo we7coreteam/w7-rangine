@@ -26,8 +26,6 @@ class ResourceRegister {
 		foreach ($this->getResourceActions($options) as $action) {
 			$this->{'addResource' . ucfirst($action)}($name, $base, $controller, $options);
 		}
-
-		return $this;
 	}
 
 	/**
