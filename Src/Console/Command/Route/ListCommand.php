@@ -15,8 +15,7 @@ class ListCommand extends CommandAbstract {
 	}
 
 	protected function handle($options) {
-		iloader()->singleton(RouteMapping::class)->getMapping();
-		$config = irouter()->getData();
+		$config = iloader()->singleton(RouteMapping::class)->getMapping();
 
 		$routes = [];
 		$key = $options['search'] ?? '';
