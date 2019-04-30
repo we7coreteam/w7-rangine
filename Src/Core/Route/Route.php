@@ -48,9 +48,10 @@ class Route {
 		$this->groupBegin = true;
 
 		$parentPrefix = $this->router->getCurrentGroupPrefix();
-		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix, $parentPrefix) {
+		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, &$prefix, $parentPrefix) {
+			$prefix = $this->router->getCurrentGroupPrefix();
 			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], ...$this->currentMiddleware);
-			$this->groupMiddleware[$this->router->getCurrentGroupPrefix()] = $groupMiddleware;
+			$this->groupMiddleware[$prefix] = $groupMiddleware;
 			$this->currentMiddleware = [];
 			$this->name = str_replace('/', '.', trim($this->router->getCurrentGroupPrefix(), '/'));
 
