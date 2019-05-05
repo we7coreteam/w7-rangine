@@ -53,7 +53,6 @@ class Route {
 			$callback($this);
 		});
 
-		$this->groupMiddleware[$prefix] = [];
 		return true;
 	}
 
@@ -119,7 +118,7 @@ class Route {
 		$handler = $this->checkHandler($handler);
 
 		if (empty($methods)) {
-			$methods = SELF::METHOD_BOTH_GP;
+			$methods = self::METHOD_BOTH_GP;
 		}
 		if (!is_array($methods)) {
 			$methods = [$methods];
