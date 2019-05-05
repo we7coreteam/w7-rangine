@@ -142,7 +142,7 @@ class Route {
 			if ($this->name) {
 				$name = $this->name;
 			} else {
-				$name = str_replace('/', '.', trim($this->router->getCurrentGroupPrefix(), '/'));
+				$name = str_replace('/', '.', $this->router->getCurrentGroupPrefix());
 				$name = trim($name . '.' . $handler[1], '.');
 			}
 		}
