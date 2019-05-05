@@ -143,7 +143,9 @@ class Route {
 				$name = $this->name;
 			} else {
 				$name = str_replace('/', '.', $this->router->getCurrentGroupPrefix());
-				$name = trim($name . '.' . $handler[1], '.');
+//				if (!($handler[1] instanceof \Closure)) {
+//					$name = trim($name . '.' . $handler[1], '.');
+//				}
 			}
 		}
 
