@@ -46,7 +46,7 @@ class Route {
 		$parentPrefix = $this->router->getCurrentGroupPrefix();
 		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, &$prefix, $parentPrefix) {
 			$prefix = $this->router->getCurrentGroupPrefix();
-			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], $this->currentMiddleware);
+			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], $this->checkMiddleware($this->currentMiddleware));
 			$this->groupMiddleware[$prefix] = $groupMiddleware;
 			$this->currentMiddleware = [];
 
@@ -264,12 +264,24 @@ class Route {
 			if (!is_array($class)) {
 				$class = [$class];
 			}
-			if (!class_exists($class[0])) {
-				$class[0] = "W7\\App\\Middleware\\" . Str::studly($class[0]);
+
+			if (strpos($class[0], "\\W7\\App\\Middleware\\") === false && strpos($class[0], "W7\\App\\Middleware\\") === false) {
+				$class[0] = "\\W7\\App\\Middleware\\". Str::studly($class[0]);
 			}
-			if (!class_exists($class[0])) {
-				unset($middleware[$index]);
+
+			$realpath = BASE_PATH . '/app';
+			foreach ($path = explode("\\", $class[0]) as $key => $row) {
+				if (empty($row) || $row == 'W7' || $row == 'App') {
+					continue;
+				}
+
+				$realpath .= '/' . $row;
 			}
+
+			if (!file_exists($realpath . '.php')) {
+				throw new \RuntimeException('Route configuration middleware not found. ' . $realpath);
+			}
+
 			$middleware[$index] = $class;
 		}
 		return $middleware;
