@@ -61,6 +61,7 @@ class ResourceRoute {
 
 	public function register() {
 		$this->registered = true;
+
 		return $this->register->register(
 			$this->name, $this->controller, $this->options
 		);

@@ -114,8 +114,8 @@ class ResourceRegister {
 	protected function prefixedResource($name, $controller, $options) {
 		[$name, $prefix] = $this->getResourcePrefix($name);
 
-		$callback = function ($me) use ($name, $controller, $options) {
-			$me->resource($name, $controller, $options);
+		$callback = function ($route) use ($name, $controller, $options) {
+			$route->resource($name, $controller, $options);
 		};
 
 		return $this->router->group($prefix, $callback);
