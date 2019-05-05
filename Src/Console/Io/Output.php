@@ -73,9 +73,6 @@ class Output extends ConsoleOutput
 
 			if (is_array($desc)) {
 				if (!empty($desc)) {
-					if (count($desc) == 1) {
-						$desc = array_shift($desc);
-					}
 					$this->writeln('');
 					$this->writeItems($desc, $level + 1);
 					continue;
