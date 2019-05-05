@@ -46,7 +46,7 @@ class Route {
 		$parentPrefix = $this->router->getCurrentGroupPrefix();
 		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, &$prefix, $parentPrefix) {
 			$prefix = $this->router->getCurrentGroupPrefix();
-			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], ...$this->currentMiddleware);
+			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], $this->currentMiddleware);
 			$this->groupMiddleware[$prefix] = $groupMiddleware;
 			$this->currentMiddleware = [];
 
