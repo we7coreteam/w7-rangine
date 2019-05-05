@@ -53,7 +53,9 @@ class ListCommand extends CommandAbstract {
 		if (empty($routes[$routeKey]['methods'])) {
 			$routes[$routeKey]['methods'] = '';
 		}
-		$routes[$routeKey]['methods'] .= $method . ' ';
+		if (strpos($routes[$routeKey]['methods'], $method) === false) {
+			$routes[$routeKey]['methods'] .= $method . ' ';
+		}
 	}
 
 	private function parseRouteData($data) {
