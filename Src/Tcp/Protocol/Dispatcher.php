@@ -25,7 +25,7 @@ class Dispatcher {
 
 	private static function getDispatcher($protocol) : DispatcherInterface {
 		if (empty(self::$protocolMap[$protocol])) {
-			$protocol = 'thrift';
+			$protocol = 'json';
 		}
 
 		return \iloader()->singleton(self::$protocolMap[$protocol]);

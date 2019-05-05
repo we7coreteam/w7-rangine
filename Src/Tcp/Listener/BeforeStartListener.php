@@ -36,6 +36,6 @@ class BeforeStartListener extends ListenerAbstract {
 		 * @var MiddlewareMapping $middlerwareObj
 		 */
 		$middlerwareObj = iloader()->singleton(MiddlewareMapping::class);
-		return $middlerwareObj->getMapping();
+		return $middlerwareObj->getLastMiddle();
 	}
 }

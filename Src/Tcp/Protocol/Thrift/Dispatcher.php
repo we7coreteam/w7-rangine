@@ -49,7 +49,11 @@ class Dispatcher implements DispatcherInterface {
 		$socket->server = $server;
 		$socket->setHandle($fd);
 
-		$protocol = new TBinaryProtocol($socket, false, false);
-		$this->process->process($protocol, $protocol);
+		try{
+			$protocol = new TBinaryProtocol($socket, false, false);
+			$this->process->process($protocol, $protocol);
+		} catch (\Throwable $e) {
+			$server->close($fd);
+		}
 	}
 }

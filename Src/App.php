@@ -7,6 +7,7 @@
 namespace W7;
 
 use Monolog\ErrorHandler;
+use W7\Console\Application;
 use W7\Console\Console;
 use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
@@ -50,7 +51,7 @@ class App {
 		/**
 		 * @var Console $console
 		 */
-		$console = iloader()->singleton(Console::class);
+		$console = iloader()->singleton(Application::class);
 		$console->run();
 
 		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
