@@ -10,8 +10,7 @@ namespace W7\Console\Io;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class Output extends ConsoleOutput
-{
+class Output extends ConsoleOutput {
 	/**
 	 * 间隙字符
 	 */
