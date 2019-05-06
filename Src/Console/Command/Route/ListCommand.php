@@ -36,7 +36,14 @@ class ListCommand extends CommandAbstract {
 	}
 
 	private function parseRouteItem(&$routes, $item, $method) {
-		$routeKey = implode('-', $item['handler']);
+		if ($item['handler'] instanceof \Closure) {
+			$item['handler'] = 'closure';
+			$routeKey = $item['uri'] . ':Closure';
+		} else {
+			$routeKey = implode('-', $item['handler']);
+			$item['handler'] = str_replace("W7\App\Controller\\", '', $item['handler'][0]) . '@' . $item['handler'][1];
+		}
+
 		if (empty($routes[$routeKey])) {
 			$middleware = '';
 			array_walk_recursive($item['middleware'],  function ($data) use (&$middleware) {
@@ -45,7 +52,7 @@ class ListCommand extends CommandAbstract {
 			$routes[$routeKey] = [
 				'name' => $item['name'] ?? '',
 				'uri' => $item['uri'],
-				'handle' => str_replace("W7\App\Controller\\", '', $item['handler'][0]) . '@' . $item['handler'][1],
+				'handle' => $item['handler'],
 				'middleware' => rtrim($middleware, "\n")
 			];
 		}
