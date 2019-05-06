@@ -72,11 +72,12 @@ class RouteMapping {
 				$middleware = array_merge([], $middleware, (array) $routeItem);
 			}
 
+			if ($section == 'name' && $routeItem) {
+				$name .= $routeItem . '.';
+			}
+
 			if (is_array($routeItem) && !empty($routeItem) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
-				if ($name && strpos($name, '.') === false) {
-					$name .= '.';
-				}
-				$this->initRouteByConfig($route, $routeItem, $uri ?? '', $middleware, $method, $name . $section);
+				$this->initRouteByConfig($route, $routeItem, $uri ?? '', $middleware, $method, $name);
 			} else {
 				if (!is_array($routeItem) || $section == 'middleware' || $section == 'method') {
 					continue;
@@ -110,8 +111,11 @@ class RouteMapping {
 					$routeItem['method'] = explode(',', $routeItem['method']);
 				}
 
-				if (empty($routeItem['name'])) {
-					$routeItem['name'] = $name . '.' .$section;
+				if (!isset($routeItem['name'])) {
+					$routeItem['name'] = '';
+				}
+				if (empty($routeItem['name']) && !($routeItem['handler'] instanceof \Closure)) {
+					$routeItem['name'] = $name . ltrim(strrchr($routeItem['handler'], '@'), '@');
 				}
 
 				//组合中间件
