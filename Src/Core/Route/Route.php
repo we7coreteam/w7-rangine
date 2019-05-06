@@ -29,6 +29,7 @@ class Route {
 	 */
 	private $currentMiddleware = [];
 	private $groupMiddleware = [];
+	private $groupName = [];
 
 	private $name = '';
 
@@ -44,11 +45,18 @@ class Route {
 	 */
 	public function group($prefix, callable $callback) {
 		$parentPrefix = $this->router->getCurrentGroupPrefix();
-		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, &$prefix, $parentPrefix) {
+		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix, $parentPrefix) {
 			$prefix = $this->router->getCurrentGroupPrefix();
 			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], $this->checkMiddleware($this->currentMiddleware));
 			$this->groupMiddleware[$prefix] = $groupMiddleware;
 			$this->currentMiddleware = [];
+
+			$groupName = $this->groupName[$parentPrefix] ?? '';
+			if ($this->name) {
+				$groupName .= $this->name . '.';
+			}
+			$this->groupName[$prefix] = $groupName;
+			$this->name = '';
 
 			$callback($this);
 		});
@@ -139,16 +147,11 @@ class Route {
 		];
 
 		if (!$name) {
-			if ($this->name) {
-				$name = $this->name;
-			} else {
-				$name = str_replace('/', '.', $this->router->getCurrentGroupPrefix());
-//				if (!($handler[1] instanceof \Closure)) {
-//					$name = trim($name . '.' . $handler[1], '.');
-//				}
-			}
+			$name = $this->name;
 		}
-
+		if (!$name && !($handler instanceof \Closure)) {
+			$name = ($this->groupName[$this->router->getCurrentGroupPrefix()] ?? '') . $handler[1];
+		}
 		$routeHandler['name'] = $name;
 
 		//先获取上级的middleware
