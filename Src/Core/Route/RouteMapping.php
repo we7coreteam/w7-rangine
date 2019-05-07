@@ -43,7 +43,7 @@ class RouteMapping {
 		return $routeCollector->getData();
 	}
 
-	private function initRouteByConfig($route, $config, $prefix = '', $middleware = [], $method = '', $name = '') {
+	public function initRouteByConfig($route, $config, $prefix = '', $middleware = [], $method = '', $name = '') {
 		if (!is_array($config)) {
 			return [];
 		}
