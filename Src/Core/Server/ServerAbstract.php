@@ -25,6 +25,7 @@ use W7\Core\Config\Event;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
+use W7\Core\Provider\ProviderMapping;
 use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -143,6 +144,7 @@ abstract class ServerAbstract implements ServerInterface {
 		$this->registerSwooleEventListener();
 		$this->registerProcesser();
 		$this->registerServerContext();
+		$this->registerProviders();
 		$this->registerDb();
 		$this->registerCacheModel();
 		return true;
@@ -203,6 +205,10 @@ abstract class ServerAbstract implements ServerInterface {
 	protected function registerServerContext() {
 		$contextObj = App::getApp()->getContext();
 		$this->server->context = $contextObj->getContextData();
+	}
+
+	protected function registerProviders() {
+		iloader()->singleton(ProviderMapping::class)->register();
 	}
 
 	/**
