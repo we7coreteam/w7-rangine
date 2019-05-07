@@ -2,7 +2,9 @@
 
 namespace W7\Core\Provider;
 
-class ProviderMapping {
+use W7\Core\Route\RouteMapping;
+
+class ProviderManager {
 	private $providers;
 
 	/**
@@ -36,6 +38,6 @@ class ProviderMapping {
 	}
 
 	private function getProvider($provider) {
-		return iloader()->singleton($provider);
+		return new $provider(iconfig(), iloader()->singleton(RouteMapping::class));
 	}
 }

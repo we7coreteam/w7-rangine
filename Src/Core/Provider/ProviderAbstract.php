@@ -2,13 +2,21 @@
 
 namespace W7\Core\Provider;
 
+use W7\Core\Config\Config;
 use W7\Core\Route\RouteMapping;
 
 abstract class ProviderAbstract {
+	protected $config;
+	protected $router;
 	public static $publishes = [];
 	public static $publishGroups = [];
-	public $defer;
+	protected $defer;
 
+
+	public function __construct(Config $config, RouteMapping $router) {
+		$this->config = $config;
+		$this->router = $router;
+	}
 
 	/**
 	 * publish any application services
@@ -18,13 +26,11 @@ abstract class ProviderAbstract {
 
 	/**
 	 * Register any application services.
-	 *
 	 * @return void
 	 */
 	abstract public function register();
 
 	/**
-	 * 配置合并有问题
 	 * Merge the given configuration with the existing configuration.
 	 *
 	 * @param  string  $path
@@ -32,9 +38,8 @@ abstract class ProviderAbstract {
 	 * @return void
 	 */
 	protected function mergeConfigFrom($path, $key) {
-		$config = iconfig()->getUserConfig($key);
-
-		iconfig()->set($key, array_merge(require $path, $config));
+		$config = $this->config->getUserConfig($key);
+		$this->config->setUserConfig($key, array_merge(require $path, $config));
 	}
 
 	/**
@@ -46,7 +51,7 @@ abstract class ProviderAbstract {
 	protected function loadRoutesFrom($path) {
 		$routeConfig = include $path;
 		if (is_array($routeConfig)) {
-			iloader()->singleton(RouteMapping::class)->initRouteByConfig(irouter(), $routeConfig);
+			$this->router->initRouteByConfig($routeConfig);
 		}
 	}
 
