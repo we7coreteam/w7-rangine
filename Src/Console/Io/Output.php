@@ -21,8 +21,77 @@ class Output extends ConsoleOutput {
 	 */
 	const LEFT_CHAR = '  ';
 
+
 	private function writeKey($key) {
 		echo "\033[0;32m$key \e[0m";
+	}
+
+	/**
+	 * Write a string as standard output.
+	 *
+	 * @param  string  $string
+	 * @param  string  $style
+	 * @param  int|string|null  $options
+	 * @return void
+	 */
+	public function line($string, $style = null, $options = null) {
+		$styled = $style ? "<$style>$string</$style>" : $string;
+		$this->writeln($styled, $options);
+	}
+
+	/**
+	 * Write a string as information output.
+	 *
+	 * @param  string  $string
+	 * @param  int|string|null  $options
+	 * @return void
+	 */
+	public function info($string, $options = null) {
+		$this->line($string, 'info', $options);
+	}
+
+	/**
+	 * Write a string as comment output.
+	 *
+	 * @param  string  $string
+	 * @param  int|string|null  $options
+	 * @return void
+	 */
+	public function comment($string, $options = null) {
+		$this->line($string, 'comment', $options);
+	}
+
+	/**
+	 * Write a string as question output.
+	 *
+	 * @param  string  $string
+	 * @param  int|string|null  $options
+	 * @return void
+	 */
+	public function question($string, $options = null) {
+		$this->line($string, 'question', $options);
+	}
+
+	/**
+	 * Write a string as error output.
+	 *
+	 * @param  string  $string
+	 * @param  int|string|null  $options
+	 * @return void
+	 */
+	public function error($string, $options = null) {
+		$this->line($string, 'error', $options);
+	}
+
+	/**
+	 * Write a string as warning output.
+	 *
+	 * @param  string  $string
+	 * @param  int|string|null  $options
+	 * @return void
+	 */
+	public function warn($string, $options = null) {
+		$this->line($string, 'warning', $options);
 	}
 
 	public function writeTable($header, $rows) {
@@ -40,8 +109,7 @@ class Output extends ConsoleOutput {
 	 * @param string	  $cmdStyle   命令样式
 	 * @param string|null $descStyle  描述样式
 	 */
-	public function writeList($list)
-	{
+	public function writeList($list) {
 		foreach ($list as $title => $items) {
 			// 标题
 			$title = "$title";
@@ -58,8 +126,7 @@ class Output extends ConsoleOutput {
 	 *
 	 * @param array  $items	数据
 	 */
-	private function writeItems($items, $level = 1)
-	{
+	private function writeItems($items, $level = 1) {
 		foreach ($items as $cmd => $desc) {
 			// 没有命令，只是一行数据
 			if (\is_int($cmd)) {
@@ -105,8 +172,7 @@ class Output extends ConsoleOutput {
 	 * @param array $commands 所有命令
 	 * @return int
 	 */
-	private function getCmdMaxLength($commands)
-	{
+	private function getCmdMaxLength($commands) {
 		$max = 0;
 
 		foreach ($commands as $cmd) {
