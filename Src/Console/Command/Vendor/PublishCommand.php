@@ -2,17 +2,21 @@
 
 namespace W7\Console\Command\Vendor;
 
+use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
 use W7\Core\Provider\ProviderAbstract;
-use W7\Core\Provider\ProviderMapping;
+use W7\Core\Provider\ProviderManager;
 
 class PublishCommand extends CommandAbstract {
+	private $fileSystem;
+
 	protected function configure() {
 		$this->addOption('--provider', '-p', InputOption::VALUE_REQUIRED);
 		$this->addOption('--tag', '-t', InputOption::VALUE_REQUIRED);
 		$this->addOption('--force', '-f');
+		$this->fileSystem = new Filesystem();
 	}
 
 	protected function handle($options) {
@@ -20,7 +24,7 @@ class PublishCommand extends CommandAbstract {
 			throw new CommandException('option provider or tag not be empty');
 		}
 
-		(new ProviderMapping())->publish();
+		(new ProviderManager())->publish();
 
 		$this->publishTag($options['provider'] ?? '', $options['tag'] ?? '');
 
@@ -57,9 +61,9 @@ class PublishCommand extends CommandAbstract {
 	 * @return void
 	 */
 	private function publishItem($from, $to) {
-		if (is_file($from)) {
+		if ($this->fileSystem->isFile($from)) {
 			return $this->publishFile($from, $to);
-		} else if (is_dir($from)) {
+		} else if ($this->fileSystem->isDirectory($from)) {
 			return $this->publishDirectory($from, $to);
 		}
 
@@ -74,15 +78,14 @@ class PublishCommand extends CommandAbstract {
 	 * @return void
 	 */
 	private function publishFile($from, $to) {
-		if (!file_exists($to) || $this->input->getOption('force')) {
+		if (!$this->fileSystem->exists($to) || $this->input->getOption('force')) {
 			$this->createParentDirectory(dirname($to));
-			copy($from, $to);
+			$this->fileSystem->copy($from, $to);
 			$this->status($from, $to, 'File');
 		}
 	}
 
 	/**
-	 * 待开发
 	 * Publish the directory to the given directory.
 	 *
 	 * @param  string  $from
@@ -90,10 +93,7 @@ class PublishCommand extends CommandAbstract {
 	 * @return void
 	 */
 	private function publishDirectory($from, $to) {
-//		$this->moveManagedFiles(new MountManager([
-//			'from' => new Flysystem(new LocalAdapter($from)),
-//			'to' => new Flysystem(new LocalAdapter($to)),
-//		]));
+		$this->fileSystem->copyDirectory($from, $to);
 
 		$this->status($from, $to, 'Directory');
 	}
@@ -105,8 +105,8 @@ class PublishCommand extends CommandAbstract {
 	 * @return void
 	 */
 	private function createParentDirectory($directory) {
-		if (!is_dir($directory)) {
-			mkdir($directory, 0755, true);
+		if (!$this->fileSystem->isDirectory($directory)) {
+			$this->fileSystem->makeDirectory($directory, 0755, true);
 		}
 	}
 
