@@ -25,7 +25,7 @@ use W7\Core\Config\Event;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
-use W7\Core\Provider\ProviderMapping;
+use W7\Core\Provider\ProviderManager;
 use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -208,7 +208,7 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerProviders() {
-		iloader()->singleton(ProviderMapping::class)->register();
+		iloader()->singleton(ProviderManager::class)->register();
 	}
 
 	/**
