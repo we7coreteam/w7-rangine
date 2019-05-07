@@ -141,6 +141,10 @@ class Config {
 		}
 	}
 
+	public function setUserConfig($name, $data) {
+		$this->config['config'][$name] = $data;
+	}
+
 	public function getRouteConfig() {
 		$this->loadConfig('route');
 		return $this->config['route'];
