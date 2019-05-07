@@ -6,7 +6,6 @@
 
 namespace W7\Core\Route;
 
-
 use W7\Core\Middleware\MiddlewareMapping;
 
 class RouteMapping {
@@ -34,16 +33,15 @@ class RouteMapping {
 	 * @return array|mixed
 	 */
 	public function getMapping() {
-		$routeCollector = irouter();
 		if (!empty($this->routeConfig)) {
 			foreach ($this->routeConfig as $index => $routeConfig) {
-				$this->initRouteByConfig($routeCollector, $routeConfig);
+				$this->initRouteByConfig($routeConfig);
 			}
 		}
-		return $routeCollector->getData();
+		return irouter()->getData();
 	}
 
-	public function initRouteByConfig($route, $config, $prefix = '', $middleware = [], $method = '', $name = '') {
+	public function initRouteByConfig($config, $prefix = '', $middleware = [], $method = '', $name = '') {
 		if (!is_array($config)) {
 			return [];
 		}
@@ -77,7 +75,7 @@ class RouteMapping {
 			}
 
 			if (is_array($routeItem) && !empty($routeItem) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
-				$this->initRouteByConfig($route, $routeItem, $uri ?? '', $middleware, $method, $name);
+				$this->initRouteByConfig($routeItem, $uri ?? '', $middleware, $method, $name);
 			} else {
 				if (!is_array($routeItem) || $section == 'middleware' || $section == 'method') {
 					continue;
@@ -123,7 +121,7 @@ class RouteMapping {
 					$routeItem['middleware'] = [];
 				}
 				$routeItem['middleware'] = array_merge([], $middleware, (array) $routeItem['middleware']);
-				$route->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler'], $routeItem['name']);
+				irouter()->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler'], $routeItem['name']);
 			}
 		}
 	}
