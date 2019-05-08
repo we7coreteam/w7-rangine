@@ -2,9 +2,6 @@
 
 namespace W7\Core\Provider;
 
-use W7\Core\Config\Config;
-use W7\Core\Route\RouteMapping;
-
 abstract class ProviderAbstract {
 	protected $config;
 	protected $router;
@@ -13,17 +10,9 @@ abstract class ProviderAbstract {
 	public static $publishGroups = [];
 
 
-	public function __construct(Config $config, RouteMapping $router) {
-		$this->config = $config;
-		$this->router = $router;
-	}
-
-	/**
-	 * publish any application services
-	 * @return mixed
-	 */
-	public function publish() {
-
+	public function __construct($params) {
+		$this->config = $params[0];
+		$this->router = $params[1];
 	}
 
 	/**
@@ -31,6 +20,12 @@ abstract class ProviderAbstract {
 	 * @return void
 	 */
 	abstract public function register();
+
+	/**
+	 * boot any application services
+	 * @return mixed
+	 */
+	abstract public function boot();
 
 	/**
 	 * Merge the given configuration with the existing configuration.
