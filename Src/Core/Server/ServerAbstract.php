@@ -208,7 +208,7 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerProviders() {
-		iloader()->singleton(ProviderManager::class)->register();
+		iloader()->singleton(ProviderManager::class)->register()->boot();
 	}
 
 	/**
