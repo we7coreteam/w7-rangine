@@ -7,26 +7,29 @@ use W7\Core\Route\RouteMapping;
 class ProviderManager {
 	private $providers;
 
-	/**
-	 * 扩展包发布调用
-	 */
-	public function publish() {
+	public function __construct() {
 		$this->initProviders();
-		foreach ($this->providers as $provider => $obj) {
-			$obj->publish();
-		}
 	}
 
 	/**
-	 * 扩展包注册到框架调用，isDeferred延时注册（预留）
+	 * 扩展包注册，isDeferred延时注册（预留）
 	 * @param bool $isDeferred
 	 */
 	public function register($isDeferred = false) {
-		$this->initProviders();
 		foreach ($this->providers as $provider => $obj) {
 			if ($obj->isDeferred() == $isDeferred) {
 				$obj->register();
 			}
+		}
+		return $this;
+	}
+
+	/**
+	 * 扩展包全部注册完成后执行
+	 */
+	public function boot() {
+		foreach ($this->providers as $provider => $obj) {
+			$obj->boot();
 		}
 	}
 
@@ -37,7 +40,7 @@ class ProviderManager {
 		}
 	}
 
-	private function getProvider($provider) {
-		return new $provider(iconfig(), iloader()->singleton(RouteMapping::class));
+	private function getProvider($provider) : ProviderAbstract {
+		return new $provider([iconfig(), iloader()->singleton(RouteMapping::class)]);
 	}
 }
