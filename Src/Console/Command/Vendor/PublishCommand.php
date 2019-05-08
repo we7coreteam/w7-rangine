@@ -24,7 +24,7 @@ class PublishCommand extends CommandAbstract {
 			throw new CommandException('option provider or tag not be empty');
 		}
 
-		(new ProviderManager())->publish();
+		(new ProviderManager())->register()->boot();
 
 		$this->publishTag($options['provider'] ?? '', $options['tag'] ?? '');
 
