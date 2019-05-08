@@ -8,9 +8,9 @@ use W7\Core\Route\RouteMapping;
 abstract class ProviderAbstract {
 	protected $config;
 	protected $router;
+	protected $defer;
 	public static $publishes = [];
 	public static $publishGroups = [];
-	protected $defer;
 
 
 	public function __construct(Config $config, RouteMapping $router) {
@@ -22,7 +22,9 @@ abstract class ProviderAbstract {
 	 * publish any application services
 	 * @return mixed
 	 */
-	abstract public function publish();
+	public function publish() {
+
+	}
 
 	/**
 	 * Register any application services.
