@@ -6,7 +6,6 @@ use W7\App;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Exception\HttpException;
 use W7\Core\Helper\StringHelper;
 
 class ControllerMiddleware extends MiddlewareAbstract {
@@ -19,6 +18,9 @@ class ControllerMiddleware extends MiddlewareAbstract {
 			if ($route['controller'] instanceof \Closure) {
 				$controllerHandler = $route['controller'];
 			} else {
+				if (!class_exists($route['controller'])) {
+					$route['controller'] = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']);
+				}
 				$method = StringHelper::studly($route['method']);
 				$classObj = iloader()->singleton($route['controller']);
 				$controllerHandler = [$classObj, $method];
