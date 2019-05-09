@@ -7,7 +7,6 @@ use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
 use W7\Core\Provider\ProviderAbstract;
-use W7\Core\Provider\ProviderManager;
 
 class PublishCommand extends CommandAbstract {
 	private $fileSystem;
@@ -23,8 +22,6 @@ class PublishCommand extends CommandAbstract {
 		if (empty($options['provider']) && empty($options['tag'])) {
 			throw new CommandException('option provider or tag not be empty');
 		}
-
-		(new ProviderManager())->register()->boot();
 
 		$this->publishTag($options['provider'] ?? '', $options['tag'] ?? '');
 
