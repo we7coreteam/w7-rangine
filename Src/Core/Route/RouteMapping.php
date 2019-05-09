@@ -29,6 +29,10 @@ class RouteMapping {
 		$this->routeConfig = $routeConfig;
 	}
 
+	public function getRouteConfig() {
+		return $this->routeConfig;
+	}
+
 	/**
 	 * @return array|mixed
 	 */
@@ -41,7 +45,7 @@ class RouteMapping {
 		return irouter()->getData();
 	}
 
-	public function initRouteByConfig($config, $prefix = '', $middleware = [], $method = '', $name = '') {
+	private function initRouteByConfig($config, $prefix = '', $middleware = [], $method = '', $name = '') {
 		if (!is_array($config)) {
 			return [];
 		}
