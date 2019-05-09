@@ -15,9 +15,10 @@ use W7\Console\Io\Output;
 class Application extends SymfontApplication {
 	public function __construct() {
 		$version = $this->version();
-		$this->registerCommands();
-
 		parent::__construct('w7swoole', $version);
+
+		$this->setAutoExit(false);
+		$this->registerCommands();
 	}
 
 	/**
