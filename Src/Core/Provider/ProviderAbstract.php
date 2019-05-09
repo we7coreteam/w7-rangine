@@ -49,7 +49,7 @@ abstract class ProviderAbstract {
 	}
 
 	/**
-	 * Load the given routes file if routes are not already cached.
+	 * Load the given routes file
 	 * @param $path
 	 */
 	protected function loadRoutesFrom($path) {
