@@ -15,6 +15,7 @@ use W7\Core\Helper\Loader;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogManager;
 use W7\Core\Helper\Storage\Context;
+use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
 
 class App {
@@ -51,6 +52,7 @@ class App {
 		/**
 		 * @var Console $console
 		 */
+		(new ProviderManager())->register()->boot();
 		$console = iloader()->singleton(Application::class);
 		$console->run();
 
