@@ -5,7 +5,7 @@ namespace W7\Core\Provider;
 use W7\Core\Route\RouteMapping;
 
 class ProviderManager {
-	private $providers;
+	private $providers = [];
 
 	public function __construct() {
 		$this->initProviders();
