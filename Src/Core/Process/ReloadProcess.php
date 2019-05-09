@@ -51,6 +51,7 @@ class ReloadProcess implements ProcessInterface {
 		$this->enabled = (bool)$reloadConfig['enabled'];
 		$this->debug = (bool)$reloadConfig['debug'];
 	}
+
 	public function check() {
 		if ($this->enabled) {
 			return true;
@@ -92,8 +93,7 @@ class ReloadProcess implements ProcessInterface {
 	 *
 	 * @return bool|string
 	 */
-	private function md5File($dir)
-	{
+	private function md5File($dir) {
 		if (!is_dir($dir)) {
 			return '';
 		}
