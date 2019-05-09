@@ -30,6 +30,13 @@ abstract class ProviderAbstract {
 	abstract public function boot();
 
 	/**
+	 * register vendor provider
+	 * @param $provider
+	 */
+	protected function registerProvider($provider) {
+		iloader()->singleton(ProviderManager::class)->registerProvider($provider);
+	}
+	/**
 	 * Merge the given configuration with the existing configuration.
 	 *
 	 * @param  string  $path
@@ -63,6 +70,17 @@ abstract class ProviderAbstract {
 	 */
 	protected function loadViewsFrom($path, $namespace) {
 		throw new \Exception('还未实现');
+	}
+
+	/**
+	 * Register the package's custom Artisan commands.
+	 *
+	 * @param  array|mixed  $commands
+	 * @return void
+	 */
+	protected function addCommands(array $commands) {
+		$userCommands = $this->config->getUserConfig('command');
+		$this->config->setUserConfig('command', array_merge($userCommands, $commands));
 	}
 
 	/**
