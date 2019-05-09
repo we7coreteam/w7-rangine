@@ -15,7 +15,7 @@ class PublishCommand extends CommandAbstract {
 	protected function configure() {
 		$this->addOption('--provider', '-p', InputOption::VALUE_REQUIRED, 'the class name of the extension package, including namespace');
 		$this->addOption('--tag', '-t', InputOption::VALUE_REQUIRED, 'tag of extension packages');
-		$this->addOption('--force', '-f');
+		$this->addOption('--force', '-f', null, 'mandatory coverage configuration');
 		$this->fileSystem = new Filesystem();
 	}
 
