@@ -2,6 +2,8 @@
 
 namespace W7\Core\Provider;
 
+use W7\Core\Route\RouteMapping;
+
 abstract class ProviderAbstract {
 	protected $config;
 	protected $router;
@@ -10,9 +12,9 @@ abstract class ProviderAbstract {
 	public static $publishGroups = [];
 
 
-	public function __construct($params) {
-		$this->config = $params[0];
-		$this->router = $params[1];
+	public function __construct() {
+		$this->config = iconfig();
+		$this->router = irouter();
 	}
 
 	/**
@@ -48,7 +50,7 @@ abstract class ProviderAbstract {
 	protected function loadRoutesFrom($path) {
 		$routeConfig = include $path;
 		if (is_array($routeConfig)) {
-			$this->router->initRouteByConfig($routeConfig);
+			iloader()->singleton(RouteMapping::class)->initRouteByConfig($routeConfig);
 		}
 	}
 
