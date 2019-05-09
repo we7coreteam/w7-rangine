@@ -50,14 +50,15 @@ abstract class ProviderAbstract {
 
 	/**
 	 * Load the given routes file if routes are not already cached.
-	 *
-	 * @param  string  $path
-	 * @return void
+	 * @param $path
 	 */
 	protected function loadRoutesFrom($path) {
 		$routeConfig = include $path;
 		if (is_array($routeConfig)) {
-			iloader()->singleton(RouteMapping::class)->initRouteByConfig($routeConfig);
+			$routeMapping = iloader()->singleton(RouteMapping::class);
+			$config = $routeMapping->getRouteConfig();
+			$config[] = $routeConfig;
+			$routeMapping->setRouteConfig($config);
 		}
 	}
 
