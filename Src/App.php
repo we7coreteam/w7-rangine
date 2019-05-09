@@ -52,7 +52,7 @@ class App {
 		/**
 		 * @var Console $console
 		 */
-		(new ProviderManager())->register()->boot();
+		iloader()->singleton(ProviderManager::class)->register()->boot();
 		$console = iloader()->singleton(Application::class);
 		$console->run();
 
