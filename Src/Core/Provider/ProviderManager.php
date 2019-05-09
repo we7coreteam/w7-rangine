@@ -3,38 +3,33 @@
 namespace W7\Core\Provider;
 
 class ProviderManager {
-	private $providers = [];
-
-	public function __construct() {
-		$this->initProviders();
-	}
+	private static $providers = [];
 
 	/**
-	 * 扩展包注册，isDeferred延时注册（预留）
-	 * @param bool $isDeferred
+	 * 扩展包注册
 	 */
-	public function register($isDeferred = false) {
-		foreach ($this->providers as $provider => $obj) {
-			if ($obj->isDeferred() == $isDeferred) {
-				$obj->register();
-			}
+	public function register() {
+		$providers = iconfig()->getUserAppConfig('providers');
+		foreach ($providers as $provider) {
+			$this->registerProvider($provider);
 		}
 		return $this;
+	}
+
+	public function registerProvider($provider) {
+		if (is_string($provider)) {
+			$provider = $this->getProvider($provider);
+		}
+		static::$providers[get_class($provider)] = $provider;
+		$provider->register();
 	}
 
 	/**
 	 * 扩展包全部注册完成后执行
 	 */
 	public function boot() {
-		foreach ($this->providers as $provider => $obj) {
+		foreach (static::$providers as $provider => $obj) {
 			$obj->boot();
-		}
-	}
-
-	private function initProviders () {
-		$providers = iconfig()->getUserAppConfig('providers');
-		foreach ($providers as $provider) {
-			$this->providers[$provider] = $this->getProvider($provider);
 		}
 	}
 
