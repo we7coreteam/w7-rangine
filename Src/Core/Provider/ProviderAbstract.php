@@ -180,24 +180,6 @@ abstract class ProviderAbstract {
 	}
 
 	/**
-	 * Get the service providers available for publishing.
-	 *
-	 * @return array
-	 */
-	public static function publishableProviders() {
-		return array_keys(static::$publishes);
-	}
-
-	/**
-	 * Get the groups available for publishing.
-	 *
-	 * @return array
-	 */
-	public static function publishableGroups() {
-		return array_keys(static::$publishGroups);
-	}
-
-	/**
 	 * Determine if the provider is deferred.
 	 *
 	 * @return bool
