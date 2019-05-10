@@ -186,11 +186,12 @@ class Cache extends CacheAbstract {
 			return $default;
 		}
 
-		return $result;
+		return $this->unserialize($result);
 	}
 
 	public function set($key, $value, $ttl = null) {
 		$ttl = $this->getTtl($ttl);
+		$value = $this->serialize($value);
 		$params = ($ttl <= 0) ? [$key, $value] : [$key, $value, $ttl];
 		return $this->call('set', $params);
 	}
@@ -204,19 +205,24 @@ class Cache extends CacheAbstract {
 	}
 
 	public function getMultiple($keys, $default = null) {
+		$keys = (array)$keys;
 		$mgetResult = $this->call('mget', [$keys]);
 		if ($mgetResult === false) {
 			return $default;
 		}
 		$result = [];
 		foreach ($mgetResult ?? [] as $key => $value) {
-			$result[$keys[$key]] = $value;
+			$result[$keys[$key]] = $this->unserialize($value);
 		}
 
 		return $result;
 	}
 
 	public function setMultiple($values, $ttl = null) {
+		$values = (array)$values;
+		foreach ($values as $key => &$value) {
+			$value = $this->serialize($value);
+		}
 		$result = $this->call('mset', [$values]);
 
 		return $result;
