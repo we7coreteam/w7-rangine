@@ -179,6 +179,7 @@ namespace W7\Core\Cache;
  * @method getMode() {}
  */
 class Cache extends CacheAbstract {
+	protected $connection;
 
 	public function get($key, $default = null) {
 		$result = $this->call('get', [$key]);
@@ -200,8 +201,14 @@ class Cache extends CacheAbstract {
 		return (bool)$this->call('del', [$key]);
 	}
 
-	public function clear() {
-		return $this->call('flushDB', []);
+	public function setMultiple($values, $ttl = null) {
+		$values = (array)$values;
+		foreach ($values as $key => &$value) {
+			$value = $this->serialize($value);
+		}
+		$result = $this->call('mset', [$values]);
+
+		return $result;
 	}
 
 	public function getMultiple($keys, $default = null) {
@@ -218,16 +225,6 @@ class Cache extends CacheAbstract {
 		return $result;
 	}
 
-	public function setMultiple($values, $ttl = null) {
-		$values = (array)$values;
-		foreach ($values as $key => &$value) {
-			$value = $this->serialize($value);
-		}
-		$result = $this->call('mset', [$values]);
-
-		return $result;
-	}
-
 	public function deleteMultiple($keys): bool {
 		return (bool)$this->call('del', [$keys]);
 	}
@@ -236,15 +233,31 @@ class Cache extends CacheAbstract {
 		return $this->call('exists', [$key]);
 	}
 
+	public function clear() {
+		return $this->call('flushDB', []);
+	}
+
 	public function __call($method, $arguments) {
 		return $this->call($method, $arguments);
 	}
 
 	public function call(string $method, array $params) {
-		$connection = $this->getConnection();
+		$connection = null;
+		if (!$this->connection) {
+			$connection = $this->getConnection();
+		}
+		if (!$this->connection && ($method == 'multi' || $method == 'watch' || $method == 'pipeline')) {
+			$this->connection = $connection;
+		}
+
+		$connection = $this->connection ? $this->connection : $connection;
 		$result = $connection->$method(...$params);
 
-		$this->manager->release($connection);
+		if (!$this->connection || $method == 'exec' || $method == 'unwatch' || $method == 'discard') {
+			$this->connection = null;
+			$this->manager->release($connection);
+		}
+
 		return $result;
 	}
 
