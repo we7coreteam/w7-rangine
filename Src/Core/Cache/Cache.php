@@ -242,21 +242,9 @@ class Cache extends CacheAbstract {
 	}
 
 	public function call(string $method, array $params) {
-		$connection = null;
-		if (!$this->connection) {
-			$connection = $this->getConnection();
-		}
-		if (!$this->connection && ($method == 'multi' || $method == 'watch' || $method == 'pipeline')) {
-			$this->connection = $connection;
-		}
-
-		$connection = $this->connection ? $this->connection : $connection;
+		$connection = $this->getConnection();
 		$result = $connection->$method(...$params);
-
-		if (!$this->connection || $method == 'exec' || $method == 'unwatch' || $method == 'discard') {
-			$this->connection = null;
-			$this->manager->release($connection);
-		}
+		$this->manager->release($connection);
 
 		return $result;
 	}
