@@ -5,6 +5,7 @@ namespace W7\Core\Dispatcher;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
+use W7\Core\Exception\CustomExceptionAbstract;
 use W7\Core\Exception\HttpException;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Middleware\MiddlewareHandler;
@@ -51,6 +52,8 @@ class RequestDispatcher extends DispatcherAbstract {
 			if ($throwable instanceof HttpException) {
 				$code = $throwable->getCode() ? $throwable->getCode() : '400';
 				$message = $throwable->getMessage();
+			} else if ($throwable instanceof CustomExceptionAbstract) {
+				return $throwable->render();
 			} elseif (!empty($setting['development'])) {
 				$message = $errorMessage;
 				$code = '400';
