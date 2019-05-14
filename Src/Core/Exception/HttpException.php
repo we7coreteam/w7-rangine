@@ -5,6 +5,10 @@
  */
 namespace W7\Core\Exception;
 
-class HttpException extends \LogicException {
+use W7\App;
 
+class HttpException extends \LogicException {
+	public function render() {
+		return App::getApp()->getContext()->getResponse()->json(['error' => $this->getMessage()], $this->getCode());
+	}
 }
