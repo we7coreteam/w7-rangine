@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 use W7\Console\Io\Output;
 
 class Application extends SymfontApplication {
@@ -69,16 +70,19 @@ class Application extends SymfontApplication {
 	}
 
 	private function registerCommands() {
-		$commands = glob(RANGINE_FRAMEWORK_PATH  . '/Console/Command/*/' . '*Command.php');
 		$systemCommands = [];
-		foreach ($commands as $key => $item) {
-			$item = str_replace(RANGINE_FRAMEWORK_PATH . '/Console/Command/', '', $item);
-			$info = pathinfo($item);
-			$name = strtolower(rtrim($info['dirname'] . ':' . $info['filename'], 'Command'));
+		foreach ((new Finder)->in(RANGINE_FRAMEWORK_PATH  . '/Console/Command/')->files() as $command) {
+			$command = str_replace([RANGINE_FRAMEWORK_PATH . '/Console/Command/'], [''], $command->getPathname());
+			$info = pathinfo($command);
 
-			$systemCommands[$name] = "\\W7\\Console\\Command\\" . $info['dirname'] . "\\" . $info['filename'];
+			if (strrchr($info['filename'], 'Abstract') === false) {
+				$info['dirname'] = str_replace('/', '\\', $info['dirname']);
+				$parent = str_replace('\\', ':', $info['dirname']);
+				$name = strtolower(rtrim($parent . ':' . $info['filename'], 'Command'));
+
+				$systemCommands[$name] = "\\W7\\Console\\Command\\" . $info['dirname'] . "\\" . $info['filename'];
+			}
 		}
-
 		$userCommands = iconfig()->getUserConfig('command');
 		$commands = array_merge($systemCommands, $userCommands);
 
