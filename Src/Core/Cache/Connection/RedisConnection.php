@@ -6,14 +6,13 @@
 
 namespace W7\Core\Cache\Connection;
 
-
 class RedisConnection extends ConnectionAbstract {
 	/**
 	 * @param array $config
 	 * @return mixed|\Redis
 	 * @throws \Exception
 	 */
-	public function connect($config) {
+	public function open($config) {
 		$redis  = new \Redis();
 		$result = $redis->connect($config['host'], $config['port'], $config['timeout']);
 		if ($result === false) {
@@ -27,5 +26,9 @@ class RedisConnection extends ConnectionAbstract {
 			$redis->select(intval($config['database']));
 		}
 		return $redis;
+	}
+
+	public function close() {
+		$this->handle->close();
 	}
 }

@@ -7,7 +7,7 @@
 
 namespace W7\Core\Cache;
 
-
+use W7\App;
 use W7\Core\Cache\Connection\ConnectionAbstract;
 use W7\Core\Cache\Pool\Pool;
 
@@ -49,15 +49,18 @@ class ConnectorManager {
 		/**
 		 * @var ConnectionAbstract $connection
 		 */
-		$connection = iloader()->singleton($connectionClass);
-
-		//未在协程中则不启用连接池
-		if (!isCo()) {
-			return $connection->connect($config);
+		$connector = App::getApp()->getContext()->getContextDataByKey($connectionClass);
+		if ($connector) {
+			return $connector->getHandle();
 		}
 
-		if (empty($poolConfig) || empty($poolConfig['enable'])) {
-			return $connection->connect($config);
+		$connector = new $connectionClass();
+
+		//未在协程中则不启用连接池
+		if (!isCo() || empty($poolConfig['enable'])) {
+			$connection = $connector->noRelease()->connect($config);
+			App::getApp()->getContext()->setContextDataByKey($connectionClass, $connector);
+			return $connection;
 		}
 
 		/**
@@ -69,9 +72,13 @@ class ConnectorManager {
 					->get();
 		$pool->setConfig($config);
 		$pool->setMaxCount($poolConfig['max']);
-		$pool->setCreator($connection);
+		$pool->setCreator($connector);
 
-		return $pool->getConnection();
+		$connection = $pool->getConnection();
+		$connector->setHandle($connection);
+		App::getApp()->getContext()->setContextDataByKey($connectionClass, $connector);
+
+		return $connection;
 	}
 
 	private function checkDriverSupport($driver) {

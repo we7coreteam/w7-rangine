@@ -11,5 +11,6 @@ interface ConnectionInterface {
 	/**
 	 * 创建一个连接
 	 */
-	public function connect(array $config);
+	public function open(array $config);
+	public function close();
 }

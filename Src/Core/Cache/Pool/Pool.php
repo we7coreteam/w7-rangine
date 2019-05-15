@@ -22,6 +22,7 @@ class Pool extends CoPoolAbstract {
 			throw new \RuntimeException('Invalid cache creator');
 		}
 		$connection = $this->creator->connect($this->config);
+		$this->creator = null;
 		$connection->poolName = sprintf('%s:%s', $this->config['driver'], $this->poolName);
 		return $connection;
 	}
@@ -30,6 +31,7 @@ class Pool extends CoPoolAbstract {
 		$connect = parent::getConnection();
 		try {
 			$result = $connect->ping();
+			$this->creator = null;
 			return $connect;
 		} catch (\Throwable $e) {
 			return $this->createConnection();

@@ -179,8 +179,6 @@ namespace W7\Core\Cache;
  * @method getMode() {}
  */
 class Cache extends CacheAbstract {
-	protected $connection;
-
 	public function get($key, $default = null) {
 		$result = $this->call('get', [$key]);
 		if ($result === false || $result === null) {
@@ -244,7 +242,6 @@ class Cache extends CacheAbstract {
 	public function call(string $method, array $params) {
 		$connection = $this->getConnection();
 		$result = $connection->$method(...$params);
-		$this->manager->release($connection);
 
 		return $result;
 	}
