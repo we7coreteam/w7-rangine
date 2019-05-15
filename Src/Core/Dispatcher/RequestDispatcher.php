@@ -50,15 +50,15 @@ class RequestDispatcher extends DispatcherAbstract {
 
 			$setting = iconfig()->getUserAppConfig('setting');
 			if ($throwable instanceof HttpException) {
-				return $throwable->render();
+				$response = $throwable->render();
 			} elseif (!empty($setting['development'])) {
 				$debug = ExceptionHandler::register(true);
-				return $contextObj->getResponse()->withContent($debug->getHtml($throwable));
+				$response = $contextObj->getResponse()->withContent($debug->getHtml($throwable));
 			} else {
 				$message = '服务内部错误';
 				$code = '500';
+				$response = $contextObj->getResponse()->json(['error' => $message], $code);
 			}
-			$response = $contextObj->getResponse()->json(['error' => $message], $code);
 		}
 		return $response;
 	}
