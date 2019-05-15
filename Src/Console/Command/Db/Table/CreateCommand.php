@@ -9,8 +9,8 @@ use W7\Core\Exception\CommandException;
 class CreateCommand extends DatabaseCommandAbstract {
 	protected function configure() {
 		$this->setDescription('create database table log');
-		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the mysql log table name');
-		$this->addOption('--alias', null, InputOption::VALUE_REQUIRED, 'the mysql log table alias name');
+		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the mysql table name');
+		$this->addOption('--alias', null, InputOption::VALUE_REQUIRED, 'the mysql table alias');
 	}
 
 	protected function handle($options) {
