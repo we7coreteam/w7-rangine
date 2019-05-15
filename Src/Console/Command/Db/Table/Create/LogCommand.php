@@ -12,7 +12,6 @@ class LogCommand extends DatabaseCommandAbstract {
 	}
 
 	protected function handle($options) {
-		// TODO: Implement handle() method.
 		$table = $options['name'] ?? ienv('LOG_MYSQL_TABLE_NAME', 'log');
 		$connection = $options['connection'] ?? ienv('LOG_MYSQL_CONNECTION', 'default');
 
