@@ -122,7 +122,7 @@ class ResourceRegister {
 	}
 
 	protected function addResourceIndex($name, $base, $controller, $options) {
-		$uri = $this->getResourceUri($name) . '/index';
+		$uri = $this->getResourceUri($name);
 		$handler = $this->getResourceHandler($controller, 'index', $options);
 
 		$this->router->get($uri, $handler);
