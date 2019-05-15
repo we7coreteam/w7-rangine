@@ -25,7 +25,8 @@
         "vlucas/phpdotenv": "^3.3",
         "packaged/thrift": "^0.11.0",
         "symfony/console": "^4.2",
-        "symfony/filesystem": "^4.2"
+        "symfony/filesystem": "^4.2",
+        "symfony/debug": "^4.2"
     },
     "require-dev": {
         "eaglewu/swoole-ide-helper": "dev-dev",

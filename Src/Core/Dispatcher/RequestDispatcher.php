@@ -2,6 +2,7 @@
 
 namespace W7\Core\Dispatcher;
 
+use Symfony\Component\Debug\ExceptionHandler;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
@@ -51,8 +52,8 @@ class RequestDispatcher extends DispatcherAbstract {
 			if ($throwable instanceof HttpException) {
 				return $throwable->render();
 			} elseif (!empty($setting['development'])) {
-				$message = $errorMessage;
-				$code = '400';
+				$debug = ExceptionHandler::register(true);
+				return $contextObj->getResponse()->withContent($debug->getHtml($throwable));
 			} else {
 				$message = '服务内部错误';
 				$code = '500';
