@@ -74,6 +74,9 @@ class Application extends SymfontApplication {
 		foreach ((new Finder)->in(RANGINE_FRAMEWORK_PATH  . '/Console/Command/')->files() as $command) {
 			$command = str_replace([RANGINE_FRAMEWORK_PATH . '/Console/Command/'], [''], $command->getPathname());
 			$info = pathinfo($command);
+			if ($info['extension'] !== 'php') {
+				continue;
+			}
 
 			if (strrchr($info['filename'], 'Abstract') === false) {
 				$info['dirname'] = str_replace('/', '\\', $info['dirname']);
