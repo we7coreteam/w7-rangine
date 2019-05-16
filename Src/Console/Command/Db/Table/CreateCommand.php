@@ -3,10 +3,10 @@
 namespace W7\Console\Command\Db\Table;
 
 use Symfony\Component\Console\Input\InputOption;
-use W7\Console\Command\Db\DatabaseCommandAbstract;
+use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
 
-class CreateCommand extends DatabaseCommandAbstract {
+class CreateCommand extends CommandAbstract {
 	protected function configure() {
 		$this->setDescription('create database table log');
 		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the mysql log table name');
