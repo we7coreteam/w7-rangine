@@ -6,7 +6,6 @@
 
 namespace W7\Core\Log;
 
-
 class Logger extends \Monolog\Logger {
 	/**
 	 * @param $name
@@ -30,15 +29,17 @@ class Logger extends \Monolog\Logger {
 
 	public function flushLog($channel = null) {
 		$logManager = iloader()->singleton(LogManager::class);
-		$handles = [];
-		if ($channel) {
-			$handles[] = $logManager->getHandle($channel);
-		} else {
-			$handles = $logManager->getHandle();
-		}
+		$loggers = $logManager->getLoggers($channel);
 
-		foreach ($handles as $handle) {
-			$handle->flush();
+		foreach ($loggers as $logger) {
+			foreach ($logger->getHandlers() as $handle) {
+				$handle->flush();
+			}
 		}
 	}
+
+	public function __destruct() {
+		$this->flushLog($this->name);
+	}
+
 }

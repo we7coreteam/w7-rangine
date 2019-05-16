@@ -51,12 +51,15 @@ class LogManager {
 		}
 	}
 
-	public function getHandle($channel = null) {
+	public function getLoggers($channel = null) {
+		if ($channel === 'stack') {
+			return array_column($this->channel[$channel], 'logger');
+		}
 		if ($channel) {
-			return $this->channel[$channel]['handler'];
+			return [$this->channel[$channel]['logger']];
 		}
 
-		return array_column($this->channel, 'handler');
+		return array_merge(array_column($this->channel, 'logger'));
 	}
 
 	/**
@@ -104,6 +107,7 @@ class LogManager {
 						$logger->pushHandler($this->channel[$setting['channel']]['handler']);
 					}
 				}
+
 				$this->channel[$name]['logger'] = $logger;
 			}
 		}
