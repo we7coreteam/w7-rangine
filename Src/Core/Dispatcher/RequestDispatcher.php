@@ -15,14 +15,12 @@ use W7\Http\Message\Server\Response;
 
 class RequestDispatcher extends DispatcherAbstract {
 	public function dispatch(...$params) {
-		/**
-		 * @var Request $psr7Request
-		 * @var Response $psr7Response
-		 */
 		try {
-			$psr7Request = $params[0];
-			$psr7Response = $params[1];
-			$response = $this->exec($psr7Request, $psr7Response);
+			/**
+			 * @var Request $psr7Request
+			 * @var Response $psr7Response
+			 */
+			$response = $this->exec($params[0], $params[1]);
 		} catch (HttpException $throwable) {
 			$errorMessage = sprintf('Uncaught Exception %s: "%s" at %s line %s',
 				get_class($throwable),
