@@ -2,6 +2,7 @@
 
 namespace W7\Console;
 
+use Monolog\ErrorHandler;
 use Symfony\Component\Console\Application as SymfontApplication;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -11,6 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
+use W7\App;
 use W7\Console\Io\Output;
 
 class Application extends SymfontApplication {
@@ -20,6 +22,8 @@ class Application extends SymfontApplication {
 
 		$this->setAutoExit(false);
 		$this->registerCommands();
+		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
+		$this->registerErrorHandler();
 	}
 
 	/**
@@ -67,6 +71,13 @@ class Application extends SymfontApplication {
 			$input = new ArrayInput(['--help' => true,'command' => $this->getCommandName($input)]);
 			$this->run($input);
 		}
+	}
+
+	private function registerErrorHandler() {
+		/**
+		 * 设置错误信息接管
+		 */
+		ErrorHandler::register(App::getApp()->getLogger());
 	}
 
 	private function registerCommands() {
