@@ -6,8 +6,8 @@
 
 namespace W7\Core\Log;
 
+use Monolog\Handler\BufferHandler;
 use Monolog\Logger as MonoLogger;
-use Monolog\Processor\IntrospectionProcessor;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 class LogManager {
@@ -51,6 +51,14 @@ class LogManager {
 		}
 	}
 
+	public function getHandle($channel = null) {
+		if ($channel) {
+			return $this->channel[$channel]['handler'];
+		}
+
+		return array_column($this->channel, 'handler');
+	}
+
 	/**
 	 * 初始化通道，
 	 * @param $channelConfig
@@ -68,7 +76,8 @@ class LogManager {
 				$stack[$name] = $channel;
 			} else {
 				$handlerClass = sprintf("\\W7\\Core\\Log\\Driver\\%sHandler", ucfirst($channel['driver']));
-				$handler = $handlerClass::getHandler($channel);
+				$bufferLimit = $channel['buffer_limit'] ?? 1;
+				$handler = new BufferHandler($handlerClass::getHandler($channel), $bufferLimit, $channel['level'], true, true);
 
 				if (!is_null($handler)) {
 					$logger = $this->getLogger($name);

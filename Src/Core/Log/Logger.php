@@ -27,4 +27,18 @@ class Logger extends \Monolog\Logger {
 		}
 		return parent::addRecord($level, $message, $context);
 	}
+
+	public function flushLog($channel = null) {
+		$logManager = iloader()->singleton(LogManager::class);
+		$handles = [];
+		if ($channel) {
+			$handles[] = $logManager->getHandle($channel);
+		} else {
+			$handles = $logManager->getHandle();
+		}
+
+		foreach ($handles as $handle) {
+			$handle->flush();
+		}
+	}
 }
