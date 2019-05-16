@@ -5,9 +5,8 @@ namespace W7\Core\Dispatcher;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
-use W7\Core\Exception\DevException;
 use W7\Core\Exception\HttpException;
-use W7\Core\Exception\ReleaseException;
+use W7\Core\Exception\ExceptionHandle;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Http\Message\Server\Request;
@@ -15,35 +14,19 @@ use W7\Http\Message\Server\Response;
 
 class RequestDispatcher extends DispatcherAbstract {
 	public function dispatch(...$params) {
+		/**
+		 * @var Request $psr7Request
+		 * @var Response $psr7Response
+		 */
+		$psr7Request = $params[0];
+		$psr7Response = $params[1];
+		$serverContext = App::$server->server->context;
+
+		$contextObj = App::getApp()->getContext();
+		$contextObj->setRequest($psr7Request);
+		$contextObj->setResponse($psr7Response);
+
 		try {
-			/**
-			 * @var Request $psr7Request
-			 * @var Response $psr7Response
-			 */
-			$response = $this->exec($params[0], $params[1]);
-		} catch (HttpException $throwable) {
-			$errorMessage = sprintf('Uncaught Exception %s: "%s" at %s line %s',
-				get_class($throwable),
-				$throwable->getMessage(),
-				$throwable->getFile(),
-				$throwable->getLine()
-			);
-			ilogger()->error($errorMessage, array('exception' => $throwable));
-
-			$response = $throwable->render();
-		} finally {
-			return $response;
-		}
-	}
-
-	private function exec($psr7Request, $psr7Response) {
-		try {
-			$serverContext = App::$server->server->context;
-
-			$contextObj = App::getApp()->getContext();
-			$contextObj->setRequest($psr7Request);
-			$contextObj->setResponse($psr7Response);
-
 			//根据router配置，获取到匹配的controller信息
 			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
 			$route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
@@ -54,20 +37,21 @@ class RequestDispatcher extends DispatcherAbstract {
 			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 
 			$middlewareHandler = new MiddlewareHandler($middlewares);
-			return $middlewareHandler->handle($psr7Request);
+			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
-			if  (!($throwable instanceof HttpException)) {
-				$setting = iconfig()->getUserAppConfig('setting');
-				if (!empty($setting['development'])) {
-					throw new DevException($throwable->getMessage(), $throwable->getCode(), $throwable);
-				}
-				throw new ReleaseException($throwable->getMessage(), $throwable->getCode(), $throwable);
-			}
+			$errorMessage = sprintf('Uncaught Exception %s: "%s" at %s line %s',
+				get_class($throwable),
+				$throwable->getMessage(),
+				$throwable->getFile(),
+				$throwable->getLine()
+			);
+			ilogger()->error($errorMessage, array('exception' => $throwable));
 
-			throw $throwable;
+			$response = iloader()->withParams('type', App::$server->type)->singleton(ExceptionHandle::class)->render();
+		} finally {
+			return $response;
 		}
 	}
-
 
 	private function getRoute(ServerRequestInterface $request, $fastRoute) {
 		$httpMethod = $request->getMethod();
