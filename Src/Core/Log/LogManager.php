@@ -141,6 +141,7 @@ class LogManager {
 	private function getLogger($name) {
 		$logger = new Logger($name, [], []);
 		$logger->enable = $this->config['channel'][$name]['enable'] ?? false;
+		$logger->development = $this->commonSetting['development'] ?? 0;
 
 		if (!empty($this->commonProcessor)) {
 			foreach ($this->commonProcessor as $processor) {
