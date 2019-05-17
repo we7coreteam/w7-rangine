@@ -21,8 +21,8 @@ class Application extends SymfontApplication {
 		parent::__construct('w7swoole', $version);
 
 		$this->setAutoExit(false);
-		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
 		$this->registerCommands();
+		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
 		$this->registerErrorHandler();
 	}
 
@@ -73,7 +73,7 @@ class Application extends SymfontApplication {
 		}
 	}
 
-	public function registerErrorHandler() {
+	private function registerErrorHandler() {
 		/**
 		 * 设置错误信息接管
 		 */
