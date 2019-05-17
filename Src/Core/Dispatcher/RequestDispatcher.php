@@ -47,7 +47,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			);
 			ilogger()->error($errorMessage, array('exception' => $throwable));
 
-			iloader()->withParams('type', App::$server->type)->singleton(ExceptionHandle::class)->handle($throwable);
+			$response = iloader()->withClass(ExceptionHandle::class)->withParams('type', App::$server->type)->withSingle()->get()->handle($throwable);
 		} finally {
 			return $response;
 		}
