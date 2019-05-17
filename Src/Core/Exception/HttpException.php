@@ -6,15 +6,9 @@
 namespace W7\Core\Exception;
 
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\Debug\ExceptionHandler;
 
 class HttpException extends TcpException {
-  protected function custome() : ResponseInterface {
-    return parent::dev();
-	}
-	
-	protected function dev () : ResponseInterface {
-		$debug = ExceptionHandler::register(true);
-		return $this->response->withContent($debug->getHtml($this));
+	public function render(): ResponseInterface {
+		return $this->response->json(['error' => $this->getMessage()], $this->getCode());
 	}
 }

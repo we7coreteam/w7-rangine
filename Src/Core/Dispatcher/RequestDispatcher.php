@@ -5,8 +5,8 @@ namespace W7\Core\Dispatcher;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
-use W7\Core\Exception\HttpException;
 use W7\Core\Exception\ExceptionHandle;
+use W7\Core\Exception\HttpException;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Http\Message\Server\Request;
@@ -47,7 +47,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			);
 			ilogger()->error($errorMessage, array('exception' => $throwable));
 
-			$response = iloader()->withParams('type', App::$server->type)->singleton(ExceptionHandle::class)->render();
+			iloader()->withParams('type', App::$server->type)->singleton(ExceptionHandle::class)->handle($throwable);
 		} finally {
 			return $response;
 		}
