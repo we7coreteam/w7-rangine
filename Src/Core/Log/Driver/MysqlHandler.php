@@ -19,9 +19,9 @@ class MysqlHandler extends AbstractProcessingHandler {
 		foreach ($records as &$record) {
 			$record = [
 				'channel' => $record['channel'],
-				'level' => $record['level_name'],
+				'level' => $record['level'],
 				'message' => $record['message'],
-				'time' => $record['datetime']->format('U')
+				'created_at' => $record['datetime']->format('U')
 			];
 		}
 		idb()->connection($this->connection)->table($this->table)->insert($records);

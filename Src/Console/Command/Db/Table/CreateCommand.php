@@ -39,9 +39,9 @@ class CreateCommand extends CommandAbstract {
 		$schema->create($table, function ($table) {
 			$table->increments('id');
 			$table->string('channel', 30);
-			$table->string('level', 15);
+			$table->integer('level');
 			$table->text('message');
-			$table->addColumn('integer','time', ['length' => 11]);
+			$table->addColumn('integer','created_at', ['length' => 11]);
 		});
 
 		return true;
