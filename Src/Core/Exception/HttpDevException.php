@@ -3,11 +3,19 @@
 namespace W7\Core\Exception;
 
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\Debug\ExceptionHandler;
+use Whoops\Exception\Inspector;
 
 class HttpDevException extends HttpException {
 	public function render(): ResponseInterface {
-		$debug = ExceptionHandler::register(true);
-		return $this->response->withContent($debug->getHtml($this));
+		ob_start();
+		$render = new \Whoops\Handler\PrettyPageHandler();
+		$render->handleUnconditionally(true);
+		$render->setException($this);
+		$render->setInspector(new Inspector($this));
+		$render->setRun(new \Whoops\Run);
+		$render->handle();
+		$content = ob_get_clean();
+
+		return $this->response->withContent($content);
 	}
 }
