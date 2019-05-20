@@ -2,7 +2,6 @@
 
 namespace W7\Console;
 
-use Monolog\ErrorHandler;
 use Symfony\Component\Console\Application as SymfontApplication;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -14,6 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use W7\App;
 use W7\Console\Io\Output;
+use Whoops\Handler\PlainTextHandler;
+use Whoops\Run;
 
 class Application extends SymfontApplication {
 	public function __construct() {
@@ -77,7 +78,10 @@ class Application extends SymfontApplication {
 		/**
 		 * 设置错误信息接管
 		 */
-		ErrorHandler::register(App::getApp()->getLogger());
+		$processer = new Run();
+		$handle = new PlainTextHandler(App::getApp()->getLogger());
+		$processer->pushHandler($handle);
+		$processer->register();
 	}
 
 	private function registerCommands() {
