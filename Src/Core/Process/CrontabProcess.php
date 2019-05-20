@@ -36,8 +36,6 @@ class CrontabProcess extends ProcessAbstract {
 		} else {
 			$this->setting['interval'] *= 1000;
 		}
-
-		$this->development = \iconfig()->getUserAppConfig('setting')['development'] ?? 0;
 	}
 
 	public function check() {
@@ -63,13 +61,13 @@ class CrontabProcess extends ProcessAbstract {
 		}
 		//最小细度为一分钟
 		swoole_timer_tick($this->setting['interval'], function () {
-			if (!empty($this->development)) {
+			if (DEBUG) {
 				echo 'Crontab run at ' . date('Y-m-d H:i:s') . PHP_EOL;
 			}
 
 			$task = $this->getRunTask();
 
-			if (!empty($this->development)) {
+			if (DEBUG) {
 				$result = [];
 				foreach ($this->table as $name1 => $row1) {
 					$row1['nextruntime'] = date('Y-m-d H:i:s', $row1['nextrun']);

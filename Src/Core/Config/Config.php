@@ -66,7 +66,6 @@ class Config {
 	];
 
 	private $config = [];
-	private $routeConfig = [];
 
 	public function __construct() {
 		//初始化evn配置数据
@@ -82,6 +81,13 @@ class Config {
 
 		if (!defined('RANGINE_FRAMEWORK_PATH')) {
 			define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
+		}
+		$setting = $this->getUserAppConfig('setting');
+		if (!defined('DEBUG')) {
+			define('DEBUG', $setting['debug'] ?? false);
+		}
+		if (!defined('CLEAR_LOG')) {
+			define('CLEAR_LOG', $setting['clear_log'] ?? false);
 		}
 	}
 

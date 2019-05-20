@@ -17,8 +17,7 @@ class ExceptionHandle {
 	public function __construct($type) {
 		$this->type = $type;
 		$this->env = 'release';
-		$setting = iconfig()->getUserAppConfig('setting');
-		if (!empty($setting['development'])) {
+		if (DEBUG) {
 			$this->env = 'dev';
 		}
 	}

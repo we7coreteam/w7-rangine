@@ -20,10 +20,9 @@ class LogManager {
 	public function __construct() {
 		$this->config = $this->getConfig();
 		$this->commonSetting = iconfig()->getUserAppConfig('setting');
-		$development = $this->commonSetting['development'] ?? 0;
 
 		//如果是开发模式，每次启动清理日志文件
-		if (!empty($development) && $development == '2') {
+		if (CLEAR_LOG) {
 			$this->cleanLogFile();
 		}
 		if (empty($this->config['channel'])) {
@@ -127,7 +126,6 @@ class LogManager {
 
 	private function getLogger($name) {
 		$logger = new Logger($name, [], []);
-		$logger->development = $this->commonSetting['development'] ?? 0;
 
 		if (!empty($this->commonProcessor)) {
 			foreach ($this->commonProcessor as $processor) {
