@@ -6,9 +6,7 @@
 
 namespace W7;
 
-use Monolog\ErrorHandler;
 use W7\Console\Application;
-use W7\Console\Console;
 use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
 use W7\Core\Helper\Loader;
