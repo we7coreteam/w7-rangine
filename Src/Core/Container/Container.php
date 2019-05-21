@@ -24,6 +24,7 @@ class Container {
 		if (!($handle instanceof \Closure) && !is_object($handle)) {
 			throw new \Exception('handle must be closure or object');
 		}
+
 		if ($this->psrContainer->has($name)) {
 			return false;
 		}

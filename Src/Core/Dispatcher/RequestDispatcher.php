@@ -20,7 +20,6 @@ class RequestDispatcher extends DispatcherAbstract {
 		 */
 		$psr7Request = $params[0];
 		$psr7Response = $params[1];
-		$serverContext = App::$server->server->context;
 
 		$contextObj = App::getApp()->getContext();
 		$contextObj->setRequest($psr7Request);
@@ -29,10 +28,10 @@ class RequestDispatcher extends DispatcherAbstract {
 		try {
 			//根据router配置，获取到匹配的controller信息
 			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
-			$route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
+			$route = $this->getRoute($psr7Request, iloader()->get(Context::ROUTE_KEY));
 			$psr7Request = $psr7Request->withAttribute('route', $route);
 
-			$middlewares = $this->getMiddleware($route, $serverContext[Context::MIDDLEWARE_KEY]);
+			$middlewares = $this->getMiddleware($route, iloader()->get(Context::MIDDLEWARE_KEY));
 			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
 			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
 

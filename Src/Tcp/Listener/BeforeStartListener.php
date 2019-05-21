@@ -7,7 +7,6 @@
 
 namespace W7\Tcp\Listener;
 
-use W7\App;
 use W7\Core\Container\Context;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Middleware\MiddlewareMapping;
@@ -16,10 +15,8 @@ use FastRoute\Dispatcher\GroupCountBased;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		$context = App::getApp()->getContext();
-		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());
-		$context->setContextDataByKey(Context::MIDDLEWARE_KEY, $this->getMiddleware());
-
+		iloader()->set(Context::ROUTE_KEY, $this->getRoute());
+		iloader()->set(Context::MIDDLEWARE_KEY, $this->getMiddleware());
 		return true;
 	}
 
@@ -32,10 +29,12 @@ class BeforeStartListener extends ListenerAbstract {
 	}
 
 	private function getMiddleware() {
-		/**
-		 * @var MiddlewareMapping $middlerwareObj
-		 */
-		$middlerwareObj = iloader()->get(MiddlewareMapping::class);
-		return $middlerwareObj->getLastMiddle();
+		return function () {
+			/**
+			 * @var MiddlewareMapping $middlerwareObj
+			 */
+			$middlerwareObj = iloader()->get(MiddlewareMapping::class);
+			return $middlerwareObj->getLastMiddle();
+		};
 	}
 }
