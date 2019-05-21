@@ -11,10 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
-use W7\App;
 use W7\Console\Io\Output;
-use Whoops\Handler\PlainTextHandler;
-use Whoops\Run;
 
 class Application extends SymfontApplication {
 	public function __construct() {
@@ -23,8 +20,6 @@ class Application extends SymfontApplication {
 
 		$this->setAutoExit(false);
 		$this->registerCommands();
-		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
-		$this->registerErrorHandler();
 	}
 
 	/**
@@ -72,16 +67,6 @@ class Application extends SymfontApplication {
 			$input = new ArrayInput(['--help' => true,'command' => $this->getCommandName($input)]);
 			$this->run($input);
 		}
-	}
-
-	private function registerErrorHandler() {
-		/**
-		 * 设置错误信息接管
-		 */
-		$processer = new Run();
-		$handle = new PlainTextHandler(App::getApp()->getLogger());
-		$processer->pushHandler($handle);
-		$processer->register();
 	}
 
 	private function registerCommands() {

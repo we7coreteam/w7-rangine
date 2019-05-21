@@ -14,7 +14,6 @@ use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Process\CrontabProcess;
-use W7\Core\Process\MysqlPoolprocess;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
 use W7\Tcp\Listener\CloseListener;
@@ -68,14 +67,6 @@ class Config {
 	private $config = [];
 
 	public function __construct() {
-		//初始化evn配置数据
-		/**
-		 * @var Env $env
-		 */
-		$env = new Env(BASE_PATH);
-		$env->load();
-		unset($env);
-
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
 
