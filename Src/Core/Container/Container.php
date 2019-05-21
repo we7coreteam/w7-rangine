@@ -14,15 +14,24 @@ class Container {
 		$this->psrContainer = new PsrContainer($this->container);
 	}
 
-	public function set($name, $value, $alias = null) {
+	/**
+	 * @param $name
+	 * @param $value
+	 * @param null $alias
+	 * @return bool
+	 */
+	public function set($name, $handle, $alias = null) {
+		if (!($handle instanceof \Closure) && !is_object($handle)) {
+			throw new \Exception('handle must be closure or object');
+		}
 		if ($this->psrContainer->has($name)) {
 			return false;
 		}
-		$this->container[$name] = $value;
+		$this->container[$name] = $handle;
 		if ($alias) {
 			$alias = (array)$alias;
 			foreach ($alias as $item) {
-				$this->container[$item] = $value;
+				$this->container[$item] = $handle;
 			}
 		}
 	}
