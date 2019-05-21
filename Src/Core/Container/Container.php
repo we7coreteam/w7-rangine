@@ -15,7 +15,7 @@ class Container {
 	}
 
 	public function set($name, $value, $alias = null) {
-		if ($this->has($name)) {
+		if ($this->psrContainer->has($name)) {
 			return false;
 		}
 		$this->container[$name] = $value;
@@ -28,7 +28,7 @@ class Container {
 	}
 
 	public function get($name) {
-		if (!$this->has($name)) {
+		if (!$this->psrContainer->has($name)) {
 			$this->set($name, function () use ($name) {
 				return new $name();
 			});
@@ -39,9 +39,5 @@ class Container {
 
 	public function singleton($name) {
 		return $this->get($name);
-	}
-
-	public function __call($name, $arguments) {
-		$this->psrContainer->$name(...$arguments);
 	}
 }
