@@ -142,7 +142,6 @@ abstract class ServerAbstract implements ServerInterface {
 	public function registerService() {
 		$this->registerSwooleEventListener();
 		$this->registerProcesser();
-		$this->registerServerContext();
 		$this->registerDb();
 		$this->registerCacheModel();
 		return true;
@@ -198,11 +197,6 @@ abstract class ServerAbstract implements ServerInterface {
 		//if (isCo()) {
 			\Swoole\Runtime::enableCoroutine(true);
 		//}
-	}
-
-	protected function registerServerContext() {
-		$contextObj = App::getApp()->getContext();
-		$this->server->context = $contextObj->getContextData();
 	}
 
 	/**
