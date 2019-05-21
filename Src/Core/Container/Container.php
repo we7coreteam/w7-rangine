@@ -21,10 +21,6 @@ class Container {
 	 * @return bool
 	 */
 	public function set($name, $handle, $alias = null) {
-		if (!($handle instanceof \Closure) && !is_object($handle)) {
-			throw new \Exception('handle must be closure or object');
-		}
-
 		if ($this->psrContainer->has($name)) {
 			return false;
 		}

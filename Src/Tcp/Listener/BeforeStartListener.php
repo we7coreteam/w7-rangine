@@ -29,12 +29,10 @@ class BeforeStartListener extends ListenerAbstract {
 	}
 
 	private function getMiddleware() {
-		return function () {
-			/**
-			 * @var MiddlewareMapping $middlerwareObj
-			 */
-			$middlerwareObj = iloader()->get(MiddlewareMapping::class);
-			return $middlerwareObj->getLastMiddle();
-		};
+		/**
+		 * @var MiddlewareMapping $middlerwareObj
+		 */
+		$middlerwareObj = iloader()->get(MiddlewareMapping::class);
+		return $middlerwareObj->getLastMiddle();
 	}
 }

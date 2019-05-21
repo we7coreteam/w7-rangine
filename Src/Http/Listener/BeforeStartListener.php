@@ -30,12 +30,10 @@ class BeforeStartListener extends ListenerAbstract {
 	}
 
 	private function getLastMiddleware() {
-		return function () {
-			/**
-			 * @var MiddlewareMapping $middlerwareObj
-			 */
-			$middlerwareObj = iloader()->get(MiddlewareMapping::class);
-			return $middlerwareObj->getLastMiddle();
-		};
+		/**
+		 * @var MiddlewareMapping $middlerwareObj
+		 */
+		$middlerwareObj = iloader()->get(MiddlewareMapping::class);
+		return $middlerwareObj->getLastMiddle();
 	}
 }
