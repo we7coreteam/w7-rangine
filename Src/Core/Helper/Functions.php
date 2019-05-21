@@ -182,7 +182,7 @@ if (!function_exists("idb")) {
 if (!function_exists("icontext")) {
 	/**
 	 * 返回logger对象
-	 * @return \W7\Core\Helper\Storage\Context
+	 * @return \W7\Core\Container\Context
 	 */
 	function icontext() {
 		return App::getApp()->getContext();
