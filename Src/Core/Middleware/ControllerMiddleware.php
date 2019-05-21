@@ -22,7 +22,7 @@ class ControllerMiddleware extends MiddlewareAbstract {
 					$route['controller'] = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']);
 				}
 				$method = StringHelper::studly($route['method']);
-				$classObj = iloader()->singleton($route['controller']);
+				$classObj = iloader()->get($route['controller']);
 				$controllerHandler = [$classObj, $method];
 			}
 

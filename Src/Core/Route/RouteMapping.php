@@ -18,7 +18,7 @@ class RouteMapping {
 	private $middlewareMapping;
 
 	function __construct() {
-		$this->middlewareMapping = iloader()->singleton(MiddlewareMapping::class);
+		$this->middlewareMapping = iloader()->get(MiddlewareMapping::class);
 		$this->routeConfig = \iconfig()->getRouteConfig();
 		/**
 		 * @todo 增加引入扩展机制的路由

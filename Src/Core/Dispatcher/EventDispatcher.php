@@ -74,7 +74,7 @@ class EventDispatcher extends DispatcherAbstract
 			$class = $this->listener[$eventName][$item];
 			if (!empty($class)) {
 				if (class_exists($class)) {
-					$object = \iloader()->singleton($class);
+					$object = \iloader()->get($class);
 					if ($object instanceof ListenerInterface) {
                         call_user_func_array([$object, 'run'], $args);
 					}

@@ -26,13 +26,16 @@ abstract class CacheAbstract implements CacheInterface {
 		if (empty($name)) {
 			throw new \RuntimeException('Invalid cache channel name');
 		}
-		$cacher = iloader()->withClass(static::class)->withSingle()->withAlias($name)->get();
+		iloader()->set(static::class, function () {
+			return new static();
+		}, $name);
+		$cacher = iloader()->get(static::class);
 		$cacher->setChannelName($name);
 		return $cacher;
 	}
 
 	protected function getConnection() {
-		$this->manager = iloader()->singleton(ConnectorManager::class);
+		$this->manager = iloader()->get(ConnectorManager::class);
 		return $this->manager->connect($this->channelName);
 	}
 

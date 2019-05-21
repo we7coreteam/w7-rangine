@@ -29,10 +29,10 @@ class ConnectorManager {
 		/**
 		 * @var Pool $pool
 		 */
-		$pool = iloader()->withClass(Pool::class)
-			->withSingle()->withAlias($poolName)
-			->withParams(['name' => $poolName])
-			->get();
+		iloader()->set(Pool::class, function () use ($poolName) {
+			return new Pool($poolName);
+		}, $poolName);
+		$pool = iloader()->get(Pool::class);
 
 		$pool->releaseConnection($connection);
 	}
@@ -66,10 +66,10 @@ class ConnectorManager {
 		if (empty($poolConfig['enable'])) {
 			$connection = $connector->noRelease()->connect($config);
 		} else {
-			$pool = iloader()->withClass(Pool::class)
-				->withSingle()->withAlias($name)
-				->withParams(['name' => $name])
-				->get();
+			iloader()->set(Pool::class, function () use ($name) {
+				return new Pool($name);
+			}, $name);
+			$pool = iloader()->get(Pool::class);
 			$pool->setConfig($config);
 			$pool->setMaxCount($poolConfig['max']);
 			$pool->setCreator($connector);

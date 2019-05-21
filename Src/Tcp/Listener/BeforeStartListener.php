@@ -27,7 +27,7 @@ class BeforeStartListener extends ListenerAbstract {
 	 * @return GroupCountBased
 	 */
 	private function getRoute() {
-		$routeInfo = iloader()->singleton(RouteMapping::class)->getMapping();
+		$routeInfo = iloader()->get(RouteMapping::class)->getMapping();
 		return new GroupCountBased($routeInfo);
 	}
 
@@ -35,7 +35,7 @@ class BeforeStartListener extends ListenerAbstract {
 		/**
 		 * @var MiddlewareMapping $middlerwareObj
 		 */
-		$middlerwareObj = iloader()->singleton(MiddlewareMapping::class);
+		$middlerwareObj = iloader()->get(MiddlewareMapping::class);
 		return $middlerwareObj->getLastMiddle();
 	}
 }

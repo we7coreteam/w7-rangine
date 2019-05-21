@@ -39,7 +39,7 @@ class RequestListener extends ListenerAbstract {
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
 		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
 
-		$dispather = \iloader()->singleton(Dispather::class);
+		$dispather = \iloader()->get(Dispather::class);
 		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 

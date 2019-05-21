@@ -20,7 +20,7 @@ if (!function_exists('iprocess')) {
 		/**
 		 * @var \W7\Core\Dispatcher\ProcessDispatcher $dispatcher
 		 */
-		$dispatcher = iloader()->singleton(\W7\Core\Dispatcher\ProcessDispatcher::class);
+		$dispatcher = iloader()->get(\W7\Core\Dispatcher\ProcessDispatcher::class);
 		return $dispatcher->dispatch($name, $server);
 	}
 
@@ -29,7 +29,7 @@ if (!function_exists('iprocess')) {
 	 * @return \W7\Core\Dispatcher\ProcessDispatcher
 	 */
 	function iprocessManager() {
-		$dispatcher = iloader()->singleton(\W7\Core\Dispatcher\ProcessDispatcher::class);
+		$dispatcher = iloader()->get(\W7\Core\Dispatcher\ProcessDispatcher::class);
 		return $dispatcher;
 	}
 
@@ -48,7 +48,7 @@ if (!function_exists('iprocess')) {
 	 * @return \W7\Core\Dispatcher\ProcessPoolDispatcher
 	 */
 	function iprocessPoolManager() {
-		$dispatcher = iloader()->singleton(\W7\Core\Dispatcher\ProcessPoolDispatcher::class);
+		$dispatcher = iloader()->get(\W7\Core\Dispatcher\ProcessPoolDispatcher::class);
 		return $dispatcher;
 	}
 }
@@ -65,7 +65,7 @@ if (!function_exists("ievent")) {
 		/**
 		 * @var EventDispatcher $dispatcher
 		 */
-		$dispatcher = iloader()->singleton(EventDispatcher::class);
+		$dispatcher = iloader()->get(EventDispatcher::class);
 		return $dispatcher->dispatch($eventName, $args);
 	}
 }
@@ -88,7 +88,7 @@ if (!function_exists("itask")) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
+		$dispatcherMaker = iloader()->get(TaskDispatcher::class);
 		return $dispatcherMaker->register($taskMessage);
 	}
 
@@ -102,7 +102,7 @@ if (!function_exists("itask")) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
+		$dispatcherMaker = iloader()->get(TaskDispatcher::class);
 		return $dispatcherMaker->registerCo($taskMessage);
 	}
 }
@@ -122,7 +122,7 @@ if (!function_exists("iuuid")) {
 if (!function_exists('iloader')) {
 	/**
 	 * 获取加载器
-	 * @return \W7\Core\Helper\Loader
+	 * @return \W7\Core\Container\Container
 	 */
 	function iloader() {
 		return \W7\App::getApp()->getLoader();
@@ -135,7 +135,7 @@ if (!function_exists('ioutputer')) {
 	 * @return W7\Console\Io\Output
 	 */
 	function ioutputer() {
-		return iloader()->singleton(\W7\Console\Io\Output::class);
+		return iloader()->get(\W7\Console\Io\Output::class);
 	}
 }
 
@@ -145,7 +145,7 @@ if (!function_exists('iinputer')) {
 	 * @return W7\Console\Io\Input
 	 */
 	function iinputer() {
-		return iloader()->singleton(\W7\Console\Io\Input::class);
+		return iloader()->get(\W7\Console\Io\Input::class);
 	}
 }
 
@@ -203,7 +203,7 @@ if (!function_exists("irouter")) {
 	 * @return \W7\Core\Route\Route
 	 */
 	function irouter() {
-		return iloader()->singleton(\W7\Core\Route\Route::class);
+		return iloader()->get(\W7\Core\Route\Route::class);
 	}
 }
 

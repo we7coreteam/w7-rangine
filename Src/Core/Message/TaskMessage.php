@@ -94,7 +94,7 @@ class TaskMessage extends MessageAbstract {
 			return false;
 		}
 
-		$object = iloader()->singleton($callback[0]);
+		$object = iloader()->get($callback[0]);
 		if (!method_exists($object, $callback[1])) {
 			return false;
 		}

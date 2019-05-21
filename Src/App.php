@@ -9,7 +9,7 @@ namespace W7;
 use W7\Console\Application;
 use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
-use W7\Core\Helper\Loader;
+use W7\Core\Container\Container;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogManager;
 use W7\Core\Helper\Storage\Context;
@@ -26,7 +26,7 @@ class App {
 	 */
 	public static $server;
 	/**
-	 * @var Loader
+	 * @var Container
 	 */
 	private $loader;
 
@@ -43,15 +43,15 @@ class App {
 		/**
 		 * @var Console $console
 		 */
-		iloader()->singleton(ProviderManager::class)->register()->boot();
-		$console = iloader()->singleton(Application::class);
+		iloader()->get(ProviderManager::class)->register()->boot();
+		$console = iloader()->get(Application::class);
 
 		$console->run();
 	}
 
 	public function getLoader() {
 		if (empty($this->loader)) {
-			$this->loader = new Loader();
+			$this->loader = new Container();
 		}
 		return $this->loader;
 	}
@@ -63,7 +63,7 @@ class App {
 		/**
 		 * @var LogManager $logManager
 		 */
-		$logManager = iloader()->singleton(LogManager::class);
+		$logManager = iloader()->get(LogManager::class);
 		return $logManager->getDefaultChannel();
 	}
 
@@ -71,11 +71,11 @@ class App {
 	 * @return Context
 	 */
 	public function getContext() {
-		return $this->getLoader()->singleton(Context::class);
+		return $this->getLoader()->get(Context::class);
 	}
 
 	public function getConfigger() {
-		return $this->getLoader()->singleton(Config::class);
+		return $this->getLoader()->get(Config::class);
 	}
 
 	/**

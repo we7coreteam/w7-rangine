@@ -166,7 +166,7 @@ class CrontabProcess extends ProcessAbstract {
 		/**
 		 * @var MemoryTable $memoryTableManager
 		 */
-		$memoryTableManager = iloader()->singleton(MemoryTable::class);
+		$memoryTableManager = iloader()->get(MemoryTable::class);
 		$this->table = $memoryTableManager->create(self::NAMEKEY, count($this->config), [
 			'name' => [MemoryTable::FIELD_TYPE_STRING, 30],
 			'rule' => [MemoryTable::FIELD_TYPE_STRING, 30],

@@ -84,14 +84,15 @@ abstract class ControllerAbstract {
 	 * @return Factory;
 	 */
 	private function getValidater() {
-		$translator = iloader()->withClass(Translator::class)->withSingle()->withParams([
-			'loader' => new ArrayLoader(),
-			'locale' => 'zh-CN',
-		])->get();
+		iloader()->set(Translator::class, function () {
+			return new Translator(new ArrayLoader(), 'zh-CN');
+		});
+		$translator = iloader()->get(Translator::class);
 
-		$validate = iloader()->withClass(Factory::class)->withSingle()->withParams([
-			'translator' => $translator,
-		])->get();
+		iloader()->set(Factory::class, function () use ($translator) {
+			return new Factory($translator);
+		});
+		$validate = iloader()->get(Factory::class);
 
 		return $validate;
 	}

@@ -16,7 +16,7 @@ class DispatcherHandle implements DispatcherIf {
 		$psr7Request = $psr7Request->withParsedBody($params['data']);
 		$psr7Response = new Response();
 
-		$dispather = \iloader()->singleton(Dispather::class);
+		$dispather = \iloader()->get(Dispather::class);
 		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
 
 		return $psr7Response->getBody()->getContents();

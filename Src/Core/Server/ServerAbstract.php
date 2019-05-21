@@ -300,7 +300,7 @@ abstract class ServerAbstract implements ServerInterface {
 			if (empty($class)) {
 				continue;
 			}
-			$object = \iloader()->singleton($class);
+			$object = \iloader()->get($class);
 			if ($eventName == Event::ON_REQUEST) {
 				$server = \W7\App::$server->server;
 				$this->server->on(Event::ON_REQUEST, function ($request, $response) use ($server, $object) {

@@ -31,7 +31,7 @@ abstract class ConnectionAbstract implements ConnectionInterface {
 
 	public function __destruct() {
 		if ($this->release) {
-			iloader()->singleton(ConnectorManager::class)->release($this->handle);
+			iloader()->get(ConnectorManager::class)->release($this->handle);
 		} else {
 			$this->close();
 		}

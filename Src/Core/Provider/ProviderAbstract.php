@@ -34,7 +34,7 @@ abstract class ProviderAbstract {
 	 * @param $provider
 	 */
 	protected function registerProvider($provider) {
-		iloader()->singleton(ProviderManager::class)->registerProvider($provider);
+		iloader()->get(ProviderManager::class)->registerProvider($provider);
 	}
 	/**
 	 * Merge the given configuration with the existing configuration.
@@ -55,7 +55,7 @@ abstract class ProviderAbstract {
 	protected function loadRoutesFrom($path) {
 		$routeConfig = include $path;
 		if (is_array($routeConfig)) {
-			$routeMapping = iloader()->singleton(RouteMapping::class);
+			$routeMapping = iloader()->get(RouteMapping::class);
 			$config = $routeMapping->getRouteConfig();
 			$config[] = $routeConfig;
 			$routeMapping->setRouteConfig($config);

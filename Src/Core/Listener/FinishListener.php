@@ -32,7 +32,7 @@ class FinishListener implements ListenerInterface {
 		}
 
 		if ($taskMessage->hasFinishCallback) {
-			$task = iloader()->singleton($taskMessage->task);
+			$task = iloader()->get($taskMessage->task);
 			call_user_func_array([$task, 'finish'], [$server, $task_id, $taskMessage->result, $taskMessage->params]);
 		}
 		ievent(Event::ON_USER_TASK_FINISH, [$taskMessage->result]);
