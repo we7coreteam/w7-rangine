@@ -26,12 +26,12 @@ abstract class TableCommandAbstract extends DatabaseCommandAbstract {
 
 		$result = parent::handle($options);
 
-		$result && $this->output->success($this->operate . ' table ' . $this->table . ' success');
+		$result && $this->output->info($this->operate . ' table ' . $this->table . ' success');
 	}
 
 	protected function create($options) {
 		if (!$this->force && $this->schema->hasTable($this->table)) {
-			$this->output->warning('the table ' . $this->table . ' is existed');
+			$this->output->error('the table ' . $this->table . ' is existed');
 			return false;
 		}
 
