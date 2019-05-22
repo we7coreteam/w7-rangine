@@ -12,7 +12,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use W7\App;
-use W7\Console\Io\Output;
 use Whoops\Handler\PlainTextHandler;
 use Whoops\Run;
 
