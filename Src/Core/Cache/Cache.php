@@ -179,7 +179,6 @@ namespace W7\Core\Cache;
  * @method getMode() {}
  */
 class Cache extends CacheAbstract {
-
 	public function get($key, $default = null) {
 		$result = $this->call('get', [$key]);
 		if ($result === false || $result === null) {
@@ -200,8 +199,14 @@ class Cache extends CacheAbstract {
 		return (bool)$this->call('del', [$key]);
 	}
 
-	public function clear() {
-		return $this->call('flushDB', []);
+	public function setMultiple($values, $ttl = null) {
+		$values = (array)$values;
+		foreach ($values as $key => &$value) {
+			$value = $this->serialize($value);
+		}
+		$result = $this->call('mset', [$values]);
+
+		return $result;
 	}
 
 	public function getMultiple($keys, $default = null) {
@@ -218,22 +223,16 @@ class Cache extends CacheAbstract {
 		return $result;
 	}
 
-	public function setMultiple($values, $ttl = null) {
-		$values = (array)$values;
-		foreach ($values as $key => &$value) {
-			$value = $this->serialize($value);
-		}
-		$result = $this->call('mset', [$values]);
-
-		return $result;
-	}
-
 	public function deleteMultiple($keys): bool {
 		return (bool)$this->call('del', [$keys]);
 	}
 
 	public function has($key) {
 		return $this->call('exists', [$key]);
+	}
+
+	public function clear() {
+		return $this->call('flushDB', []);
 	}
 
 	public function __call($method, $arguments) {
@@ -243,8 +242,8 @@ class Cache extends CacheAbstract {
 	public function call(string $method, array $params) {
 		$connection = $this->getConnection();
 		$result = $connection->$method(...$params);
-
 		$this->manager->release($connection);
+
 		return $result;
 	}
 

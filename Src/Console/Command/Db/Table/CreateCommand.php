@@ -1,0 +1,49 @@
+<?php
+
+namespace W7\Console\Command\Db\Table;
+
+use Symfony\Component\Console\Input\InputOption;
+use W7\Console\Command\CommandAbstract;
+use W7\Core\Exception\CommandException;
+
+class CreateCommand extends CommandAbstract {
+	protected function configure() {
+		$this->setDescription('create database table log');
+		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the mysql log table name');
+		$this->addOption('--alias', null, InputOption::VALUE_REQUIRED, 'the mysql log table alias name');
+	}
+
+	protected function handle($options) {
+		if (empty($options['name'])) {
+			throw new CommandException('params name not be empty');
+		}
+		if (!method_exists($this, 'create' . ucfirst($options['name']))) {
+			throw new CommandException('not support create table ' . $options['name']);
+		}
+
+		$options['connection'] = $options['connection'] ?? 'default';
+		$result = $this->{'create' . ucfirst($options['name'])}($options['name'], $options);
+
+		$result && $this->output->writeln('create table ' . $options['name'] . ' success');
+	}
+
+	private function createLog($table, $options) {
+		if (!empty($options['alias'])) {
+			$table = $options['alias'];
+		}
+		$schema = idb()->connection($options['connection'])->getSchemaBuilder();
+		if ($schema->hasTable($table)) {
+			$this->output->writeln('the table ' . $table . ' is exists');
+			return false;
+		}
+		$schema->create($table, function ($table) {
+			$table->increments('id');
+			$table->string('channel', 30);
+			$table->integer('level');
+			$table->text('message');
+			$table->addColumn('integer','created_at', ['length' => 11]);
+		});
+
+		return true;
+	}
+}

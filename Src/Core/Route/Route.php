@@ -60,7 +60,6 @@ class Route {
 
 			$callback($this);
 		});
-
 		return true;
 	}
 
@@ -238,23 +237,6 @@ class Route {
 			$action = 'index';
 		}
 
-		if (strpos($className, "\\W7\\App\\Controller\\") === false && strpos($className, "W7\\App\\Controller\\") === false) {
-			$className = "\\W7\\App\\Controller\\{$className}";
-		}
-
-		$realpath = BASE_PATH . '/app';
-		foreach ($path = explode("\\", $className) as $key => $row) {
-			if (empty($row) || $row == 'W7' || $row == 'App') {
-				continue;
-			}
-
-			$realpath .= '/' . $row;
-		}
-
-		if (!file_exists($realpath . '.php')) {
-			throw new \RuntimeException('Route configuration controller not found. ' . $realpath);
-		}
-
 		return [
 			$className,
 			$action,
@@ -268,23 +250,6 @@ class Route {
 		foreach ($middleware as $index => $class) {
 			if (!is_array($class)) {
 				$class = [$class];
-			}
-
-			if (strpos($class[0], "\\W7\\App\\Middleware\\") === false && strpos($class[0], "W7\\App\\Middleware\\") === false) {
-				$class[0] = "\\W7\\App\\Middleware\\". Str::studly($class[0]);
-			}
-
-			$realpath = BASE_PATH . '/app';
-			foreach ($path = explode("\\", $class[0]) as $key => $row) {
-				if (empty($row) || $row == 'W7' || $row == 'App') {
-					continue;
-				}
-
-				$realpath .= '/' . $row;
-			}
-
-			if (!file_exists($realpath . '.php')) {
-				throw new \RuntimeException('Route configuration middleware not found. ' . $realpath);
 			}
 
 			$middleware[$index] = $class;

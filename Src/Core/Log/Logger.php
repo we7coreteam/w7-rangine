@@ -22,9 +22,24 @@ class Logger extends \Monolog\Logger {
 
 	public function addRecord($level, $message, array $context = array()) {
 		//关闭调试模式时，不写入日志
-		if (empty($this->development)) {
+		if (!DEBUG && empty($this->enable)) {
 			return true;
 		}
 		return parent::addRecord($level, $message, $context);
+	}
+
+	public function flushLog($channel = null) {
+		$logManager = iloader()->singleton(LogManager::class);
+		$loggers = $logManager->getLoggers($channel);
+
+		foreach ($loggers as $logger) {
+			foreach ($logger->getHandlers() as $handle) {
+				$handle->flush();
+			}
+		}
+	}
+
+	public function __destruct() {
+		$this->flushLog($this->name);
 	}
 }

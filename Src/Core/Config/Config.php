@@ -13,8 +13,8 @@ use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
+use W7\Core\Listener\WorkerStopListener;
 use W7\Core\Process\CrontabProcess;
-use W7\Core\Process\MysqlPoolprocess;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
 use W7\Tcp\Listener\CloseListener;
@@ -48,6 +48,7 @@ class Config {
 			Event::ON_START => StartListener::class,
 			Event::ON_MANAGER_START => ManagerStartListener::class,
 			Event::ON_WORKER_START => WorkerStartListener::class,
+			Event::ON_WORKER_STOP => WorkerStopListener::class,
 			Event::ON_WORKER_ERROR => WorkerErrorListener::class,
 			Event::ON_PIPE_MESSAGE => PipeMessageListener::class,
 		],
@@ -66,7 +67,6 @@ class Config {
 	];
 
 	private $config = [];
-	private $routeConfig = [];
 
 	public function __construct() {
 		//初始化evn配置数据
@@ -82,6 +82,13 @@ class Config {
 
 		if (!defined('RANGINE_FRAMEWORK_PATH')) {
 			define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
+		}
+		$setting = $this->getUserAppConfig('setting');
+		if (!defined('DEBUG')) {
+			define('DEBUG', $setting['development'] ?? false);
+		}
+		if (!defined('CLEAR_LOG')) {
+			define('CLEAR_LOG', DEBUG);
 		}
 	}
 
@@ -139,6 +146,10 @@ class Config {
 		} else {
 			return [];
 		}
+	}
+
+	public function setUserConfig($name, $data) {
+		$this->config['config'][$name] = $data;
 	}
 
 	public function getRouteConfig() {

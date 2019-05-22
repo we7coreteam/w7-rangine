@@ -6,15 +6,14 @@
 
 namespace W7;
 
-use Monolog\ErrorHandler;
 use W7\Console\Application;
-use W7\Console\Console;
 use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
 use W7\Core\Helper\Loader;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogManager;
 use W7\Core\Helper\Storage\Context;
+use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
 
 class App {
@@ -40,22 +39,14 @@ class App {
 		return self::$self;
 	}
 
-	public function setErrorHandler() {
-		/**
-		 * 设置错误信息接管
-		 */
-		ErrorHandler::register($this->getLogger());
-	}
-
 	public function runConsole() {
 		/**
 		 * @var Console $console
 		 */
+		iloader()->singleton(ProviderManager::class)->register()->boot();
 		$console = iloader()->singleton(Application::class);
-		$console->run();
 
-		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
-		$this->setErrorHandler();
+		$console->run();
 	}
 
 	public function getLoader() {

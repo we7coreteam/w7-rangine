@@ -51,6 +51,7 @@ class ReloadProcess implements ProcessInterface {
 		$this->enabled = (bool)$reloadConfig['enabled'];
 		$this->debug = (bool)$reloadConfig['debug'];
 	}
+
 	public function check() {
 		if ($this->enabled) {
 			return true;
@@ -85,10 +86,39 @@ class ReloadProcess implements ProcessInterface {
 		}
 	}
 
+	/**
+	 * md5 of dir
+	 *
+	 * @param string $dir
+	 *
+	 * @return bool|string
+	 */
+	private function md5File($dir) {
+		if (!is_dir($dir)) {
+			return '';
+		}
+
+		$md5File = array();
+		$d	   = dir($dir);
+		while (false !== ($entry = $d->read())) {
+			if ($entry !== '.' && $entry !== '..') {
+				if (is_dir($dir . '/' . $entry)) {
+					$md5File[] = $this->md5File($dir . '/' . $entry);
+				} elseif (substr($entry, -4) === '.php') {
+					$md5File[] = md5_file($dir . '/' . $entry);
+				}
+				$md5File[] = $entry;
+			}
+		}
+		$d->close();
+
+		return md5(implode('', $md5File));
+	}
+
 	private function getWatchDirMd5() {
 		$md5 = [];
 		foreach ($this->watchDir as $dir) {
-			$md5[] = FileHelper::md5File($dir);
+			$md5[] = $this->md5File($dir);
 		}
 		return md5(implode('', $md5));
 	}

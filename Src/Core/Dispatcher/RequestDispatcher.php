@@ -5,6 +5,7 @@ namespace W7\Core\Dispatcher;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
+use W7\Core\Exception\ExceptionHandle;
 use W7\Core\Exception\HttpException;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Middleware\MiddlewareHandler;
@@ -37,7 +38,6 @@ class RequestDispatcher extends DispatcherAbstract {
 
 			$middlewareHandler = new MiddlewareHandler($middlewares);
 			$response = $middlewareHandler->handle($psr7Request);
-
 		} catch (\Throwable $throwable) {
 			$errorMessage = sprintf('Uncaught Exception %s: "%s" at %s line %s',
 				get_class($throwable),
@@ -47,22 +47,11 @@ class RequestDispatcher extends DispatcherAbstract {
 			);
 			ilogger()->error($errorMessage, array('exception' => $throwable));
 
-			$setting = iconfig()->getUserAppConfig('setting');
-			if ($throwable instanceof HttpException) {
-				$code = $throwable->getCode() ? $throwable->getCode() : '400';
-				$message = $throwable->getMessage();
-			} elseif (!empty($setting['development'])) {
-				$message = $errorMessage;
-				$code = '400';
-			} else {
-				$message = '服务内部错误';
-				$code = '500';
-			}
-			$response = $contextObj->getResponse()->json(['error' => $message], $code);
+			$response = iloader()->withClass(ExceptionHandle::class)->withParams('type', App::$server->type)->withSingle()->get()->handle($throwable);
+		} finally {
+			return $response;
 		}
-		return $response;
 	}
-
 
 	private function getRoute(ServerRequestInterface $request, $fastRoute) {
 		$httpMethod = $request->getMethod();
