@@ -12,11 +12,18 @@ use Illuminate\Support\Fluent;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use W7\Console\Io\Output;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectorManager;
 
 abstract class CommandAbstract extends Command {
+	/**
+	 * @var InputInterface
+	 */
 	protected $input;
+	/**
+	 * @var Output
+	 */
 	protected $output;
 	static $isRegister;
 
@@ -56,7 +63,7 @@ abstract class CommandAbstract extends Command {
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$this->getApplication()->setDefaultCommand($this->getName());
 		$this->input = $input;
-		$this->output = $output;
+		$this->output = new Output($input, $output);
 
 		$this->handle($this->input->getOptions());
 	}

@@ -25,7 +25,7 @@ class PublishCommand extends CommandAbstract {
 
 		$this->publishTag($options['provider'] ?? '', $options['tag'] ?? '');
 
-		$this->output->info('Publishing complete.');
+		$this->output->success('Publishing complete.');
 	}
 
 	/**

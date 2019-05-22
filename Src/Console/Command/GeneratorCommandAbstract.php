@@ -41,7 +41,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 
 		$this->file->put($path, $this->buildClass($name));
 
-		$this->output->info($this->type.' created successfully.');
+		$this->output->success($this->type.' created successfully.');
 	}
 
 	/**
