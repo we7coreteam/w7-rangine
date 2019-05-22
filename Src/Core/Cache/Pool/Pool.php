@@ -6,6 +6,7 @@
 
 namespace W7\Core\Cache\Pool;
 
+
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
@@ -28,12 +29,10 @@ class Pool extends CoPoolAbstract {
 	public function getConnection() {
 		$connect = parent::getConnection();
 		try {
-			$connect->ping();
-		} catch (\Throwable $e) {
-			$connect = $this->createConnection();
-		} finally {
-			$this->creator = null;
+			$result = $connect->ping();
 			return $connect;
+		} catch (\Throwable $e) {
+			return $this->createConnection();
 		}
 	}
 }

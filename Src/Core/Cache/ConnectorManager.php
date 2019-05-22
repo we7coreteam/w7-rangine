@@ -7,7 +7,7 @@
 
 namespace W7\Core\Cache;
 
-use W7\App;
+
 use W7\Core\Cache\Connection\ConnectionAbstract;
 use W7\Core\Cache\Pool\Pool;
 
@@ -49,39 +49,29 @@ class ConnectorManager {
 		/**
 		 * @var ConnectionAbstract $connection
 		 */
-		$connector = App::getApp()->getContext()->getContextDataByKey($connectionClass);
-		if ($connector) {
-			return $connector->getHandle();
-		}
+		$connection = iloader()->singleton($connectionClass);
 
-		$connector = new $connectionClass();
-		//在非协程情况下，走默认的pool，保持的连接数为1
+		//未在协程中则不启用连接池
 		if (!isCo()) {
-			$poolConfig = [
-				'enable' => true,
-				'max' => 1
-			];
-		}
-		//协程环境下未启动pool,使用完成后断开连接
-		if (empty($poolConfig['enable'])) {
-			$connection = $connector->noRelease()->connect($config);
-		} else {
-			$pool = iloader()->withClass(Pool::class)
-				->withSingle()->withAlias($name)
-				->withParams(['name' => $name])
-				->get();
-			$pool->setConfig($config);
-			$pool->setMaxCount($poolConfig['max']);
-			$pool->setCreator($connector);
-
-			$connection = $pool->getConnection();
-			$connector->setHandle($connection);
+			return $connection->connect($config);
 		}
 
-		//注册到当前上下文中，当上下文销毁的时候触发连接的回收
-		App::getApp()->getContext()->setContextDataByKey($connectionClass, $connector);
+		if (empty($poolConfig) || empty($poolConfig['enable'])) {
+			return $connection->connect($config);
+		}
 
-		return $connection;
+		/**
+		 * @var Pool $pool
+		 */
+		$pool = iloader()->withClass(Pool::class)
+					->withSingle()->withAlias($name)
+					->withParams(['name' => $name])
+					->get();
+		$pool->setConfig($config);
+		$pool->setMaxCount($poolConfig['max']);
+		$pool->setCreator($connection);
+
+		return $pool->getConnection();
 	}
 
 	private function checkDriverSupport($driver) {
