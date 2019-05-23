@@ -44,7 +44,7 @@ class MakeCommand extends CommandAbstract {
 
 	private function makeVendorDir($path) {
 		if (!is_dir($path)) {
-			mkdir($path, 0755);
+			mkdir($path);
 		}
 	}
 }
