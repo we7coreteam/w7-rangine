@@ -10,6 +10,7 @@ class MakeCommand extends CommandAbstract {
 	protected function configure() {
 		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the vendor name');
 		$this->addOption('--force', '-f', null, 'force overwrite the vendor');
+		$this->setDescription('generate vendor and provider');
 	}
 
 	protected function handle($options) {
