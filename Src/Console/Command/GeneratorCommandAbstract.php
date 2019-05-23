@@ -4,15 +4,18 @@
 namespace W7\Console\Command;
 
 use Illuminate\Filesystem\Filesystem;
+use Symfony\Component\Console\Input\InputOption;
 use W7\Core\Exception\CommandException;
 
 abstract class GeneratorCommandAbstract extends CommandAbstract {
 	protected $file;
 	protected $type;
+	protected $dir = 'app';
 
 
 	protected function configure() {
-		$this->addArgument('name', null, 'the generator name');
+		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the generator name');
+		$this->addOption('--dir', '-d', null, 'the generator root path');
 		$this->addOption('--force', '-f', null, 'override the original');
 		$this->file = new Filesystem();
 	}
@@ -25,14 +28,17 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 	abstract protected function getStub();
 
 	protected function handle($options) {
-		if (!$this->input->getArgument('name')) {
-			throw new CommandException('argument name not be empty');
+		if (empty($options['name'])) {
+			throw new CommandException('option name not be empty');
+		}
+		if (!empty($options['dir'])) {
+			$this->dir = $options['dir'];
 		}
 
-		$name = $this->qualifyClass($this->input->getArgument('name'));
+		$name = $this->qualifyClass($options['name']);
 		$path = $this->getPath($name);
 
-		if (empty($options['force']) && $this->alreadyExists($this->input->getArgument('name'))) {
+		if (empty($options['force']) && $this->alreadyExists($options['name'])) {
 			$this->output->error($this->type.' already exists!');
 			return false;
 		}
@@ -96,7 +102,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 			$name = substr_replace($name, '', $position, strlen($this->rootNamespace()));
 		}
 
-		return BASE_PATH . '/app/' . str_replace('\\', '/', $name).'.php';
+		return BASE_PATH . '/' . $this->dir . '/' . str_replace('\\', '/', $name).'.php';
 	}
 
 	/**
