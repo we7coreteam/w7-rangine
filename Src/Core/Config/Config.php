@@ -84,11 +84,8 @@ class Config {
 			define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
 		}
 		$setting = $this->getUserAppConfig('setting');
-		if (!defined('DEBUG')) {
-			define('DEBUG', $setting['development'] ?? false);
-		}
-		if (!defined('CLEAR_LOG')) {
-			define('CLEAR_LOG', DEBUG);
+		if (!defined('ENV')) {
+			define('ENV', $setting['env'] ?? RELEASE);
 		}
 	}
 

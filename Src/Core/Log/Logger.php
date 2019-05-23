@@ -22,7 +22,7 @@ class Logger extends \Monolog\Logger {
 
 	public function addRecord($level, $message, array $context = array()) {
 		//关闭调试模式时，不写入日志
-		if (!DEBUG && empty($this->enable)) {
+		if ((ENV & DEBUG) !== DEBUG && empty($this->enable)) {
 			return true;
 		}
 		return parent::addRecord($level, $message, $context);

@@ -61,13 +61,13 @@ class CrontabProcess extends ProcessAbstract {
 		}
 		//最小细度为一分钟
 		swoole_timer_tick($this->setting['interval'], function () {
-			if (DEBUG) {
+			if ((ENV & DEBUG) === DEBUG) {
 				echo 'Crontab run at ' . date('Y-m-d H:i:s') . PHP_EOL;
 			}
 
 			$task = $this->getRunTask();
 
-			if (DEBUG) {
+			if ((ENV & DEBUG) === DEBUG) {
 				$result = [];
 				foreach ($this->table as $name1 => $row1) {
 					$row1['nextruntime'] = date('Y-m-d H:i:s', $row1['nextrun']);
