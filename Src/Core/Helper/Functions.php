@@ -297,6 +297,16 @@ if (!function_exists('ienv')) {
 			return value($default);
 		}
 
+		//常量解析
+
+		if (strpos($value, '|') !== false || strpos($value, '^') !== false) {
+			$value = 'return ' . $value . ';';
+			$value = eval($value);
+		} else if (defined($value)) {
+			$value = constant($value);
+		}
+
+
 		switch (strtolower($value)) {
 			case 'true':
 			case '(true)':
