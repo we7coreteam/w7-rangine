@@ -16,14 +16,15 @@ class MakeCommand extends CommandAbstract {
 		if (empty($options['name'])) {
 			throw new CommandException('the option name not be empty');
 		}
-		$vendorPath = BASE_PATH. DS. 'vendor' . DS . $options['name'];
+		$vendorPath = BASE_PATH. DS. 'packages' . DS . $options['name'];
+		$this->makeVendorDir(BASE_PATH. DS. 'packages');
 		if (empty($options['force']) && file_exists($vendorPath)) {
 			$this->output->error('the vendor ' . $options['name'] . ' is existed');
 			return false;
 		}
 		$this->makeVendorDir($vendorPath);
 
-		$cmd = 'cd ./vendor/' . $options['name'] . ' && composer init';
+		$cmd = 'cd ./packages/' . $options['name'] . ' && composer init';
 		exec($cmd);
 		if (!file_exists($vendorPath . DS . 'composer.json')) {
 			throw new CommandException('generate vendor fail');
@@ -37,7 +38,7 @@ class MakeCommand extends CommandAbstract {
 		//生成provider
 		$this->call('vendor:makeprovider', [
 			'--name' => 'W7\App\\' . $options['name'] . '\src\ServiceProvider',
-			'--dir' => 'vendor',
+			'--dir' => 'packages',
 			'--force' => $options['force'] ?? false
 		]);
 	}
