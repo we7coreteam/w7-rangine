@@ -30,7 +30,7 @@ class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInt
 	protected function streamWrite($stream, array $record) {
 		$record = array_column($record, 'formatted');
 		$record = ['formatted' => implode("\n", $record) . "\n"];
-		if (!isCo()) {
+		if (isCo()) {
 			go(function() use ($stream, $record) {
 				@parent::streamWrite($stream, $record);
 			});
