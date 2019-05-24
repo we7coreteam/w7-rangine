@@ -32,7 +32,7 @@ class ListCommand extends CommandAbstract {
 		}
 
 		$header = ['name', 'uri', 'handle', 'middleware', 'methods'];
-		$this->output->writeTable($header, $routes);
+		$this->output->table($header, $routes);
 	}
 
 	private function parseRouteItem(&$routes, $item, $method) {

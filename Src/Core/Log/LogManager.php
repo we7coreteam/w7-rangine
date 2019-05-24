@@ -20,8 +20,7 @@ class LogManager {
 		$this->config = $this->getConfig();
 		$this->commonSetting = iconfig()->getUserAppConfig('setting');
 
-		//如果是开发模式，每次启动清理日志文件
-		if (CLEAR_LOG) {
+		if ((ENV & CLEAR_LOG) === CLEAR_LOG) {
 			$this->cleanLogFile();
 		}
 		if (empty($this->config['channel'])) {
@@ -139,6 +138,7 @@ class LogManager {
 	private function getLogger($name) {
 		$logger = new Logger($name, [], []);
 		$logger->enable = $this->config['channel'][$name]['enable'] ?? false;
+		$logger->bufferLimit = $this->config['channel'][$name]['buffer_limit'] ?? 1;
 
 		if (!empty($this->commonProcessor)) {
 			foreach ($this->commonProcessor as $processor) {

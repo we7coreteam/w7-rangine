@@ -17,7 +17,7 @@ class ExceptionHandle {
 	public function __construct($type) {
 		$this->type = $type;
 		$this->env = 'release';
-		if (DEBUG) {
+		if ((ENV & DEBUG) === DEBUG) {
 			$this->env = 'dev';
 		}
 	}

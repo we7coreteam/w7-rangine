@@ -10,13 +10,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use W7\Console\Io\Output;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectorManager;
 
 abstract class CommandAbstract extends Command {
+	/**
+	 * @var InputInterface
+	 */
 	protected $input;
+	/**
+	 * @var Output
+	 */
 	protected $output;
 	static $isRegister;
 
@@ -62,4 +70,12 @@ abstract class CommandAbstract extends Command {
 	}
 
 	abstract protected function handle($options);
+
+	protected function call($command, $arguments = []) {
+		$arguments['command'] = $command;
+		$input = new ArrayInput($arguments);
+		return $this->getApplication()->find($command)->run(
+			$input, ioutputer()
+		);
+	}
 }
