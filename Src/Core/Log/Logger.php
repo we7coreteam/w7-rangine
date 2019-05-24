@@ -6,7 +6,6 @@
 
 namespace W7\Core\Log;
 
-
 class Logger extends \Monolog\Logger {
 	/**
 	 * @param $name
@@ -25,7 +24,12 @@ class Logger extends \Monolog\Logger {
 		if ((ENV & DEBUG) !== DEBUG && empty($this->enable)) {
 			return true;
 		}
-		return parent::addRecord($level, $message, $context);
+		$result =  parent::addRecord($level, $message, $context);
+
+		if ($this->bufferLimit == 1) {
+			$this->flushLog($this->getName());
+		}
+		return $result;
 	}
 
 	public function flushLog($channel = null) {
