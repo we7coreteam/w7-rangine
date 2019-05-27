@@ -7,7 +7,6 @@ use Symfony\Component\Console\Input\InputOption;
 
 abstract class TableCommandAbstract extends DatabaseCommandAbstract {
 	protected $table;
-	protected $operate;
 	protected $force = false;
 
 	protected function configure() {
