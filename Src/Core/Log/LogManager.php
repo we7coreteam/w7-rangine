@@ -49,14 +49,11 @@ class LogManager {
 	}
 
 	public function getLoggers($channel = null) {
-		if ($channel === 'stack') {
-			return array_column($this->channel[$channel], 'logger');
-		}
 		if ($channel) {
 			return [$this->channel[$channel]['logger']];
 		}
 
-		return array_merge(array_column($this->channel, 'logger'));
+		return array_column($this->channel, 'logger');
 	}
 
 	/**

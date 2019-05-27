@@ -26,7 +26,7 @@ class Logger extends \Monolog\Logger {
 		}
 		$result =  parent::addRecord($level, $message, $context);
 
-		if ($this->bufferLimit == 1) {
+		if ((ENV & DEBUG) === DEBUG || $this->bufferLimit == 1) {
 			$this->flushLog($this->getName());
 		}
 		return $result;
