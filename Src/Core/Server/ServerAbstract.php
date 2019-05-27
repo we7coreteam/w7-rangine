@@ -268,7 +268,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	private function releaseDb($data, $container) {
 		$connection = $data->connection;
-		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) $data->bindings));
+		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings )));
 
 		$poolName = $connection->getPoolName();
 		if (empty($poolName)) {
