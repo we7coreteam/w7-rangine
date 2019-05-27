@@ -80,13 +80,15 @@ class Config {
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
 
-		if (!defined('RANGINE_FRAMEWORK_PATH')) {
-			define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
-		}
+		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
+		!defined('DEBUG') && define('DEBUG', 1);
+		!defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
+		!defined('RELEASE') && define('RELEASE', 8);
+		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG);
+
 		$setting = $this->getUserAppConfig('setting');
-		if (!defined('ENV')) {
-			define('ENV', $setting['env'] ?? RELEASE);
-		}
+
+		!defined('ENV') && define('ENV', $setting['env'] ?? RELEASE);
 	}
 
 	/**
