@@ -5,9 +5,11 @@
  */
 
 use Swoole\Coroutine;
+use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Dispatcher\TaskDispatcher;
+use W7\Core\Exception\DumpException;
 
 if (!function_exists('iprocess')) {
 	/**
@@ -284,8 +286,20 @@ if (!function_exists('irandom')) {
 }
 
 if (!function_exists('idd')) {
-	function idd($var) {
-		return var_export($var, true);
+	function idd(...$vars) {
+		if ((ENV & DEBUG) !== DEBUG) {
+			return false;
+		}
+
+		ob_start();
+		$_SERVER['VAR_DUMPER_FORMAT'] = 'html';
+		foreach ($vars as $var) {
+			VarDumper::dump($var);
+		}
+		VarDumper::setHandler(null);
+		$content = ob_get_clean();
+
+		throw new DumpException($content);
 	}
 }
 
