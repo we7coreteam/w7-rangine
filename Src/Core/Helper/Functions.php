@@ -287,10 +287,6 @@ if (!function_exists('irandom')) {
 
 if (!function_exists('idd')) {
 	function idd(...$vars) {
-		if ((ENV & DEBUG) !== DEBUG) {
-			return false;
-		}
-
 		ob_start();
 		$_SERVER['VAR_DUMPER_FORMAT'] = 'html';
 		foreach ($vars as $var) {
