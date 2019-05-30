@@ -44,6 +44,9 @@ abstract class ProviderAbstract {
 	 * @return void
 	 */
 	protected function mergeConfigFrom($path, $key) {
+		if (!file_exists($path)) {
+			return false;
+		}
 		$config = $this->config->getUserConfig($key);
 		$this->config->setUserConfig($key, array_merge(require $path, $config));
 	}
