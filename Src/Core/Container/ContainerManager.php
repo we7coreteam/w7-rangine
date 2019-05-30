@@ -6,19 +6,21 @@ namespace W7\Core\Container;
 
 class ContainerManager {
 	private $current = 'APP';
+	/**
+	 *最少有两个container 配置由container分发，这样的话框架内部需要维持一份内部container的config（tp）
+	 * system [dispatcher route exception log config]
+	 * app [db cache]
+	 * @var
+	 */
 	private $containers;
 	private $shares;
 	
 	
-	public function __construct() {
-		$this->push($this->current);
-	}
-	
-	public function push($name) {
+	public function push($name, Container $container) {
 		if (!empty($this->containers[$name])) {
 			return true;
 		}
-		$this->containers[$name] = new Container();
+		$this->containers[$name] = $container;
 	}
 	
 	private function getContainer() : Container {
@@ -38,8 +40,12 @@ class ContainerManager {
 	}
 	
 	public function get($name) {
-		if (!$this->getContainer()->has($name) && !empty($this->shares[$name])) {
-			$this->getContainer()->set($name, $this->shares[$name]);
+		if (!$this->getContainer()->has($name)) {
+			if (!empty($this->shares[$name])) {
+				$this->getContainer()->set($name, $this->shares[$name]);
+			} else {
+				return $this->containers['APP']->get($name);
+			}
 		}
 		
 		return $this->getContainer()->get($name);

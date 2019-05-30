@@ -24,14 +24,17 @@ class Container {
 		if ($this->has($name)) {
 			return false;
 		}
+		if (is_string($handle)) {
+			$handle = function () use ($handle) {
+				return new $handle();
+			};
+		}
 		$this->container[$name] = $handle;
 	}
 
 	public function get($name) {
 		if (!$this->has($name)) {
-			$this->set($name, function () use ($name) {
-				return new $name();
-			});
+			$this->set($name, $name);
 		}
 
 		return $this->psrContainer->get($name);
