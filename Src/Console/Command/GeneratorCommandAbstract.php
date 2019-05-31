@@ -15,7 +15,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 
 	protected function configure() {
 		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the generator name');
-		$this->addOption('--dir', '-d', null, 'the generator root path');
+		$this->addOption('--dir', '-d', InputOption::VALUE_OPTIONAL, 'the generator root path');
 		$this->addOption('--force', '-f', null, 'override the original');
 		$this->file = new Filesystem();
 	}
