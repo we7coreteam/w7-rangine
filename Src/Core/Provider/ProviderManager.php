@@ -9,7 +9,7 @@ class ProviderManager {
 	 * 扩展包注册
 	 */
 	public function register() {
-		$providers = iconfig()->getUserAppConfig('providers');
+		$providers = iconfig()->getUserConfig('provider');
 		foreach ($providers as $provider) {
 			$this->registerProvider($provider);
 		}
