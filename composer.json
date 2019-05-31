@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "w7/http-message": "dev-master",
+        "w7/http-message": "~1",
         "w7/laravel-cache-model" : "dev-master",
         "illuminate/database": "5.6.*",
         "illuminate/events": "5.6.*",
