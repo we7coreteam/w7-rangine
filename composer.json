@@ -29,7 +29,7 @@
         "filp/whoops": "^2.3"
     },
     "require-dev": {
-        "eaglewu/swoole-ide-helper": "dev-dev",
+        "eaglewu/swoole-ide-helper": "dev-master",
         "symfony/var-dumper": "^4.1"
     },
     "autoload": {
@@ -39,11 +39,5 @@
         "files": [
             "Src/Core/Helper/Functions.php"
         ]
-    },
-    "repositories": [
-        {
-            "type" : "composer",
-            "url" : "https://packagist.rangine.com/"
-        }
-    ]
+    }
 }
