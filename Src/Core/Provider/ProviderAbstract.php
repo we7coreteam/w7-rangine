@@ -30,12 +30,12 @@ abstract class ProviderAbstract {
 	 */
 	public function boot() {}
 
-	protected function registerConfig ($path, $key) {
-		$this->mergeConfigFrom($this->rootPath . '/config/' . $path, $key);
+	protected function registerConfig ($fileName, $key) {
+		$this->mergeConfigFrom($this->rootPath . '/config/' . $fileName, $key);
 	}
 
-	protected function registerRoute($route) {
-		$this->loadRouteFrom($this->rootPath . '/route/' . $route);
+	protected function registerRoute($fileName) {
+		$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
 	}
 
 	protected function registerProvider($provider) {
@@ -47,12 +47,12 @@ abstract class ProviderAbstract {
 		$this->config->setUserConfig('command', array_merge($userCommands, [$name => $class]));
 	}
 
-	protected function publishConfig($source, $target = null, $group = null) {
-		if (!$target) {
-			$target = $source;
+	protected function publishConfig($sourceFileName, $targetFileName = null, $group = null) {
+		if (!$targetFileName) {
+			$targetFileName = $sourceFileName;
 		}
 		$this->publishes([
-			$this->rootPath . '/config/' . $source => BASE_PATH . '/config/' . $target
+			$this->rootPath . '/config/' . $sourceFileName => BASE_PATH . '/config/' . $targetFileName
 		], $group);
 	}
 
