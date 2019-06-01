@@ -3,8 +3,9 @@
 namespace W7\Core\Provider;
 
 use W7\Core\Route\RouteMapping;
+use W7\Core\Service\ServiceAbstract;
 
-abstract class ProviderAbstract {
+abstract class ProviderAbstract extends ServiceAbstract {
 	protected $config;
 	protected $router;
 	protected $defer;
@@ -16,18 +17,6 @@ abstract class ProviderAbstract {
 		$this->config = iconfig();
 		$this->router = irouter();
 	}
-
-	/**
-	 * Register any application services.
-	 * @return void
-	 */
-	abstract public function register();
-
-	/**
-	 * boot any application services
-	 * @return mixed
-	 */
-	abstract public function boot();
 
 	/**
 	 * register vendor provider

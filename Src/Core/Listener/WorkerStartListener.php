@@ -26,6 +26,6 @@ class WorkerStartListener implements ListenerInterface {
 			BASE_PATH . '/vendor',
 			$openBaseDirConfig,
 		];
-		ini_set('open_basedir', implode(':', $openBaseDir));
+//		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
 }

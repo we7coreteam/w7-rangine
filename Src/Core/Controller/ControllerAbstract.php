@@ -79,21 +79,10 @@ abstract class ControllerAbstract {
 		return $result;
 	}
 
-
 	/**
 	 * @return Factory;
 	 */
 	private function getValidater() {
-		iloader()->set(Translator::class, function () {
-			return new Translator(new ArrayLoader(), 'zh-CN');
-		});
-		$translator = iloader()->get(Translator::class);
-
-		iloader()->set(Factory::class, function () use ($translator) {
-			return new Factory($translator);
-		});
-		$validate = iloader()->get(Factory::class);
-
-		return $validate;
+		return iloader()->get(Factory::class);
 	}
 }

@@ -242,6 +242,7 @@ class Cache extends CacheAbstract {
 	public function call(string $method, array $params) {
 		$connection = $this->getConnection();
 		$result = $connection->$method(...$params);
+		$this->manager->release($connection);
 
 		return $result;
 	}

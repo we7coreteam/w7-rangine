@@ -44,6 +44,15 @@ class ConnectorManager {
 		return $pool->getConnection();
 	}
 
+	public function release($connection) {
+		if (empty($connection->poolName)) {
+			return true;
+		}
+		list($poolType, $poolName) = explode(':', $connection->poolName);
+
+		$this->getPool($poolName)->releaseConnection($connection);
+	}
+
 	public function getCreatedPool($name) {
 		return $this->pool[$name];
 	}

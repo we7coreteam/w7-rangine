@@ -6,10 +6,10 @@
 
 namespace W7\Core\Cache\Pool;
 
+
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
-
 	private $creator;
 
 	public function setCreator($creator) {
@@ -31,9 +31,7 @@ class Pool extends CoPoolAbstract {
 			$connect->ping();
 		} catch (\Throwable $e) {
 			$connect = $this->createConnection();
-		} finally {
-			$this->creator = null;
-			return $connect;
 		}
+		return $connect;
 	}
 }

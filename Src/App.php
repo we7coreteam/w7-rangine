@@ -9,15 +9,12 @@ namespace W7;
 use W7\Console\Application;
 use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
-use W7\Core\Config\Env;
 use W7\Core\Container\Container;
 use W7\Core\Container\Context;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogManager;
-use W7\Core\Provider\ProviderManager;
+use W7\Core\Service\ServiceManager;
 use W7\Http\Server\Server;
-use Whoops\Handler\PlainTextHandler;
-use Whoops\Run;
 
 class App {
 	private static $self;
@@ -32,44 +29,32 @@ class App {
 	 */
 	private $container;
 
+	/**
+	 * @var ServiceManager
+	 */
+	private $serviceManager;
 
 	public function __construct() {
 		$this->init();
-		$this->registerErrorHandle();
+		$this->register();
+		$this->boot();
 	}
 
 	private function init() {
-		$this->initContainer();
-		$this->initEnv();
-		$this->initConfig();
+		$this->serviceManager = new ServiceManager();
+		$this->container = $this->serviceManager->getContainer();
 		static::$self = $this;
 	}
 
-	private function initContainer() {
-		$this->container = new Container();
+	private function register() {
+		$this->serviceManager->register();
 	}
 
-	private function initEnv() {
-		(new Env(BASE_PATH))->load();
-	}
-
-	private function initConfig() {
-		$this->container->get(Config::class);
-	}
-
-	private function bootProviders() {
-		$this->container->get(ProviderManager::class)->register()->boot();
-	}
-
-	private function registerErrorHandle() {
-		$processer = new Run();
-		$handle = new PlainTextHandler($this->getLogger());
-		$processer->pushHandler($handle);
-		$processer->register();
+	private function boot() {
+		$this->serviceManager->boot();
 	}
 
 	public function runConsole() {
-		$this->bootProviders();
 		(new Application())->run();
 	}
 

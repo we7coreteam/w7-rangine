@@ -43,4 +43,8 @@ class Container {
 	public function has($name) {
 		return $this->psrContainer->has($name);
 	}
+
+	public function singleton($name) {
+		return $this->get($name);
+	}
 }

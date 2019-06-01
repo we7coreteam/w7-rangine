@@ -10,8 +10,8 @@
         }
     ],
     "require": {
-        "w7/http-message": "dev-master",
-        "w7/laravel-cache-model" : "dev-master",
+        "w7/http-message": "^1.0",
+        "w7/laravel-cache-model" : "^1.0",
         "illuminate/database": "5.6.*",
         "illuminate/events": "5.6.*",
         "illuminate/validation": "~5.6",
@@ -26,11 +26,10 @@
         "packaged/thrift": "^0.11.0",
         "symfony/console": "^4.2",
         "symfony/filesystem": "^4.2",
-        "filp/whoops": "^2.3",
-        "pimple/pimple": "^3.2"
+        "filp/whoops": "^2.3"
     },
     "require-dev": {
-        "eaglewu/swoole-ide-helper": "dev-dev",
+        "eaglewu/swoole-ide-helper": "dev-master",
         "symfony/var-dumper": "^4.1"
     },
     "autoload": {
@@ -40,11 +39,5 @@
         "files": [
             "Src/Core/Helper/Functions.php"
         ]
-    },
-    "repositories": [
-        {
-            "type" : "composer",
-            "url" : "https://packagist.rangine.com/"
-        }
-    ]
+    }
 }

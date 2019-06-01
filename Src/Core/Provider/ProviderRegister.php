@@ -2,7 +2,9 @@
 
 namespace W7\Core\Provider;
 
-class ProviderManager {
+use W7\Core\Service\ServiceAbstract;
+
+class ProviderRegister extends ServiceAbstract {
 	private static $providers = [];
 
 	/**
@@ -13,7 +15,6 @@ class ProviderManager {
 		foreach ($providers as $provider) {
 			$this->registerProvider($provider);
 		}
-		return $this;
 	}
 
 	public function registerProvider($provider) {

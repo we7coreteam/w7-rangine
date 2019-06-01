@@ -67,19 +67,26 @@ class Config {
 	private $config = [];
 
 	public function __construct() {
+		//初始化evn配置数据
+		/**
+		 * @var Env $env
+		 */
+		$env = new Env(BASE_PATH);
+		$env->load();
+		unset($env);
+		
+		//在加载配置前定义需要的常量
+		!defined('RELEASE') && define('RELEASE', 0);
+		!defined('DEBUG') && define('DEBUG', 1);
+		!defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
+		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG);
+		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
+
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
-
-		if (!defined('RANGINE_FRAMEWORK_PATH')) {
-			define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
-		}
 		$setting = $this->getUserAppConfig('setting');
-		if (!defined('DEBUG')) {
-			define('DEBUG', $setting['debug'] ?? false);
-		}
-		if (!defined('CLEAR_LOG')) {
-			define('CLEAR_LOG', $setting['clear_log'] ?? false);
-		}
+
+		!defined('ENV') && define('ENV', $setting['env'] ?? RELEASE);
 	}
 
 	/**

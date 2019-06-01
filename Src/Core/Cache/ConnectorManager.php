@@ -12,13 +12,29 @@ use W7\Core\Cache\Connection\ConnectionAbstract;
 use W7\Core\Cache\Pool\Pool;
 
 class ConnectorManager {
+	private $poolConfig;
 	private $config;
 	private $pool;
 	
 	public function __construct() {
 		$this->pool = [];
 		$this->config['connection'] = \iconfig()->getUserAppConfig('cache') ?? [];
-		$this->config['pool'] = \iconfig()->getUserAppConfig('pool')['cache'] ?? [];
+		$this->poolConfig = \iconfig()->getUserAppConfig('pool')['cache'] ?? [];
+	}
+
+	public function connect($name = 'default') {
+		$config = $this->config['connection'][$name] ?? [];
+
+		if (empty($config)) {
+			throw new \RuntimeException('Cache is not configured.');
+		}
+
+		//未在协程中则不启用连接池
+		if (!isCo() || empty($this->poolConfig['enable'])) {
+			return $this->getConnectorManager($config)->connect($config);
+		}
+
+		return $this->getPool($name)->getConnection();
 	}
 
 	public function release($connection) {
@@ -26,62 +42,25 @@ class ConnectorManager {
 			return true;
 		}
 		list($poolType, $poolName) = explode(':', $connection->poolName);
-		/**
-		 * @var Pool $pool
-		 */
-		iloader()->set(Pool::class, function () use ($poolName) {
-			return new Pool($poolName);
-		}, $poolName);
-		$pool = iloader()->get(Pool::class);
 
-		$pool->releaseConnection($connection);
+		$this->getPool($poolName)->releaseConnection($connection);
 	}
 
-	public function connect($name = 'default') {
-		$config = $this->config['connection'][$name] ?? [];
-		$poolConfig = $this->config['pool'][$name] ?? [];
-
-		if (empty($config)) {
-			throw new \RuntimeException('Cache is not configured.');
+	/**
+	 * @param $name
+	 * @return Pool
+	 */
+	private function getPool($name, $config) {
+		if (!empty($this->pool[$name])) {
+			return $this->pool[$name];
 		}
+		$pool = new Pool($name);
+		$pool->setConfig($config);
+		$pool->setCreator($this->getConnectorManager($config));
+		$pool->setMaxCount($this->poolConfig[$name]['max']);
 
-		$connectionClass = $this->checkDriverSupport($config['driver']);
-		/**
-		 * @var ConnectionAbstract $connection
-		 */
-		$connector = App::getApp()->getContext()->getContextDataByKey($connectionClass);
-		if ($connector) {
-			return $connector->getHandle();
-		}
-
-		$connector = new $connectionClass();
-		//在非协程情况下，走默认的pool，保持的连接数为1
-		if (!isCo()) {
-			$poolConfig = [
-				'enable' => true,
-				'max' => 1
-			];
-		}
-		//协程环境下未启动pool,使用完成后断开连接
-		if (empty($poolConfig['enable'])) {
-			$connection = $connector->noRelease()->connect($config);
-		} else {
-			iloader()->set(Pool::class, function () use ($name) {
-				return new Pool($name);
-			}, $name);
-			$pool = iloader()->get(Pool::class);
-			$pool->setConfig($config);
-			$pool->setMaxCount($poolConfig['max']);
-			$pool->setCreator($connector);
-
-			$connection = $pool->getConnection();
-			$connector->setHandle($connection);
-		}
-
-		//注册到当前上下文中，当上下文销毁的时候触发连接的回收
-		App::getApp()->getContext()->setContextDataByKey($connectionClass, $connector);
-
-		return $connection;
+		$this->pool[$name] = $pool;
+		return $this->pool[$name];
 	}
 
 	private function checkDriverSupport($driver) {
@@ -90,5 +69,14 @@ class ConnectorManager {
 			throw new \RuntimeException('This cache driver is not supported');
 		}
 		return $className;
+	}
+
+	private function getConnectorManager($config) {
+		$connectionClass = $this->checkDriverSupport($config['driver']);
+		/**
+		 * @var ConnectionAbstract $connection
+		 */
+		$connection = iloader()->get($connectionClass);
+		return $connection;
 	}
 }
