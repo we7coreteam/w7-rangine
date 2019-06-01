@@ -30,6 +30,7 @@ class Route {
 	private $currentMiddleware = [];
 	private $groupMiddleware = [];
 	private $groupName = [];
+	private $namespace;
 
 	private $name = '';
 
@@ -59,8 +60,17 @@ class Route {
 			$this->name = '';
 
 			$callback($this);
+			$this->namespace = '';
 		});
 		return true;
+	}
+
+	/**
+	 * 虚拟分组
+	 */
+	public function withNamespace($namespace) {
+		$this->namespace = $namespace;
+		return $this;
 	}
 
 
@@ -138,6 +148,7 @@ class Route {
 
 		$routeHandler = [
 			'handler' => $handler,
+			'namespace' => $this->namespace,
 			'middleware' => [
 				'before' => [],
 				'after' => []
