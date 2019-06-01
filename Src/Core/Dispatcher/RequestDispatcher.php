@@ -77,6 +77,8 @@ class RequestDispatcher extends DispatcherAbstract {
 				break;
 		}
 
+		App::getApp()->getContext()->setContextDataByKey('namespace', $route[1]['namespace']);
+
 		return [
 			"method" => $method,
 			'controller' => $controller,
