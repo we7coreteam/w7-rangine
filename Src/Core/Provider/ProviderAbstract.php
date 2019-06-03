@@ -5,8 +5,18 @@ namespace W7\Core\Provider;
 use W7\Core\Route\RouteMapping;
 
 abstract class ProviderAbstract {
+	/**
+	 * @var \W7\Core\Config\Config
+	 */
 	protected $config;
+	/**
+	 * @var \W7\Core\Route\Route
+	 */
 	protected $router;
+	/**
+	 * @var \W7\Core\Log\Logger
+	 */
+	protected $logger;
 	protected $defer;
 	public static $publishes = [];
 	public static $publishGroups = [];
@@ -15,6 +25,7 @@ abstract class ProviderAbstract {
 	public function __construct() {
 		$this->config = iconfig();
 		$this->router = irouter();
+		$this->logger = ilogger();
 		$this->rootPath = dirname((new \ReflectionClass($this))->getFileName(), 2);
 	}
 
@@ -45,6 +56,17 @@ abstract class ProviderAbstract {
 	protected function registerCommand($name, $class) {
 		$userCommands = $this->config->getUserConfig('command');
 		$this->config->setUserConfig('command', array_merge($userCommands, [$name => $class]));
+	}
+
+	protected function registerProcess($name, $class) {
+		$appCofig = $this->config->getUserConfig('app');
+		$appCofig['process'][$name] = [
+			'enable' => ienv('PROCESS_' . strtoupper($name) . '_ENABLE', false),
+			'class' => $class,
+			'number' => ienv('PROCESS_' . strtoupper($name) . '_NUMBER', 1)
+		];
+
+		$this->config->setUserConfig('app', $appCofig);
 	}
 
 	protected function publishConfig($sourceFileName, $targetFileName = null, $group = null) {
