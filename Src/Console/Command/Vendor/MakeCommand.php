@@ -2,8 +2,8 @@
 
 namespace W7\Console\Command\Vendor;
 
-use Illuminate\Support\Str;
 use W7\Console\Command\GeneratorCommandAbstract;
+use W7\Core\Helper\StringHelper;
 
 class MakeCommand extends GeneratorCommandAbstract {
 	protected $description = 'generate package';
@@ -85,7 +85,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 	 * @return string
 	 */
 	protected function packageNamespace() {
-		return Str::studly($this->packageVendor()).'\\'.$this->packageClass();
+		return StringHelper::studly($this->packageVendor()).'\\'.$this->packageClass();
 	}
 
 	/**
@@ -103,7 +103,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 	 * @return string
 	 */
 	protected function packageClass() {
-		return Str::studly($this->packageName());
+		return StringHelper::studly($this->packageName());
 	}
 
 	/**
