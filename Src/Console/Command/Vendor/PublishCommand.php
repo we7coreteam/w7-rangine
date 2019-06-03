@@ -9,13 +9,13 @@ use W7\Core\Exception\CommandException;
 use W7\Core\Provider\ProviderAbstract;
 
 class PublishCommand extends CommandAbstract {
+	protected $description = 'publish the vendor configuration to the app';
 	private $fileSystem;
 
 	protected function configure() {
 		$this->addOption('--provider', '-p', InputOption::VALUE_REQUIRED, 'the class name of the extension package, including namespace');
 		$this->addOption('--tag', '-t', InputOption::VALUE_REQUIRED, 'tag of extension packages');
 		$this->addOption('--force', '-f', null, 'mandatory coverage configuration');
-		$this->setDescription('Publish the vendor configuration to the app');
 		$this->fileSystem = new Filesystem();
 	}
 

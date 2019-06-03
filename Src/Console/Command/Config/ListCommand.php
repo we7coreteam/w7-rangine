@@ -7,9 +7,10 @@ use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
 
 class ListCommand extends CommandAbstract {
+	protected $description = 'gets user configuration information';
+
 	protected function configure() {
 		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED, 'configuration to search for, for example:  app.database.default');
-		$this->setDescription('gets user configuration information');
 	}
 
 	protected function handle($options) {

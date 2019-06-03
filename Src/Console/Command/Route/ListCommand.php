@@ -9,9 +9,10 @@ use W7\Core\Route\Route;
 use W7\Core\Route\RouteMapping;
 
 class ListCommand extends CommandAbstract {
+	protected $description = 'get routing information';
+
 	protected function configure() {
 		$this->addOption('--search', '-s', InputOption::VALUE_REQUIRED, 'the routing uri to search for');
-		$this->setDescription('get routing information');
 	}
 
 	protected function handle($options) {
