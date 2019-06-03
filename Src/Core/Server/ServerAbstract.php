@@ -243,12 +243,16 @@ abstract class ServerAbstract implements ServerInterface {
 			App::getApp()->getContext()->setContextDataByKey('db-transaction', $connection);
 		});
 		$dbDispatch->listen(TransactionCommitted::class, function ($data) use ($container) {
-			App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
-			return $this->releaseDb($data, $container);
+			if (idb()->transactionLevel() === 0) {
+				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
+				return $this->releaseDb($data, $container);
+			}
 		});
 		$dbDispatch->listen(TransactionRolledBack::class, function ($data) use ($container) {
-			App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
-			return $this->releaseDb($data, $container);
+			if (idb()->transactionLevel() === 0) {
+				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
+				return $this->releaseDb($data, $container);
+			}
 		});
 
 		$container->instance('events', $dbDispatch);
