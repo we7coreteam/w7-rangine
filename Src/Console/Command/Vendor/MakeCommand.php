@@ -67,7 +67,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 	 * @return string
 	 */
 	protected function savePath() {
-		return '/we7-components/' . $this->packageClass();
+		return '/rangine-components/' . $this->packageClass();
 	}
 
 	/**
@@ -76,7 +76,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 	 * @return string
 	 */
 	protected function relativePackagePath() {
-		return 'we7-components/'.$this->packageClass();
+		return 'rangine-components/'.$this->packageClass();
 	}
 
 	/**
