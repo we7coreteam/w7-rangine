@@ -85,19 +85,19 @@ class Application extends SymfontApplication {
 
 	private function registerCommands() {
 		$systemCommands = [];
-		foreach ((new Finder)->in(RANGINE_FRAMEWORK_PATH  . '/Console/Command/')->files() as $command) {
-			$command = str_replace([RANGINE_FRAMEWORK_PATH . '/Console/Command/'], [''], $command->getPathname());
-			$info = pathinfo($command);
-			if ($info['extension'] !== 'php') {
+		foreach ((new Finder)->in(RANGINE_FRAMEWORK_PATH  . '/Console/Command/')->files() as $file) {
+			if ($file->getExtension() !== 'php') {
 				continue;
 			}
 
-			if (strrchr($info['filename'], 'Abstract') === false) {
-				$info['dirname'] = str_replace('/', '\\', $info['dirname']);
-				$parent = str_replace('\\', ':', $info['dirname']);
-				$name = strtolower(rtrim($parent . ':' . $info['filename'], 'Command'));
+			if (strrchr($file->getFilename(), 'Abstract') === false) {
+				$dir = str_replace([RANGINE_FRAMEWORK_PATH . '/Console/Command/', '/'], ['', '\\'], $file->getPath());
 
-				$systemCommands[$name] = "\\W7\\Console\\Command\\" . $info['dirname'] . "\\" . $info['filename'];
+				$parent = str_replace('\\', ':', $dir);
+				$fileName = substr($file->getBasename(), 0, -4);
+				$name = strtolower(rtrim($parent . ':' . $fileName, 'Command'));
+
+				$systemCommands[$name] = "\\W7\\Console\\Command\\" . $dir . "\\" . $fileName;
 			}
 		}
 		$userCommands = iconfig()->getUserConfig('command');
