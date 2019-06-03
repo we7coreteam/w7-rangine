@@ -5,18 +5,23 @@ namespace W7\Console\Command\Vendor;
 use W7\Console\Command\GeneratorCommandAbstract;
 
 class MakeProviderCommand extends GeneratorCommandAbstract {
-	protected $type = 'Provider';
+	protected $description = 'generate provider';
 
-	protected function configure() {
-		parent::configure();
-		$this->setDescription('generate provider');
+	protected function before() {
+		$this->name = ucfirst($this->name);
 	}
 
 	protected function getStub() {
 		return dirname(__DIR__, 1).'/Stubs/provider.stub';
 	}
 
-	protected function getDefaultNamespace($rootNamespace) {
-		return $rootNamespace.'\Provider';
+	protected function replaceStub() {
+		$stubFile = ucfirst($this->input->getArgument('name')) . '.stub';
+		$this->replace('{{ DummyNamespace }}',  'W7\App\Provider', $stubFile );
+		$this->replace('{{ DummyClass }}', $this->name, $stubFile);
+	}
+
+	protected function savePath() {
+		return '/app/Provider';
 	}
 }

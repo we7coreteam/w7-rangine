@@ -2,51 +2,129 @@
 
 namespace W7\Console\Command\Vendor;
 
-use Symfony\Component\Console\Input\InputOption;
-use W7\Console\Command\CommandAbstract;
-use W7\Core\Exception\CommandException;
+use Illuminate\Support\Str;
+use W7\Console\Command\GeneratorCommandAbstract;
 
-class MakeCommand extends CommandAbstract {
-	protected function configure() {
-		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the vendor name');
-		$this->addOption('--force', '-f', null, 'force overwrite the vendor');
-		$this->setDescription('generate vendor and provider');
+class MakeCommand extends GeneratorCommandAbstract {
+	protected $description = 'generate package';
+
+
+	protected function getStub() {
+		return dirname(__DIR__, 1) . '/Stubs/package-stubs';
 	}
 
-	protected function handle($options) {
-		if (empty($options['name'])) {
-			throw new CommandException('the option name not be empty');
-		}
-		$vendorPath = BASE_PATH. DS. 'packages' . DS . $options['name'];
-		$this->makeVendorDir(BASE_PATH. DS. 'packages');
-		if (empty($options['force']) && file_exists($vendorPath)) {
-			$this->output->error('the vendor ' . $options['name'] . ' is existed');
-			return false;
-		}
-		$this->makeVendorDir($vendorPath);
-
-		$cmd = 'cd ./packages/' . $options['name'] . ' && composer init';
-		exec($cmd);
-		if (!file_exists($vendorPath . DS . 'composer.json')) {
-			throw new CommandException('generate vendor fail');
-		}
-
-		//生成包目录
-		$this->makeVendorDir($vendorPath . DS . '/src');
-		$this->makeVendorDir($vendorPath . DS . '/config');
-		$this->output->info('vendor package generate success');
-
-		//生成provider
-		$this->call('vendor:makeprovider', [
-			'--name' => 'W7\App\\' . $options['name'] . '\src\ServiceProvider',
-			'--dir' => 'packages',
-			'--force' => $options['force'] ?? false
-		]);
+	protected function replaceStub() {
+		$this->replace('{{ namespace }}', $this->packageNamespace(), '/src/ServiceProvider.stub');
+		$this->replace('{{ name }}', $this->name, '/composer.json');
+		$this->replace('{{ escapedNamespace }}', $this->escapedPackageNamespace(), '/composer.json');
 	}
 
-	private function makeVendorDir($path) {
-		if (!is_dir($path)) {
-			mkdir($path);
-		}
+	protected function after() {
+		$this->addRepositoryToRootComposer();
+		$this->addPackageToRootComposer();
+
+		$this->composerUpdate();
+	}
+
+	/**
+	 * Add a path repository for the tool to the application's composer.json file.
+	 *
+	 * @return void
+	 */
+	protected function addRepositoryToRootComposer() {
+		$composer = json_decode(file_get_contents(BASE_PATH . '/composer.json'), true);
+
+		$composer['repositories'][] = [
+			'type' => 'path',
+			'url' => './'.$this->relativePackagePath(),
+		];
+
+		file_put_contents(
+			BASE_PATH . '/composer.json',
+			json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+		);
+	}
+
+	/**
+	 * Add a package entry for the tool to the application's composer.json file.
+	 *
+	 * @return void
+	 */
+	protected function addPackageToRootComposer() {
+		$composer = json_decode(file_get_contents(BASE_PATH . '/composer.json'), true);
+
+		$composer['require'][$this->name] = 'dev-master';
+
+		file_put_contents(
+			BASE_PATH . '/composer.json',
+			json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+		);
+	}
+
+	/**
+	 * Get the path to the tool.
+	 *
+	 * @return string
+	 */
+	protected function savePath() {
+		return '/we7-components/' . $this->packageClass();
+	}
+
+	/**
+	 * Get the relative path to the package.
+	 *
+	 * @return string
+	 */
+	protected function relativePackagePath() {
+		return 'we7-components/'.$this->packageClass();
+	}
+
+	/**
+	 * Get the package's namespace.
+	 *
+	 * @return string
+	 */
+	protected function packageNamespace() {
+		return Str::studly($this->packageVendor()).'\\'.$this->packageClass();
+	}
+
+	/**
+	 * Get the package's escaped namespace.
+	 *
+	 * @return string
+	 */
+	protected function escapedPackageNamespace() {
+		return str_replace('\\', '\\\\', $this->packageNamespace());
+	}
+
+	/**
+	 * Get the package's class name.
+	 *
+	 * @return string
+	 */
+	protected function packageClass() {
+		return Str::studly($this->packageName());
+	}
+
+	/**
+	 * Get the package's vendor.
+	 *
+	 * @return string
+	 */
+	protected function packageVendor() {
+		return explode('/', $this->name)[0];
+	}
+
+	/**
+	 * Get the package's base name.
+	 *
+	 * @return string
+	 */
+	protected function packageName() {
+		return explode('/', $this->name)[1];
+	}
+
+	protected function composerUpdate() {
+		exec('composer update');
 	}
 }
