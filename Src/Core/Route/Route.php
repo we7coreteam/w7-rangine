@@ -6,9 +6,8 @@
 
 namespace W7\Core\Route;
 
-
-use W7\Core\Route\RouteCollector;
-use Illuminate\Support\Str;
+use FastRoute\RouteParser\Std;
+use FastRoute\DataGenerator\GroupCountBased;
 
 class Route {
 	const METHOD_POST = 'POST';
@@ -34,7 +33,7 @@ class Route {
 	private $name = '';
 
 	public function __construct() {
-		$this->router = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
+		$this->router = new RouteCollector(new Std(), new GroupCountBased());
 	}
 
 	/**
