@@ -18,6 +18,7 @@ use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectorManager;
 
 abstract class CommandAbstract extends Command {
+	protected $description;
 	/**
 	 * @var InputInterface
 	 */
@@ -30,6 +31,7 @@ abstract class CommandAbstract extends Command {
 
 	public function __construct(string $name = null) {
 		parent::__construct($name);
+		$this->setDescription($this->description);
 		$this->registerDb();
 	}
 
