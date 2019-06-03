@@ -1,6 +1,5 @@
 <?php
 
-
 namespace W7\Console\Command;
 
 use Illuminate\Filesystem\Filesystem;
@@ -13,17 +12,19 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 	 * @var Filesystem
 	 */
 	protected $filesystem;
-	protected $type;
 	protected $name;
 
 
 	protected function configure() {
-		$this->addArgument('name');
+		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the generate file name');
 		$this->filesystem = new Filesystem();
 	}
 
 	protected function handle($options) {
-		$this->name = $this->input->getArgument('name');
+		if (empty($options['name'])) {
+			throw new CommandException('the option name not null');
+		}
+		$this->name = $options['name'];
 
 		$this->before();
 
