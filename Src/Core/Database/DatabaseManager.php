@@ -12,8 +12,6 @@ class DatabaseManager extends \Illuminate\Database\DatabaseManager {
 	public function connection($name = null) {
 		list($database, $type) = $this->parseConnectionName($name);
 		$name = $name ?: $database;
-		$name = App::getApp()->getContext()->getContextDataByKey('namespace') . $name;
-		$database = App::getApp()->getContext()->getContextDataByKey('namespace') . $database;
 
 		//这里不同于父函数，要做一个单例返回
 		//外部还会接连接池，所以此处直接生成对象

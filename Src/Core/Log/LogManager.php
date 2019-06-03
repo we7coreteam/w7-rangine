@@ -41,7 +41,6 @@ class LogManager {
 	}
 
 	public function getChannel($name) {
-		$name = App::getApp()->getContext()->getContextDataByKey('namespace') . $name;
 		if (isset($this->channel[$name]) && $this->channel[$name]['logger'] instanceof MonoLogger) {
 			return $this->channel[$name]['logger'];
 		} else {

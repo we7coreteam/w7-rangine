@@ -39,7 +39,6 @@ class ConnectorManager {
 	}
 
 	public function connect($name = 'default') {
-		$name = App::getApp()->getContext()->getContextDataByKey('namespace') . $name;
 		$config = $this->config['connection'][$name] ?? [];
 		$poolConfig = $this->config['pool'][$name] ?? [];
 
