@@ -53,7 +53,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 			if (!$this->filesystem->exists($this->rootPath())) {
 				$this->filesystem->makeDirectory($this->rootPath());
 			}
-			$this->filesystem->copy($this->getStub(), $this->rootPath() . '/' . $this->name . '.stub');
+			$this->filesystem->copy($this->getStub(), $this->rootPath() . $this->name . '.stub');
 		}
 	}
 
@@ -73,7 +73,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 				}
 			}
 		} else {
-			$stubs[] = $this->rootPath() . '/' . $this->name . '.stub';
+			$stubs[] = $this->rootPath() . $this->name . '.stub';
 		}
 
 		return $stubs;
@@ -96,7 +96,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 	 * @return void
 	 */
 	protected function replace($search, $replace, $path) {
-		$path = $this->rootPath() . '/' . $path;
+		$path = $this->rootPath() . $path;
 		file_put_contents($path, str_replace($search, $replace, file_get_contents($path)));
 	}
 
@@ -110,6 +110,8 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 	 * @return string
 	 */
 	protected function rootPath() {
-		return BASE_PATH . $this->savePath();
+		$savePath = trim($this->savePath(), '/');
+
+		return BASE_PATH . '/' . $savePath . '/';
 	}
 }

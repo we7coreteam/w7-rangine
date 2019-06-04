@@ -9,14 +9,20 @@ class MakeCommand extends GeneratorCommandAbstract {
 	protected $description = 'generate package';
 
 
+	protected function before() {
+		if ($this->filesystem->exists($this->rootPath())) {
+			throw new \Exception('the package ' . $this->name . ' is existed');
+		}
+	}
+
 	protected function getStub() {
 		return dirname(__DIR__, 1) . '/Stubs/package-stubs';
 	}
 
 	protected function replaceStub() {
-		$this->replace('{{ namespace }}', $this->packageNamespace(), '/src/ServiceProvider.stub');
-		$this->replace('{{ name }}', $this->name, '/composer.json');
-		$this->replace('{{ escapedNamespace }}', $this->escapedPackageNamespace(), '/composer.json');
+		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/ServiceProvider.stub');
+		$this->replace('{{ name }}', $this->name, 'composer.json');
+		$this->replace('{{ escapedNamespace }}', $this->escapedPackageNamespace(), 'composer.json');
 	}
 
 	protected function after() {
@@ -36,7 +42,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 
 		$composer['repositories'][] = [
 			'type' => 'path',
-			'url' => './'.$this->relativePackagePath(),
+			'url' => './'.$this->savePath(),
 		];
 
 		file_put_contents(
@@ -67,16 +73,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 	 * @return string
 	 */
 	protected function savePath() {
-		return '/components/' . $this->packageClass();
-	}
-
-	/**
-	 * Get the relative path to the package.
-	 *
-	 * @return string
-	 */
-	protected function relativePackagePath() {
-		return '/components/'.$this->packageClass();
+		return 'components/' . $this->packageClass();
 	}
 
 	/**

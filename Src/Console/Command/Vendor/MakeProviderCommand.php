@@ -9,6 +9,9 @@ class MakeProviderCommand extends GeneratorCommandAbstract {
 
 	protected function before() {
 		$this->name = ucfirst($this->name);
+		if ($this->filesystem->exists($this->rootPath() . $this->name . '.php')) {
+			throw new \Exception('the provider ' . $this->name . ' is existed');
+		}
 	}
 
 	protected function getStub() {
@@ -22,6 +25,6 @@ class MakeProviderCommand extends GeneratorCommandAbstract {
 	}
 
 	protected function savePath() {
-		return '/app/Provider';
+		return 'app/Provider';
 	}
 }
