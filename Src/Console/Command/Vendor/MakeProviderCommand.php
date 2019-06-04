@@ -16,7 +16,7 @@ class MakeProviderCommand extends GeneratorCommandAbstract {
 	}
 
 	protected function replaceStub() {
-		$stubFile = ucfirst($this->input->getArgument('name')) . '.stub';
+		$stubFile = $this->name . '.stub';
 		$this->replace('{{ DummyNamespace }}',  'W7\App\Provider', $stubFile );
 		$this->replace('{{ DummyClass }}', $this->name, $stubFile);
 	}
