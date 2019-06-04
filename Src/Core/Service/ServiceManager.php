@@ -3,6 +3,7 @@
 
 namespace W7\Core\Service;
 
+use W7\Console\ConsoleRegister;
 use W7\Core\Cache\CacheRegister;
 use W7\Core\Container\Container;
 use W7\Core\Controller\ValidateRegister;
@@ -12,6 +13,7 @@ use W7\Core\Provider\ProviderRegister;
 
 class ServiceManager {
 	private $serviceMap = [
+		ConsoleRegister::class,
 		ExceptionRegister::class,
 		CacheRegister::class,
 		DatabaseRegister::class,
