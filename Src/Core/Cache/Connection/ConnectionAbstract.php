@@ -6,5 +6,7 @@
 
 namespace W7\Core\Cache\Connection;
 
+
+
 abstract class ConnectionAbstract implements ConnectionInterface {
 }

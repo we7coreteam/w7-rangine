@@ -19,7 +19,8 @@ class ReloadProcess implements ProcessInterface {
 	 */
 	private $watchDir = [
 		APP_PATH,
-		BASE_PATH. DIRECTORY_SEPARATOR. 'config'
+		BASE_PATH. DIRECTORY_SEPARATOR. 'config',
+		BASE_PATH . '/rangine-components'
 	];
 
 	/**
@@ -48,7 +49,7 @@ class ReloadProcess implements ProcessInterface {
 
 		$reloadConfig = \iconfig()->getUserAppConfig('reload');
 		$this->interval = !empty($reloadConfig['interval']) ? $reloadConfig['interval'] : $this->interval;
-		$this->enabled = (bool)$reloadConfig['enabled'];
+		$this->enabled = ((ENV & DEBUG) === DEBUG);
 		$this->debug = (bool)$reloadConfig['debug'];
 	}
 

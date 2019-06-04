@@ -7,7 +7,7 @@ abstract class ServiceAbstract {
 
 	public function __construct($name = null) {
 		if (!$name) {
-			$name = get_class($name);
+			$name = get_called_class();
 		}
 		$this->name = $name;
 	}

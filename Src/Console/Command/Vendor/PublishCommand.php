@@ -9,6 +9,7 @@ use W7\Core\Exception\CommandException;
 use W7\Core\Provider\ProviderAbstract;
 
 class PublishCommand extends CommandAbstract {
+	protected $description = 'publish the vendor configuration to the app';
 	private $fileSystem;
 
 	protected function configure() {

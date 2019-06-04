@@ -45,7 +45,7 @@ class RouteMapping {
 		return irouter()->getData();
 	}
 
-	private function initRouteByConfig($config, $prefix = '', $middleware = [], $method = '', $name = '') {
+	private function initRouteByConfig($config, $prefix = '', $middleware = [], $method = '', $name = '', $routeNamespace = '') {
 		if (!is_array($config)) {
 			return [];
 		}
@@ -78,8 +78,13 @@ class RouteMapping {
 				$name .= $routeItem . '.';
 			}
 
+			if ($section == 'namespace') {
+				$routeNamespace = $routeItem;
+				continue;
+			}
+
 			if (is_array($routeItem) && !empty($routeItem) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
-				$this->initRouteByConfig($routeItem, $uri ?? '', $middleware, $method, $name);
+				$this->initRouteByConfig($routeItem, $uri ?? '', $middleware, $method, $name, $routeNamespace);
 			} else {
 				if (!is_array($routeItem) || $section == 'middleware' || $section == 'method') {
 					continue;
@@ -125,7 +130,11 @@ class RouteMapping {
 					$routeItem['middleware'] = [];
 				}
 				$routeItem['middleware'] = array_merge([], $middleware, (array) $routeItem['middleware']);
-				irouter()->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler'], $routeItem['name']);
+				irouter()->group([
+					'namespace' => $routeNamespace
+				], function () use ($routeItem) {
+					irouter()->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler'], $routeItem['name']);
+				});
 			}
 		}
 	}

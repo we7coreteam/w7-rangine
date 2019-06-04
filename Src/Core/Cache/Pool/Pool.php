@@ -6,10 +6,10 @@
 
 namespace W7\Core\Cache\Pool;
 
-
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
+
 	private $creator;
 
 	public function setCreator($creator) {

@@ -16,13 +16,13 @@ use W7\Core\Exception\HttpException;
 use W7\Http\Message\Server\Request;
 
 abstract class ControllerAbstract {
-    public function before(Request $request) {
-        return true;
-    }
+	public function before(Request $request) {
+		return true;
+	}
 
-    public function after ($data) {
-        return $data;
-    }
+	public function after ($data) {
+		return $data;
+	}
 
 	/**
 	 * 获取一个response对象

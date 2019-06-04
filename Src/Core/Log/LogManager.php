@@ -6,23 +6,22 @@
 
 namespace W7\Core\Log;
 
+use Monolog\Handler\BufferHandler;
 use Monolog\Logger as MonoLogger;
-use Monolog\Processor\IntrospectionProcessor;
+use W7\App;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 class LogManager {
 	private $channel = [];
 	private $config;
 	private $commonProcessor;
-	private $commonHandler;
 	private $commonSetting;
 
 	public function __construct() {
 		$this->config = $this->getConfig();
 		$this->commonSetting = iconfig()->getUserAppConfig('setting');
 
-		//如果是开发模式，每次启动清理日志文件
-		if (CLEAR_LOG) {
+		if ((ENV & CLEAR_LOG) === CLEAR_LOG) {
 			$this->cleanLogFile();
 		}
 		if (empty($this->config['channel'])) {
@@ -50,6 +49,14 @@ class LogManager {
 		}
 	}
 
+	public function getLoggers($channel = null) {
+		if ($channel) {
+			return [$this->channel[$channel]['logger']];
+		}
+
+		return array_column($this->channel, 'logger');
+	}
+
 	/**
 	 * 初始化通道，
 	 * @param $channelConfig
@@ -67,7 +74,8 @@ class LogManager {
 				$stack[$name] = $channel;
 			} else {
 				$handlerClass = sprintf("\\W7\\Core\\Log\\Driver\\%sHandler", ucfirst($channel['driver']));
-				$handler = $handlerClass::getHandler($channel);
+				$bufferLimit = $channel['buffer_limit'] ?? 1;
+				$handler = new BufferHandler($handlerClass::getHandler($channel), $bufferLimit, $channel['level'], true, true);
 
 				if (!is_null($handler)) {
 					$logger = $this->getLogger($name);
@@ -94,6 +102,7 @@ class LogManager {
 						$logger->pushHandler($this->channel[$setting['channel']]['handler']);
 					}
 				}
+
 				$this->channel[$name]['logger'] = $logger;
 			}
 		}
@@ -126,6 +135,8 @@ class LogManager {
 
 	private function getLogger($name) {
 		$logger = new Logger($name, [], []);
+		$logger->enable = $this->config['channel'][$name]['enable'] ?? false;
+		$logger->bufferLimit = $this->config['channel'][$name]['buffer_limit'] ?? 1;
 
 		if (!empty($this->commonProcessor)) {
 			foreach ($this->commonProcessor as $processor) {

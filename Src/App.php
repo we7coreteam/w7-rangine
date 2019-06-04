@@ -17,6 +17,9 @@ use W7\Core\Service\ServiceManager;
 use W7\Http\Server\Server;
 
 class App {
+	/**
+	 * @var App
+	 */
 	private static $self;
 	/**
 	 * 服务器对象

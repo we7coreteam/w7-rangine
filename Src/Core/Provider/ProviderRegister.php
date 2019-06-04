@@ -11,9 +11,12 @@ class ProviderRegister extends ServiceAbstract {
 	 * 扩展包注册
 	 */
 	public function register() {
-		$providers = iconfig()->getUserAppConfig('providers');
-		foreach ($providers as $provider) {
-			$this->registerProvider($provider);
+		$providerMap = $this->findProviders();
+		foreach ($providerMap as $name => $providers) {
+			$providers = (array) $providers;
+			foreach ($providers as $provider) {
+				$this->registerProvider($provider);
+			}
 		}
 	}
 
@@ -36,5 +39,21 @@ class ProviderRegister extends ServiceAbstract {
 
 	private function getProvider($provider) : ProviderAbstract {
 		return new $provider();
+	}
+
+	private function findProviders() {
+		ob_start();
+		require_once BASE_PATH . '/vendor/composer/installed.json';
+		$content = ob_get_clean();
+		$content = json_decode($content, true);
+
+		$providers = [];
+		foreach ($content as $item) {
+			if (!empty($item['extra']['rangine']['providers'])) {
+				$providers[str_replace('/', '.', $item['name'])] = $item['extra']['rangine']['providers'];
+			}
+		}
+
+		return $providers;
 	}
 }

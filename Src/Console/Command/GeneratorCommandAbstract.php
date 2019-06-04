@@ -1,21 +1,43 @@
 <?php
 
-
 namespace W7\Console\Command;
 
 use Illuminate\Filesystem\Filesystem;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Finder\Finder;
 use W7\Core\Exception\CommandException;
 
 abstract class GeneratorCommandAbstract extends CommandAbstract {
-	protected $file;
-	protected $type;
+	/**
+	 * @var Filesystem
+	 */
+	protected $filesystem;
+	protected $name;
 
 
 	protected function configure() {
-		$this->addArgument('name', null, 'the generator name');
-		$this->addOption('--force', '-f', null, 'override the original');
-		$this->file = new Filesystem();
+		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the generate file name');
+		$this->filesystem = new Filesystem();
 	}
+
+	protected function handle($options) {
+		if (empty($options['name'])) {
+			throw new CommandException('the option name not null');
+		}
+		$this->name = $options['name'];
+
+		$this->before();
+
+		$this->copyStub();
+		$this->replaceStub();
+		$this->renameStubs();
+
+		$this->after();
+
+		$this->output->info($this->name.' created successfully.');
+	}
+
+	protected function before() {}
 
 	/**
 	 * Get the stub file for the generator.
@@ -24,154 +46,72 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 	 */
 	abstract protected function getStub();
 
-	protected function handle($options) {
-		if (!$this->input->getArgument('name')) {
-			throw new CommandException('argument name not be empty');
+	protected function copyStub() {
+		if ($this->filesystem->isDirectory($this->getStub())) {
+			$this->filesystem->copyDirectory($this->getStub(), $this->rootPath());
+		} else {
+			if (!$this->filesystem->exists($this->rootPath())) {
+				$this->filesystem->makeDirectory($this->rootPath());
+			}
+			$this->filesystem->copy($this->getStub(), $this->rootPath() . $this->name . '.stub');
+		}
+	}
+
+	abstract protected function replaceStub();
+
+	/**
+	 * Get the array of stubs that need PHP file extensions.
+	 *
+	 * @return array
+	 */
+	protected function stubsToRename() {
+		$stubs = [];
+		if ($this->filesystem->isDirectory($this->getStub())) {
+			foreach ((new Finder)->in($this->rootPath())->files() as $file) {
+				if ($file->getExtension() == 'stub') {
+					$stubs[] = $file->getPathname();
+				}
+			}
+		} else {
+			$stubs[] = $this->rootPath() . $this->name . '.stub';
 		}
 
-		$name = $this->qualifyClass($this->input->getArgument('name'));
-		$path = $this->getPath($name);
+		return $stubs;
+	}
 
-		if (empty($options['force']) && $this->alreadyExists($this->input->getArgument('name'))) {
-			$this->output->error($this->type.' already exists!');
-			return false;
+	protected function renameStubs() {
+		foreach ($this->stubsToRename() as $stub) {
+			$this->filesystem->move($stub, str_replace('.stub', '.php', $stub));
 		}
-
-		$this->makeDirectory($path);
-
-		$this->file->put($path, $this->buildClass($name));
-
-		$this->output->info($this->type.' created successfully.');
 	}
 
-	/**
-	 * Parse the class name and format according to the root namespace.
-	 *
-	 * @param  string  $name
-	 * @return string
-	 */
-	protected function qualifyClass($name) {
-		$name = ltrim($name, '\\/');
-		$rootNamespace = $this->rootNamespace();
-		if (substr($name, 0, strlen($rootNamespace)) === $rootNamespace) {
-			return $name;
-		}
-
-		$name = str_replace('/', '\\', $name);
-
-		return $this->qualifyClass(
-			$this->getDefaultNamespace(trim($rootNamespace, '\\')).'\\'.$name
-		);
-	}
+	protected function after(){}
 
 	/**
-	 * Get the default namespace for the class.
+	 * Replace the given string in the given file.
 	 *
-	 * @param  string  $rootNamespace
-	 * @return string
-	 */
-	protected function getDefaultNamespace($rootNamespace) {
-		return $rootNamespace;
-	}
-
-	/**
-	 * Determine if the class already exists.
-	 *
-	 * @param  string  $rawName
-	 * @return bool
-	 */
-	protected function alreadyExists($rawName) {
-		return $this->file->exists($this->getPath($this->qualifyClass($rawName)));
-	}
-
-	/**
-	 * Get the destination class path.
-	 *
-	 * @param  string  $name
-	 * @return string
-	 */
-	protected function getPath($name) {
-		$position = strpos($name, $this->rootNamespace());
-		if ($position !== false) {
-			$name = substr_replace($name, '', $position, strlen($this->rootNamespace()));
-		}
-
-		return BASE_PATH . '/app/' . str_replace('\\', '/', $name).'.php';
-	}
-
-	/**
-	 * Build the directory for the class if necessary.
-	 *
+	 * @param  string  $search
+	 * @param  string  $replace
 	 * @param  string  $path
-	 * @return string
+	 * @return void
 	 */
-	protected function makeDirectory($path) {
-		if (! $this->file->isDirectory(dirname($path))) {
-			$this->file->makeDirectory(dirname($path), 0777, true, true);
-		}
+	protected function replace($search, $replace, $path) {
+		$path = $this->rootPath() . $path;
+		file_put_contents($path, str_replace($search, $replace, file_get_contents($path)));
+	}
 
-		return $path;
+	protected function savePath() {
+		return '';
 	}
 
 	/**
-	 * Build the class with the given name.
-	 *
-	 * @param  string  $name
-	 * @return string
-	 * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-	 */
-	protected function buildClass($name) {
-		$stub = $this->file->get($this->getStub());
-
-		return $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
-	}
-
-	/**
-	 * Replace the namespace for the given stub.
-	 *
-	 * @param  string  $stub
-	 * @param  string  $name
-	 * @return $this
-	 */
-	protected function replaceNamespace(&$stub, $name) {
-		$stub = str_replace(
-			['DummyNamespace', 'DummyRootNamespace'],
-			[$this->getNamespace($name), $this->rootNamespace()],
-			$stub
-		);
-
-		return $this;
-	}
-
-	/**
-	 * Get the full namespace for a given class, without the class name.
-	 *
-	 * @param  string  $name
-	 * @return string
-	 */
-	protected function getNamespace($name) {
-		return trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
-	}
-
-	/**
-	 * Replace the class name for the given stub.
-	 *
-	 * @param  string  $stub
-	 * @param  string  $name
-	 * @return string
-	 */
-	protected function replaceClass($stub, $name) {
-		$class = str_replace($this->getNamespace($name).'\\', '', $name);
-
-		return str_replace('DummyClass', $class, $stub);
-	}
-
-	/**
-	 * Get the root namespace for the class.
+	 * Get the path to the tool.
 	 *
 	 * @return string
 	 */
-	protected function rootNamespace() {
-		return 'W7\App';
+	protected function rootPath() {
+		$savePath = trim($this->savePath(), '/');
+
+		return BASE_PATH . '/' . $savePath . '/';
 	}
 }

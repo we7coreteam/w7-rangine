@@ -3,15 +3,6 @@
 namespace W7\Core\Log\Driver;
 
 use Monolog\Handler\AbstractProcessingHandler;
-use W7\Core\Database\ModelAbstract;
-
-class Log extends ModelAbstract {
-	public $timestamps = false;
-	protected $table = 'log';
-	protected $primaryKey = 'id';
-	protected $connection = 'default';
-	protected $fillable = [];
-}
 
 class MysqlHandler extends AbstractProcessingHandler {
 	protected $table;
@@ -24,15 +15,19 @@ class MysqlHandler extends AbstractProcessingHandler {
 		return $handle;
 	}
 
-	protected function write(array $record) {
-		$dbLog = new Log();
-		$dbLog->setTable($this->table);
-		$dbLog->setConnection($this->connection);
-		$dbLog->channel = (string)$record['channel'];
-		$dbLog->level = (string)strtolower($record['level_name']);
-		$dbLog->message = (string)"{$record['message']}";
-		$dbLog->time = $record['datetime']->format('U');
+	public function handleBatch(array $records) {
+		foreach ($records as &$record) {
+			$record = [
+				'channel' => $record['channel'],
+				'level' => $record['level'],
+				'message' => $record['message'],
+				'created_at' => $record['datetime']->format('U')
+			];
+		}
+		idb()->connection($this->connection)->table($this->table)->insert($records);
+	}
 
-		$dbLog->save();
+	protected function write(array $record) {
+
 	}
 }

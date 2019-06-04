@@ -13,6 +13,7 @@ use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
+use W7\Core\Listener\WorkerStopListener;
 use W7\Core\Process\CrontabProcess;
 use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
@@ -47,6 +48,7 @@ class Config {
 			Event::ON_START => StartListener::class,
 			Event::ON_MANAGER_START => ManagerStartListener::class,
 			Event::ON_WORKER_START => WorkerStartListener::class,
+			Event::ON_WORKER_STOP => WorkerStopListener::class,
 			Event::ON_WORKER_ERROR => WorkerErrorListener::class,
 			Event::ON_PIPE_MESSAGE => PipeMessageListener::class,
 		],

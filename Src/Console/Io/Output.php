@@ -35,8 +35,8 @@ class Output extends ConsoleOutput {
 	 * @return void
 	 */
 	public function line($string, $style = null, $options = null) {
-		$styled = $style ? "<$style>$string</$style>" : $string;
-		$this->writeln($styled, $options);
+		$string = sprintf('<%s>%s</>', $style, $string);
+		$this->writeln($string, $options);
 	}
 
 	/**
@@ -83,18 +83,7 @@ class Output extends ConsoleOutput {
 		$this->line($string, 'error', $options);
 	}
 
-	/**
-	 * Write a string as warning output.
-	 *
-	 * @param  string  $string
-	 * @param  int|string|null  $options
-	 * @return void
-	 */
-	public function warn($string, $options = null) {
-		$this->line($string, 'warning', $options);
-	}
-
-	public function writeTable($header, $rows) {
+	public function table($header, $rows) {
 		$table = new Table($this);
 		$table->setHeaders($header);
 		$table->setRows($rows);

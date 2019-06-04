@@ -5,32 +5,89 @@ namespace W7\Core\Provider;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Service\ServiceAbstract;
 
-abstract class ProviderAbstract extends ServiceAbstract {
+abstract class ProviderAbstract extends ServiceAbstract{
+	/**
+	 * @var \W7\Core\Config\Config
+	 */
 	protected $config;
+	/**
+	 * @var \W7\Core\Route\Route
+	 */
 	protected $router;
+	/**
+	 * @var \W7\Core\Log\Logger
+	 */
+	protected $logger;
 	protected $defer;
 	public static $publishes = [];
 	public static $publishGroups = [];
-
+	protected $rootPath;
 
 	public function __construct() {
 		$this->config = iconfig();
 		$this->router = irouter();
+		$this->logger = ilogger();
+		$this->rootPath = dirname((new \ReflectionClass($this))->getFileName(), 2);
 	}
 
 	/**
-	 * register vendor provider
-	 * @param $provider
+	 * Register any application services.
+	 * @return void
 	 */
-	protected function registerProvider($provider) {
-		iloader()->get(ProviderManager::class)->registerProvider($provider);
+	public function register() {}
+
+	/**
+	 * boot any application services
+	 * @return mixed
+	 */
+	public function boot() {}
+
+	protected function registerConfig ($fileName, $key) {
+		$this->mergeConfigFrom($this->rootPath . '/config/' . $fileName, $key);
 	}
+
+	protected function registerRoute($fileName) {
+		$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
+	}
+
+	protected function registerProvider($provider) {
+		iloader()->get(ProviderRegister::class)->registerProvider($provider);
+	}
+
+	protected function registerCommand($name, $class) {
+		$userCommands = $this->config->getUserConfig('command');
+		$this->config->setUserConfig('command', array_merge($userCommands, [$name => $class]));
+	}
+
+	protected function registerProcess($name, $class) {
+		$appCofig = $this->config->getUserConfig('app');
+		$appCofig['process'][$name] = [
+			'enable' => ienv('PROCESS_' . strtoupper($name) . '_ENABLE', false),
+			'class' => $class,
+			'number' => ienv('PROCESS_' . strtoupper($name) . '_NUMBER', 1)
+		];
+
+		$this->config->setUserConfig('app', $appCofig);
+	}
+
+	protected function publishConfig($sourceFileName, $targetFileName = null, $group = null) {
+		if (!$targetFileName) {
+			$targetFileName = $sourceFileName;
+		}
+		$this->publishes([
+			$this->rootPath . '/config/' . $sourceFileName => BASE_PATH . '/config/' . $targetFileName
+		], $group);
+	}
+
+	protected function setRootPath($path) {
+		$this->rootPath = $path;
+	}
+
 	/**
 	 * Merge the given configuration with the existing configuration.
-	 *
-	 * @param  string  $path
-	 * @param  string  $key
-	 * @return void
+	 * @param $path
+	 * @param $key
+	 * @return bool
 	 */
 	protected function mergeConfigFrom($path, $key) {
 		$config = $this->config->getUserConfig($key);
@@ -41,46 +98,22 @@ abstract class ProviderAbstract extends ServiceAbstract {
 	 * Load the given routes file
 	 * @param $path
 	 */
-	protected function loadRoutesFrom($path) {
-		$routeConfig = include $path;
-		if (is_array($routeConfig)) {
-			$routeMapping = iloader()->get(RouteMapping::class);
-			$config = $routeMapping->getRouteConfig();
-			$config[] = $routeConfig;
-			$routeMapping->setRouteConfig($config);
+	protected function loadRouteFrom($path) {
+		$config = include $path;
+		if (is_array($config)) {
+			$routeMapping = iloader()->singleton(RouteMapping::class);
+			$routeConfig = $routeMapping->getRouteConfig();
+			$routeConfig[] = $config;
+			$routeMapping->setRouteConfig($routeConfig);
 		}
 	}
 
 	/**
-	 * Register a view file namespace.
-	 *
-	 * @param  string|array  $path
-	 * @param  string  $namespace
-	 * @return void
-	 */
-	protected function loadViewsFrom($path, $namespace) {
-		throw new \Exception('还未实现');
-	}
-
-	/**
-	 * Register the package's custom Artisan commands.
-	 *
-	 * @param  array|mixed  $commands
-	 * @return void
-	 */
-	protected function addCommands(array $commands) {
-		$userCommands = $this->config->getUserConfig('command');
-		$this->config->setUserConfig('command', array_merge($userCommands, $commands));
-	}
-
-	/**
 	 * Register paths to be published by the publish command.
-	 *
-	 * @param  array  $paths
-	 * @param  mixed  $groups
-	 * @return void
+	 * @param $paths
+	 * @param null $groups
 	 */
-	protected function publishes(array $paths, $groups = null) {
+	protected function publishes($paths, $groups = null) {
 		$this->ensurePublishArrayInitialized($class = static::class);
 
 		static::$publishes[$class] = array_merge(static::$publishes[$class], $paths);

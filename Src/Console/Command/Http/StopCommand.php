@@ -3,9 +3,7 @@
 namespace W7\Console\Command\Http;
 
 class StopCommand extends HttpCommandAbstract {
-	protected function configure() {
-		$this->setDescription('stop http service');
-	}
+	protected $description = 'stop the http service';
 
 	protected function handle($options) {
 		$this->stop();

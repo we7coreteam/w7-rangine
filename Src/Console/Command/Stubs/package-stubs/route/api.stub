@@ -1,0 +1,4 @@
+<?php
+//irouter()->get('/endpoint', function () {
+//	return 'success';
+//});

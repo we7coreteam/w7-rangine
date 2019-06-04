@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use W7\Core\Helper\StringHelper;
 
 class MiddlewareHandler implements RequestHandlerInterface
 {
@@ -51,6 +52,9 @@ class MiddlewareHandler implements RequestHandlerInterface
 	public function handle(ServerRequestInterface $request): ResponseInterface {
 		$handlerMiddleware = $this->middlewares[$this->offset];
 		$handler = $handlerMiddleware[0];
+		if (!class_exists($handler)) {
+			$handler = "W7\\App\\Middleware\\" . StringHelper::studly($handler);
+		}
 		if (!class_exists($handler)) {
 			throw new \InvalidArgumentException($handler . ' Handler not found.');
 		}

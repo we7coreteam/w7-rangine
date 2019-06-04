@@ -6,9 +6,8 @@
 
 namespace W7\Core\Route;
 
-
-use W7\Core\Route\RouteCollector;
-use Illuminate\Support\Str;
+use FastRoute\RouteParser\Std;
+use FastRoute\DataGenerator\GroupCountBased;
 
 class Route {
 	const METHOD_POST = 'POST';
@@ -30,11 +29,12 @@ class Route {
 	private $currentMiddleware = [];
 	private $groupMiddleware = [];
 	private $groupName = [];
+	private $namespace;
 
 	private $name = '';
 
 	public function __construct() {
-		$this->router = new RouteCollector(new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased());
+		$this->router = new RouteCollector(new Std(), new GroupCountBased());
 	}
 
 	/**
@@ -43,7 +43,14 @@ class Route {
 	 * @param callable $callback
 	 * @return bool
 	 */
-	public function group($prefix, callable $callback) {
+	public function group($option, callable $callback) {
+		if (is_array($option)) {
+			$prefix = $option['prefix'] ?? '';
+			$this->namespace = $option['namespace'] ?? '';
+		} else {
+			$prefix = $option;
+		}
+
 		$parentPrefix = $this->router->getCurrentGroupPrefix();
 		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix, $parentPrefix) {
 			$prefix = $this->router->getCurrentGroupPrefix();
@@ -59,10 +66,10 @@ class Route {
 			$this->name = '';
 
 			$callback($this);
+			$this->namespace = '';
 		});
 		return true;
 	}
-
 
 	/**
 	 * 注册一个允许所有协议的路由
@@ -153,6 +160,11 @@ class Route {
 		}
 		$routeHandler['name'] = $name;
 
+		//处理namespace
+		if (!($routeHandler['handler'] instanceof \Closure)) {
+			$routeHandler['handler'][0] = $this->prependGroupNamespace($routeHandler['handler'][0]);
+		}
+
 		//先获取上级的middleware
 		//添加完本次路由后，要清空掉当前Middleware值，以便下次使用
 		$groupMiddleware = $this->groupMiddleware[$this->router->getCurrentGroupPrefix()] ?? [];
@@ -191,6 +203,11 @@ class Route {
 
 	public function apiResource($name, $controller, $options = []) {
 		return new ResourceRoute(new ResourceRegister($this), $name, $controller, $options);
+	}
+
+	protected function prependGroupNamespace($class) {
+		return $this->namespace && strpos($class, '\\') !== 0
+			? $this->namespace.'\\'.$class : $class;
 	}
 
 	public function middleware($name) {

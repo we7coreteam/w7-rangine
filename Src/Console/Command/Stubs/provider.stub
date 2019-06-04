@@ -1,10 +1,10 @@
 <?php
 
-namespace DummyNamespace;
+namespace {{ DummyNamespace }};
 
 use W7\Core\Provider\ProviderAbstract;
 
-class DummyClass extends ProviderAbstract {
+class {{ DummyClass }} extends ProviderAbstract {
 	/**
 	 * Register services.
 	 *

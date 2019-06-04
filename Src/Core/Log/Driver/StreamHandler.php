@@ -20,7 +20,16 @@ class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInt
 		return $handler;
 	}
 
+	public function handleBatch(array $records) {
+		foreach ($records as &$record) {
+			$record['formatted'] = $this->getFormatter()->format($record);
+		}
+		$this->write($records);
+	}
+
 	protected function streamWrite($stream, array $record) {
+		$record = array_column($record, 'formatted');
+		$record = ['formatted' => implode("\n", $record) . "\n"];
 		if (isCo()) {
 			go(function() use ($stream, $record) {
 				@parent::streamWrite($stream, $record);
@@ -28,6 +37,5 @@ class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInt
 		} else {
 			@parent::streamWrite($stream, $record);
 		}
-
 	}
 }
