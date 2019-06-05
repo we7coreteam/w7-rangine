@@ -14,20 +14,17 @@ class ListCommand extends CommandAbstract {
 	}
 
 	protected function handle($options) {
-		$key = $options['search'] ?? '';
-		if ($key) {
-			$options = explode('.', $key);
-			$config = iconfig()->getUserConfig($options[0]);
-			array_shift($options);
-
-			$config = $this->getData($options, $config);
-
-			$this->output->writeList($this->formatData($config, $key));
-
-			return true;
+		if (empty($options['search'])) {
+			throw new CommandException('the option search not be empty');
 		}
 
-		throw new CommandException('the option --search not be empty');
+		$options = explode('.', $options['search']);
+		$config = iconfig()->getUserConfig($options[0]);
+		array_shift($options);
+
+		$config = $this->getData($options, $config);
+
+		$this->output->writeList($this->formatData($config, $options['search']));
 	}
 
 	private function getData($options, $config) {
