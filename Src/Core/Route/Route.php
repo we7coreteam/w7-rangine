@@ -48,7 +48,7 @@ class Route {
 		return [
 			'prefix' => $option['prefix'] ?? '',
 			'namespace' => empty($option['namespace']) ? 'W7\App' : $option['namespace'],
-			'module' => $option['module'] ?? ''
+			'module' => $option['module'] ?? 'system'
 		];
 	}
 

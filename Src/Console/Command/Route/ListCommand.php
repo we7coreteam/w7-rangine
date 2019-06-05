@@ -34,7 +34,6 @@ class ListCommand extends CommandAbstract {
 
 		ksort($routes);
 		foreach ($routes as $module => $route) {
-			$module = empty($module) ? 'system' : $module;
 			$this->output->info('the ' . $module . ' routes');
 			$header = ['name', 'uri', 'handle', 'middleware', 'methods'];
 			$this->output->table($header, $route);
