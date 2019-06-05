@@ -53,9 +53,6 @@ class MiddlewareHandler implements RequestHandlerInterface
 		$handlerMiddleware = $this->middlewares[$this->offset];
 		$handler = $handlerMiddleware[0];
 		if (!class_exists($handler)) {
-			$handler = "W7\\App\\Middleware\\" . StringHelper::studly($handler);
-		}
-		if (!class_exists($handler)) {
 			throw new \InvalidArgumentException($handler . ' Handler not found.');
 		}
 
