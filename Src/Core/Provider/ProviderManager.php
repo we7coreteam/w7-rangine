@@ -13,15 +13,15 @@ class ProviderManager {
 		foreach ($providerMap as $name => $providers) {
 			$providers = (array) $providers;
 			foreach ($providers as $provider) {
-				$this->registerProvider($provider);
+				$this->registerProvider($provider, $name);
 			}
 		}
 		return $this;
 	}
 
-	public function registerProvider($provider) {
+	public function registerProvider($provider, $name = null) {
 		if (is_string($provider)) {
-			$provider = $this->getProvider($provider);
+			$provider = $this->getProvider($provider, $name);
 		}
 		static::$providers[get_class($provider)] = $provider;
 		$provider->register();
@@ -36,8 +36,8 @@ class ProviderManager {
 		}
 	}
 
-	private function getProvider($provider) : ProviderAbstract {
-		return new $provider();
+	private function getProvider($provider, $name) : ProviderAbstract {
+		return new $provider($name);
 	}
 
 	private function findProviders() {

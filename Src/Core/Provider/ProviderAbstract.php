@@ -5,6 +5,8 @@ namespace W7\Core\Provider;
 use W7\Core\Route\RouteMapping;
 
 abstract class ProviderAbstract {
+	private $name;
+	private $namespace;
 	/**
 	 * @var \W7\Core\Config\Config
 	 */
@@ -22,11 +24,19 @@ abstract class ProviderAbstract {
 	public static $publishGroups = [];
 	protected $rootPath;
 
-	public function __construct() {
+	public function __construct($name = null) {
+		if (!$name) {
+			$name = get_called_class();
+		}
+		$this->name = $name;
+		$reflect = new \ReflectionClass($this);
+		$this->namespace = $reflect->getNamespaceName();
+		$this->rootPath = dirname($reflect->getFileName(), 2);
+
 		$this->config = iconfig();
 		$this->router = irouter();
 		$this->logger = ilogger();
-		$this->rootPath = dirname((new \ReflectionClass($this))->getFileName(), 2);
+
 	}
 
 	/**
@@ -46,7 +56,12 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerRoute($fileName) {
-		$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
+		$this->router->group([
+			'namespace' => $this->namespace,
+			'module' => $this->name
+		], function () use ($fileName) {
+			$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
+		});
 	}
 
 	protected function registerProvider($provider) {

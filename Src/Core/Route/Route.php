@@ -29,12 +29,27 @@ class Route {
 	private $currentMiddleware = [];
 	private $groupMiddleware = [];
 	private $groupName = [];
-	private $namespace;
+	private $groupNamespace;
+	private $groupModule;
 
 	private $name = '';
 
 	public function __construct() {
 		$this->router = new RouteCollector(new Std(), new GroupCountBased());
+	}
+
+	private function parseGroupOption($option) {
+		if (!is_array($option)) {
+			$prefix = $option;
+			$option = [
+				'prefix' => $prefix
+			];
+		}
+		return [
+			'prefix' => $option['prefix'] ?? '',
+			'namespace' => empty($option['namespace']) ? 'W7\App' : $option['namespace'],
+			'module' => $option['module'] ?? ''
+		];
 	}
 
 	/**
@@ -44,16 +59,15 @@ class Route {
 	 * @return bool
 	 */
 	public function group($option, callable $callback) {
-		if (is_array($option)) {
-			$prefix = $option['prefix'] ?? '';
-			$this->namespace = $option['namespace'] ?? '';
-		} else {
-			$prefix = $option;
-		}
+		$option = $this->parseGroupOption($option);
 
 		$parentPrefix = $this->router->getCurrentGroupPrefix();
-		$this->router->addGroup($prefix, function (RouteCollector $route) use ($callback, $prefix, $parentPrefix) {
+		$this->router->addGroup($option['prefix'], function (RouteCollector $route) use ($callback, $option, $parentPrefix) {
 			$prefix = $this->router->getCurrentGroupPrefix();
+
+			$groupNamespace = $this->groupNamespace[$parentPrefix] ?? $option['namespace'];
+			$this->groupNamespace[$prefix] = $groupNamespace;
+
 			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], $this->checkMiddleware($this->currentMiddleware));
 			$this->groupMiddleware[$prefix] = $groupMiddleware;
 			$this->currentMiddleware = [];
@@ -65,8 +79,15 @@ class Route {
 			$this->groupName[$prefix] = $groupName;
 			$this->name = '';
 
+			$groupModule = $this->groupModule[$parentPrefix] ?? $option['module'];
+			$this->groupModule[$prefix] = $groupModule;
+
 			$callback($this);
-			$this->namespace = '';
+
+			unset($this->groupMiddleware[$prefix]);
+			unset($this->groupName[$prefix]);
+			unset($this->groupNamespace[$prefix]);
+			unset($this->groupModule[$prefix]);
 		});
 		return true;
 	}
@@ -143,8 +164,13 @@ class Route {
 		}
 		unset($value);
 
+		$namespace = $this->groupNamespace[$this->router->getCurrentGroupPrefix()];
+		$module = $this->groupModule[$this->router->getCurrentGroupPrefix()];
 		$routeHandler = [
 			'handler' => $handler,
+			'module' => $module,
+			'controller_namespace' => $namespace . '\Controller\\',
+			'middleware_namespace' => $namespace . '\Middleware\\',
 			'middleware' => [
 				'before' => [],
 				'after' => []
@@ -162,7 +188,7 @@ class Route {
 
 		//处理namespace
 		if (!($routeHandler['handler'] instanceof \Closure)) {
-			$routeHandler['handler'][0] = $this->prependGroupNamespace($routeHandler['handler'][0]);
+			$routeHandler['handler'][0] = $this->prependGroupNamespace($routeHandler['controller_namespace'], $routeHandler['handler'][0]);
 		}
 
 		//先获取上级的middleware
@@ -205,9 +231,9 @@ class Route {
 		return new ResourceRoute(new ResourceRegister($this), $name, $controller, $options);
 	}
 
-	protected function prependGroupNamespace($class) {
-		return $this->namespace && strpos($class, '\\') !== 0
-			? $this->namespace.'\\'.$class : $class;
+	protected function prependGroupNamespace($namespace, $class) {
+		return strpos($class, $namespace) === false
+			? $namespace . $class : $class;
 	}
 
 	public function middleware($name) {
@@ -269,6 +295,8 @@ class Route {
 				$class = [$class];
 			}
 
+			$namespace = $this->groupNamespace[$this->router->getCurrentGroupPrefix()] . '\Middleware\\';
+			$class[0] = $this->prependGroupNamespace($namespace, $class[0]);
 			$middleware[$index] = $class;
 		}
 		return $middleware;

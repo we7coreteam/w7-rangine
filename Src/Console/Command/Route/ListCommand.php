@@ -32,8 +32,14 @@ class ListCommand extends CommandAbstract {
 			}
 		}
 
-		$header = ['name', 'uri', 'handle', 'middleware', 'methods'];
-		$this->output->table($header, $routes);
+		ksort($routes);
+		foreach ($routes as $module => $route) {
+			$module = empty($module) ? 'system' : $module;
+			$this->output->info('the ' . $module . ' routes');
+			$header = ['name', 'uri', 'handle', 'middleware', 'methods'];
+			$this->output->table($header, $route);
+			$this->output->writeln('');
+		}
 	}
 
 	private function parseRouteItem(&$routes, $item, $method) {
@@ -42,15 +48,16 @@ class ListCommand extends CommandAbstract {
 			$routeKey = $item['uri'] . ':Closure';
 		} else {
 			$routeKey = implode('-', $item['handler']);
-			$item['handler'] = str_replace("W7\App\Controller\\", '', $item['handler'][0]) . '@' . $item['handler'][1];
+			$item['handler'] = str_replace( $item['controller_namespace'], '', $item['handler'][0]) . '@' . $item['handler'][1];
 		}
 
-		if (empty($routes[$routeKey])) {
+		if (empty($routes[$item['module']][$routeKey])) {
 			$middleware = '';
-			array_walk_recursive($item['middleware'],  function ($data) use (&$middleware) {
-				$middleware .= str_replace("W7\\App\\Middleware\\", ' ', $data) . "\n";
+			array_walk_recursive($item['middleware'],  function ($data) use (&$middleware, $item) {
+				$data = ltrim($data, '\\');
+				$middleware .= str_replace($item['middleware_namespace'], ' ', $data) . "\n";
 			});
-			$routes[$routeKey] = [
+			$routes[$item['module']][$routeKey] = [
 				'name' => $item['name'] ?? '',
 				'uri' => $item['uri'],
 				'handle' => $item['handler'],
@@ -58,11 +65,11 @@ class ListCommand extends CommandAbstract {
 			];
 		}
 
-		if (empty($routes[$routeKey]['methods'])) {
-			$routes[$routeKey]['methods'] = '';
+		if (empty($routes[$item['module']][$routeKey]['methods'])) {
+			$routes[$item['module']][$routeKey]['methods'] = '';
 		}
-		if (strpos($routes[$routeKey]['methods'], $method) === false) {
-			$routes[$routeKey]['methods'] .= $method . ' ';
+		if (strpos($routes[$item['module']][$routeKey]['methods'], $method) === false) {
+			$routes[$item['module']][$routeKey]['methods'] .= $method . ' ';
 		}
 	}
 
@@ -83,15 +90,18 @@ class ListCommand extends CommandAbstract {
 			}
 		}
 
-		uasort($routes, function ($item1, $item2) {
-			if($item1['uri']<$item2['uri']){
-				return -1;
-			}else if($item1['uri']>$item2['uri']){
-				return 1;
-			}else{
-				return 0;
-			}
-		});
+		foreach ($routes as &$route) {
+			uasort($route, function ($item1, $item2) {
+				if($item1['uri']<$item2['uri']){
+					return -1;
+				}else if($item1['uri']>$item2['uri']){
+					return 1;
+				}else{
+					return 0;
+				}
+			});
+		}
+
 		return $routes;
 	}
 }
