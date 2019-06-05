@@ -232,7 +232,7 @@ class Route {
 	}
 
 	protected function prependGroupNamespace($namespace, $class) {
-		return strpos($class, $namespace) === false
+		return (strpos($class, $namespace) === false && strpos($class, '\\') !== 0)
 			? $namespace . $class : $class;
 	}
 

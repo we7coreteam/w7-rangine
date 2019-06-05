@@ -47,12 +47,40 @@ class ProviderManager {
 		$content = json_decode($content, true);
 
 		$providers = [];
+		$reloadPath = [];
 		foreach ($content as $item) {
 			if (!empty($item['extra']['rangine']['providers'])) {
 				$providers[str_replace('/', '.', $item['name'])] = $item['extra']['rangine']['providers'];
+				$reloadPath[] = $this->getProviderPath($item);
 			}
 		}
+		$this->setReloadPath($reloadPath);
 
 		return $providers;
+	}
+
+	private function getProviderPath($conf) {
+		if ((ENV & DEBUG) !== DEBUG) {
+			return '';
+		}
+
+		if ($conf['dist']['type'] == 'path') {
+			$path = BASE_PATH . '/' . $conf['dist']['type'];
+		} else {
+			$path = BASE_PATH . '/vendor/' . $conf['url'];
+		}
+
+		$path .= '/src';
+		return $path;
+	}
+
+	private function setReloadPath($reloadPath) {
+		if ((ENV & DEBUG) !== DEBUG) {
+			return false;
+		}
+
+		$config = iconfig()->getUserConfig('app');
+		$config['reload']['path'] = $reloadPath;
+		iconfig()->setUserConfig('app', $config);
 	}
 }
