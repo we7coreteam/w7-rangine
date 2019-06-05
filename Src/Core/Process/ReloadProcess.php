@@ -20,7 +20,7 @@ class ReloadProcess implements ProcessInterface {
 	private $watchDir = [
 		APP_PATH,
 		BASE_PATH. DIRECTORY_SEPARATOR. 'config',
-		BASE_PATH . '/rangine-components'
+		BASE_PATH . '/components'
 	];
 
 	/**
