@@ -43,6 +43,8 @@ class App {
 		/**
 		 * @var Console $console
 		 */
+		//初始化配置
+		iconfig();
 		iloader()->singleton(ProviderManager::class)->register()->boot();
 		$console = iloader()->singleton(Application::class);
 
