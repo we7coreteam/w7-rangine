@@ -65,7 +65,7 @@ class ProviderManager {
 		}
 
 		if ($conf['dist']['type'] == 'path') {
-			$path = BASE_PATH . '/' . $conf['dist']['type'];
+			$path = BASE_PATH . '/' . $conf['dist']['url'];
 		} else {
 			$path = BASE_PATH . '/vendor/' . $conf['url'];
 		}
