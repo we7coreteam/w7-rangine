@@ -68,8 +68,7 @@ class Application extends SymfontApplication {
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
 			ilogger()->channel('command')->info("\nmessage：" . $e->getMessage() . "\nfile：" . $e->getFile() . "\nline：" . $e->getLine());
-			$input = new ArrayInput(['--help' => true,'command' => $this->getCommandName($input)]);
-			$this->run($input);
+			$this->renderException($e, $output);
 		}
 	}
 
