@@ -1,4 +1,2 @@
 <?php
-//irouter()->get('/endpoint', function () {
-//	return 'success';
-//});
+irouter()->get('/{{ namespace }}/home', 'HomeController@index');

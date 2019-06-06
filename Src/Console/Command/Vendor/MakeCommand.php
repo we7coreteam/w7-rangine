@@ -20,7 +20,12 @@ class MakeCommand extends GeneratorCommandAbstract {
 	}
 
 	protected function replaceStub() {
+		$this->replace('{{ namespace }}', strtolower($this->packageName()), 'route/api.stub');
 		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/ServiceProvider.stub');
+		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/Controller/HomeController.stub');
+		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/Middleware/HomeMiddleware.stub');
+		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/Model/Entity/Api/App.stub');
+		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/Model/Logic/AppLogic.stub');
 		$this->replace('{{ name }}', $this->name, 'composer.json');
 		$this->replace('{{ escapedNamespace }}', $this->escapedPackageNamespace(), 'composer.json');
 	}
