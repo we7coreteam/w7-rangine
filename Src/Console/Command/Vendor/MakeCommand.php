@@ -56,7 +56,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 
 		file_put_contents(
 			BASE_PATH . '/composer.json',
-			json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+			json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
 		);
 	}
 
@@ -72,7 +72,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 
 		file_put_contents(
 			BASE_PATH . '/composer.json',
-			json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+			json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
 		);
 	}
 
