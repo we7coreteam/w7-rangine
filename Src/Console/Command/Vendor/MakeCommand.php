@@ -20,7 +20,12 @@ class MakeCommand extends GeneratorCommandAbstract {
 	}
 
 	protected function replaceStub() {
+		$this->replace('{{ namespace }}', strtolower($this->packageName()), 'route/api.stub');
 		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/ServiceProvider.stub');
+		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/Controller/HomeController.stub');
+		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/Middleware/HomeMiddleware.stub');
+		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/Model/Entity/Api/App.stub');
+		$this->replace('{{ namespace }}', $this->packageNamespace(), 'src/Model/Logic/AppLogic.stub');
 		$this->replace('{{ name }}', $this->name, 'composer.json');
 		$this->replace('{{ escapedNamespace }}', $this->escapedPackageNamespace(), 'composer.json');
 	}
@@ -30,6 +35,10 @@ class MakeCommand extends GeneratorCommandAbstract {
 		$this->addPackageToRootComposer();
 
 		$this->composerUpdate();
+
+		$config = iconfig()->getServer();
+		$config = $config['http'];
+		$this->output->info('启动server后,可访问 http://' . $config['host'] . ':' . $config['port'] . '/' . strtolower($this->packageName()) . '/home 验证扩展包是否创建成功.' );
 	}
 
 	/**
@@ -47,7 +56,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 
 		file_put_contents(
 			BASE_PATH . '/composer.json',
-			json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+			str_replace('    ', '	', json_encode($composer, JSON_PRETTY_PRINT | (JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES)))
 		);
 	}
 
@@ -63,7 +72,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 
 		file_put_contents(
 			BASE_PATH . '/composer.json',
-			json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+			str_replace('    ', '	', json_encode($composer, JSON_PRETTY_PRINT | (JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_SLASHES)))
 		);
 	}
 
