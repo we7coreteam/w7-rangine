@@ -8,7 +8,6 @@ namespace W7\Core\Process;
 
 use Swoole\Process;
 use W7\App;
-use W7\Core\Helper\FileHelper;
 
 class ReloadProcess implements ProcessInterface {
 
@@ -19,8 +18,7 @@ class ReloadProcess implements ProcessInterface {
 	 */
 	private $watchDir = [
 		APP_PATH,
-		BASE_PATH. DIRECTORY_SEPARATOR. 'config',
-		BASE_PATH . '/rangine-components'
+		BASE_PATH. DIRECTORY_SEPARATOR. 'config'
 	];
 
 	/**
@@ -45,12 +43,13 @@ class ReloadProcess implements ProcessInterface {
 	 * 初始化方法
 	 */
 	public function __construct() {
-		$this->md5File = $this->getWatchDirMd5();
-
 		$reloadConfig = \iconfig()->getUserAppConfig('reload');
 		$this->interval = !empty($reloadConfig['interval']) ? $reloadConfig['interval'] : $this->interval;
 		$this->enabled = ((ENV & DEBUG) === DEBUG);
 		$this->debug = (bool)$reloadConfig['debug'];
+		$this->watchDir = array_merge($this->watchDir, $reloadConfig['path'] ?? []);
+
+		$this->md5File = $this->getWatchDirMd5();
 	}
 
 	public function check() {

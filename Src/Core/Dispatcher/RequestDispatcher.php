@@ -77,6 +77,8 @@ class RequestDispatcher extends DispatcherAbstract {
 		}
 
 		return [
+			'name' => $route[1]['name'],
+			'module' => $route[1]['module'],
 			"method" => $method,
 			'controller' => $controller,
 			'args' => $route[2],

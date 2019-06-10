@@ -4,7 +4,6 @@ namespace W7\Console;
 
 use Symfony\Component\Console\Application as SymfontApplication;
 use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +18,6 @@ class Application extends SymfontApplication {
 
 		$this->setAutoExit(false);
 		$this->registerCommands();
-		$this->configCommandLog();
 	}
 
 	/**
@@ -62,9 +60,7 @@ class Application extends SymfontApplication {
 		try{
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
-			ilogger()->channel('command')->info("\nmessage：" . $e->getMessage() . "\nfile：" . $e->getFile() . "\nline：" . $e->getLine());
-			$input = new ArrayInput(['--help' => true,'command' => $this->getCommandName($input)]);
-			$this->run($input);
+			$this->renderException($e, $output);
 		}
 	}
 
@@ -91,19 +87,6 @@ class Application extends SymfontApplication {
 		foreach ($commands as $name => $class) {
 			$commandObj = new $class($name);
 			$this->add($commandObj);
-		}
-	}
-
-	private function configCommandLog() {
-		$logConfig = iconfig()->getUserConfig('log');
-		if (empty($logConfig['channel']['command'])) {
-			$logConfig['channel']['command'] = [
-				'enable' => true,
-				'driver' => 'stream',
-				'path' => RUNTIME_PATH . DS. 'logs'. DS. 'command.log',
-				'level' => 'info'
-			];
-			iconfig()->setUserConfig('log', $logConfig);
 		}
 	}
 

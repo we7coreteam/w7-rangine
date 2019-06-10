@@ -18,9 +18,6 @@ class ControllerMiddleware extends MiddlewareAbstract {
 			if ($route['controller'] instanceof \Closure) {
 				$controllerHandler = $route['controller'];
 			} else {
-				if (!class_exists($route['controller'])) {
-					$route['controller'] = "W7\\App\\Controller\\" . StringHelper::studly($route['controller']);
-				}
 				$method = StringHelper::studly($route['method']);
 				$classObj = iloader()->get($route['controller']);
 				$controllerHandler = [$classObj, $method];

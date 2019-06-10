@@ -21,6 +21,7 @@ class App {
 	 * @var App
 	 */
 	private static $self;
+
 	/**
 	 * 服务器对象
 	 *
@@ -54,6 +55,7 @@ class App {
 	}
 
 	private function boot() {
+		$this->getConfigger();
 		$this->serviceManager->boot();
 	}
 

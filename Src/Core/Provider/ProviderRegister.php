@@ -15,14 +15,14 @@ class ProviderRegister extends ServiceAbstract {
 		foreach ($providerMap as $name => $providers) {
 			$providers = (array) $providers;
 			foreach ($providers as $provider) {
-				$this->registerProvider($provider);
+				$this->registerProvider($provider, $name);
 			}
 		}
 	}
 
-	public function registerProvider($provider) {
+	public function registerProvider($provider, $name = null) {
 		if (is_string($provider)) {
-			$provider = $this->getProvider($provider);
+			$provider = $this->getProvider($provider, $name);
 		}
 		static::$providers[get_class($provider)] = $provider;
 		$provider->register();
@@ -37,8 +37,8 @@ class ProviderRegister extends ServiceAbstract {
 		}
 	}
 
-	private function getProvider($provider) : ProviderAbstract {
-		return new $provider();
+	private function getProvider($provider, $name) : ProviderAbstract {
+		return new $provider($name);
 	}
 
 	private function findProviders() {
@@ -48,12 +48,40 @@ class ProviderRegister extends ServiceAbstract {
 		$content = json_decode($content, true);
 
 		$providers = [];
+		$reloadPath = [];
 		foreach ($content as $item) {
 			if (!empty($item['extra']['rangine']['providers'])) {
 				$providers[str_replace('/', '.', $item['name'])] = $item['extra']['rangine']['providers'];
+				$reloadPath[] = $this->getProviderPath($item);
 			}
 		}
+		$this->setReloadPath($reloadPath);
 
 		return $providers;
+	}
+
+	private function getProviderPath($conf) {
+		if ((ENV & DEBUG) !== DEBUG) {
+			return '';
+		}
+
+		if ($conf['dist']['type'] == 'path') {
+			$path = BASE_PATH . '/' . $conf['dist']['url'];
+		} else {
+			$path = BASE_PATH . '/vendor/' . $conf['url'];
+		}
+
+		$path .= '/src';
+		return $path;
+	}
+
+	private function setReloadPath($reloadPath) {
+		if ((ENV & DEBUG) !== DEBUG) {
+			return false;
+		}
+
+		$config = iconfig()->getUserConfig('app');
+		$config['reload']['path'] = $reloadPath;
+		iconfig()->setUserConfig('app', $config);
 	}
 }
