@@ -82,7 +82,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 	 * @return string
 	 */
 	protected function savePath() {
-		return 'components/' . $this->packageClass();
+		return 'components/' . $this->packageName();
 	}
 
 	/**
@@ -91,7 +91,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 	 * @return string
 	 */
 	protected function packageNamespace() {
-		return StringHelper::studly($this->packageVendor()).'\\'.$this->packageClass();
+		return StringHelper::studly($this->packageVendor()).'\\'.StringHelper::studly($this->packageName());
 	}
 
 	/**
@@ -101,15 +101,6 @@ class MakeCommand extends GeneratorCommandAbstract {
 	 */
 	protected function escapedPackageNamespace() {
 		return str_replace('\\', '\\\\', $this->packageNamespace());
-	}
-
-	/**
-	 * Get the package's class name.
-	 *
-	 * @return string
-	 */
-	protected function packageClass() {
-		return StringHelper::studly($this->packageName());
 	}
 
 	/**
