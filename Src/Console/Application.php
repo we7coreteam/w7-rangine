@@ -22,7 +22,6 @@ class Application extends SymfontApplication {
 
 		$this->setAutoExit(false);
 		$this->registerCommands();
-		$this->configCommandLog();
 		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
 		$this->registerErrorHandler();
 	}
@@ -67,7 +66,6 @@ class Application extends SymfontApplication {
 		try{
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
-			ilogger()->channel('command')->info("\nmessage：" . $e->getMessage() . "\nfile：" . $e->getFile() . "\nline：" . $e->getLine());
 			$this->renderException($e, $output);
 		}
 	}
@@ -105,19 +103,6 @@ class Application extends SymfontApplication {
 		foreach ($commands as $name => $class) {
 			$commandObj = new $class($name);
 			$this->add($commandObj);
-		}
-	}
-
-	private function configCommandLog() {
-		$logConfig = iconfig()->getUserConfig('log');
-		if (empty($logConfig['channel']['command'])) {
-			$logConfig['channel']['command'] = [
-				'enable' => true,
-				'driver' => 'stream',
-				'path' => RUNTIME_PATH . DS. 'logs'. DS. 'command.log',
-				'level' => 'info'
-			];
-			iconfig()->setUserConfig('log', $logConfig);
 		}
 	}
 
