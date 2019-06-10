@@ -8,6 +8,6 @@ use {{ namespace }}\Model\Logic\AppLogic;
 
 class HomeController extends ControllerAbstract {
 	public function index(Request $request) {
-		return AppLogic::getByAppid(1);
+		return AppLogic::getByAppid('success');
 	}
 }

@@ -1,2 +1,2 @@
 <?php
-irouter()->get('/{{ namespace }}/home', 'HomeController@index');
+irouter()->middleware('HomeMiddleware')->get('/{{ namespace }}/home', 'HomeController@index');
