@@ -31,6 +31,8 @@ class Route {
 	private $groupName = [];
 	private $groupNamespace;
 	private $groupModule;
+	private $defaultNamespace = 'W7\App';
+	private $defaultModule = 'system';
 
 	private $name = '';
 
@@ -47,8 +49,8 @@ class Route {
 		}
 		return [
 			'prefix' => $option['prefix'] ?? '',
-			'namespace' => empty($option['namespace']) ? 'W7\App' : $option['namespace'],
-			'module' => $option['module'] ?? 'system'
+			'namespace' => empty($option['namespace']) ? $this->defaultNamespace : $option['namespace'],
+			'module' => $option['module'] ?? $this->defaultModule
 		];
 	}
 
@@ -164,8 +166,8 @@ class Route {
 		}
 		unset($value);
 
-		$namespace = $this->groupNamespace[$this->router->getCurrentGroupPrefix()];
-		$module = $this->groupModule[$this->router->getCurrentGroupPrefix()];
+		$namespace = $this->groupNamespace[$this->router->getCurrentGroupPrefix()] ?? $this->defaultNamespace;
+		$module = $this->groupModule[$this->router->getCurrentGroupPrefix()] ?? $this->defaultModule;
 		$routeHandler = [
 			'handler' => $handler,
 			'module' => $module,
