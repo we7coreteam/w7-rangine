@@ -297,7 +297,7 @@ class Route {
 				$class = [$class];
 			}
 
-			$namespace = $this->groupNamespace[$this->router->getCurrentGroupPrefix()] . '\Middleware\\';
+			$namespace = ($this->groupNamespace[$this->router->getCurrentGroupPrefix()] ?? $this->defaultNamespace) . '\Middleware\\';
 			$class[0] = $this->prependGroupNamespace($namespace, $class[0]);
 			$middleware[$index] = $class;
 		}
