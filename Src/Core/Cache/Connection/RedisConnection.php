@@ -13,7 +13,7 @@ class RedisConnection extends ConnectionAbstract {
 	 * @return mixed|\Redis
 	 * @throws \Exception
 	 */
-	public function connect($config) {
+	public function connect(array $config) {
 		$redis  = new \Redis();
 		$result = $redis->connect($config['host'], $config['port'], $config['timeout']);
 		if ($result === false) {
