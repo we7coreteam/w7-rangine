@@ -166,13 +166,11 @@ class Route {
 		}
 		unset($value);
 
-		$namespace = $this->groupNamespace[$this->router->getCurrentGroupPrefix()] ?? $this->defaultNamespace;
-		$module = $this->groupModule[$this->router->getCurrentGroupPrefix()] ?? $this->defaultModule;
 		$routeHandler = [
 			'handler' => $handler,
-			'module' => $module,
-			'controller_namespace' => $namespace . '\Controller\\',
-			'middleware_namespace' => $namespace . '\Middleware\\',
+			'module' => $this->getModule(),
+			'controller_namespace' => $this->getNamespace() . '\Controller\\',
+			'middleware_namespace' => $this->getNamespace() . '\Middleware\\',
 			'middleware' => [
 				'before' => [],
 				'after' => []
@@ -297,10 +295,18 @@ class Route {
 				$class = [$class];
 			}
 
-			$namespace = ($this->groupNamespace[$this->router->getCurrentGroupPrefix()] ?? $this->defaultNamespace) . '\Middleware\\';
+			$namespace = $this->getNamespace() . '\Middleware\\';
 			$class[0] = $this->prependGroupNamespace($namespace, $class[0]);
 			$middleware[$index] = $class;
 		}
 		return $middleware;
+	}
+
+	private function getNamespace() {
+		return $this->groupNamespace[$this->router->getCurrentGroupPrefix()] ?? $this->defaultNamespace;
+	}
+
+	private function getModule() {
+		return $this->groupModule[$this->router->getCurrentGroupPrefix()] ?? $this->defaultModule;
 	}
 }
