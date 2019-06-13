@@ -65,10 +65,10 @@ class ProviderRegister extends ServiceAbstract {
 			return '';
 		}
 
-		if ($conf['dist']['type'] == 'path') {
-			$path = BASE_PATH . '/' . $conf['dist']['url'];
+		if ($conf[$conf['installation-source']]['type'] == 'path') {
+			$path = BASE_PATH . '/' . $conf[$conf['installation-source']]['url'];
 		} else {
-			$path = BASE_PATH . '/vendor/' . $conf['url'];
+			$path = BASE_PATH . '/vendor/' . $conf['name'];
 		}
 
 		$path .= '/src';
