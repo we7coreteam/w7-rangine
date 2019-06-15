@@ -73,7 +73,7 @@ class CrontabProcess extends ProcessAbstract {
 					$row1['nextruntime'] = date('Y-m-d H:i:s', $row1['nextrun']);
 					$result[] = $row1;
 				}
-				ilogger()->info('Crontab task ' . idd($result));
+				ilogger()->info('Crontab task ' . json_encode($result));
 			}
 
 			if (!empty($task)) {
@@ -96,7 +96,7 @@ class CrontabProcess extends ProcessAbstract {
 		foreach ($this->table as $name => $task) {
 			$result[] = $task;
 		}
-		ilogger()->info('这里是read方法' .  $message->name . idd($result));
+		ilogger()->info('这里是read方法' .  $message->name . json_encode($result));
 		return true;
 	}
 
