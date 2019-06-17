@@ -8,7 +8,7 @@ namespace W7\Core\Process;
 
 use Swoole\Process;
 use W7\App;
-use W7\Core\Crontab\CrontabManager;
+use W7\Core\Crontab\CronMap;
 use W7\Core\Dispatcher\ProcessDispatcher;
 use W7\Core\Message\CrontabMessage;
 use W7\Core\Message\Message;
@@ -16,10 +16,10 @@ use W7\Core\Message\TaskMessage;
 
 class CrontabProcess extends ProcessAbstract {
 	private $setting;
-    /**
-     * @var CrontabManager
-     */
-	private $crontabManager;
+	/**
+	 * @var CronMap
+	 */
+	private $cronMap;
 	const NAMEKEY = 'crontab';
 
 	public function __construct() {
@@ -27,15 +27,15 @@ class CrontabProcess extends ProcessAbstract {
 		$this->registerTasks();
 	}
 
-    private function registerTasks() {
-        $this->crontabManager = new CrontabManager(\iconfig()->getUserConfig(self::NAMEKEY));
-    }
+	private function registerTasks() {
+		$this->cronMap = new CronMap(\iconfig()->getUserConfig(self::NAMEKEY));
+	}
 
 	public function check() {
 		if (isset($this->setting['enabled']) && empty($this->setting['enabled'])) {
 			return false;
 		}
-		if ($this->crontabManager->count() !== 0) {
+		if ($this->cronMap->count() !== 0) {
 		    return true;
 		} else {
 			return false;
@@ -49,19 +49,19 @@ class CrontabProcess extends ProcessAbstract {
 				echo 'Crontab run at ' . date('Y-m-d H:i:s') . PHP_EOL;
 			}
 
-			$tasks = $this->crontabManager->getRunTasks();
-            foreach ($tasks as $name => $task) {
-                if ((ENV & DEBUG) === DEBUG) {
-                    ilogger()->info('Crontab task ' . $name . ' ' . $task);
-                }
-                $this->runTask($name, $task);
-            }
+			$tasks = $this->cronMap->getRunTasks();
+			foreach ($tasks as $name => $task) {
+				if ((ENV & DEBUG) === DEBUG) {
+					ilogger()->info('Crontab task ' . $name . ' ' . $task);
+				}
+				$this->runTask($name, $task);
+			}
 		});
 	}
 
 	public function read(Process $process, $data) {
 		$message = Message::unpack($data);
-		$this->crontabManager->finishTask($message->name);
+		$this->cronMap->finishTask($message->name);
 		return true;
 	}
 
@@ -95,7 +95,7 @@ class CrontabProcess extends ProcessAbstract {
 		$taskMessage->setFinishCallback(static::class, 'finishTask');
 
 		if (App::$server->getServer()->sendMessage($taskMessage->pack(), 0)) {
-		    $this->crontabManager->runTask($name);
+			$this->cronMap->runTask($name);
 		}
 	}
 }
