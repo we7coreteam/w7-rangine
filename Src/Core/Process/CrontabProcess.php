@@ -51,9 +51,7 @@ class CrontabProcess extends ProcessAbstract {
 
 			$tasks = $this->cronMap->getRunTasks();
 			foreach ($tasks as $name => $task) {
-				if ((ENV & DEBUG) === DEBUG) {
-					ilogger()->info('Crontab task ' . $name . ' ' . $task);
-				}
+				ilogger()->info('Crontab task ' . $name . ' ' . $task);
 				$this->runTask($name, $task);
 			}
 		});
