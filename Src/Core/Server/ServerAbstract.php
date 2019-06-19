@@ -266,6 +266,7 @@ abstract class ServerAbstract implements ServerInterface {
 		$factory = new ConnectionFactory($container);
 		$dbManager = new DatabaseManager($container, $factory);
 
+		Model::setEventDispatcher($dbDispatch);
 		Model::setConnectionResolver($dbManager);
 		return true;
 	}
