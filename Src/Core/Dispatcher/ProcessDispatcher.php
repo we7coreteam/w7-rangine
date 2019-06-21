@@ -38,9 +38,9 @@ class ProcessDispatcher extends DispatcherAbstract {
 		}
 
 		/**
-		 * @var \swoole_process $swooleProcess
+		 * @var Process $swooleProcess
 		 */
-		$swooleProcess = new \swoole_process(function (\swoole_process $worker) use ($process, $name) {
+		$swooleProcess = new Process(function (Process $worker) use ($process, $name) {
 			if (\stripos(PHP_OS, 'Darwin') === false) {
 				$worker->name('w7swoole ' . $name . '-' . $worker->pipe . ' process');
 			}
@@ -78,11 +78,11 @@ class ProcessDispatcher extends DispatcherAbstract {
 	/**
 	 * @param $name
 	 * @param int $index
-	 * @return \swoole_process
+	 * @return Process
 	 */
 	public function get($name, $index = 0) {
 		/**
-		 * @var \swoole_process $process
+		 * @var Process $process
 		 */
 		$process = self::$processes[$name] ?? null;
 		if (empty($process) || empty($process[$index])) {

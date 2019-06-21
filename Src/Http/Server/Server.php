@@ -6,6 +6,7 @@
 
 namespace W7\Http\Server;
 
+use Swoole\Http\Server as HttpServer;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Config\Event;
 
@@ -30,7 +31,7 @@ class Server extends ServerAbstract {
 
 	public function getServer() {
 		if (empty($this->server)) {
-			$this->server = new \swoole_http_server($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+			$this->server = new HttpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
 		}
 		return $this->server;
 	}

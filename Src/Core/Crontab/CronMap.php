@@ -2,11 +2,12 @@
 
 namespace W7\Core\Crontab;
 
+use Swoole\Table;
 use W7\Core\Helper\Storage\MemoryTable;
 
 class CronMap{
 	/**
-	 * @var \swoole_table
+	 * @var Table
 	 */
 	private $storage;
 	private $tasks;

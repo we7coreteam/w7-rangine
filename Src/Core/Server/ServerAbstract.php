@@ -18,6 +18,7 @@ use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
+use Swoole\Process;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\App;
@@ -115,10 +116,10 @@ abstract class ServerAbstract implements ServerInterface {
 		$startTime = time();
 		$result = true;
 
-		if (\swoole_process::kill($status['masterPid'], 0)) {
-			\swoole_process::kill($status['masterPid'], SIGTERM);
+		if (Process::kill($status['masterPid'], 0)) {
+			Process::kill($status['masterPid'], SIGTERM);
 			while (1) {
-				$masterIslive = \swoole_process::kill($status['masterPid'], SIGTERM);
+				$masterIslive = Process::kill($status['masterPid'], SIGTERM);
 				if ($masterIslive) {
 					if (time() - $startTime >= $timeout) {
 						$result = false;
