@@ -2,29 +2,14 @@
 
 namespace W7\Core\Crontab;
 
-use Swoole\Table;
-use W7\Core\Helper\Storage\MemoryTable;
 
 class CronMap{
-	/**
-	 * @var Table
-	 */
-	private $storage;
 	private $tasks;
 
 	public function __construct($config) {
-		$this->registerStorage(count($config));
 		foreach ($config as $name => $task) {
 			$this->add($name, $task);
 		}
-	}
-
-	private function registerStorage($size) {
-		$memoryTableManager = iloader()->singleton(MemoryTable::class);
-		$this->storage = $memoryTableManager->create('crontab', $size, [
-				'isrun' => [MemoryTable::FIELD_TYPE_INT, 4],
-			]
-		);
 	}
 
 	public function add($name, $config){
@@ -40,12 +25,10 @@ class CronMap{
 	}
 
 	public function runTask($name) {
-		$this->storage->set($name, ['isrun' => 1]);
 		$this->tasks[$name]->run = true;
 	}
 
 	public function finishTask($name) {
-		$this->storage->del($name);
 		$this->tasks[$name]->run = false;
 	}
 
@@ -54,7 +37,7 @@ class CronMap{
 
 		$tasks = [];
 		foreach ($this->tasks as $task) {
-			if (empty($this->storage->get($task->getName(), 'isrun')) && $task->check($time)) {
+			if ($task->check($time)) {
 				$tasks[$task->getName()] = $task->getTask();
 			}
 		}
