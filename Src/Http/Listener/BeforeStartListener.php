@@ -8,7 +8,6 @@
 namespace W7\Http\Listener;
 
 use W7\App;
-use Swoole\Runtime;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\RouteMapping;
@@ -17,8 +16,6 @@ use FastRoute\Dispatcher\GroupCountBased;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		Runtime::enableCoroutine(true);
-
 		$context = App::getApp()->getContext();
 		//注册路由的时候会调用中间件生成，所以要先生成路由再中间件
 		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());

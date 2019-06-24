@@ -23,8 +23,7 @@ class TaskListener implements ListenerInterface {
 		try {
 			$result = $taskDispatcher->dispatch($server, $taskId, $workId, $data);
 		} catch (\Exception $exception) {
-			$server->finish($exception->getMessage());
-			return;
+			$result = $exception->getMessage();
 		}
 		if (empty($result)) {
 			$result = true;

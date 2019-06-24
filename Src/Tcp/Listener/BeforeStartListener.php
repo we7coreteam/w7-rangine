@@ -8,7 +8,6 @@
 namespace W7\Tcp\Listener;
 
 use W7\App;
-use Swoole\Runtime;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\RouteMapping;
@@ -17,8 +16,6 @@ use FastRoute\Dispatcher\GroupCountBased;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		Runtime::enableCoroutine(true);
-
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());
 		$context->setContextDataByKey(Context::MIDDLEWARE_KEY, $this->getMiddleware());

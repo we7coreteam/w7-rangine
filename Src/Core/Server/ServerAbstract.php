@@ -110,6 +110,11 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 	}
 
+	protected function enableCoroutine() {
+		$this->setting['enable_coroutine'] = true;
+		$this->setting['task_enable_coroutine'] = false;
+	}
+
 	public function stop() {
 		$status = $this->getStatus();
 		$timeout = 20;
