@@ -22,8 +22,6 @@ class CrontabExecutor extends ProcessAbstract {
 				ilogger()->info('complete crontab task ' . $result->task . ' with data ' .$data . ' at ' . $process->pid . ' with $result ' . $result->error);
 			}
 		}
-
-		sleep(1);
 	}
 
 	public function stop(Process $process) {

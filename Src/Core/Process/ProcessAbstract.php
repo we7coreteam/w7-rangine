@@ -10,6 +10,7 @@ use Swoole\Process;
 
 abstract class ProcessAbstract {
 	protected $name;
+	protected $interval = 1;
 
 	public function __construct($name) {
 		$this->name = $name;
@@ -22,6 +23,10 @@ abstract class ProcessAbstract {
 
 	public function getName() {
 		return $this->name;
+	}
+
+	public function getInterval() {
+		return $this->interval;
 	}
 
 	abstract public function run(Process $process);

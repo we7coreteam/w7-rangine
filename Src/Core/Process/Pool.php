@@ -23,7 +23,6 @@ class Pool {
 		$this->enableCoroutine = $enableCoroutine;
 
 		$this->initProcessMap();
-
 	}
 
 	private function initProcessMap() {
@@ -61,11 +60,18 @@ class Pool {
 				$pool->getProcess()->useQueue($this->msgqueueKey, 2 | \Swoole\Process::IPC_NOWAIT);
 			}
 			while ($runing) {
+				pcntl_signal_dispatch();
 				try{
 					$this->process->run($pool->getProcess());
 				} catch (\Throwable $e) {
 					ilogger()->error('run process fail with error ' . $e->getMessage());
 				}
+
+				sleep($this->process->getInterval());
+			}
+
+			if ($this->ipcType != 0) {
+				$pool->getProcess()->exit();
 			}
 		};
 	}

@@ -52,8 +52,6 @@ class CrontabDispatcher extends ProcessAbstract {
 			ilogger()->info('push crontab task ' . $name . ' ' . $task);
 			msg_send(msg_get_queue($this->msgqueueKey), 1, $task, false);
 		}
-
-		sleep(1);
 	}
 
 	public function stop(Process $process) {
