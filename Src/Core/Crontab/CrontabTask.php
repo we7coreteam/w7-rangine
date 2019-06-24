@@ -4,8 +4,13 @@ namespace W7\Core\Crontab;
 
 use Exception;
 use InvalidArgumentException;
+use W7\Core\Message\TaskMessage;
 
 class CrontabTask{
+	const PREPARE = 1;
+	CONST RUNING = 2;
+	const COMPLETE = 3;
+
 	private $name;
 	private $config;
 	private $date;
@@ -26,6 +31,15 @@ class CrontabTask{
 
 	public function getRule() {
 		return $this->config['rule'];
+	}
+
+	public function getTaskInfo() {
+		$message = new TaskMessage();
+		$message->type = TaskMessage::OPERATION_TASK_ASYNC;
+		$message->task = $this->getTask();
+		$message->params['name'] = $this->getName();
+
+		return $message->pack();
 	}
 
 	/**

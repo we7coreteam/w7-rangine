@@ -15,6 +15,7 @@ class Server extends ServerAbstract {
 
 	public function start() {
 		$this->server = new TcpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+		$this->enableCoroutine();
 		$this->server->set($this->setting);
 
 		ievent(Event::ON_USER_BEFORE_START);

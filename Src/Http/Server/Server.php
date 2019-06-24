@@ -18,6 +18,7 @@ class Server extends ServerAbstract {
 			$this->connection['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
 		$this->server = $this->getServer();
+		$this->enableCoroutine();
 		$this->server->set($this->setting);
 
 		ievent(Event::ON_USER_BEFORE_START, [$this->server]);

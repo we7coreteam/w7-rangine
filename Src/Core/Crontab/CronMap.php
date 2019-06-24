@@ -2,7 +2,6 @@
 
 namespace W7\Core\Crontab;
 
-
 class CronMap{
 	private $tasks;
 
@@ -38,7 +37,7 @@ class CronMap{
 		$tasks = [];
 		foreach ($this->tasks as $task) {
 			if ($task->check($time)) {
-				$tasks[$task->getName()] = $task->getTask();
+				$tasks[$task->getName()] = $task->getTaskInfo();
 			}
 		}
 
