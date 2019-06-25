@@ -16,9 +16,10 @@ class StartCommand extends CommandAbstract {
 	}
 
 	public function handle($options) {
-//		if(!empty($options['group'])) {
-//			CrontabDispatcher::group($options['group']);
-//		}
+		if(!empty($options['group'])) {
+			ProcessServer::group($options['group']);
+		}
+
 		(new ProcessServer())->start();
 	}
 }

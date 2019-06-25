@@ -9,6 +9,7 @@ class ProcessServer {
 	const DEFAULT_PID_FILE = '/tmp/swoole_user_process.pid';
 	private $processPool;
 	private $config;
+	private static $group;
 
 	public function __construct() {
 		$this->config = iconfig()->getUserConfig('process');
@@ -17,16 +18,23 @@ class ProcessServer {
 		$this->processPool = new Pool($this->config['setting']);
 	}
 
+	public static function group($group) {
+		static::$group = $group;
+	}
+
 	public function start() {
 		if ((ENV & DEBUG) === DEBUG) {
-			$this->config['process']['reload'] = [
+			$this->config['process'][static::$group]['reload'] = [
 				'enable' => true,
 				'class' => ReloadProcess::class,
 				'number' => 1
 			];
 		}
+		if (empty($this->config['process'][static::$group])) {
+			throw new \Exception('process not be empty');
+		}
 
-		foreach ($this->config['process'] as $name => $process) {
+		foreach ($this->config['process'][static::$group] as $name => $process) {
 			if ($process['enable']) {
 				$this->processPool->addProcess($name, $process['class'], $process['number']);
 			}
