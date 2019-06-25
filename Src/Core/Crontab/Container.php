@@ -2,7 +2,7 @@
 
 namespace W7\Core\Crontab;
 
-class CronMap{
+class Container{
 	private $tasks;
 
 	public function __construct($config) {
@@ -12,7 +12,7 @@ class CronMap{
 	}
 
 	public function add($name, $config){
-		$this->tasks[$name] = new CrontabTask($name, $config);
+		$this->tasks[$name] = new Task($name, $config);
 	}
 
 	public function rm($name) {

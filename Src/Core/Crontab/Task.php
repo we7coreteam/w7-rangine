@@ -6,7 +6,7 @@ use Exception;
 use InvalidArgumentException;
 use W7\Core\Message\TaskMessage;
 
-class CrontabTask{
+class Task{
 	const PREPARE = 1;
 	CONST RUNING = 2;
 	const COMPLETE = 3;

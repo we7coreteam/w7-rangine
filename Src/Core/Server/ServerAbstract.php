@@ -19,6 +19,7 @@ use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
 use Swoole\Process;
+use W7\Console\Application;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\App;
@@ -144,50 +145,12 @@ abstract class ServerAbstract implements ServerInterface {
 		return $result;
 	}
 
-
 	public function registerService() {
 		$this->registerSwooleEventListener();
-		$this->registerProcesser();
 		$this->registerServerContext();
 		$this->registerDb();
 		$this->registerCacheModel();
 		return true;
-	}
-
-	protected function registerProcesser() {
-		$processName = \iconfig()->getProcess();
-		foreach ($processName as $name) {
-			\iprocess($name, App::$server->server);
-		}
-
-		//启动用户配置的进程
-		$process = iconfig()->getUserAppConfig('process');
-		if (!empty($process)) {
-			foreach ($process as $name => $row) {
-				if (empty($row['enable'])) {
-					continue;
-				}
-
-				if (!class_exists($row['class'])) {
-					$row['class'] = sprintf("\\W7\\App\\Process\\%s", Str::studly($row['class']));
-				}
-
-				if (!class_exists($row['class'])) {
-					continue;
-				}
-
-				$row['number'] = intval($row['number']);
-				if (!isset($row['number']) || empty($row['number']) || $row['number'] <= 1) {
-					\iprocess($row['class'], App::$server->server);
-				} else {
-					//多个进程时，通过进程池管理
-
-					for ($i = 1; $i <= $row['number']; $i++) {
-						\iprocess($row['class'], App::$server->server);
-					}
-				}
-			}
-		}
 	}
 
 	protected function registerSwooleEventListener() {
