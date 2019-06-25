@@ -4,68 +4,18 @@ namespace W7\Core\Process\Pool;
 
 use Swoole\Process\Pool as PoolManager;
 
-class Pool {
-	/**
-	 * @var Container
-	 */
-	private $container;
-
+class Pool extends PoolAbstract {
 	private $ipcType = 0;
 	private $mqKey = 0;
-	private $enableCoroutine = false;
 	private $pidFile;
 	private $daemonize;
 
-	public function __construct($config) {
-		$this->ipcType = $config['ipc_type'] ?? 0;
-		$this->mqKey = $config['mq_key'] ?? 0;
-		$this->enableCoroutine = $config['enable_coroutine'] ?? false;
-		$this->pidFile = $config['pid_file'] ?? '/tmp/swoole_process_pool.pid';
-		$this->daemonize = $config['daemonize'] ?? false;
 
-		$this->container = iloader()->singleton(Container::class);
-	}
-
-	/**
-	 * 保存添加的process
-	 * 这里用普通变量保存的原因是 1:worker启动时所有的注册信息已全部保存. 2:worker重新启动时workerid是保持不变的
-	 * @param $name
-	 * @param $handle
-	 * @param $num
-	 */
-	public function addProcess($name, $handle, $num) {
-		$this->container->add($name, $handle, $num);
-	}
-
-	private function onWorkerStart(PoolManager $pool, $workerId) {
-		$this->process = $this->container->make($workerId);
-		$this->process->setProcess($pool->getProcess());
-
-		if($this->mqKey) {
-			$this->process->setMq($this->mqKey);
-		}
-
-		$this->process->start();
-
-		if ($this->ipcType != 0) {
-			$this->process->exit();
-		}
-	}
-
-	private function onWorkerStop(PoolManager $pool, $workerId) {
-		if (empty($this->process)) {
-			return false;
-		}
-
-		try{
-			$this->process->stop();
-		} catch (\Throwable $e) {
-			ilogger()->error('stop process fail with error ' . $e->getMessage());
-		}
-	}
-
-	private function onMessage(PoolManager $pool, $message) {
-		return $message;
+	protected function init(){
+		$this->ipcType = $this->config['ipc_type'] ?? 0;
+		$this->mqKey = $this->config['mq_key'] ?? 0;
+		$this->pidFile = $this->config['pid_file'] ?? '/tmp/swoole_process_pool.pid';
+		$this->daemonize = $this->config['daemonize'] ?? false;
 	}
 
 	public function start() {
@@ -99,6 +49,37 @@ class Pool {
 		});
 
 		$manager->start();
+	}
+
+	private function onWorkerStart(PoolManager $pool, $workerId) {
+		$this->process = $this->container->make($workerId);
+		$this->process->setProcess($pool->getProcess());
+
+		if($this->mqKey) {
+			$this->process->setMq($this->mqKey);
+		}
+
+		$this->process->start();
+
+		if ($this->ipcType != 0) {
+			$this->process->exit();
+		}
+	}
+
+	private function onWorkerStop(PoolManager $pool, $workerId) {
+		if (empty($this->process)) {
+			return false;
+		}
+
+		try{
+			$this->process->stop();
+		} catch (\Throwable $e) {
+			ilogger()->error('stop process fail with error ' . $e->getMessage());
+		}
+	}
+
+	private function onMessage(PoolManager $pool, $message) {
+		return $message;
 	}
 
 	public function stop() {
