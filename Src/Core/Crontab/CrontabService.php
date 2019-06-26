@@ -17,15 +17,16 @@ class CrontabService extends PoolServiceAbstract {
 	}
 
 	public function start() {
-		CrontabDispatcher::group(static::$group);
+		if (empty(iconfig()->getUserConfig('crontab')['task'][CrontabDispatcher::$group])) {
+			//表示是跟随server启动的方式,如果任务为空,不启动process
+			if (CrontabDispatcher::$group === 'default') {
+				return false;
+			}
+			throw new \Exception('task list cannot be empty');
+		}
 
 		$this->processPool->registerProcess('crontab_dispatch', CrontabDispatcher::class, 1);
 		$this->processPool->registerProcess('crontab_executor', CrontabExecutor::class, $this->config['setting']['worker_num']);
-
 		$this->processPool->start();
-	}
-
-	public function stop() {
-		$this->processPool->stop();
 	}
 }

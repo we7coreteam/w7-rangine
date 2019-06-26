@@ -172,12 +172,8 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerProcess() {
-		if (!empty(iconfig()->getUserConfig('crontab')['task']['default'])) {
-			(new CrontabService())->registerPool(DependentPool::class)->start();
-		}
-		if ((ENV & DEBUG) === DEBUG || !empty(iconfig()->getUserConfig('process')['process']['default'])) {
-			(new ProcessService())->registerPool(DependentPool::class)->start();
-		}
+		(new CrontabService())->registerPool(DependentPool::class)->start();
+		(new ProcessService())->registerPool(DependentPool::class)->start();
 	}
 
 	protected function registerServerContext() {

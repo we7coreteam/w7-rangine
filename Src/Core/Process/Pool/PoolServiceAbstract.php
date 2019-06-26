@@ -9,11 +9,6 @@ class PoolServiceAbstract {
 	protected $processPool;
 	protected $config;
 	protected $poolConfig;
-	protected static $group = 'default';
-
-	public static function group($group) {
-		static::$group = $group;
-	}
 
 	public function registerPool($class) {
 		$this->processPool = new $class($this->poolConfig);

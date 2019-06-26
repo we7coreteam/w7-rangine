@@ -33,14 +33,12 @@ class IndependentPool extends PoolAbstract {
 			}
 			// 让该进程脱离之前的会话，终端，进程组的控制
 			posix_setsid();
-			if ($this->processManager->count() == 0) {
-				throw new \Exception('process num not be zero');
-			}
+		}
+		if ($this->processFactory->count() == 0) {
+			throw new \Exception('process num not be zero');
 		}
 
-		file_put_contents($this->pidFile, getmypid());
-
-		$manager = new PoolManager($this->processManager->count(), $this->ipcType, $this->mqKey);
+		$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey);
 		$manager->on('WorkerStart', function (PoolManager $pool, $workerId) {
 			$this->onWorkerStart($pool, $workerId);
 		});
@@ -51,11 +49,12 @@ class IndependentPool extends PoolAbstract {
 			$this->onMessage($pool, $message);
 		});
 
+		file_put_contents($this->pidFile, getmypid());
 		$manager->start();
 	}
 
 	private function onWorkerStart(PoolManager $pool, $workerId) {
-		$this->process = $this->processManager->make($workerId);
+		$this->process = $this->processFactory->make($workerId);
 		$this->process->setProcess($pool->getProcess());
 
 		if($this->mqKey) {

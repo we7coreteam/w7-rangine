@@ -2,18 +2,20 @@
 
 namespace W7\Core\Process\Pool;
 
+use W7\Core\Process\ProcessFactory;
+
 abstract class PoolAbstract {
 	/**
-	 * @var ProcessManager
+	 * @var ProcessFactory
 	 */
-	protected $processManager;
+	protected $processFactory;
 	protected $config;
 	protected $mqKey = 0;
 
 	public function __construct($config) {
 		$this->config = $config;
 		$this->mqKey = $this->config['mq_key'] ?? 0;
-		$this->processManager = new ProcessManager();
+		$this->processFactory = new ProcessFactory();
 
 		$this->init();
 	}
@@ -28,7 +30,8 @@ abstract class PoolAbstract {
 	 * @param $num
 	 */
 	public function registerProcess($name, $handle, $num) {
-		$this->processManager->add($name, $handle, $num);
+		ioutputer()->info('start process ' . $name . ', num=>' . $num );
+		$this->processFactory->add($name, $handle, $num);
 	}
 
 	abstract public function start();

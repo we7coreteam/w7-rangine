@@ -13,8 +13,8 @@ use W7\App;
  */
 class DependentPool extends PoolAbstract {
 	public function start(){
-		for ($i = 0; $i < $this->processManager->count(); $i++) {
-			$process = $this->processManager->make($i);
+		for ($i = 0; $i < $this->processFactory->count(); $i++) {
+			$process = $this->processFactory->make($i);
 
 			$swooleProcess = new Process(function (Process $worker) use ($process) {
 				$process->setProcess($worker);

@@ -3,7 +3,6 @@
 namespace W7\Core\Process;
 
 use W7\Core\Process\Pool\PoolServiceAbstract;
-use W7\Core\Process\Process\ReloadProcess;
 
 class ProcessService extends PoolServiceAbstract {
 	const DEFAULT_PID_FILE = '/tmp/swoole_user_process.pid';
@@ -15,29 +14,22 @@ class ProcessService extends PoolServiceAbstract {
 	}
 
 	public function start() {
-		$process = 0;
-		if ((ENV & DEBUG) === DEBUG) {
-			$this->config['process'][static::$group]['reload'] = [
-				'enable' => true,
-				'class' => ReloadProcess::class,
-				'number' => 1
-			];
-		}
-		foreach ($this->config['process'][static::$group] as $name => $process) {
-			if ($process['enable']) {
+		$num = 0;
+		foreach ($this->config['process'] as $name => $process) {
+			if ((!empty($this->config['appoint_process']) && $name == $this->config['appoint_process']) ||
+				(empty($this->config['appoint_process']) && !empty($process['auto_start']))) {
 				$this->processPool->registerProcess($name, $process['class'], $process['number']);
-				++$process;
+				++$num;
 			}
 		}
-		if ($process == 0) {
-			throw new \Exception('process not be empty');
+		if ($num == 0) {
+			//表示是跟随server启动的方式
+			if (empty($this->config['appoint_process'])) {
+				return false;
+			}
+			throw new \Exception('the process list cannot be empty');
 		}
 
-
 		$this->processPool->start();
-	}
-
-	public function stop() {
-		$this->processPool->stop();
 	}
 }

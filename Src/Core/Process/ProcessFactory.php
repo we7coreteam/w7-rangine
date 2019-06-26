@@ -1,10 +1,8 @@
 <?php
 
-namespace W7\Core\Process\Pool;
+namespace W7\Core\Process;
 
-use W7\Core\Process\ProcessAbstract;
-
-class ProcessManager {
+class ProcessFactory {
 	private $processMap;
 
 	public function add($name, $handle, $num = 1) {

@@ -10,7 +10,7 @@ class CrontabDispatcher extends ProcessAbstract {
 	 * @var TaskManager
 	 */
 	private $taskManager;
-	private static $group = 'default';
+	static $group = 'default';
 
 	protected function init() {
 		$this->taskManager = new TaskManager($this->getTasks());
@@ -22,13 +22,7 @@ class CrontabDispatcher extends ProcessAbstract {
 
 	private function getTasks() {
 		$config = \iconfig()->getUserConfig('crontab');
-		$config = $config['task'][static::$group] ?? [];
-
-		if (!$config) {
-			throw new \Exception('crontab task not be empty');
-		}
-
-		return $config;
+		return $config['task'][static::$group];
 	}
 
 	public function run() {
