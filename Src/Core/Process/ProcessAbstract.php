@@ -78,5 +78,7 @@ abstract class ProcessAbstract {
 		$this->process->exit($status);
 	}
 
-	public function stop() {}
+	public function stop() {
+		ilogger()->info('process ' . $this->name . ' exit');
+	}
 }

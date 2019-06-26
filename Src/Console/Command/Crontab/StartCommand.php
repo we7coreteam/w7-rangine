@@ -4,11 +4,11 @@ namespace W7\Console\Command\Crontab;
 
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
-use W7\Core\Crontab\Process\CrontabDispatcher;
-use W7\Core\Crontab\Server\CrontabServer;
+use W7\Core\Crontab\CrontabService;
+use W7\Core\Process\Pool\IndependentPool;
 
 class StartCommand extends CommandAbstract {
-	protected $description = 'start crontab server';
+	protected $description = 'start crontab service';
 
 	protected function configure() {
 		$this->addOption('--group', '-g', InputOption::VALUE_OPTIONAL, 'the crontab group');
@@ -19,7 +19,7 @@ class StartCommand extends CommandAbstract {
 			$options['group'] = 'default';
 		}
 
-		CrontabDispatcher::group($options['group']);
-		(new CrontabServer())->start();
+		CrontabService::group($options['group']);
+		(new CrontabService())->registerPool(IndependentPool::class)->start();
 	}
 }

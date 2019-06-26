@@ -17,9 +17,8 @@ use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
-use Illuminate\Support\Str;
 use Swoole\Process;
-use W7\Console\Application;
+use W7\Core\Crontab\CrontabService;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\App;
@@ -27,6 +26,8 @@ use W7\Core\Config\Event;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
+use W7\Core\Process\Pool\DependentPool;
+use W7\Core\Process\ProcessService;
 use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -147,6 +148,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	public function registerService() {
 		$this->registerSwooleEventListener();
+		$this->registerProcess();
 		$this->registerServerContext();
 		$this->registerDb();
 		$this->registerCacheModel();
@@ -167,6 +169,15 @@ abstract class ServerAbstract implements ServerInterface {
 		//if (isCo()) {
 			\Swoole\Runtime::enableCoroutine(true);
 		//}
+	}
+
+	protected function registerProcess() {
+		if (!empty(iconfig()->getUserConfig('crontab')['task']['default'])) {
+			(new CrontabService())->registerPool(DependentPool::class)->start();
+		}
+		if ((ENV & DEBUG) === DEBUG || !empty(iconfig()->getUserConfig('process')['process']['default'])) {
+			(new ProcessService())->registerPool(DependentPool::class)->start();
+		}
 	}
 
 	protected function registerServerContext() {

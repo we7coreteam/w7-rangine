@@ -4,14 +4,16 @@ namespace W7\Core\Process\Pool;
 
 abstract class PoolAbstract {
 	/**
-	 * @var Container
+	 * @var ProcessManager
 	 */
-	protected $container;
+	protected $processManager;
 	protected $config;
+	protected $mqKey = 0;
 
 	public function __construct($config) {
 		$this->config = $config;
-		$this->container = iloader()->singleton(Container::class);
+		$this->mqKey = $this->config['mq_key'] ?? 0;
+		$this->processManager = new ProcessManager();
 
 		$this->init();
 	}
@@ -25,9 +27,11 @@ abstract class PoolAbstract {
 	 * @param $handle
 	 * @param $num
 	 */
-	public function addProcess($name, $handle, $num) {
-		$this->container->add($name, $handle, $num);
+	public function registerProcess($name, $handle, $num) {
+		$this->processManager->add($name, $handle, $num);
 	}
 
 	abstract public function start();
+
+	public function stop() {}
 }

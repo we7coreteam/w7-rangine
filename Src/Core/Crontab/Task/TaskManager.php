@@ -1,8 +1,8 @@
 <?php
 
-namespace W7\Core\Crontab;
+namespace W7\Core\Crontab\Task;
 
-class Container{
+class TaskManager{
 	private $tasks;
 
 	public function __construct($config) {

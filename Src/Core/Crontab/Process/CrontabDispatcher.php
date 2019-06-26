@@ -2,18 +2,18 @@
 
 namespace W7\Core\Crontab\Process;
 
-use W7\Core\Crontab\Container;
+use W7\Core\Crontab\Task\TaskManager;
 use W7\Core\Process\ProcessAbstract;
 
 class CrontabDispatcher extends ProcessAbstract {
 	/**
-	 * @var Container
+	 * @var TaskManager
 	 */
-	private $container;
-	private static $group;
+	private $taskManager;
+	private static $group = 'default';
 
 	protected function init() {
-		$this->container = new Container($this->getTasks());
+		$this->taskManager = new TaskManager($this->getTasks());
 	}
 
 	public static function group($group) {
@@ -36,14 +36,10 @@ class CrontabDispatcher extends ProcessAbstract {
 			echo 'Crontab run at ' . date('Y-m-d H:i:s') . PHP_EOL;
 		}
 
-		$tasks = $this->container->getRunTasks();
+		$tasks = $this->taskManager->getRunTasks();
 		foreach ($tasks as $name => $task) {
 			ilogger()->info('push crontab task ' . $name . ' ' . $task);
-			msg_send(msg_get_queue($this->msgqueueKey), 1, $task, false);
+			msg_send(msg_get_queue($this->mqKey), 1, $task, false);
 		}
-	}
-
-	public function stop() {
-		ilogger()->info('crontab dispatcher process exit');
 	}
 }

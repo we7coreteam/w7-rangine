@@ -4,16 +4,19 @@ namespace W7\Core\Process\Pool;
 
 use Swoole\Process\Pool as PoolManager;
 
-class Pool extends PoolAbstract {
+/**
+ * 该进程池由独立的process manager管理
+ * Class IndependentPool
+ * @package W7\Core\Process\Pool
+ */
+class IndependentPool extends PoolAbstract {
 	private $ipcType = 0;
-	private $mqKey = 0;
 	private $pidFile;
 	private $daemonize;
 
 
 	protected function init(){
 		$this->ipcType = $this->config['ipc_type'] ?? 0;
-		$this->mqKey = $this->config['mq_key'] ?? 0;
 		$this->pidFile = $this->config['pid_file'] ?? '/tmp/swoole_process_pool.pid';
 		$this->daemonize = $this->config['daemonize'] ?? false;
 	}
@@ -30,14 +33,14 @@ class Pool extends PoolAbstract {
 			}
 			// 让该进程脱离之前的会话，终端，进程组的控制
 			posix_setsid();
-			if ($this->container->count() == 0) {
+			if ($this->processManager->count() == 0) {
 				throw new \Exception('process num not be zero');
 			}
 		}
 
 		file_put_contents($this->pidFile, getmypid());
 
-		$manager = new PoolManager($this->container->count(), $this->ipcType, $this->mqKey);
+		$manager = new PoolManager($this->processManager->count(), $this->ipcType, $this->mqKey);
 		$manager->on('WorkerStart', function (PoolManager $pool, $workerId) {
 			$this->onWorkerStart($pool, $workerId);
 		});
@@ -52,7 +55,7 @@ class Pool extends PoolAbstract {
 	}
 
 	private function onWorkerStart(PoolManager $pool, $workerId) {
-		$this->process = $this->container->make($workerId);
+		$this->process = $this->processManager->make($workerId);
 		$this->process->setProcess($pool->getProcess());
 
 		if($this->mqKey) {

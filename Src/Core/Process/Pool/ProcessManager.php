@@ -4,7 +4,7 @@ namespace W7\Core\Process\Pool;
 
 use W7\Core\Process\ProcessAbstract;
 
-class Container {
+class ProcessManager {
 	private $processMap;
 
 	public function add($name, $handle, $num = 1) {

@@ -59,6 +59,7 @@ abstract class CommandAbstract extends Command {
 		$factory = new ConnectionFactory($container);
 		$dbManager = new DatabaseManager($container, $factory);
 
+		Model::setEventDispatcher($dbDispatch);
 		Model::setConnectionResolver($dbManager);
 		static::$isRegister = true;
 	}

@@ -22,8 +22,4 @@ class CrontabExecutor extends ProcessAbstract {
 			}
 		}
 	}
-
-	public function stop() {
-		ilogger()->info('crontab executor process exit');
-	}
 }

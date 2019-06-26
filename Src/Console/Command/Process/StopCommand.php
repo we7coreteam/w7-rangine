@@ -3,12 +3,13 @@
 namespace W7\Console\Command\Process;
 
 use W7\Console\Command\CommandAbstract;
-use W7\Core\UserProcess\Server\ProcessServer;
+use W7\Core\Process\Pool\IndependentPool;
+use W7\Core\Process\ProcessService;
 
 class StopCommand extends CommandAbstract {
-	protected $description = 'stop user process server';
+	protected $description = 'stop user process service';
 
 	public function handle($options) {
-		(new ProcessServer())->stop();
+		(new ProcessService())->registerPool(IndependentPool::class)->stop();
 	}
 }
