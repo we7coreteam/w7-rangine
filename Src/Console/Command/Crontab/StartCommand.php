@@ -18,6 +18,9 @@ class StartCommand extends CommandAbstract {
 		if(empty($options['group'])) {
 			$options['group'] = 'default';
 		}
+		if(!isset(iconfig()->getUserConfig('crontab')['task'][$options['group']])) {
+			throw new \Exception('group error');
+		}
 
 		CrontabService::group($options['group']);
 		(new CrontabService())->registerPool(IndependentPool::class)->start();

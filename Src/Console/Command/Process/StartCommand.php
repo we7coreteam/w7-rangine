@@ -18,6 +18,9 @@ class StartCommand extends CommandAbstract {
 		if(empty($options['group'])) {
 			$options['group'] = 'default';
 		}
+		if(!isset(iconfig()->getUserConfig('process')['process'][$options['group']])) {
+			throw new \Exception('group error');
+		}
 
 		ProcessService::group($options['group']);
 		(new ProcessService())->registerPool(IndependentPool::class)->start();
