@@ -11,7 +11,7 @@ class StartCommand extends CommandAbstract {
 	protected $description = 'start user process service';
 
 	protected function configure() {
-		$this->addOption('--group', '-g', InputOption::VALUE_OPTIONAL, 'the crontab group');
+		$this->addOption('--group', '-g', InputOption::VALUE_OPTIONAL, 'the use process group');
 	}
 
 	public function handle($options) {
