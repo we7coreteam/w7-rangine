@@ -11,6 +11,7 @@ class ProcessService extends PoolServiceAbstract {
 	public function __construct() {
 		$this->config = iconfig()->getUserConfig('process');
 		$this->config['setting']['pid_file'] = empty($this->config['setting']['pid_file']) ? self::DEFAULT_PID_FILE : $this->config['setting']['pid_file'];
+		$this->poolConfig = $this->config['setting'];
 	}
 
 	public function start() {

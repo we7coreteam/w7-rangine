@@ -8,6 +8,7 @@ class PoolServiceAbstract {
 	 */
 	protected $processPool;
 	protected $config;
+	protected $poolConfig;
 	protected static $group = 'default';
 
 	public static function group($group) {
@@ -15,7 +16,7 @@ class PoolServiceAbstract {
 	}
 
 	public function registerPool($class) {
-		$this->processPool = new $class($this->config['setting']);
+		$this->processPool = new $class($this->poolConfig);
 		if (!($this->processPool instanceof PoolAbstract)) {
 			throw new \Exception('the pool must be instance PoolAbstract');
 		}

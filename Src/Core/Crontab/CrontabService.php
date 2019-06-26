@@ -13,6 +13,7 @@ class CrontabService extends PoolServiceAbstract {
 		$this->config = iconfig()->getUserConfig('crontab');
 		$this->config['setting']['ipc_type'] = SWOOLE_IPC_MSGQUEUE;
 		$this->config['setting']['pid_file'] = empty($this->config['setting']['pid_file']) ? self::DEFAULT_PID_FILE : $this->config['setting']['pid_file'];
+		$this->poolConfig = $this->config['setting'];
 	}
 
 	public function start() {
