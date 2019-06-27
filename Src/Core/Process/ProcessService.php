@@ -15,6 +15,12 @@ class ProcessService extends PoolServiceAbstract {
 		$this->poolConfig = $this->config['setting'];
 	}
 
+	/**
+	 * 指定需要启动的process名称,只启动enable为true的process
+	 *
+	 * @param [type] $process
+	 * @return void
+	 */
 	public function setUserProcess($process) {
 		$processConfig = iconfig()->getUserConfig('process')['process'];
 		$process = explode(',', $process);
