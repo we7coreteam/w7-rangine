@@ -11,6 +11,9 @@ use Swoole\Process;
 abstract class ProcessAbstract {
 	protected $name = 'process';
 	protected $mqKey;
+	/**
+	 * @var Process
+	 */
 	protected $process;
 	protected $interval = 1;
 
@@ -33,8 +36,13 @@ abstract class ProcessAbstract {
 		return $this->process;
 	}
 
+	private function getProcessName() {
+		return 'w7swoole ' . $this->name . '-' . $this->process->id;
+	}
+
 	/**
 	 * process->push(msg) 有bug
+	 * 默认的消息队列消费方式为争抢方式
 	 * @param int $key
 	 * @param int $mode
 	 */
@@ -47,11 +55,11 @@ abstract class ProcessAbstract {
 
 	public function start() {
 		if (\stripos(PHP_OS, 'Darwin') === false) {
-			$this->process->name('w7swoole ' . $this->name . ' process');
+			$this->process->name($this->getProcessName());
 		}
 
 		/**
-		 * 注册退出信号量,等本次业务执行完成后退出
+		 * 注册退出信号量,等本次业务执行完成后退出,在执行stop后需要等待sleep结束后再结束
 		 */
 		$runing = true;
 		pcntl_signal(SIGTERM, function () use (&$runing) {
@@ -79,6 +87,7 @@ abstract class ProcessAbstract {
 	}
 
 	public function stop() {
-		ilogger()->info('process ' . $this->name . ' exit');
+		ioutputer()->info('process ' . $this->getProcessName() . ' exit');
+		ilogger()->info('process ' . $this->getProcessName() . ' exit');
 	}
 }
