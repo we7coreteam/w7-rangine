@@ -6,6 +6,8 @@ use W7\Core\Process\Pool\PoolServiceAbstract;
 
 class ProcessService extends PoolServiceAbstract {
 	const DEFAULT_PID_FILE = '/tmp/swoole_user_process.pid';
+	private $userProcess;
+
 
 	public function __construct() {
 		$this->config = iconfig()->getUserConfig('process');
@@ -13,23 +15,39 @@ class ProcessService extends PoolServiceAbstract {
 		$this->poolConfig = $this->config['setting'];
 	}
 
-	public function start() {
-		$num = 0;
-		foreach ($this->config['process'] as $name => $process) {
-			if ((!empty($this->config['appoint_process']) && $name == $this->config['appoint_process']) ||
-				(empty($this->config['appoint_process']) && !empty($process['auto_start']))) {
-				$this->processPool->registerProcess($name, $process['class'], $process['number']);
-				++$num;
+	public function setUserProcess($process) {
+		$processConfig = iconfig()->getUserConfig('process')['process'];
+		$process = explode(',', $process);
+		foreach ($process as $key => $item) {
+			if (empty($processConfig[$item]) || !$processConfig[$item]['enable']) {
+				throw new \Exception('the process ' . $item . ' does not exist or is disable');
 			}
+			$this->userProcess[$item] = $processConfig[$item];
 		}
-		if ($num == 0) {
-			//表示是跟随server启动的方式
-			if (empty($this->config['appoint_process'])) {
-				return false;
+	}
+
+	public function getUserProcess() {
+		if (!$this->userProcess) {
+			$process = iconfig()->getUserConfig('process')['process'];
+			foreach ($process as $key => $item) {
+				if ($process[$key]['enable']) {
+					$this->userProcess[$key] = $item;
+				}
 			}
-			throw new \Exception('the process list cannot be empty');
 		}
 
+		return $this->userProcess;
+	}
+
+	public function start() {
+		$userProcess = $this->getUserProcess();
+		if (!$userProcess) {
+			return false;
+		}
+
+		foreach ($userProcess as $name => $process) {
+			$this->processPool->registerProcess($name, $process['class'], $process['number']);
+		}
 		$this->processPool->start();
 	}
 }

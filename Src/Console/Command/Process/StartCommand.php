@@ -12,18 +12,19 @@ class StartCommand extends CommandAbstract {
 	protected $description = 'start user process service';
 
 	protected function configure() {
-		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'user-defined process name');
+		$this->addOption('--process', null, InputOption::VALUE_REQUIRED, 'user-defined process name');
 	}
 
 	public function handle($options) {
-		if (empty($options['name'])) {
-			throw new CommandException('please input option name');
+		if (empty($options['process'])) {
+			$options['process'] = ienv('START_USER_PROCESS');
+		}
+		if (empty($options['process'])) {
+			throw new CommandException('please input option process');
 		}
 
-		$config = iconfig()->getUserConfig('process');
-		$config['appoint_process'] = $options['name'];
-		iconfig()->setUserConfig('process', $config);
-
-		(new ProcessService())->registerPool(IndependentPool::class)->start();
+		$processService = new ProcessService();
+		$processService->setUserProcess($options['process']);
+		$processService->registerPool(IndependentPool::class)->start();
 	}
 }

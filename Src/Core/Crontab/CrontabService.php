@@ -12,17 +12,14 @@ class CrontabService extends PoolServiceAbstract {
 	public function __construct() {
 		$this->config = iconfig()->getUserConfig('crontab');
 		$this->config['setting']['ipc_type'] = SWOOLE_IPC_MSGQUEUE;
+		$this->config['setting']['auto_start'] = $this->config['setting']['auto_start'] ?? false;
 		$this->config['setting']['pid_file'] = empty($this->config['setting']['pid_file']) ? self::DEFAULT_PID_FILE : $this->config['setting']['pid_file'];
 		$this->poolConfig = $this->config['setting'];
 	}
 
 	public function start() {
-		if (empty(iconfig()->getUserConfig('crontab')['task'][CrontabDispatcher::$group])) {
-			//表示是跟随server启动的方式,如果任务为空,不启动process
-			if (CrontabDispatcher::$group === 'default') {
-				return false;
-			}
-			throw new \Exception('task list cannot be empty');
+		if (!CrontabDispatcher::getTasks()) {
+			return false;
 		}
 
 		$this->processPool->registerProcess('crontab_dispatch', CrontabDispatcher::class, 1);

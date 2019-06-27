@@ -13,15 +13,19 @@ class StartCommand extends CommandAbstract {
 	protected $description = 'start crontab service';
 
 	protected function configure() {
-		$this->addOption('--group', '-g', InputOption::VALUE_REQUIRED, 'the task group');
+		$this->addOption('--tasks', null, InputOption::VALUE_REQUIRED, 'task to execute');
 	}
 
 	public function handle($options) {
-		if (empty($options['group'])) {
-			throw new CommandException('please input option group');
+		if (empty($options['tasks'])) {
+			//支持从env中直接配置要执行的task 也可以指定多个,按,隔开
+			$options['tasks'] = ienv('CRONTAB_TASKS');
+		}
+		if (empty($options['tasks'])) {
+			throw new CommandException('please input option tasks');
 		}
 
-		CrontabDispatcher::group($options['group']);
+		CrontabDispatcher::setTasks($options['tasks']);
 		(new CrontabService())->registerPool(IndependentPool::class)->start();
 	}
 }

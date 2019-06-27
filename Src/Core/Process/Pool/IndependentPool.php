@@ -80,6 +80,12 @@ class IndependentPool extends PoolAbstract {
 		}
 	}
 
+	/**
+	 * 该方式暂时不启用
+	 * @param PoolManager $pool
+	 * @param $message
+	 * @return mixed
+	 */
 	private function onMessage(PoolManager $pool, $message) {
 		return $message;
 	}

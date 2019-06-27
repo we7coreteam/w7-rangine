@@ -10,19 +10,34 @@ class CrontabDispatcher extends ProcessAbstract {
 	 * @var TaskManager
 	 */
 	private $taskManager;
-	static $group = 'default';
+	static private $tasks = [];
 
 	protected function init() {
-		$this->taskManager = new TaskManager($this->getTasks());
+		$this->taskManager = new TaskManager(static::getTasks());
 	}
 
-	public static function group($group) {
-		static::$group = $group;
+	/**
+	 * 指定要启动的task  按,隔开 testTask,test1Task
+	 * @param $tasks
+	 * @throws \Exception
+	 */
+	public static function setTasks($tasks) {
+		$tasks = explode(',', $tasks);
+		$configTasks = \iconfig()->getUserConfig('crontab')['task'];
+		foreach ($tasks as $key => $task) {
+			if (empty($configTasks[$task])) {
+				throw new \Exception('the task ' . $task . ' does not exist');
+			}
+			static::$tasks[] = $configTasks[$task];
+		}
 	}
 
-	private function getTasks() {
-		$config = \iconfig()->getUserConfig('crontab');
-		return $config['task'][static::$group];
+	public static function getTasks() {
+		if (!static::$tasks) {
+			static::$tasks = \iconfig()->getUserConfig('crontab')['task'];
+		}
+
+		return static::$tasks;
 	}
 
 	public function run() {
