@@ -75,7 +75,7 @@ abstract class ControllerAbstract {
 			foreach ($errors as $field => $message) {
 				$errorMessage[] = $field . ' : ' . $message[0];
 			}
-			throw new HttpException(implode($errorMessage, '; '));
+			throw new HttpException(implode('; ', $errorMessage));
 		}
 		return $result;
 	}
