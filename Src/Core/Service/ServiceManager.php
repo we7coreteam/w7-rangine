@@ -6,7 +6,7 @@ namespace W7\Core\Service;
 use W7\Console\ConsoleRegister;
 use W7\Core\Cache\CacheRegister;
 use W7\Core\Container\Container;
-use W7\Core\Controller\ValidateRegister;
+use W7\Core\Validation\ValidateRegister;
 use W7\Core\Database\DatabaseRegister;
 use W7\Core\Exception\ExceptionRegister;
 use W7\Core\Provider\ProviderRegister;

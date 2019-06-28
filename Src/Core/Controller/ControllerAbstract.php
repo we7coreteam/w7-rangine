@@ -66,23 +66,16 @@ abstract class ControllerAbstract {
 		}
 		$requestData = array_merge([], $request->getQueryParams(), $request->post());
 		try {
-			$result = $this->getValidater()->make($requestData, $rules, $messages, $customAttributes)
+			$result = iloader()->get('validator')->make($requestData, $rules, $messages, $customAttributes)
 				->validate();
 		} catch (ValidationException $e) {
 			$errorMessage = [];
 			$errors = $e->errors();
 			foreach ($errors as $field => $message) {
-				$errorMessage[] = $field . ' : ' . $message[0];
+				$errorMessage[] = $message[0];
 			}
 			throw new HttpException(implode($errorMessage, '; '));
 		}
 		return $result;
-	}
-
-	/**
-	 * @return Factory;
-	 */
-	private function getValidater() {
-		return iloader()->get(Factory::class);
 	}
 }
