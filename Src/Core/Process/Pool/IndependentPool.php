@@ -92,7 +92,7 @@ class IndependentPool extends PoolAbstract {
 
 	public function stop() {
 		if (!file_exists($this->pidFile)) {
-			throw new \Exception('stop crontab server fail');
+			throw new \Exception('stop process server fail');
 		}
 
 		$pid = file_get_contents($this->pidFile);
