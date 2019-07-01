@@ -7,6 +7,7 @@
 namespace W7\Core\Process;
 
 use Swoole\Process;
+use Swoole\Timer;
 
 abstract class ProcessAbstract {
 	protected $name = 'process';
@@ -68,22 +69,41 @@ abstract class ProcessAbstract {
 		/**
 		 * 注册退出信号量,等本次业务执行完成后退出,在执行stop后需要等待sleep结束后再结束
 		 */
-		$runing = true;
-		pcntl_signal(SIGTERM, function () use (&$runing) {
-			$runing = false;
+		$exit = 2;
+		$complete = true;
+		pcntl_signal(SIGTERM, function () use (&$exit) {
+			--$exit;
 		});
 
 		$this->beforeStart();
-
-		while ($runing) {
-			pcntl_signal_dispatch();
+		$runTime = Timer::tick($this->interval * 1000, function ($timer) use (&$exit, &$complete) {
+			$complete = false;
 			try{
 				$this->run();
 			} catch (\Throwable $e) {
 				ilogger()->error('run process fail with error ' . $e->getMessage());
 			}
 
-			sleep($this->interval);
+			$complete = true;
+
+			//如果在执行完成后就得到退出信息,则马上退出
+			if ($exit === 1) {
+				--$exit;
+				Timer::clear($timer);
+			}
+		});
+
+		while ($exit !== 0) {
+			pcntl_signal_dispatch();
+			/**
+			 * 得到退出信号,但是任务定时器正在等待下一个时间点的时候,强制clear time,退出当前进程
+			 */
+			if ($exit === 1 && $complete) {
+				--$exit;
+				Timer::clear($runTime);
+			}
+
+			sleep(1);
 		}
 	}
 

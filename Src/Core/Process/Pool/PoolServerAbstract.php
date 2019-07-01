@@ -43,13 +43,14 @@ abstract class PoolServerAbstract implements ServerInterface {
 	}
 
 	public function getStatus() {
+		$pid = 0;
 		$pidFile = $this->poolConfig['pid_file'];
 		if (file_exists($pidFile)) {
-			$pids = explode(',', file_get_contents($pidFile));
+			$pid = file_get_contents($pidFile);
 		}
 
 		return [
-			'masterPid' => !empty($pids[1]) ? $pids[1] : 0,
+			'masterPid' => $pid
 		];
 	}
 }
