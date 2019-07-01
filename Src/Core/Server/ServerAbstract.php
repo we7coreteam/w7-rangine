@@ -221,15 +221,14 @@ abstract class ServerAbstract implements ServerInterface {
 			return new PdoMysqlConnection($connection, $database, $prefix, $config);
 		});
 
-		//新增swoole连接Mysql的容器
-		$container = new Container();
+		$container = iloader()->withClass(Container::class)->withSingle()->get();
 		//$container->instance('db.connector.swoolemysql', new SwooleMySqlConnector());
 		//$container->instance('db.connector.mysql', new PdoMySqlConnector());
 		$container->instance('db.connector.swoolemysql', new ConnectorManager());
 		$container->instance('db.connector.mysql', new ConnectorManager());
 
 		//侦听sql执行完后的事件，回收$connection
-		$dbDispatch = new Dispatcher($container);
+		$dbDispatch = iloader()->withClass(Dispatcher::class)->withSingle()->withParams('container', $container)->get();
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
 			/**
 			 *检测是否是事物里面的query
