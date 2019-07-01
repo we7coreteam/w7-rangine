@@ -25,8 +25,6 @@ class Server extends ServerAbstract {
 		$this->registerService();
 
 		$this->server->start();
-
-		ievent(Event::ON_USER_AFTER_START, [$this->server]);
 	}
 
 	public function getServer() {
