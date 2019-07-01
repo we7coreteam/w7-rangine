@@ -82,7 +82,6 @@ class Config {
 		!defined('TCP') && define('TCP', 2);
 		!defined('PROCESS') && define('PROCESS', 4);
 		!defined('CRONTAB') && define('CRONTAB', 8);
-		!defined('CRONTAB') && define('CRONTAB', 8);
 		!defined('SERVER') && define('SERVER', empty(ienv('SERVER')) ? HTTP|PROCESS|CRONTAB : ienv('SERVER'));
 
 		//加载所有的配置到内存中
