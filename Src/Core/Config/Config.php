@@ -61,11 +61,6 @@ class Config {
 		],
 	];
 
-	private $process = [
-		ReloadProcess::class,
-		CrontabProcess::class,
-	];
-
 	private $config = [];
 
 	public function __construct() {
@@ -83,6 +78,13 @@ class Config {
 		!defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
 		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG);
 		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
+
+		//在加载配置前定义需要的常量
+		!defined('HTTP') && define('HTTP', 1);
+		!defined('TCP') && define('TCP', 2);
+		!defined('PROCESS') && define('PROCESS', 4);
+		!defined('CRONTAB') && define('CRONTAB', 8);
+		!defined('SERVER') && define('SERVER', ienv('SERVER'));
 
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
@@ -112,13 +114,6 @@ class Config {
 		}
 		$this->server = array_merge([], $this->defaultServer, $this->getUserConfig('server'));
 		return $this->server;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getProcess() {
-		return $this->process;
 	}
 
 	/**

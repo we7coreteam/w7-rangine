@@ -18,7 +18,7 @@ use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use Swoole\Process;
-use W7\Core\Crontab\CrontabService;
+use W7\Core\Crontab\CrontabServer;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\App;
@@ -27,11 +27,10 @@ use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
 use W7\Core\Process\Pool\DependentPool;
-use W7\Core\Process\ProcessService;
+use W7\Core\Process\ProcessServer;
 use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
-
 	const TYPE_HTTP = 'http';
 	const TYPE_RPC = 'rpc';
 	const TYPE_TCP = 'tcp';
@@ -41,12 +40,6 @@ abstract class ServerAbstract implements ServerInterface {
 	 * @var \Swoole\Http\Server
 	 */
 	public $server;
-
-	/**
-	 * 服务类型
-	 * @var
-	 */
-	public $type;
 
 	/**
 	 * 配置
@@ -66,11 +59,11 @@ abstract class ServerAbstract implements ServerInterface {
 		date_default_timezone_set('Asia/Shanghai');
 		App::$server = $this;
 		$setting = \iconfig()->getServer();
-		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
-			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
+		if (empty($setting[$this->getType()]) || empty($setting[$this->getType()]['host'])) {
+			throw new CommandException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
 		$this->setting = array_merge([], $setting['common']);
-		$this->connection = $setting[$this->type];
+		$this->connection = $setting[$this->getType()];
 	}
 
 	/**
@@ -81,7 +74,6 @@ abstract class ServerAbstract implements ServerInterface {
 	public function getPname() {
 		return $this->setting['pname'];
 	}
-
 
 	public function getStatus() {
 		$pidFile = $this->setting['pid_file'];
@@ -156,7 +148,7 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerSwooleEventListener() {
-		$event = [$this->type, 'task', 'manage'];
+		$event = [$this->getType(), 'task', 'manage'];
 		
 		foreach ($event as $name) {
 			$event = \iconfig()->getEvent()[$name];
@@ -172,11 +164,11 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerProcess() {
-		if (!empty(iconfig()->getUserConfig('crontab')['setting']['auto_start'])) {
-			(new CrontabService())->registerPool(DependentPool::class)->start();
+		if ((SERVER & CRONTAB) === CRONTAB) {
+			(new CrontabServer())->registerPool(DependentPool::class)->start();
 		}
-		if (!empty(iconfig()->getUserConfig('process')['setting']['auto_start'])) {
-			(new ProcessService())->registerPool(DependentPool::class)->start();
+		if ((SERVER & PROCESS) === PROCESS) {
+			(new ProcessServer())->registerPool(DependentPool::class)->start();
 		}
 	}
 

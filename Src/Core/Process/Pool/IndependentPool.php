@@ -97,6 +97,6 @@ class IndependentPool extends PoolAbstract {
 
 		$pid = file_get_contents($this->pidFile);
 		unlink($this->pidFile);
-		posix_kill($pid, SIGTERM);
+		return posix_kill($pid, SIGTERM);
 	}
 }

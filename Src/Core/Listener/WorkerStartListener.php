@@ -10,7 +10,7 @@ use W7\App;
 
 class WorkerStartListener implements ListenerInterface {
 	public function run(...$params) {
-		\isetProcessTitle( 'w7swoole ' . App::$server->type . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
+		\isetProcessTitle( 'w7swoole ' . App::$server->getType() . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
 
 		//设置安全限制目录
 		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?? [];

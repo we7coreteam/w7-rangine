@@ -11,13 +11,15 @@ use W7\Core\Server\ServerAbstract;
 use W7\Core\Config\Event;
 
 class Server extends ServerAbstract {
-	public $type = parent::TYPE_HTTP;
+	public function getType() {
+		return parent::TYPE_HTTP;
+	}
 
 	public function start() {
 		if (!empty($this->setting['open_http2_protocol'])) {
 			$this->connection['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
-		$this->server = $this->getServer();
+		$this->server = new HttpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
 		$this->enableCoroutine();
 		$this->server->set($this->setting);
 
@@ -26,14 +28,5 @@ class Server extends ServerAbstract {
 		$this->registerService();
 
 		$this->server->start();
-
-		ievent(Event::ON_USER_AFTER_START, [$this->server]);
-	}
-
-	public function getServer() {
-		if (empty($this->server)) {
-			$this->server = new HttpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
-		}
-		return $this->server;
 	}
 }

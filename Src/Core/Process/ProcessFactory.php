@@ -26,6 +26,6 @@ class ProcessFactory {
 
 	public function make($id) : ProcessAbstract {
 		$value = $this->processMap[$id];
-		return new $value['handle']($value['name']);
+		return new $value['handle']($value['name'], $value['num']);
 	}
 }

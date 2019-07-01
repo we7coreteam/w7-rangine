@@ -4,9 +4,9 @@ namespace W7\Core\Crontab;
 
 use W7\Core\Crontab\Process\CrontabDispatcher;
 use W7\Core\Crontab\Process\CrontabExecutor;
-use W7\Core\Process\Pool\PoolServiceAbstract;
+use W7\Core\Process\Pool\PoolServerAbstract;
 
-class CrontabService extends PoolServiceAbstract {
+class CrontabServer extends PoolServerAbstract {
 	const DEFAULT_PID_FILE = '/tmp/swoole_crontab.pid';
 
 	public function __construct() {
@@ -15,6 +15,10 @@ class CrontabService extends PoolServiceAbstract {
 		$this->config['setting']['auto_start'] = $this->config['setting']['auto_start'] ?? false;
 		$this->config['setting']['pid_file'] = empty($this->config['setting']['pid_file']) ? self::DEFAULT_PID_FILE : $this->config['setting']['pid_file'];
 		$this->poolConfig = $this->config['setting'];
+	}
+
+	public function getType() {
+		return parent::TYPE_CRONTAB;
 	}
 
 	public function start() {

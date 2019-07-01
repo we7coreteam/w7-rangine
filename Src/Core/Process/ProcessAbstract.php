@@ -10,6 +10,7 @@ use Swoole\Process;
 
 abstract class ProcessAbstract {
 	protected $name = 'process';
+	protected $num = 1;
 	protected $mqKey;
 	/**
 	 * @var Process
@@ -17,8 +18,9 @@ abstract class ProcessAbstract {
 	protected $process;
 	protected $interval = 1;
 
-	public function __construct($name, Process $process = null) {
+	public function __construct($name, $num = 1, Process $process = null) {
 		$this->name = $name;
+		$this->num = $num;
 		$this->process = $process;
 
 		$this->init();
@@ -37,7 +39,12 @@ abstract class ProcessAbstract {
 	}
 
 	private function getProcessName() {
-		return 'w7swoole ' . $this->name . '-' . $this->process->id;
+		$name = 'w7swoole ' . $this->name;
+		if ($this->num > 1) {
+			$name .= '-' . ($this->process->id % $this->num);
+		}
+
+		return $name;
 	}
 
 	/**

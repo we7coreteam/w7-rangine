@@ -36,5 +36,7 @@ abstract class PoolAbstract {
 
 	abstract public function start();
 
-	public function stop() {}
+	public function stop() {
+		return true;
+	}
 }
