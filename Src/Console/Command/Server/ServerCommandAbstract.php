@@ -5,6 +5,7 @@ namespace W7\Console\Command\Server;
 use W7\App;
 use W7\Console\Command\CommandAbstract;
 use W7\Core\Crontab\CrontabServer;
+use W7\Core\Exception\CommandException;
 use W7\Core\Process\Pool\IndependentPool;
 use W7\Core\Process\ProcessServer;
 use W7\Core\Server\ServerInterface;
@@ -12,17 +13,31 @@ use W7\Http\Server\Server as HttpServer;
 use W7\Tcp\Server\Server as TcpServer;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
+	protected function configure() {
+		$this->addArgument('type', null, 'server type');
+	}
+
 	protected function getServer() : ServerInterface {
-		if ((SERVER & HTTP) === HTTP) {
+		$type = $this->input->getArgument('type');
+		$server = SERVER;
+		if ($type) {
+			try{
+				$type = strtoupper($type);
+				$server = eval('return ' . $type . ';');
+			} catch (\Throwable $e) {
+				throw new CommandException('argument type error');
+			}
+		}
+		if (($server & HTTP) === HTTP) {
 			return new HttpServer();
 		}
-		if ((SERVER & TCP) === TCP) {
+		if (($server & TCP) === TCP) {
 			return new TcpServer();
 		}
-		if ((SERVER & PROCESS) == PROCESS) {
+		if (($server & PROCESS) == PROCESS) {
 			return (new ProcessServer())->registerPool(IndependentPool::class);
 		}
-		if ((SERVER & CRONTAB) === CRONTAB) {
+		if (($server & CRONTAB) === CRONTAB) {
 			return (new CrontabServer())->registerPool(IndependentPool::class);
 		}
 
