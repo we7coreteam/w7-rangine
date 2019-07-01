@@ -34,6 +34,10 @@ abstract class PoolAbstract {
 		$this->processFactory->add($name, $handle, $num);
 	}
 
+	public function getProcessFactory() {
+		return $this->processFactory;
+	}
+
 	abstract public function start();
 
 	public function stop() {

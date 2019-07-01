@@ -50,7 +50,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 		if ($server->isRun()) {
 			$this->output->writeln("The server have been running!(PID: {$status['masterPid']})", true);
-			return false;
+			return $this->restart();
 		}
 
 		$statusInfo = '';

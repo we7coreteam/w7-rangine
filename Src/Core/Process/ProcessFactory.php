@@ -3,7 +3,7 @@
 namespace W7\Core\Process;
 
 class ProcessFactory {
-	private $processMap;
+	private $processMap = [];
 
 	public function add($name, $handle, $num = 1) {
 		for($i = 0; $i < $num; $i++) {

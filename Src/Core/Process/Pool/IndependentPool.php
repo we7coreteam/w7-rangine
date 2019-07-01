@@ -25,7 +25,7 @@ class IndependentPool extends PoolAbstract {
 		if ($this->daemonize) {
 			$pid = pcntl_fork();
 			if ($pid == -1) {
-				throw new Exception('启动守护进程失败');
+				throw new \Exception('启动守护进程失败');
 			}
 			elseif ($pid > 0) {
 				//父进程退出,子进程变成孤儿进程被1号进程收养，进程脱离终端

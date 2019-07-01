@@ -50,7 +50,8 @@ abstract class PoolServerAbstract implements ServerInterface {
 		}
 
 		return [
-			'masterPid' => $pid
+			'masterPid' => $pid,
+			'child_process_num' => $this->processPool->getProcessFactory()->count()
 		];
 	}
 }

@@ -114,7 +114,6 @@ abstract class ProcessAbstract {
 	}
 
 	public function stop() {
-		ioutputer()->info('process ' . $this->getProcessName() . ' exit');
 		ilogger()->info('process ' . $this->getProcessName() . ' exit');
 	}
 }
