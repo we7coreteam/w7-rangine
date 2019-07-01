@@ -20,7 +20,7 @@ class Server extends ServerAbstract {
 		$this->enableCoroutine();
 		$this->server->set($this->setting);
 
-		ievent(Event::ON_USER_BEFORE_START);
+		ievent(Event::ON_USER_BEFORE_START, [$this->server]);
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
