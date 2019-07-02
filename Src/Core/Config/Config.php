@@ -81,7 +81,8 @@ class Config {
 		!defined('RELEASE') && define('RELEASE', 0);
 		!defined('DEBUG') && define('DEBUG', 1);
 		!defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
-		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG);
+		!defined('BACKTRACE') && define('BACKTRACE', 4);
+		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
 		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
 
 		//加载所有的配置到内存中
