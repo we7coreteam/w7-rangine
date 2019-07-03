@@ -10,9 +10,11 @@ use W7\Core\Service\ServiceAbstract;
 
 class ValidateRegister extends ServiceAbstract {
 	public function register() {
+		iloader()->set('translator', function () {
+			return new Translator($this->getFileLoader(), 'zh-CN');
+		});
 		iloader()->set('validator', function () {
-			$translator = new Translator($this->getFileLoader(), 'zh-CN');
-			$factory = new Factory($translator);
+			$factory = new Factory(iloader()->get('translator'));
 			$factory->setPresenceVerifier(new DatabasePresenceVerifier(idb()));
 
 			return $factory;

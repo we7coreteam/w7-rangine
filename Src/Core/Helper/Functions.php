@@ -342,3 +342,11 @@ if (!function_exists('ienv')) {
 		return $value;
 	}
 }
+if (!function_exists('itrans')) {
+	function itrans($id = null, $replace = [], $locale = null) {
+		if (is_null($id)) {
+			return iloader()->get('translator');
+		}
+		return iloader()->get('translator')->trans($id, $replace, $locale);
+	}
+}
