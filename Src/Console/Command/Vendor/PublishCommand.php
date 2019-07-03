@@ -10,13 +10,16 @@ use W7\Core\Provider\ProviderAbstract;
 
 class PublishCommand extends CommandAbstract {
 	protected $description = 'publish the vendor configuration to the app';
+	/**
+	 * @var Filesystem
+	 */
 	private $fileSystem;
 
 	protected function configure() {
 		$this->addOption('--provider', '-p', InputOption::VALUE_REQUIRED, 'the class name of the extension package, including namespace');
 		$this->addOption('--tag', '-t', InputOption::VALUE_REQUIRED, 'tag of extension packages');
 		$this->addOption('--force', '-f', null, 'mandatory coverage configuration');
-		$this->fileSystem = new Filesystem();
+		$this->fileSystem = iloader()->get('filesystem');
 	}
 
 	protected function handle($options) {

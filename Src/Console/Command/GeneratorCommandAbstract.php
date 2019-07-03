@@ -17,7 +17,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 
 	protected function configure() {
 		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the generate file name');
-		$this->filesystem = new Filesystem();
+		$this->filesystem = iloader()->get('filesystem');
 	}
 
 	protected function handle($options) {

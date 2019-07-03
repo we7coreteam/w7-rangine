@@ -2,7 +2,6 @@
 
 namespace W7\Core\Validation;
 
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\DatabasePresenceVerifier;
 use Illuminate\Validation\Factory;
@@ -26,7 +25,7 @@ class ValidateRegister extends ServiceAbstract {
 			BASE_PATH . '/vendor/caouecs/laravel-lang/src/',
 			BASE_PATH . '/app/config/lang/',
 		];
-		$loader = new FileLoader(new Filesystem(), '', $paths);
+		$loader = new FileLoader(iloader()->get('filesystem'), '', $paths);
 		if (\is_callable([$loader, 'addJsonPath'])) {
 			$loader->addJsonPath(BASE_PATH . '/vendor/caouecs/laravel-lang/json/');
 		}
