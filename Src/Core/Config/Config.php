@@ -14,8 +14,6 @@ use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Listener\WorkerStopListener;
-use W7\Core\Process\CrontabProcess;
-use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
 use W7\Tcp\Listener\CloseListener;
 use W7\Tcp\Listener\ConnectListener;
@@ -61,11 +59,6 @@ class Config {
 		],
 	];
 
-	private $process = [
-		ReloadProcess::class,
-		CrontabProcess::class,
-	];
-
 	private $config = [];
 
 	public function __construct() {
@@ -84,6 +77,13 @@ class Config {
 		!defined('BACKTRACE') && define('BACKTRACE', 4);
 		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
 		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
+
+		//在加载配置前定义需要的常量
+		!defined('HTTP') && define('HTTP', 1);
+		!defined('TCP') && define('TCP', 2);
+		!defined('PROCESS') && define('PROCESS', 4);
+		!defined('CRONTAB') && define('CRONTAB', 8);
+		!defined('SERVER') && define('SERVER', empty(ienv('SERVER')) ? HTTP|PROCESS|CRONTAB : ienv('SERVER'));
 
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
@@ -113,13 +113,6 @@ class Config {
 		}
 		$this->server = array_merge([], $this->defaultServer, $this->getUserConfig('server'));
 		return $this->server;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getProcess() {
-		return $this->process;
 	}
 
 	/**

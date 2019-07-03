@@ -11,49 +11,6 @@ use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
 
-if (!function_exists('iprocess')) {
-	/**
-	 * 派发一个进程
-	 * @param $name
-	 * @param null $server
-	 * @return bool|\Swoole\Process|void
-	 */
-	function iprocess($name, $server = null) {
-		/**
-		 * @var \W7\Core\Dispatcher\ProcessDispatcher $dispatcher
-		 */
-		$dispatcher = iloader()->get(\W7\Core\Dispatcher\ProcessDispatcher::class);
-		return $dispatcher->dispatch($name, $server);
-	}
-
-	/**
-	 * 返回进程管理器
-	 * @return \W7\Core\Dispatcher\ProcessDispatcher
-	 */
-	function iprocessManager() {
-		$dispatcher = iloader()->get(\W7\Core\Dispatcher\ProcessDispatcher::class);
-		return $dispatcher;
-	}
-
-	/**
-	 * 派发一个进程池
-	 * @param $name
-	 * @param null $server
-	 * @return bool|\Swoole\Process|void
-	 */
-	function iprocessPool($name, $number) {
-
-	}
-
-	/**
-	 * 返回一个进程池管理
-	 * @return \W7\Core\Dispatcher\ProcessPoolDispatcher
-	 */
-	function iprocessPoolManager() {
-		$dispatcher = iloader()->get(\W7\Core\Dispatcher\ProcessPoolDispatcher::class);
-		return $dispatcher;
-	}
-}
 if (!function_exists("ievent")) {
 	/**
 	 * 派发一个事件

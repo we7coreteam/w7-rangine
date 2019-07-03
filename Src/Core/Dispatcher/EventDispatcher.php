@@ -23,7 +23,7 @@ class EventDispatcher extends DispatcherAbstract
 	 */
 	public function __construct()
 	{
-		$this->serverType = App::$server->type;
+		$this->serverType = App::$server->getType();
 		$this->initAllowEvent();
 		//用户事件无需手动注册，自动获取即可
 		$this->register();

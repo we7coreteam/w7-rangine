@@ -4,12 +4,12 @@
  * @date 18-7-25 下午3:03
  */
 
-namespace W7\Core\Process;
+namespace W7\Core\Process\Process;
 
-use Swoole\Process;
 use W7\App;
+use W7\Core\Process\ProcessAbstract;
 
-class ReloadProcess implements ProcessInterface {
+class ReloadProcess extends ProcessAbstract {
 
 	/**
 	 * 监听文件变化的路径
@@ -33,55 +33,42 @@ class ReloadProcess implements ProcessInterface {
 	 *
 	 * @var int
 	 */
-	private $interval = 5;
-
-	private $enabled = false;
+	protected $interval = 5;
 
 	private $debug = false;
 
-	/**
-	 * 初始化方法
-	 */
-	public function __construct() {
+	protected function init() {
 		$reloadConfig = \iconfig()->getUserAppConfig('reload');
 		$this->interval = !empty($reloadConfig['interval']) ? $reloadConfig['interval'] : $this->interval;
-		$this->enabled = ((ENV & DEBUG) === DEBUG);
 		$this->debug = (bool)$reloadConfig['debug'];
 		$this->watchDir = array_merge($this->watchDir, $reloadConfig['path'] ?? []);
 
 		$this->md5File = $this->getWatchDirMd5();
+
 	}
 
-	public function check() {
-		if ($this->enabled) {
-			return true;
-		}
-		return false;
-	}
-
-	public function run(Process $process) {
-		$server = App::$server;
+	protected function beforeStart() {
 		if ($this->debug) {
 			ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
 		}
-		while (true) {
-			sleep($this->interval);
-			if ($this->debug) {
-				$startReload = true;
-			} else {
-				$md5File = $this->getWatchDirMd5();
-				$startReload = (strcmp($this->md5File, $md5File) !== 0);
-				$this->md5File = $md5File;
+	}
+
+	public function run() {
+		if ($this->debug) {
+			$startReload = true;
+		} else {
+			$md5File = $this->getWatchDirMd5();
+			$startReload = (strcmp($this->md5File, $md5File) !== 0);
+			$this->md5File = $md5File;
+		}
+		if ($startReload) {
+			App::$server->isRun();
+			App::$server->getServer()->reload();
+			if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {
+				opcache_reset();
 			}
-			if ($startReload) {
-				$server->isRun();
-				$server->getServer()->reload();
-				if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {
-					opcache_reset();
-				}
-				if (!$this->debug) {
-					ioutputer()->writeln("Reloaded in " . date('m-d H:i:s') . "...");
-				}
+			if (!$this->debug) {
+				ioutputer()->writeln("Reloaded in " . date('m-d H:i:s') . "...");
 			}
 		}
 	}

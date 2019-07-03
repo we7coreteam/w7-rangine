@@ -8,6 +8,7 @@
 namespace W7\Core\Server;
 
 interface ServerInterface {
+
 	/**
 	 * 服务启动
 	 */
@@ -18,6 +19,12 @@ interface ServerInterface {
 	 * @return mixed
 	 */
 	public function stop();
+
+	/**
+	 * 服务类型
+	 * @return mixed
+	 */
+	public function getType();
 
 	/**
 	 * 服务是否运行

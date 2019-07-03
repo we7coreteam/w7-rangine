@@ -60,6 +60,9 @@ class Application extends SymfontApplication {
 		try{
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
+			if ($e instanceof \Error) {
+				$e = new \Exception($e->getMessage(), $e->getCode(), $e->getPrevious());
+			}
 			$this->renderException($e, $output);
 		}
 	}
