@@ -11,7 +11,7 @@ use W7\Core\Message\MessageAbstract;
 use W7\Core\Message\TaskMessage;
 
 /**
- * onFinish(swoole_server $serv, int $task_id, string $data)
+ * onFinish(\Swoole\Server $serv, int $task_id, string $data)
  */
 class FinishListener implements ListenerInterface {
 	public function run(...$params) {

@@ -6,11 +6,12 @@
 
 namespace W7\Core\Helper\Storage;
 
+use Swoole\Table;
 
 class MemoryTable {
-	const FIELD_TYPE_STRING = \swoole_table::TYPE_STRING;
-	const FIELD_TYPE_INT = \swoole_table::TYPE_INT;
-	const FIELD_TYPE_FLOAT = \swoole_table::TYPE_FLOAT;
+	const FIELD_TYPE_STRING = Table::TYPE_STRING;
+	const FIELD_TYPE_INT = Table::TYPE_INT;
+	const FIELD_TYPE_FLOAT = Table::TYPE_FLOAT;
 
 	private $table = [];
 
@@ -29,7 +30,7 @@ class MemoryTable {
 			return $this->table[$name];
 		}
 
-		$table = new \swoole_table($size);
+		$table = new Table($size);
 		if (!empty($column)) {
 			foreach ($column as $field => $params) {
 				if (empty($params)) {

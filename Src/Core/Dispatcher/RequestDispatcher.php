@@ -44,7 +44,12 @@ class RequestDispatcher extends DispatcherAbstract {
 				$throwable->getFile(),
 				$throwable->getLine()
 			);
-			ilogger()->error($errorMessage, array('exception' => $throwable));
+
+			$context = [];
+			if ((ENV & BACKTRACE) === BACKTRACE) {
+				$context = array('exception' => $throwable);
+			}
+			ilogger()->error($errorMessage, $context);
 
 			$response = iloader()->get(ExceptionHandle::class)->handle($throwable);
 		} finally {

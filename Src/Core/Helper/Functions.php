@@ -16,7 +16,7 @@ if (!function_exists('iprocess')) {
 	 * 派发一个进程
 	 * @param $name
 	 * @param null $server
-	 * @return bool|swoole_process|void
+	 * @return bool|\Swoole\Process|void
 	 */
 	function iprocess($name, $server = null) {
 		/**
@@ -39,7 +39,7 @@ if (!function_exists('iprocess')) {
 	 * 派发一个进程池
 	 * @param $name
 	 * @param null $server
-	 * @return bool|swoole_process|void
+	 * @return bool|\Swoole\Process|void
 	 */
 	function iprocessPool($name, $number) {
 

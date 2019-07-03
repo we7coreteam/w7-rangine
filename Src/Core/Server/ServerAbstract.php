@@ -100,10 +100,10 @@ abstract class ServerAbstract implements ServerInterface {
 		$startTime = time();
 		$result = true;
 
-		if (\swoole_process::kill($status['masterPid'], 0)) {
-			\swoole_process::kill($status['masterPid'], SIGTERM);
+		if (Process::kill($status['masterPid'], 0)) {
+			Process::kill($status['masterPid'], SIGTERM);
 			while (1) {
-				$masterIslive = \swoole_process::kill($status['masterPid'], SIGTERM);
+				$masterIslive = Process::kill($status['masterPid'], SIGTERM);
 				if ($masterIslive) {
 					if (time() - $startTime >= $timeout) {
 						$result = false;
