@@ -30,7 +30,7 @@ abstract class PoolAbstract {
 	 * @param $num
 	 */
 	public function registerProcess($name, $handle, $num) {
-		ioutputer()->info('start process ' . $name . ', num=>' . $num );
+		ioutputer()->writeln('start process ' . $name . ', num=>' . $num );
 		$this->processFactory->add($name, $handle, $num);
 	}
 

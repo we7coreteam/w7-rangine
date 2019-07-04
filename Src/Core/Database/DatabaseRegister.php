@@ -20,6 +20,13 @@ use W7\Core\Service\ServiceAbstract;
 class DatabaseRegister extends ServiceAbstract {
 	public function register() {
 		// TODO: Implement register() method.
+		iloader()->set('model-container', function () {
+			return new Container();
+		});
+		iloader()->set('events', function () {
+			return new Dispatcher(iloader()->get('model-container'));
+		});
+
 		$this->registerDb();
 	}
 
@@ -33,12 +40,12 @@ class DatabaseRegister extends ServiceAbstract {
 		});
 
 		//新增swoole连接Mysql的容器
-		$container = iloader()->withClass(Container::class)->withSingle()->get();
+		$container = iloader()->get('model-container');
 		$container->instance('db.connector.swoolemysql', new ConnectorManager());
 		$container->instance('db.connector.mysql', new ConnectorManager());
 
 		//侦听sql执行完后的事件，回收$connection
-		$dbDispatch = iloader()->withClass(Dispatcher::class)->withSingle()->withParams('container', $container)->get();
+		$dbDispatch = iloader()->get('events');
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
 			/**
 			 *检测是否是事物里面的query

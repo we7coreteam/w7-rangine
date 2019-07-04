@@ -53,6 +53,10 @@ class Output extends SymfonyStyle {
 		}
 	}
 
+	public function info($content) {
+		$this->write($content);
+	}
+
 	/**
 	 * 显示命令列表一块数据
 	 *
