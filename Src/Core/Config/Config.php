@@ -69,7 +69,11 @@ class Config {
 		$env = new Env(BASE_PATH);
 		$env->load();
 		unset($env);
-		
+
+		$this->initConst();
+	}
+
+	private function initConst() {
 		//在加载配置前定义需要的常量
 		!defined('RELEASE') && define('RELEASE', 0);
 		!defined('DEBUG') && define('DEBUG', 1);
@@ -83,13 +87,35 @@ class Config {
 		!defined('TCP') && define('TCP', 2);
 		!defined('PROCESS') && define('PROCESS', 4);
 		!defined('CRONTAB') && define('CRONTAB', 8);
-		!defined('SERVER') && define('SERVER', empty(ienv('SERVER')) ? HTTP|PROCESS|CRONTAB : ienv('SERVER'));
 
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
+		$this->checkSetting();
+	}
+
+	private function checkSetting() {
 		$setting = $this->getUserAppConfig('setting');
 
-		!defined('ENV') && define('ENV', $setting['env'] ?? RELEASE);
+		if (defined('ENV')) {
+			$env = ENV;
+		} else {
+			$env = $setting['env'] ?? '';
+		}
+		if (!is_numeric($env) || ((RELEASE|DEVELOPMENT) & $env) !== $env) {
+			throw new \Exception("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
+		}
+		!defined('ENV') && define('ENV', $env);
+
+
+		if (defined('SERVER')) {
+			$server = SERVER;
+		} else {
+			$server = $setting['server'] ?? HTTP|PROCESS|CRONTAB;
+		}
+		if (!is_numeric($server) || ((HTTP|TCP|PROCESS|CRONTAB) & $server) !== $server) {
+			throw new \Exception("config setting['server'] error, please use the constant HTTP, TCP, PROCESS, CRONTAB instead");
+		}
+		!defined('SERVER') && define('SERVER', $server);
 	}
 
 	/**

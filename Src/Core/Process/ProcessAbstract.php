@@ -76,24 +76,27 @@ abstract class ProcessAbstract {
 		});
 
 		$this->beforeStart();
-		$runTime = Timer::tick($this->interval * 1000, function ($timer) use (&$exit, &$complete) {
+		$exitTime = null;
+		$runTime = null;
+		$runTime = Timer::tick($this->interval * 1000, function ($timer) use (&$exit, &$complete, &$exitTime) {
 			$complete = false;
 			try{
 				$this->run();
 			} catch (\Throwable $e) {
 				ilogger()->error('run process fail with error ' . $e->getMessage());
 			}
-
 			$complete = true;
 
 			//如果在执行完成后就得到退出信息,则马上退出
 			if ($exit === 1) {
 				--$exit;
 				Timer::clear($timer);
+				Timer::clear($exitTime);
+				$this->exit();
 			}
 		});
 
-		while ($exit !== 0) {
+		$exitTime = Timer::tick(1000, function ($timer) use (&$exit, &$complete, &$runTime) {
 			pcntl_signal_dispatch();
 			/**
 			 * 得到退出信号,但是任务定时器正在等待下一个时间点的时候,强制clear time,退出当前进程
@@ -101,10 +104,10 @@ abstract class ProcessAbstract {
 			if ($exit === 1 && $complete) {
 				--$exit;
 				Timer::clear($runTime);
+				Timer::clear($timer);
+				$this->exit();
 			}
-
-			sleep(1);
-		}
+		});
 	}
 
 	protected function run() {}

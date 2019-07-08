@@ -14,11 +14,15 @@ class CrontabExecutor extends ProcessAbstract {
 				 */
 				ilogger()->info('pop crontab task ' .$data . ' at ' . $this->process->pid);
 				$taskDispatcher = iloader()->singleton(TaskDispatcher::class);
-				$result = $taskDispatcher->dispatch($this->process, -1 , $this->process->pid, $data);
-				if ($result === false) {
-					continue;
+				try{
+					$result = $taskDispatcher->dispatch($this->process, -1 , $this->process->pid, $data);
+					if ($result === false) {
+						continue;
+					}
+					ilogger()->info('complete crontab task ' . $result->task . ' with data ' .$data . ' at ' . $this->process->pid);
+				} catch (\Throwable $e) {
+					ilogger()->info('exec crontab task ' . $result->task . ' with data ' .$data . ' at ' . $this->process->pid . ' with erro ' . $e->getMessage());
 				}
-				ilogger()->info('complete crontab task ' . $result->task . ' with data ' .$data . ' at ' . $this->process->pid . ' with $result ' . $result->error);
 			}
 		}
 	}
