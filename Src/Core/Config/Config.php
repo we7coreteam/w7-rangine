@@ -89,17 +89,30 @@ class Config {
 
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
+		$this->checkSetting();
+	}
+
+	private function checkSetting() {
 		$setting = $this->getUserAppConfig('setting');
 
-		!defined('ENV') && define('ENV', $setting['env'] ?? RELEASE);
+		if (defined('ENV')) {
+			$env = ENV;
+		} else {
+			$env = $setting['env'] ?? '';
+		}
+		if (!is_numeric($env) || ((RELEASE|DEVELOPMENT) & $env) !== $env) {
+			throw new \Exception("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
+		}
+		!defined('ENV') && define('ENV', $env);
 
-		$server = (int)($setting['server'] ?? '');
-		if (!$server) {
-			if ((ENV & DEBUG) === DEBUG) {
-				$server = HTTP|PROCESS|CRONTAB;
-			} else {
-				$server = HTTP;
-			}
+
+		if (defined('SERVER')) {
+			$server = SERVER;
+		} else {
+			$server = $setting['server'] ?? HTTP|PROCESS|CRONTAB;
+		}
+		if (!is_numeric($server) || ((HTTP|TCP|PROCESS|CRONTAB) & $server) !== $server) {
+			throw new \Exception("config setting['server'] error, please use the constant HTTP, TCP, PROCESS, CRONTAB instead");
 		}
 		!defined('SERVER') && define('SERVER', $server);
 	}
