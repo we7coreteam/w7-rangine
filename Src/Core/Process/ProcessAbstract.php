@@ -93,6 +93,9 @@ abstract class ProcessAbstract {
 			}
 		});
 
+		/**
+		 * swoole 4.4.0 这里会阻塞定时器的执行
+		 */
 		while ($exit !== 0) {
 			pcntl_signal_dispatch();
 			/**
