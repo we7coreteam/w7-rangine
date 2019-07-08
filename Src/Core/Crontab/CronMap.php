@@ -3,7 +3,7 @@
 namespace W7\Core\Crontab;
 
 class CronMap{
-	private $tasks;
+	private $tasks = [];
 
 	public function __construct($config) {
 		foreach ($config as $name => $task) {
