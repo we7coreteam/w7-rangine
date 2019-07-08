@@ -62,10 +62,6 @@ class IndependentPool extends PoolAbstract {
 		}
 
 		$this->process->start();
-
-		if ($this->ipcType != 0) {
-			$this->process->exit();
-		}
 	}
 
 	private function onWorkerStop(PoolManager $pool, $workerId) {
