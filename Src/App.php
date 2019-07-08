@@ -40,9 +40,6 @@ class App {
 	}
 
 	public function runConsole() {
-		/**
-		 * @var Console $console
-		 */
 		try{
 			//初始化配置
 			iconfig();
