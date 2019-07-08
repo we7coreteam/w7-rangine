@@ -40,8 +40,6 @@ class App {
 
 	public function __construct() {
 		$this->init();
-		$this->register();
-		$this->boot();
 	}
 
 	private function init() {
@@ -60,16 +58,19 @@ class App {
 	}
 
 	public function runConsole() {
-		(new Application())->run();
+		try{
+			$this->register();
+			$this->boot();
+			(new Application())->run();
+		} catch (\Throwable $e) {
+			ioutputer()->error($e->getMessage());
+		}
 	}
 
 	public static function getApp() {
 		return self::$self;
 	}
 
-	/**
-	 * @return Container
-	 */
 	public function getLoader() {
 		return $this->container;
 	}
