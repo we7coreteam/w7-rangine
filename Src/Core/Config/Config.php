@@ -85,11 +85,22 @@ class Config {
 		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
 		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
 
-		//加载所有的配置到内存中
 		$this->loadConfig('config');
-		$setting = $this->getUserAppConfig('setting');
+		$this->checkSetting();
+	}
 
-		!defined('ENV') && define('ENV', $setting['env'] ?? RELEASE);
+	private function checkSetting() {
+		if (defined('ENV')) {
+			$env = ENV;
+		} else {
+			$setting = $this->getUserAppConfig('setting');
+			$env = $setting['env'] ?? '';
+		}
+
+		if (!is_numeric($env) || ((RELEASE|DEVELOPMENT) & $env) !== $env) {
+			throw new \Exception("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
+		}
+		!defined('ENV') && define('ENV', $env);
 	}
 
 	/**

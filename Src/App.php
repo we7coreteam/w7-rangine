@@ -43,12 +43,16 @@ class App {
 		/**
 		 * @var Console $console
 		 */
-		//初始化配置
-		iconfig();
-		iloader()->singleton(ProviderManager::class)->register()->boot();
-		$console = iloader()->singleton(Application::class);
+		try{
+			//初始化配置
+			iconfig();
+			iloader()->singleton(ProviderManager::class)->register()->boot();
+			$console = iloader()->singleton(Application::class);
 
-		$console->run();
+			$console->run();
+		} catch (\Throwable $e) {
+			ioutputer()->error($e->getMessage());
+		}
 	}
 
 	public function getLoader() {
