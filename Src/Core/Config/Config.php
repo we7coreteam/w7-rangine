@@ -69,7 +69,11 @@ class Config {
 		$env = new Env(BASE_PATH);
 		$env->load();
 		unset($env);
-		
+
+		$this->initConst();
+	}
+
+	private function initConst() {
 		//在加载配置前定义需要的常量
 		!defined('RELEASE') && define('RELEASE', 0);
 		!defined('DEBUG') && define('DEBUG', 1);
@@ -82,13 +86,22 @@ class Config {
 		!defined('TCP') && define('TCP', 2);
 		!defined('PROCESS') && define('PROCESS', 4);
 		!defined('CRONTAB') && define('CRONTAB', 8);
-		!defined('SERVER') && define('SERVER', empty(ienv('SERVER')) ? HTTP|PROCESS|CRONTAB : ienv('SERVER'));
 
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
 		$setting = $this->getUserAppConfig('setting');
 
 		!defined('ENV') && define('ENV', $setting['env'] ?? RELEASE);
+
+		$server = (int)($setting['server'] ?? '');
+		if (!$server) {
+			if ((ENV & DEBUG) === DEBUG) {
+				$server = HTTP|PROCESS|CRONTAB;
+			} else {
+				$server = HTTP;
+			}
+		}
+		!defined('SERVER') && define('SERVER', $server);
 	}
 
 	/**
