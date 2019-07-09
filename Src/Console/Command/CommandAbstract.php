@@ -5,7 +5,6 @@ namespace W7\Console\Command;
 use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
-use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Events\TransactionBeginning;
@@ -22,6 +21,7 @@ use W7\Console\Io\Output;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\Core\Database\ConnectorManager;
+use W7\Core\Database\DatabaseManager;
 
 abstract class CommandAbstract extends Command {
 	protected $description;
