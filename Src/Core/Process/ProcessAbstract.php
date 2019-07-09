@@ -138,7 +138,7 @@ abstract class ProcessAbstract {
 
 	protected function run() {}
 
-	public function normalExit($status=0) {
+	public function normalExit() {
 		--$this->exitStatus;
 		if ($this->runTimer) {
 			Timer::clear($this->runTimer);
