@@ -35,7 +35,6 @@ abstract class ProviderAbstract extends ServiceAbstract{
 		$this->config = iconfig();
 		$this->router = irouter();
 		$this->logger = ilogger();
-
 	}
 
 	/**

@@ -44,7 +44,6 @@ class ReloadProcess extends ProcessAbstract {
 		$this->watchDir = array_merge($this->watchDir, $reloadConfig['path'] ?? []);
 
 		$this->md5File = $this->getWatchDirMd5();
-
 	}
 
 	protected function beforeStart() {

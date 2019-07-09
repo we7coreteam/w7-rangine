@@ -3,7 +3,7 @@
 namespace W7\Core\Crontab\Task;
 
 class TaskManager{
-	private $tasks;
+	private $tasks = [];
 
 	public function __construct($config) {
 		foreach ($config as $name => $task) {
