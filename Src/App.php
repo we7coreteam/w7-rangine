@@ -68,6 +68,9 @@ class App {
 	}
 
 	public static function getApp() {
+		if (!self::$self) {
+			self::$self = new App();
+		}
 		return self::$self;
 	}
 
