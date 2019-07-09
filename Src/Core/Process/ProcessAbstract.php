@@ -17,7 +17,13 @@ abstract class ProcessAbstract {
 	 * @var Process
 	 */
 	protected $process;
+	protected $pipe;
+
+	private $runTimer;
 	protected $interval = 1;
+	private $exitTimer;
+	private $complete;
+	private $exitStatus;
 
 	public function __construct($name, $num = 1, Process $process = null) {
 		$this->name = $name;
@@ -69,51 +75,84 @@ abstract class ProcessAbstract {
 		/**
 		 * 注册退出信号量,等本次业务执行完成后退出,在执行stop后需要等待sleep结束后再结束
 		 */
-		$exit = 2;
-		$complete = true;
-		pcntl_signal(SIGTERM, function () use (&$exit) {
-			--$exit;
+		$this->exitStatus = 2;
+		$this->complete = true;
+		pcntl_signal(SIGTERM, function () {
+			--$this->exitStatus;
 		});
 
 		$this->beforeStart();
-		$exitTime = null;
-		$runTime = null;
-		$runTime = Timer::tick($this->interval * 1000, function ($timer) use (&$exit, &$complete, &$exitTime) {
-			$complete = false;
+
+		if (method_exists($this, 'read')) {
+			$this->startByEvent();
+		} else {
+			$this->startByTimer();
+		}
+
+		$this->exitTimer = Timer::tick(1000, function ($timer) {
+			pcntl_signal_dispatch();
+			/**
+			 * 得到退出信号,但是任务定时器正在等待下一个时间点的时候,强制clear time,退出当前进程
+			 */
+			if ($this->exitStatus === 1 && $this->complete) {
+				$this->normalExit();
+			}
+		});
+	}
+
+	private function startByTimer() {
+		$this->runTimer = Timer::tick($this->interval * 1000, function ($timer) {
+			$this->complete = false;
 			try{
 				$this->run();
 			} catch (\Throwable $e) {
 				ilogger()->error('run process fail with error ' . $e->getMessage());
 			}
-			$complete = true;
+			$this->complete = true;
 
 			//如果在执行完成后就得到退出信息,则马上退出
-			if ($exit === 1) {
-				--$exit;
-				Timer::clear($timer);
-				Timer::clear($exitTime);
-				$this->exit();
+			if ($this->exitStatus === 1) {
+				$this->normalExit();
 			}
 		});
+	}
 
-		$exitTime = Timer::tick(1000, function ($timer) use (&$exit, &$complete, &$runTime) {
-			pcntl_signal_dispatch();
-			/**
-			 * 得到退出信号,但是任务定时器正在等待下一个时间点的时候,强制clear time,退出当前进程
-			 */
-			if ($exit === 1 && $complete) {
-				--$exit;
-				Timer::clear($runTime);
-				Timer::clear($timer);
-				$this->exit();
+	private function startByEvent() {
+		$pipe = $this->pipe ? $this->pipe : $this->process->pipe;
+		swoole_event_add($pipe, function ($fd) {
+			$data = $this->pipe ? '' : $this->process->read() ;
+			$this->complete = false;
+			try{
+				$this->read($data);
+			} catch (\Throwable $e) {
+				ilogger()->error('run process fail with error ' . $e->getMessage());
+			}
+			$this->complete = true;
+
+			//如果在执行完成后就得到退出信息,则马上退出
+			if ($this->exitStatus === 1) {
+				$this->normalExit();
 			}
 		});
 	}
 
 	protected function run() {}
 
-	public function exit($status=0) {
-		$this->process->exit($status);
+	public function normalExit($status=0) {
+		--$this->exitStatus;
+		if ($this->runTimer) {
+			Timer::clear($this->runTimer);
+			$this->runTimer = null;
+		}
+		if ($this->exitTimer) {
+			Timer::clear($this->exitTimer);
+			$this->exitTimer = null;
+		}
+		if (method_exists($this, 'read')) {
+			swoole_event_del($this->pipe ? $this->pipe : $this->process->pipe);
+		}
+
+		$this->process->kill($this->process->pid);
 	}
 
 	public function stop() {
