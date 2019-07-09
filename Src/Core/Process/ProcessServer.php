@@ -3,6 +3,7 @@
 namespace W7\Core\Process;
 
 
+use W7\Core\Process\Pool\IndependentPool;
 use W7\Core\Process\Pool\PoolServerAbstract;
 
 class ProcessServer extends PoolServerAbstract {
@@ -40,6 +41,9 @@ class ProcessServer extends PoolServerAbstract {
 		}
 
 		foreach ($userProcess as $name => $process) {
+			if ($name === 'reload' && $this->processPool instanceof IndependentPool) {
+				continue;
+			}
 			$this->processPool->registerProcess($name, $process['class'], $process['number']);
 		}
 		$this->processPool->start();
