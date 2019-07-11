@@ -23,11 +23,13 @@ class ValidateRegister extends ServiceAbstract {
 	private function getFileLoader() {
 		$paths = [
 			BASE_PATH . '/vendor/caouecs/laravel-lang/src/',
-			BASE_PATH . '/app/config/lang/',
+			BASE_PATH . '/config/lang/'
 		];
+
 		$loader = new FileLoader(iloader()->get('filesystem'), '', $paths);
 		if (\is_callable([$loader, 'addJsonPath'])) {
 			$loader->addJsonPath(BASE_PATH . '/vendor/caouecs/laravel-lang/json/');
+			$loader->addJsonPath(BASE_PATH . '/config/lang/json/');
 		}
 		return $loader;
 	}
