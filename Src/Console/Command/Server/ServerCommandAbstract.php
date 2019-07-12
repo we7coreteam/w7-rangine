@@ -34,14 +34,14 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		if (($server & TCP) === TCP) {
 			return new TcpServer();
 		}
-		if (($server & PROCESS) == PROCESS) {
+		if (($server & PROCESS) === PROCESS) {
 			return (new ProcessServer())->registerPool(IndependentPool::class);
 		}
 		if (($server & CRONTAB) === CRONTAB) {
 			return (new CrontabServer())->registerPool(IndependentPool::class);
 		}
 
-		return new HttpServer();
+		throw new \Exception('server type error');
 	}
 
 	protected function start() {
