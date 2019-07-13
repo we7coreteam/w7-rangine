@@ -63,6 +63,7 @@ abstract class ServerAbstract implements ServerInterface {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
 		$this->setting = array_merge([], $setting['common']);
+		$this->enableCoroutine();
 		$this->connection = $setting[$this->getType()];
 	}
 
