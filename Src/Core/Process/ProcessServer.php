@@ -41,6 +41,7 @@ class ProcessServer extends PoolServerAbstract {
 		}
 
 		foreach ($userProcess as $name => $process) {
+			//在不随server启动下,过滤reload进程
 			if ($name === 'reload' && $this->processPool instanceof IndependentPool) {
 				continue;
 			}

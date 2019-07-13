@@ -20,7 +20,6 @@ class Server extends ServerAbstract {
 			$this->connection['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
 		$this->server = new HttpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
-		$this->enableCoroutine();
 		$this->server->set($this->setting);
 
 		ievent(Event::ON_USER_BEFORE_START, [$this->server]);

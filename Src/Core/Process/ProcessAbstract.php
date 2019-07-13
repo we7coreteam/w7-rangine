@@ -17,8 +17,10 @@ abstract class ProcessAbstract {
 	 * @var Process
 	 */
 	protected $process;
+	// event 模式下
 	protected $pipe;
 
+	//定时器模式下
 	private $runTimer;
 	protected $interval = 1;
 	private $exitTimer;
@@ -67,7 +69,7 @@ abstract class ProcessAbstract {
 
 	protected function beforeStart() {}
 
-	public function start() {
+	public function onStart() {
 		if (\stripos(PHP_OS, 'Darwin') === false) {
 			$this->process->name($this->getProcessName());
 		}
@@ -95,7 +97,7 @@ abstract class ProcessAbstract {
 			 * 得到退出信号,但是任务定时器正在等待下一个时间点的时候,强制clear time,退出当前进程
 			 */
 			if ($this->exitStatus === 1 && $this->complete) {
-				$this->normalExit();
+				$this->stop();
 			}
 		});
 	}
@@ -112,7 +114,7 @@ abstract class ProcessAbstract {
 
 			//如果在执行完成后就得到退出信息,则马上退出
 			if ($this->exitStatus === 1) {
-				$this->normalExit();
+				$this->stop();
 			}
 		});
 	}
@@ -131,14 +133,14 @@ abstract class ProcessAbstract {
 
 			//如果在执行完成后就得到退出信息,则马上退出
 			if ($this->exitStatus === 1) {
-				$this->normalExit();
+				$this->stop();
 			}
 		});
 	}
 
 	protected function run() {}
 
-	public function normalExit() {
+	public function stop() {
 		--$this->exitStatus;
 		if ($this->runTimer) {
 			Timer::clear($this->runTimer);
@@ -155,7 +157,7 @@ abstract class ProcessAbstract {
 		$this->process->kill($this->process->pid);
 	}
 
-	public function stop() {
+	public function onStop() {
 		ilogger()->info('process ' . $this->getProcessName() . ' exit');
 	}
 }
