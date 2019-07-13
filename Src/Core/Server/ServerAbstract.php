@@ -131,6 +131,8 @@ abstract class ServerAbstract implements ServerInterface {
 				break;
 			}
 		}
+
+
 		if (!file_exists($this->setting['pid_file'])) {
 			return true;
 		} else {
@@ -245,6 +247,7 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	private function releaseDb($data, $container) {
+		return true;
 		$connection = $data->connection;
 		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings )));
 

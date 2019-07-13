@@ -22,7 +22,7 @@ class DependentPool extends PoolAbstract {
 					$process->setMq($this->mqKey);
 				}
 
-				$process->start();
+				$process->onStart();
 			}, false, SOCK_DGRAM);
 
 			App::$server->getServer()->addProcess($swooleProcess);

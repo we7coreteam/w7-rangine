@@ -61,7 +61,7 @@ class IndependentPool extends PoolAbstract {
 			$this->process->setMq($this->mqKey);
 		}
 
-		$this->process->start();
+		$this->process->onStart();
 	}
 
 	private function onWorkerStop(PoolManager $pool, $workerId) {
@@ -70,7 +70,7 @@ class IndependentPool extends PoolAbstract {
 		}
 
 		try{
-			$this->process->stop();
+			$this->process->onStop();
 		} catch (\Throwable $e) {
 			ilogger()->error('stop process fail with error ' . $e->getMessage());
 		}
