@@ -214,22 +214,4 @@ abstract class ProviderAbstract {
 		}
 		return [];
 	}
-
-	/**
-	 * Determine if the provider is deferred.
-	 *
-	 * @return bool
-	 */
-	public function isDeferred() {
-		return $this->defer;
-	}
-
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides() {
-		throw new \Exception('还未实现');
-	}
 }
