@@ -4,7 +4,6 @@ namespace W7\Console;
 
 use Symfony\Component\Console\Application as SymfontApplication;
 use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -66,6 +65,9 @@ class Application extends SymfontApplication {
 		try{
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
+			if ($e instanceof \Error) {
+				$e = new \Exception($e->getMessage(), $e->getCode(), $e->getPrevious());
+			}
 			$this->renderException($e, $output);
 		}
 	}
