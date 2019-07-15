@@ -21,7 +21,7 @@ abstract class ProcessAbstract {
 	protected $pipe;
 
 	//定时器模式下
-	private $runTimer;
+	protected $runTimer;
 	protected $interval = 1;
 	private $exitTimer;
 	private $complete;
