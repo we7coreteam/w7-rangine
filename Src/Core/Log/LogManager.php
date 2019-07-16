@@ -135,6 +135,7 @@ class LogManager {
 
 	private function getLogger($name) {
 		$logger = new Logger($name, [], []);
+		$logger->enable = $this->config['channel'][$name]['enable'] ?? false;
 		$logger->bufferLimit = $this->config['channel'][$name]['buffer_limit'] ?? 1;
 
 		if (!empty($this->commonProcessor)) {

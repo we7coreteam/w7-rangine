@@ -15,21 +15,21 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
-use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
-use Illuminate\Support\Str;
 use Swoole\Process;
+use W7\Core\Crontab\CrontabServer;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\App;
-use W7\Core\Config\Event;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
+use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Exception\CommandException;
+use W7\Core\Process\Pool\DependentPool;
+use W7\Core\Process\ProcessServer;
 use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
-
 	const TYPE_HTTP = 'http';
 	const TYPE_RPC = 'rpc';
 	const TYPE_TCP = 'tcp';
@@ -39,12 +39,6 @@ abstract class ServerAbstract implements ServerInterface {
 	 * @var \Swoole\Http\Server
 	 */
 	public $server;
-
-	/**
-	 * 服务类型
-	 * @var
-	 */
-	public $type;
 
 	/**
 	 * 配置
@@ -64,11 +58,12 @@ abstract class ServerAbstract implements ServerInterface {
 		date_default_timezone_set('Asia/Shanghai');
 		App::$server = $this;
 		$setting = \iconfig()->getServer();
-		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
-			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
+		if (empty($setting[$this->getType()]) || empty($setting[$this->getType()]['host'])) {
+			throw new CommandException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
 		$this->setting = array_merge([], $setting['common']);
-		$this->connection = $setting[$this->type];
+		$this->enableCoroutine();
+		$this->connection = $setting[$this->getType()];
 	}
 
 	/**
@@ -79,7 +74,6 @@ abstract class ServerAbstract implements ServerInterface {
 	public function getPname() {
 		return $this->setting['pname'];
 	}
-
 
 	public function getStatus() {
 		$pidFile = $this->setting['pid_file'];
@@ -110,6 +104,11 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 	}
 
+	protected function enableCoroutine() {
+		$this->setting['enable_coroutine'] = true;
+		$this->setting['task_enable_coroutine'] = false;
+	}
+
 	public function stop() {
 		$status = $this->getStatus();
 		$timeout = 20;
@@ -131,6 +130,8 @@ abstract class ServerAbstract implements ServerInterface {
 				break;
 			}
 		}
+
+
 		if (!file_exists($this->setting['pid_file'])) {
 			return true;
 		} else {
@@ -139,66 +140,54 @@ abstract class ServerAbstract implements ServerInterface {
 		return $result;
 	}
 
-
 	public function registerService() {
 		$this->registerSwooleEventListener();
-		$this->registerProcesser();
+		$this->registerProcess();
 		$this->registerServerContext();
-		$this->registerDb();
+//		$this->registerDb();
 		$this->registerCacheModel();
-		return true;
-	}
-
-	protected function registerProcesser() {
-		$processName = \iconfig()->getProcess();
-		foreach ($processName as $name) {
-			\iprocess($name, App::$server->server);
-		}
-
-		//启动用户配置的进程
-		$process = iconfig()->getUserAppConfig('process');
-		if (!empty($process)) {
-			foreach ($process as $name => $row) {
-				if (empty($row['enable'])) {
-					continue;
-				}
-
-				if (!class_exists($row['class'])) {
-					$row['class'] = sprintf("\\W7\\App\\Process\\%s", Str::studly($row['class']));
-				}
-
-				if (!class_exists($row['class'])) {
-					continue;
-				}
-
-				$row['number'] = intval($row['number']);
-				if (!isset($row['number']) || empty($row['number']) || $row['number'] <= 1) {
-					\iprocess($row['class'], App::$server->server);
-				} else {
-					//多个进程时，通过进程池管理
-
-					for ($i = 1; $i <= $row['number']; $i++) {
-						\iprocess($row['class'], App::$server->server);
-					}
-				}
-			}
-		}
 	}
 
 	protected function registerSwooleEventListener() {
-		$event = [$this->type, 'task', 'manage'];
-		
-		foreach ($event as $name) {
-			$event = \iconfig()->getEvent()[$name];
+		$eventTypes = [$this->getType(), 'task', 'manage'];
+
+		$swooleEvents = (new SwooleEvent())->getDefaultEvent();
+		foreach ($eventTypes as $name) {
+			$event = $swooleEvents[$name];
 			if (!empty($event)) {
 				$this->registerEvent($event);
 			}
 		}
+	}
 
-		//开启协程
-		//if (isCo()) {
-			\Swoole\Runtime::enableCoroutine(true);
-		//}
+	protected function registerEvent($event) {
+		if (empty($event)) {
+			return true;
+		}
+		foreach ($event as $eventName => $class) {
+			if (empty($class)) {
+				continue;
+			}
+			if ($eventName == SwooleEvent::ON_REQUEST) {
+				$server = \W7\App::$server->server;
+				$this->server->on(SwooleEvent::ON_REQUEST, function ($request, $response) use ($server) {
+					iloader()->singleton(EventDispatcher::class)->dispatch(SwooleEvent::ON_REQUEST, [$server, $request, $response]);
+				});
+			} else {
+				$this->server->on($eventName, function() use ($eventName) {
+					iloader()->singleton(EventDispatcher::class)->dispatch($eventName, func_get_args());
+				});
+			}
+		}
+	}
+
+	protected function registerProcess() {
+		if ((SERVER & CRONTAB) === CRONTAB) {
+			(new CrontabServer())->registerPool(DependentPool::class)->start();
+		}
+		if ((SERVER & PROCESS) === PROCESS) {
+			(new ProcessServer())->registerPool(DependentPool::class)->start();
+		}
 	}
 
 	protected function registerServerContext() {
@@ -221,14 +210,21 @@ abstract class ServerAbstract implements ServerInterface {
 			return new PdoMysqlConnection($connection, $database, $prefix, $config);
 		});
 
-		$container = iloader()->withClass(Container::class)->withSingle()->get();
+		//新增swoole连接Mysql的容器
+		$container = new Container();
 		//$container->instance('db.connector.swoolemysql', new SwooleMySqlConnector());
 		//$container->instance('db.connector.mysql', new PdoMySqlConnector());
 		$container->instance('db.connector.swoolemysql', new ConnectorManager());
 		$container->instance('db.connector.mysql', new ConnectorManager());
 
 		//侦听sql执行完后的事件，回收$connection
-		$dbDispatch = iloader()->withClass(Dispatcher::class)->withSingle()->withParams('container', $container)->get();
+		$dbDispatch = iloader()->singleton(EventDispatcher::class)->getDispatcher();
+		$reflect = new \ReflectionClass($dbDispatch);
+		$property = $reflect->getProperty('container');
+		$property->setAccessible('public');
+		$property->setValue($reflect, $container);
+		$property->setAccessible('protected');
+
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
 			/**
 			 *检测是否是事物里面的query
@@ -296,26 +292,6 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 		$pool->releaseConnection($activePdo);
 		return true;
-	}
-
-	protected function registerEvent($event) {
-		if (empty($event)) {
-			return true;
-		}
-		foreach ($event as $eventName => $class) {
-			if (empty($class)) {
-				continue;
-			}
-			$object = \iloader()->singleton($class);
-			if ($eventName == Event::ON_REQUEST) {
-				$server = \W7\App::$server->server;
-				$this->server->on(Event::ON_REQUEST, function ($request, $response) use ($server, $object) {
-					$object->run($server, $request, $response);
-				});
-			} else {
-				$this->server->on($eventName, [$object, 'run']);
-			}
-		}
 	}
 
 	protected function registerCacheModel() {

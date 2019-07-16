@@ -36,7 +36,6 @@ abstract class ProviderAbstract {
 		$this->config = iconfig();
 		$this->router = irouter();
 		$this->logger = ilogger();
-
 	}
 
 	/**
@@ -73,15 +72,15 @@ abstract class ProviderAbstract {
 		$this->config->setUserConfig('command', array_merge($userCommands, [$name => $class]));
 	}
 
-	protected function registerProcess($name, $class) {
-		$appCofig = $this->config->getUserConfig('app');
-		$appCofig['process'][$name] = [
-			'enable' => ienv('PROCESS_' . strtoupper($name) . '_ENABLE', false),
+	protected function registerProcess($name, $class, $number = 1) {
+		$processConfig = $this->config->getUserConfig('process');
+		$processConfig['process'][$name] = [
+			'enable' => true,
 			'class' => $class,
-			'number' => ienv('PROCESS_' . strtoupper($name) . '_NUMBER', 1)
+			'number' => $number
 		];
 
-		$this->config->setUserConfig('app', $appCofig);
+		$this->config->setUserConfig('process', $processConfig);
 	}
 
 	protected function publishConfig($sourceFileName, $targetFileName = null, $group = null) {
@@ -213,5 +212,23 @@ abstract class ProviderAbstract {
 			return array_intersect_key(static::$publishes[$provider], static::$publishGroups[$group]);
 		}
 		return [];
+	}
+
+	/**
+	 * Determine if the provider is deferred.
+	 *
+	 * @return bool
+	 */
+	public function isDeferred() {
+		return $this->defer;
+	}
+
+	/**
+	 * Get the services provided by the provider.
+	 *
+	 * @return array
+	 */
+	public function provides() {
+		throw new \Exception('还未实现');
 	}
 }

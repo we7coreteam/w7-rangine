@@ -7,7 +7,6 @@
 
 namespace W7\Core\Controller;
 
-use Illuminate\Validation\DatabasePresenceVerifier;
 use W7\App;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
@@ -75,10 +74,11 @@ abstract class ControllerAbstract {
 			foreach ($errors as $field => $message) {
 				$errorMessage[] = $field . ' : ' . $message[0];
 			}
-			throw new HttpException(implode('; ', $errorMessage));
+			throw new HttpException(implode($errorMessage, '; '));
 		}
 		return $result;
 	}
+
 
 	/**
 	 * @return Factory;
@@ -92,7 +92,7 @@ abstract class ControllerAbstract {
 		$validate = iloader()->withClass(Factory::class)->withSingle()->withParams([
 			'translator' => $translator,
 		])->get();
-		$validate->setPresenceVerifier(new DatabasePresenceVerifier(idb()));
+
 		return $validate;
 	}
 }
