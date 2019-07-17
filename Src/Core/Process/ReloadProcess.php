@@ -76,9 +76,7 @@ class ReloadProcess implements ProcessInterface {
 			if ($startReload) {
 				$server->isRun();
 				$server->getServer()->reload();
-				if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {
-					opcache_reset();
-				}
+
 				if (!$this->debug) {
 					ioutputer()->writeln("Reloaded in " . date('m-d H:i:s') . "...");
 				}

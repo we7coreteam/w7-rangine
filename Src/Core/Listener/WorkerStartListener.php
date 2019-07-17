@@ -10,6 +10,10 @@ use W7\App;
 
 class WorkerStartListener implements ListenerInterface {
 	public function run(...$params) {
+		if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {
+			opcache_reset();
+		}
+
 		\isetProcessTitle( 'w7swoole ' . App::$server->type . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
 
 		//设置安全限制目录
