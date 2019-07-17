@@ -111,10 +111,11 @@ class Config {
 		} else {
 			$server = $setting['server'] ?? '';
 		}
-		if (!is_numeric($server) || ((HTTP|TCP|PROCESS|CRONTAB) & $server) !== $server) {
+		//现在的启动方式有通过env和参数的形式, 所以这里只在有配置的情况下进行检测
+		if ($server && (!is_numeric($server) || ((HTTP|TCP|PROCESS|CRONTAB) & $server) !== $server)) {
 			throw new \Exception("config setting['server'] error, please use the constant HTTP, TCP, PROCESS, CRONTAB instead");
 		}
-		!defined('SERVER') && define('SERVER', $server);
+		!defined('SERVER') && $server && define('SERVER', $server);
 	}
 
 	/**

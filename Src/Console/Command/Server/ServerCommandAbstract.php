@@ -19,25 +19,28 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	protected function getServer() : ServerInterface {
 		$type = $this->input->getArgument('type');
-		$server = SERVER;
-		if ($type) {
+		if (!defined('SERVER') && !$type) {
+			throw new CommandException('argument type error');
+		}
+		if (!defined('SERVER') && $type) {
 			try{
 				$type = strtoupper($type);
 				$server = eval('return ' . $type . ';');
+				define('SERVER', $server);
 			} catch (\Throwable $e) {
 				throw new CommandException('argument type error');
 			}
 		}
-		if (($server & HTTP) === HTTP) {
+		if ((SERVER & HTTP) === HTTP) {
 			return new HttpServer();
 		}
-		if (($server & TCP) === TCP) {
+		if ((SERVER & TCP) === TCP) {
 			return new TcpServer();
 		}
-		if (($server & PROCESS) === PROCESS) {
+		if ((SERVER & PROCESS) === PROCESS) {
 			return (new ProcessServer())->registerPool(IndependentPool::class);
 		}
-		if (($server & CRONTAB) === CRONTAB) {
+		if ((SERVER & CRONTAB) === CRONTAB) {
 			return (new CrontabServer())->registerPool(IndependentPool::class);
 		}
 
