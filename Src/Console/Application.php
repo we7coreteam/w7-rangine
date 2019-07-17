@@ -76,7 +76,7 @@ class Application extends SymfontApplication {
 	private function registerErrorHandler() {
 		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
 		$setting = iconfig()->getUserAppConfig('setting');
-		$errorLevel = $setting['error_level'] ?? -1;
+		$errorLevel = $setting['error_level'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE : -1);
 		error_reporting($errorLevel);
 
 		/**
