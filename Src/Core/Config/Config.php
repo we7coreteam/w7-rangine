@@ -109,7 +109,7 @@ class Config {
 		if (defined('SERVER')) {
 			$server = SERVER;
 		} else {
-			$server = $setting['server'] ?? HTTP|PROCESS|CRONTAB;
+			$server = $setting['server'] ?? '';
 		}
 		if (!is_numeric($server) || ((HTTP|TCP|PROCESS|CRONTAB) & $server) !== $server) {
 			throw new \Exception("config setting['server'] error, please use the constant HTTP, TCP, PROCESS, CRONTAB instead");
