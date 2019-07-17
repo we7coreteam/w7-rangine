@@ -54,4 +54,8 @@ abstract class PoolServerAbstract implements ServerInterface {
 			'child_process_num' => $this->processPool->getProcessFactory()->count()
 		];
 	}
+
+	public function getPool() : PoolAbstract{
+		return $this->processPool;
+	}
 }

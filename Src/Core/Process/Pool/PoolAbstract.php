@@ -2,6 +2,7 @@
 
 namespace W7\Core\Process\Pool;
 
+use Swoole\Process;
 use W7\Core\Process\ProcessFactory;
 
 abstract class PoolAbstract {
@@ -39,6 +40,11 @@ abstract class PoolAbstract {
 	}
 
 	abstract public function start();
+
+	public function get($name, $index = 0) : Process {
+		$process = $this->processFactory->get($name, $index);
+		return $process->getProcess();
+	}
 
 	public function stop() {
 		return true;
