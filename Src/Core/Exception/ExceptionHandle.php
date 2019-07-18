@@ -22,10 +22,30 @@ class ExceptionHandle {
 		}
 	}
 
+	public function log($throwable) {
+		$errorMessage = sprintf('Uncaught Exception %s: "%s" at %s line %s',
+			get_class($throwable),
+			$throwable->getMessage(),
+			$throwable->getFile(),
+			$throwable->getLine()
+		);
+
+		$context = [];
+		if ((ENV & BACKTRACE) === BACKTRACE) {
+			$context = array('exception' => $throwable);
+		}
+
+		ilogger()->error($errorMessage, $context);
+	}
+
 	public function handle(\Throwable $throwable) {
+		$previous = $throwable;
 		if (!($throwable instanceof ResponseException)) {
 			$exception = $this->exceptionMap[$this->type . '_' . $this->env];
 			$throwable = new $exception($throwable->getMessage(), $throwable->getCode(), $throwable);
+		}
+		if ($throwable->isLoggable) {
+			$this->log($previous);
 		}
 		return $throwable->render();
 	}
