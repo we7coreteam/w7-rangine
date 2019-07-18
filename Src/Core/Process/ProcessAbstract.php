@@ -17,7 +17,7 @@ abstract class ProcessAbstract {
 	 * @var Process
 	 */
 	protected $process;
-	// event 模式下
+	// event 模式下支持用户自定义pipe
 	protected $pipe;
 
 	//定时器模式下
@@ -158,6 +158,7 @@ abstract class ProcessAbstract {
 	}
 
 	public function onStop() {
+		ilogger()->flushLog();
 		ilogger()->info('process ' . $this->getProcessName() . ' exit');
 	}
 }
