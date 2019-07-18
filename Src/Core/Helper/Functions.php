@@ -288,11 +288,19 @@ if (!function_exists('irandom')) {
 if (!function_exists('idd')) {
 	function idd(...$vars) {
 		ob_start();
-		$_SERVER['VAR_DUMPER_FORMAT'] = 'html';
-		foreach ($vars as $var) {
-			VarDumper::dump($var);
+		if (class_exists(VarDumper::class)) {
+			$_SERVER['VAR_DUMPER_FORMAT'] = 'html';
+			foreach ($vars as $var) {
+				VarDumper::dump($var);
+			}
+			VarDumper::setHandler(null);
+		} else {
+			foreach ($vars as $var) {
+				echo "<pre>";
+				print_r($var);
+				echo "</pre>";
+			}
 		}
-		VarDumper::setHandler(null);
 		$content = ob_get_clean();
 
 		throw new DumpException($content);
