@@ -8,7 +8,9 @@ use W7\Core\Service\ServiceAbstract;
 class TranslatorRegister extends ServiceAbstract {
 	public function register() {
 		iloader()->set('translator', function () {
-			return new Translator($this->getFileLoader(), 'zh-CN');
+			$config = iconfig()->getUserAppConfig('setting');
+			$lang = $config['lang'] ?? 'zh-CN';
+			return new Translator($this->getFileLoader(), $lang);
 		});
 	}
 
