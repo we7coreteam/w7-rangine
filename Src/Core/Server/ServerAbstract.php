@@ -116,21 +116,20 @@ abstract class ServerAbstract implements ServerInterface {
 		$startTime = time();
 		$result = true;
 
-		if (Process::kill($status['masterPid'], 0)) {
-			Process::kill($status['masterPid'], SIGTERM);
-			while (1) {
-				$masterIslive = Process::kill($status['masterPid'], SIGTERM);
-				if ($masterIslive) {
-					if (time() - $startTime >= $timeout) {
-						$result = false;
-						break;
-					}
-					usleep(10000);
-					continue;
-				}
+		while (Process::kill($status['masterPid'], 0)) {
+			$result = Process::kill($status['masterPid'], SIGTERM);
+			if ($result) {
 				break;
 			}
+			if (!$result) {
+				if (time() - $startTime >= $timeout) {
+					$result = false;
+					break;
+				}
+				usleep(10000);
+			}
 		}
+
 		if (!file_exists($this->setting['pid_file'])) {
 			return true;
 		} else {
