@@ -42,7 +42,7 @@ abstract class PoolAbstract {
 	abstract public function start();
 
 	public function get($name, $index = 0) : Process {
-		$process = $this->processFactory->get($name, $index);
+		$process = $this->processFactory->getByName($name, $index);
 		return $process->getProcess();
 	}
 

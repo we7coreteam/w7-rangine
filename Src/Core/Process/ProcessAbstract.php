@@ -10,7 +10,12 @@ use Swoole\Process;
 use Swoole\Timer;
 
 abstract class ProcessAbstract {
+	const DEPENDENT_MANAGER = 1;
+	const INDEPENDENT_MANAGER = 2;
+
 	protected $name = 'process';
+	//区分该进程的manager, 在跟随server启动的情况下,进程退出时,没有回调, 需要通过type处理
+	protected $managerType;
 	protected $num = 1;
 	protected $mqKey;
 	/**
@@ -37,6 +42,14 @@ abstract class ProcessAbstract {
 
 	protected function init() {
 
+	}
+
+	public function setManagerType($type) {
+		$this->managerType = $type;
+	}
+
+	public function getManagerType() {
+		return $this->managerType;
 	}
 
 	public function setProcess(Process $process) {
@@ -155,6 +168,9 @@ abstract class ProcessAbstract {
 		}
 
 		$this->process->kill($this->process->pid);
+		if ($this->managerType === self::DEPENDENT_MANAGER) {
+			$this->onStop();
+		}
 	}
 
 	public function onStop() {

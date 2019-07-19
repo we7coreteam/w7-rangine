@@ -3,6 +3,7 @@
 namespace W7\Core\Process\Pool;
 
 use Swoole\Process\Pool as PoolManager;
+use W7\Core\Process\ProcessAbstract;
 
 /**
  * 该进程池由独立的process manager管理
@@ -56,6 +57,7 @@ class IndependentPool extends PoolAbstract {
 	private function onWorkerStart(PoolManager $pool, $workerId) {
 		$this->process = $this->processFactory->make($workerId);
 		$this->process->setProcess($pool->getProcess());
+		$this->process->setManagerType(ProcessAbstract::INDEPENDENT_MANAGER);
 
 		if($this->mqKey) {
 			$this->process->setMq($this->mqKey);
