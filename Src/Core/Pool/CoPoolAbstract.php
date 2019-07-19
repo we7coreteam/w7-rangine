@@ -51,7 +51,6 @@ abstract class CoPoolAbstract implements PoolInterface {
 		$this->waitCount = 0;
 
 		$this->waitQueue = new \SplQueue();
-		$this->idleQueue = new Channel($this->maxActive);
 	}
 
 	abstract function createConnection();
@@ -117,6 +116,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 	 */
 	public function setMaxCount(int $maxActive) {
 		$this->maxActive = $maxActive;
+		$this->idleQueue = new Channel($this->maxActive);
 	}
 
 	public function setConfig($config) {
