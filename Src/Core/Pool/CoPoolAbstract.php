@@ -56,17 +56,8 @@ abstract class CoPoolAbstract implements PoolInterface {
 	abstract function createConnection();
 
 	public function getConnection() {
-
-		if ($this->getIdleCount() > 0) {
-			ilogger()->channel('database')->debug($this->poolName . ' get by queue , count ' . $this->getIdleCount());
-
-			$connect = $this->getConnectionFromPool();
-			$this->busyCount++;
-			return $connect;
-		}
-
-		//如果 空闲队列数+执行队列数 等于 最大连接数，则挂起协程
-		if ($this->busyCount + $this->getIdleCount() >= $this->getMaxCount()) {
+		//如果 执行队列数 等于 最大连接数，则挂起协程
+		if ($this->busyCount >= $this->getMaxCount()) {
 			//等待进程数++
 			$this->waitCount++;
 
@@ -79,6 +70,14 @@ abstract class CoPoolAbstract implements PoolInterface {
 			}
 			//回收连接时，恢复了协程，则从空闲中取出连接继续执行
 			ilogger()->channel('database')->debug($this->poolName . ' resume connection , count ' . $this->idleQueue->length());
+		}
+
+		if ($this->getIdleCount() > 0) {
+			ilogger()->channel('database')->debug($this->poolName . ' get by queue , count ' . $this->getIdleCount());
+
+			$connect = $this->getConnectionFromPool();
+			$this->busyCount++;
+			return $connect;
 		}
 
 		$connect = $this->createConnection();
