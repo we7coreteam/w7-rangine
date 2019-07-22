@@ -27,7 +27,10 @@ class WorkerStartListener implements ListenerInterface {
 			sys_get_temp_dir(),
 			APP_PATH,
 			RUNTIME_PATH,
-			BASE_PATH . '/vendor',
+			RUNTIME_PATH . DIRECTORY_SEPARATOR . 'logs',
+			RUNTIME_PATH . DIRECTORY_SEPARATOR . 'task',
+			RUNTIME_PATH . DIRECTORY_SEPARATOR . 'upload',
+			BASE_PATH  . DIRECTORY_SEPARATOR . 'vendor',
 			$openBaseDirConfig,
 		];
 		ini_set('open_basedir', implode(':', $openBaseDir));
