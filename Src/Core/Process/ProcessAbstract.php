@@ -10,12 +10,7 @@ use Swoole\Process;
 use Swoole\Timer;
 
 abstract class ProcessAbstract {
-	const DEPENDENT_MANAGER = 1;
-	const INDEPENDENT_MANAGER = 2;
-
 	protected $name = 'process';
-	//区分该进程的manager, 在跟随server启动的情况下,进程退出时,没有回调, 需要通过type处理
-	protected $managerType;
 	protected $num = 1;
 	protected $mqKey;
 	/**
@@ -42,14 +37,6 @@ abstract class ProcessAbstract {
 
 	protected function init() {
 
-	}
-
-	public function setManagerType($type) {
-		$this->managerType = $type;
-	}
-
-	public function getManagerType() {
-		return $this->managerType;
 	}
 
 	public function setProcess(Process $process) {
@@ -117,38 +104,35 @@ abstract class ProcessAbstract {
 
 	private function startByTimer() {
 		$this->runTimer = Timer::tick($this->interval * 1000, function ($timer) {
-			$this->complete = false;
-			try{
+			$this->exec(function () {
 				$this->run();
-			} catch (\Throwable $e) {
-				ilogger()->error('run process fail with error ' . $e->getMessage());
-			}
-			$this->complete = true;
-
-			//如果在执行完成后就得到退出信息,则马上退出
-			if ($this->exitStatus === 1) {
-				$this->stop();
-			}
+			});
 		});
 	}
 
 	private function startByEvent() {
 		$pipe = $this->pipe ? $this->pipe : $this->process->pipe;
 		swoole_event_add($pipe, function ($fd) {
-			$data = $this->pipe ? '' : $this->process->read() ;
-			$this->complete = false;
-			try{
+			$this->exec(function () {
+				$data = $this->pipe ? '' : $this->process->read();
 				$this->read($data);
-			} catch (\Throwable $e) {
-				ilogger()->error('run process fail with error ' . $e->getMessage());
-			}
-			$this->complete = true;
-
-			//如果在执行完成后就得到退出信息,则马上退出
-			if ($this->exitStatus === 1) {
-				$this->stop();
-			}
+			});
 		});
+	}
+
+	private function exec(\Closure $callback) {
+		$this->complete = false;
+		try{
+			$callback();
+		} catch (\Throwable $e) {
+			ilogger()->error('run process fail with error ' . $e->getMessage());
+		}
+		$this->complete = true;
+
+		//如果在执行完成后就得到退出信息,则马上退出
+		if ($this->exitStatus === 1) {
+			$this->stop();
+		}
 	}
 
 	protected function run() {}
@@ -168,13 +152,10 @@ abstract class ProcessAbstract {
 		}
 
 		$this->process->kill($this->process->pid);
-		if ($this->managerType === self::DEPENDENT_MANAGER) {
-			$this->onStop();
-		}
 	}
 
 	public function onStop() {
-		ilogger()->flushLog();
 		ilogger()->info('process ' . $this->getProcessName() . ' exit');
+		ilogger()->flushLog();
 	}
 }

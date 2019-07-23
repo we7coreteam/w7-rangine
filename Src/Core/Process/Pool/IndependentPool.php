@@ -3,7 +3,6 @@
 namespace W7\Core\Process\Pool;
 
 use Swoole\Process\Pool as PoolManager;
-use W7\Core\Process\ProcessAbstract;
 
 /**
  * 该进程池由独立的process manager管理
@@ -40,52 +39,20 @@ class IndependentPool extends PoolAbstract {
 		}
 
 		$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey);
-		$manager->on('WorkerStart', function (PoolManager $pool, $workerId) {
-			$this->onWorkerStart($pool, $workerId);
-		});
-		$manager->on('WorkerStop', function (PoolManager $pool, $workerId) {
-			$this->onWorkerStop($pool, $workerId);
-		});
-		$this->ipcType !== 0 && $manager->on('message', function (PoolManager $pool, $message) {
-			$this->onMessage($pool, $message);
-		});
+
+		$listens = iconfig()->getEvent()['process'];
+		if ($this->ipcType == 0) {
+			unset($listens['message']);
+		}
+		foreach ($listens as $name => $class) {
+			$object = \iloader()->singleton($class);
+			$manager->on($name, function (PoolManager $pool, $data) use ($object) {
+				$object->run($pool->getProcess(), $data, $this->processFactory, $this->mqKey);
+			});
+		}
 
 		file_put_contents($this->pidFile, getmypid());
 		$manager->start();
-	}
-
-	private function onWorkerStart(PoolManager $pool, $workerId) {
-		$this->process = $this->processFactory->make($workerId);
-		$this->process->setProcess($pool->getProcess());
-		$this->process->setManagerType(ProcessAbstract::INDEPENDENT_MANAGER);
-
-		if($this->mqKey) {
-			$this->process->setMq($this->mqKey);
-		}
-
-		$this->process->onStart();
-	}
-
-	private function onWorkerStop(PoolManager $pool, $workerId) {
-		if (empty($this->process)) {
-			return false;
-		}
-
-		try{
-			$this->process->onStop();
-		} catch (\Throwable $e) {
-			ilogger()->error('stop process fail with error ' . $e->getMessage());
-		}
-	}
-
-	/**
-	 * 该方式暂时不启用
-	 * @param PoolManager $pool
-	 * @param $message
-	 * @return mixed
-	 */
-	private function onMessage(PoolManager $pool, $message) {
-		return $message;
 	}
 
 	public function stop() {
