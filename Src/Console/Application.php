@@ -84,6 +84,10 @@ class Application extends SymfontApplication {
 		 */
 		$processer = new Run();
 		$handle = new PlainTextHandler(App::getApp()->getLogger());
+		if ((ENV & BACKTRACE) !== BACKTRACE) {
+			$handle->addTraceToOutput(false);
+			$handle->addPreviousToOutput(false);
+		}
 		$processer->pushHandler($handle);
 		$processer->register();
 	}
