@@ -113,7 +113,9 @@ abstract class ServerAbstract implements ServerInterface {
 
 	protected function enableCoroutine() {
 		$this->setting['enable_coroutine'] = true;
-		$this->setting['task_enable_coroutine'] = false;
+		$this->setting['task_enable_coroutine'] = true;
+		$this->setting['task_ipc_mode'] = 1;
+		$this->setting['message_queue_key'] = '';
 	}
 
 	public function stop() {
