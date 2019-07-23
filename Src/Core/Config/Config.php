@@ -9,6 +9,9 @@ namespace W7\Core\Config;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
 use W7\Core\Listener\PipeMessageListener;
+use W7\Core\Listener\ProcessMessageListener;
+use W7\Core\Listener\ProcessStartListener;
+use W7\Core\Listener\ProcessStopListener;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
@@ -55,8 +58,13 @@ class Config {
 			Event::ON_USER_BEFORE_REQUEST,
 			Event::ON_USER_AFTER_REQUEST,
 			Event::ON_USER_TASK_FINISH,
-            Event::ON_USER_AFTER_REQUEST
+			Event::ON_USER_AFTER_REQUEST
 		],
+		'process' => [
+			Event::ON_WORKER_START => ProcessStartListener::class,
+			Event::ON_WORKER_STOP => ProcessStopListener::class,
+			Event::ON_PROCESS_MESSAGE => ProcessMessageListener::class
+		]
 	];
 
 	private $config = [];

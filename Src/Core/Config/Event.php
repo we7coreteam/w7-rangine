@@ -36,6 +36,8 @@ class Event
 
 	const ON_REQUEST = 'request';
 
+	const ON_PROCESS_MESSAGE = 'message';
+
 	/**
 	 * 自定义事件
 	 */
