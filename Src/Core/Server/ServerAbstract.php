@@ -68,6 +68,7 @@ abstract class ServerAbstract implements ServerInterface {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
 		}
 		$this->setting = array_merge([], $setting['common']);
+		$this->enableCoroutine();
 		$this->connection = $setting[$this->type];
 	}
 
@@ -108,6 +109,11 @@ abstract class ServerAbstract implements ServerInterface {
 		} else {
 			return false;
 		}
+	}
+
+	protected function enableCoroutine() {
+		$this->setting['enable_coroutine'] = true;
+		$this->setting['task_enable_coroutine'] = false;
 	}
 
 	public function stop() {

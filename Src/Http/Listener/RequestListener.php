@@ -44,7 +44,5 @@ class RequestListener extends ListenerAbstract {
 		$psr7Response->send();
 
 		ievent(Event::ON_USER_AFTER_REQUEST);
-
-		$context->destroy();
 	}
 }
