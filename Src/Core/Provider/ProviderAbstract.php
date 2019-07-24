@@ -5,6 +5,8 @@ namespace W7\Core\Provider;
 use W7\Core\Route\RouteMapping;
 
 abstract class ProviderAbstract{
+	private $name;
+	private $namespace;
 	/**
 	 * @var \W7\Core\Config\Config
 	 */
