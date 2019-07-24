@@ -29,7 +29,7 @@ class Logger extends \Monolog\Logger {
 	}
 
 	public function flushLog($channel = null) {
-		$logManager = iloader()->singleton(LogManager::class);
+		$logManager = iloader()->get(LogManager::class);
 		$loggers = $logManager->getLoggers($channel);
 
 		foreach ($loggers as $logger) {

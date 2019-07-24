@@ -57,7 +57,7 @@ class App {
 		$this->getConfigger();
 		$this->preInit();
 
-		$this->providerManager = iloader()->singleton(ProviderManager::class);
+		$this->providerManager = $this->container->get(ProviderManager::class);
 	}
 
 	private function register() {

@@ -112,7 +112,7 @@ abstract class ProviderAbstract{
 	protected function loadRouteFrom($path) {
 		$config = include $path;
 		if (is_array($config)) {
-			$routeMapping = iloader()->singleton(RouteMapping::class);
+			$routeMapping = iloader()->get(RouteMapping::class);
 			$routeConfig = $routeMapping->getRouteConfig();
 			$routeConfig[] = $config;
 			$routeMapping->setRouteConfig($routeConfig);
