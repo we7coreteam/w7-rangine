@@ -3,11 +3,11 @@
 namespace W7\Core\Exception;
 
 use W7\App;
-use W7\Core\Service\ServiceAbstract;
+use W7\Core\Provider\ProviderAbstract;
 use Whoops\Handler\PlainTextHandler;
 use Whoops\Run;
 
-class ExceptionRegister extends ServiceAbstract {
+class ExceptionProvider extends ProviderAbstract {
 	public function register() {
 		$this->registerErrorHandle();
 		iloader()->set(ExceptionHandle::class, function () {

@@ -13,7 +13,7 @@ use W7\Core\Container\Container;
 use W7\Core\Container\Context;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogManager;
-use W7\Core\Service\ServiceManager;
+use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
 
 class App {
@@ -34,27 +34,27 @@ class App {
 	private $container;
 
 	/**
-	 * @var ServiceManager
+	 * @var ProviderManager
 	 */
-	private $serviceManager;
+	private $providerManager;
 
 	public function __construct() {
 		$this->init();
 	}
 
 	private function init() {
-		$this->serviceManager = new ServiceManager();
-		$this->container = $this->serviceManager->getContainer();
 		static::$self = $this;
+		$this->container = new Container();
+		$this->getConfigger();
+		$this->providerManager = iloader()->singleton(ProviderManager::class);
 	}
 
 	private function register() {
-		$this->serviceManager->register();
+		$this->providerManager->register();
 	}
 
 	private function boot() {
-		$this->getConfigger();
-		$this->serviceManager->boot();
+		$this->providerManager->boot();
 	}
 
 	public function runConsole() {
@@ -68,9 +68,6 @@ class App {
 	}
 
 	public static function getApp() {
-		if (!self::$self) {
-			self::$self = new App();
-		}
 		return self::$self;
 	}
 

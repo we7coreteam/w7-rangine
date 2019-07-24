@@ -15,9 +15,9 @@ use Illuminate\Support\Fluent;
 use W7\App;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
-use W7\Core\Service\ServiceAbstract;
+use W7\Core\Provider\ProviderAbstract;
 
-class DatabaseRegister extends ServiceAbstract {
+class DatabaseProvider extends ProviderAbstract {
 	public function register() {
 		// TODO: Implement register() method.
 		iloader()->set('model-container', function () {

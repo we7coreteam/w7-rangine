@@ -3,9 +3,8 @@
 namespace W7\Core\Provider;
 
 use W7\Core\Route\RouteMapping;
-use W7\Core\Service\ServiceAbstract;
 
-abstract class ProviderAbstract extends ServiceAbstract{
+abstract class ProviderAbstract{
 	/**
 	 * @var \W7\Core\Config\Config
 	 */
@@ -63,7 +62,7 @@ abstract class ProviderAbstract extends ServiceAbstract{
 	}
 
 	protected function registerProvider($provider) {
-		iloader()->get(ProviderRegister::class)->registerProvider($provider);
+		iloader()->get(ProviderManager::class)->registerProvider($provider);
 	}
 
 	protected function registerCommand($name, $class) {

@@ -3,9 +3,9 @@
 namespace W7\Core\Lang;
 
 use Illuminate\Translation\Translator;
-use W7\Core\Service\ServiceAbstract;
+use W7\Core\Provider\ProviderAbstract;
 
-class TranslatorRegister extends ServiceAbstract {
+class TranslatorProvider extends ProviderAbstract {
 	public function register() {
 		iloader()->set('translator', function () {
 			$config = iconfig()->getUserAppConfig('setting');

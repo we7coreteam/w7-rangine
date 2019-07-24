@@ -2,10 +2,10 @@
 
 namespace W7\Core\Cache;
 
-use W7\Core\Service\ServiceAbstract;
+use W7\Core\Provider\ProviderAbstract;
 use W7\Laravel\CacheModel\Caches\Cache;
 
-class CacheRegister extends ServiceAbstract {
+class CacheProvider extends ProviderAbstract {
 	public function boot() {
 		// TODO: Implement register() method.
 		$this->registerCacheModel();

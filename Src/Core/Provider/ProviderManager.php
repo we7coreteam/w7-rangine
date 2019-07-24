@@ -2,9 +2,22 @@
 
 namespace W7\Core\Provider;
 
-use W7\Core\Service\ServiceAbstract;
+use W7\Console\ConsoleProvider;
+use W7\Core\Cache\CacheProvider;
+use W7\Core\Database\DatabaseProvider;
+use W7\Core\Exception\ExceptionProvider;
+use W7\Core\Filesystem\FilesystemProvider;
+use W7\Core\Validation\ValidateProvider;
 
-class ProviderRegister extends ServiceAbstract {
+class ProviderManager {
+	private $providerMap = [
+		ConsoleProvider::class,
+		ExceptionProvider::class,
+		FilesystemProvider::class,
+		CacheProvider::class,
+		DatabaseProvider::class,
+		ValidateProvider::class
+	];
 	private static $providers = [];
 
 	/**
@@ -12,6 +25,9 @@ class ProviderRegister extends ServiceAbstract {
 	 */
 	public function register() {
 		$providerMap = $this->findProviders();
+		foreach ($this->providerMap as $key => $provider) {
+			$providerMap[$provider] = $provider;
+		}
 		foreach ($providerMap as $name => $providers) {
 			$providers = (array) $providers;
 			foreach ($providers as $provider) {

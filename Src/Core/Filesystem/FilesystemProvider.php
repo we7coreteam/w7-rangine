@@ -3,9 +3,9 @@
 namespace W7\Core\Filesystem;
 
 use Illuminate\Filesystem\Filesystem;
-use W7\Core\Service\ServiceAbstract;
+use W7\Core\Provider\ProviderAbstract;
 
-class FilesystemRegister extends  ServiceAbstract {
+class FilesystemProvider extends  ProviderAbstract {
 	public function register() {
 		iloader()->set('filesystem', function () {
 			return new Filesystem();
