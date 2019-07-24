@@ -16,7 +16,7 @@ class ListCommand extends CommandAbstract {
 	}
 
 	protected function handle($options) {
-		$config = iloader()->singleton(RouteMapping::class)->getMapping();
+		$config = iloader()->get(RouteMapping::class)->getMapping();
 
 		$routes = [];
 		$key = $options['search'] ?? '';
@@ -34,7 +34,7 @@ class ListCommand extends CommandAbstract {
 
 		ksort($routes);
 		foreach ($routes as $module => $route) {
-			$this->output->info('the ' . $module . ' routes');
+			$this->output->title('the ' . $module . ' routes');
 			$header = ['name', 'uri', 'handle', 'middleware', 'methods'];
 			$this->output->table($header, $route);
 			$this->output->writeln('');

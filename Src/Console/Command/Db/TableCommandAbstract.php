@@ -25,7 +25,7 @@ abstract class TableCommandAbstract extends DatabaseCommandAbstract {
 
 		$result = parent::handle($options);
 
-		$result && $this->output->info($this->operate . ' table ' . $this->table . ' success');
+		$result && $this->output->success($this->operate . ' table ' . $this->table . ' success');
 	}
 
 	protected function create($options) {
