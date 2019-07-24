@@ -14,6 +14,8 @@ use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Listener\WorkerStopListener;
+use W7\Core\Process\CrontabProcess;
+use W7\Core\Process\ReloadProcess;
 use W7\Http\Listener\RequestListener;
 use W7\Tcp\Listener\CloseListener;
 use W7\Tcp\Listener\ConnectListener;
@@ -54,8 +56,14 @@ class Config {
 			Event::ON_USER_BEFORE_START,
 			Event::ON_USER_BEFORE_REQUEST,
 			Event::ON_USER_AFTER_REQUEST,
-			Event::ON_USER_TASK_FINISH
+			Event::ON_USER_TASK_FINISH,
+			Event::ON_USER_AFTER_REQUEST
 		],
+	];
+
+	private $process = [
+		ReloadProcess::class,
+		CrontabProcess::class,
 	];
 
 	private $config = [];
@@ -69,52 +77,30 @@ class Config {
 		$env->load();
 		unset($env);
 
-		$this->initConst();
-	}
-
-	private function initConst() {
 		//在加载配置前定义需要的常量
-		!defined('RELEASE') && define('RELEASE', 0);
+		!defined('RELEASE') && define('RELEASE', 8);
 		!defined('DEBUG') && define('DEBUG', 1);
 		!defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
 		!defined('BACKTRACE') && define('BACKTRACE', 4);
 		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
 		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
 
-		//在加载配置前定义需要的常量
-		!defined('HTTP') && define('HTTP', 1);
-		!defined('TCP') && define('TCP', 2);
-		!defined('PROCESS') && define('PROCESS', 4);
-		!defined('CRONTAB') && define('CRONTAB', 8);
-
-		//加载所有的配置到内存中
 		$this->loadConfig('config');
 		$this->checkSetting();
 	}
 
 	private function checkSetting() {
-		$setting = $this->getUserAppConfig('setting');
-
 		if (defined('ENV')) {
 			$env = ENV;
 		} else {
+			$setting = $this->getUserAppConfig('setting');
 			$env = $setting['env'] ?? '';
 		}
+
 		if (!is_numeric($env) || ((RELEASE|DEVELOPMENT) & $env) !== $env) {
 			throw new \Exception("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
 		}
 		!defined('ENV') && define('ENV', $env);
-
-
-		if (defined('SERVER')) {
-			$server = SERVER;
-		} else {
-			$server = $setting['server'] ?? HTTP|PROCESS|CRONTAB;
-		}
-		if (!is_numeric($server) || ((HTTP|TCP|PROCESS|CRONTAB) & $server) !== $server) {
-			throw new \Exception("config setting['server'] error, please use the constant HTTP, TCP, PROCESS, CRONTAB instead");
-		}
-		!defined('SERVER') && define('SERVER', $server);
 	}
 
 	/**
@@ -138,6 +124,13 @@ class Config {
 		}
 		$this->server = array_merge([], $this->defaultServer, $this->getUserConfig('server'));
 		return $this->server;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getProcess() {
+		return $this->process;
 	}
 
 	/**

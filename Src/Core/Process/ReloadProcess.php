@@ -4,12 +4,12 @@
  * @date 18-7-25 下午3:03
  */
 
-namespace W7\Core\Process\Process;
+namespace W7\Core\Process;
 
+use Swoole\Process;
 use W7\App;
-use W7\Core\Process\ProcessAbstract;
 
-class ReloadProcess extends ProcessAbstract {
+class ReloadProcess implements ProcessInterface {
 
 	/**
 	 * 监听文件变化的路径
@@ -33,41 +33,53 @@ class ReloadProcess extends ProcessAbstract {
 	 *
 	 * @var int
 	 */
-	protected $interval = 5;
+	private $interval = 5;
+
+	private $enabled = false;
 
 	private $debug = false;
 
-	protected function init() {
+	/**
+	 * 初始化方法
+	 */
+	public function __construct() {
 		$reloadConfig = \iconfig()->getUserAppConfig('reload');
 		$this->interval = !empty($reloadConfig['interval']) ? $reloadConfig['interval'] : $this->interval;
+		$this->enabled = ((ENV & DEBUG) === DEBUG);
 		$this->debug = (bool)$reloadConfig['debug'];
 		$this->watchDir = array_merge($this->watchDir, $reloadConfig['path'] ?? []);
 
 		$this->md5File = $this->getWatchDirMd5();
 	}
 
-	protected function beforeStart() {
+	public function check() {
+		if ($this->enabled) {
+			return true;
+		}
+		return false;
+	}
+
+	public function run(Process $process) {
+		$server = App::$server;
 		if ($this->debug) {
 			ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
 		}
-	}
-
-	public function run() {
-		if ($this->debug) {
-			$startReload = true;
-		} else {
-			$md5File = $this->getWatchDirMd5();
-			$startReload = (strcmp($this->md5File, $md5File) !== 0);
-			$this->md5File = $md5File;
-		}
-		if ($startReload) {
-			App::$server->isRun();
-			App::$server->getServer()->reload();
-			if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {
-				opcache_reset();
+		while (true) {
+			sleep($this->interval);
+			if ($this->debug) {
+				$startReload = true;
+			} else {
+				$md5File = $this->getWatchDirMd5();
+				$startReload = (strcmp($this->md5File, $md5File) !== 0);
+				$this->md5File = $md5File;
 			}
-			if (!$this->debug) {
-				ioutputer()->writeln("Reloaded in " . date('m-d H:i:s') . "...");
+			if ($startReload) {
+				$server->isRun();
+				$server->getServer()->reload();
+
+				if (!$this->debug) {
+					ioutputer()->writeln("Reloaded in " . date('m-d H:i:s') . "...");
+				}
 			}
 		}
 	}

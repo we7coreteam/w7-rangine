@@ -27,6 +27,12 @@ abstract class ServerAbstract implements ServerInterface {
 	public $server;
 
 	/**
+	 * 服务类型
+	 * @var
+	 */
+	public $type;
+
+	/**
 	 * 配置
 	 * @var
 	 */
@@ -41,14 +47,14 @@ abstract class ServerAbstract implements ServerInterface {
 	 * @throws CommandException
 	 */
 	public function __construct() {
-		date_default_timezone_set('Asia/Shanghai');
 		App::$server = $this;
 		$setting = \iconfig()->getServer();
-		if (empty($setting[$this->getType()]) || empty($setting[$this->getType()]['host'])) {
-			throw new CommandException(sprintf('缺少服务配置 %s', $this->getType()));
+		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
+			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
 		}
 		$this->setting = array_merge([], $setting['common']);
-		$this->connection = $setting[$this->getType()];
+		$this->enableCoroutine();
+		$this->connection = $setting[$this->type];
 	}
 
 	/**
@@ -91,7 +97,9 @@ abstract class ServerAbstract implements ServerInterface {
 
 	protected function enableCoroutine() {
 		$this->setting['enable_coroutine'] = true;
-		$this->setting['task_enable_coroutine'] = false;
+		$this->setting['task_enable_coroutine'] = true;
+		$this->setting['task_ipc_mode'] = 1;
+		$this->setting['message_queue_key'] = '';
 	}
 
 	public function stop() {
@@ -100,19 +108,17 @@ abstract class ServerAbstract implements ServerInterface {
 		$startTime = time();
 		$result = true;
 
-		if (Process::kill($status['masterPid'], 0)) {
-			Process::kill($status['masterPid'], SIGTERM);
-			while (1) {
-				$masterIslive = Process::kill($status['masterPid'], SIGTERM);
-				if ($masterIslive) {
-					if (time() - $startTime >= $timeout) {
-						$result = false;
-						break;
-					}
-					usleep(10000);
-					continue;
-				}
+		while (Process::kill($status['masterPid'], 0)) {
+			$result = Process::kill($status['masterPid'], SIGTERM);
+			if ($result) {
 				break;
+			}
+			if (!$result) {
+				if (time() - $startTime >= $timeout) {
+					$result = false;
+					break;
+				}
+				usleep(10000);
 			}
 		}
 		if (!file_exists($this->setting['pid_file'])) {
@@ -125,32 +131,54 @@ abstract class ServerAbstract implements ServerInterface {
 
 	public function registerService() {
 		$this->registerSwooleEventListener();
-		$this->registerProcess();
+		$this->registerProcesser();
 		return true;
 	}
 
+	protected function registerProcesser() {
+		$processName = \iconfig()->getProcess();
+		foreach ($processName as $name) {
+			\iprocess($name, App::$server->server);
+		}
+
+		//启动用户配置的进程
+		$process = iconfig()->getUserAppConfig('process');
+		if (!empty($process)) {
+			foreach ($process as $name => $row) {
+				if (empty($row['enable'])) {
+					continue;
+				}
+
+				if (!class_exists($row['class'])) {
+					$row['class'] = sprintf("\\W7\\App\\Process\\%s", Str::studly($row['class']));
+				}
+
+				if (!class_exists($row['class'])) {
+					continue;
+				}
+
+				$row['number'] = intval($row['number']);
+				if (!isset($row['number']) || empty($row['number']) || $row['number'] <= 1) {
+					\iprocess($row['class'], App::$server->server);
+				} else {
+					//多个进程时，通过进程池管理
+
+					for ($i = 1; $i <= $row['number']; $i++) {
+						\iprocess($row['class'], App::$server->server);
+					}
+				}
+			}
+		}
+	}
+
 	protected function registerSwooleEventListener() {
-		$event = [$this->getType(), 'task', 'manage'];
+		$event = [$this->type, 'task', 'manage'];
 		
 		foreach ($event as $name) {
 			$event = \iconfig()->getEvent()[$name];
 			if (!empty($event)) {
 				$this->registerEvent($event);
 			}
-		}
-
-		//开启协程
-		//if (isCo()) {
-			\Swoole\Runtime::enableCoroutine(true);
-		//}
-	}
-
-	protected function registerProcess() {
-		if ((SERVER & CRONTAB) === CRONTAB) {
-			(new CrontabServer())->registerPool(DependentPool::class)->start();
-		}
-		if ((SERVER & PROCESS) === PROCESS) {
-			(new ProcessServer())->registerPool(DependentPool::class)->start();
 		}
 	}
 

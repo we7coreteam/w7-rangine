@@ -42,10 +42,21 @@ class App {
 		$this->init();
 	}
 
+	protected function preInit() {
+		date_default_timezone_set('Asia/Shanghai');
+
+		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
+		$setting = iconfig()->getUserAppConfig('setting');
+		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
+		error_reporting($errorLevel);
+	}
+
 	private function init() {
 		static::$self = $this;
 		$this->container = new Container();
 		$this->getConfigger();
+		$this->preInit();
+
 		$this->providerManager = iloader()->singleton(ProviderManager::class);
 	}
 

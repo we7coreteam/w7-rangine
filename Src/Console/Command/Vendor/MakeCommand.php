@@ -38,7 +38,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 
 		$config = iconfig()->getServer();
 		$config = $config['http'];
-		$this->output->note('启动server后,可访问 http://' . $config['host'] . ':' . $config['port'] . '/' . strtolower($this->packageName()) . '/home 验证扩展包是否创建成功.' );
+		$this->output->info('启动server后,可访问 http://' . $config['host'] . ':' . $config['port'] . '/' . strtolower($this->packageName()) . '/home 验证扩展包是否创建成功.' );
 	}
 
 	/**

@@ -1,8 +1,8 @@
 <?php
 
-namespace W7\Core\Crontab\Task;
+namespace W7\Core\Crontab;
 
-class TaskManager{
+class CronMap{
 	private $tasks = [];
 
 	public function __construct($config) {
@@ -12,7 +12,7 @@ class TaskManager{
 	}
 
 	public function add($name, $config){
-		$this->tasks[$name] = new Task($name, $config);
+		$this->tasks[$name] = new CrontabTask($name, $config);
 	}
 
 	public function rm($name) {
@@ -37,7 +37,7 @@ class TaskManager{
 		$tasks = [];
 		foreach ($this->tasks as $task) {
 			if ($task->check($time)) {
-				$tasks[$task->getName()] = $task->getTaskInfo();
+				$tasks[$task->getName()] = $task->getTask();
 			}
 		}
 

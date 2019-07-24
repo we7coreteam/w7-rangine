@@ -18,6 +18,10 @@ class ExceptionProvider extends ProviderAbstract {
 	private function registerErrorHandle() {
 		$processer = new Run();
 		$handle = new PlainTextHandler(ilogger());
+		if ((ENV & BACKTRACE) !== BACKTRACE) {
+			$handle->addTraceToOutput(false);
+			$handle->addPreviousToOutput(false);
+		}
 		$processer->pushHandler($handle);
 		$processer->register();
 	}

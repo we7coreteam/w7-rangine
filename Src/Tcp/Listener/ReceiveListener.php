@@ -39,7 +39,7 @@ class ReceiveListener extends ListenerAbstract {
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 
 		$serverConf = iconfig()->getServer();
-		$serverConf = $serverConf[App::$server->getType()];
+		$serverConf = $serverConf[App::$server->type];
 		$protocol = $serverConf['protocol'] ?? '';
 		Dispatcher::dispatch($protocol, $server, $fd, $data);
 

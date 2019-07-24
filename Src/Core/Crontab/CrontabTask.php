@@ -1,16 +1,11 @@
 <?php
 
-namespace W7\Core\Crontab\Task;
+namespace W7\Core\Crontab;
 
 use Exception;
 use InvalidArgumentException;
-use W7\Core\Message\TaskMessage;
 
-class Task{
-	const PREPARE = 1;
-	CONST RUNING = 2;
-	const COMPLETE = 3;
-
+class CrontabTask{
 	private $name;
 	private $config;
 	private $date;
@@ -31,15 +26,6 @@ class Task{
 
 	public function getRule() {
 		return $this->config['rule'];
-	}
-
-	public function getTaskInfo() {
-		$message = new TaskMessage();
-		$message->type = TaskMessage::OPERATION_TASK_ASYNC;
-		$message->task = $this->getTask();
-		$message->params['name'] = $this->getName();
-
-		return $message->pack();
 	}
 
 	/**

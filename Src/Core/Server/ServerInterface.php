@@ -21,12 +21,6 @@ interface ServerInterface {
 	public function stop();
 
 	/**
-	 * 服务类型
-	 * @return mixed
-	 */
-	public function getType();
-
-	/**
 	 * 服务是否运行
 	 * @return mixed
 	 */

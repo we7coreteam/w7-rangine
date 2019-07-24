@@ -14,6 +14,6 @@ class ManagerStartListener extends ListenerAbstract {
 	}
 
 	private function setServerTitle($server) {
-		\isetProcessTitle( 'w7swoole ' . App::$server->getType() . ' manager process');
+		\isetProcessTitle( 'w7swoole ' . App::$server->type . ' manager process');
 	}
 }

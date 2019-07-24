@@ -7,15 +7,17 @@ use W7\Core\Cache\CacheProvider;
 use W7\Core\Database\DatabaseProvider;
 use W7\Core\Exception\ExceptionProvider;
 use W7\Core\Filesystem\FilesystemProvider;
+use W7\Core\Lang\TranslatorProvider;
 use W7\Core\Validation\ValidateProvider;
 
 class ProviderManager {
 	private $providerMap = [
-		ConsoleProvider::class,
 		ExceptionProvider::class,
+		ConsoleProvider::class,
 		FilesystemProvider::class,
 		CacheProvider::class,
 		DatabaseProvider::class,
+		TranslatorProvider::class,
 		ValidateProvider::class
 	];
 	private static $providers = [];

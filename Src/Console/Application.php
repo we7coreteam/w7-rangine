@@ -3,6 +3,7 @@
 namespace W7\Console;
 
 use Symfony\Component\Console\Application as SymfontApplication;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -61,7 +62,7 @@ class Application extends SymfontApplication {
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
 			if ($e instanceof \Error) {
-				$e = new \Exception($e->getMessage(), $e->getCode(), $e->getPrevious());
+				$e = new RuntimeException('message: ' . $e->getMessage() . "\nfile: " . $e->getFile() . "\nline: " . $e->getLine(), $e->getCode());
 			}
 			$this->renderException($e, $output);
 		}

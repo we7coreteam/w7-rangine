@@ -17,10 +17,10 @@ class MiddlewareMapping {
 	 * 获取当前启动组件服务中定义的固定last中间件
 	 */
 	public function getLastMiddle() {
-		if (empty(App::$server->getType())) {
+		if (empty(App::$server->type)) {
 			return [];
 		}
-		$class = sprintf("\\W7\\%s\\Middleware\\LastMiddleware", ucfirst(App::$server->getType()));
+		$class = sprintf("\\W7\\%s\\Middleware\\LastMiddleware", ucfirst(App::$server->type));
 		if (class_exists($class)) {
 			return [$class];
 		} else {
