@@ -1,10 +1,19 @@
 <?php
 
+/**
+ * WeEngine Api System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\Console;
 
 use Symfony\Component\Console\Application as SymfontApplication;
 use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,6 +32,7 @@ class Application extends SymfontApplication {
 		$this->setAutoExit(false);
 		$this->registerCommands();
 		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
+
 		$this->registerErrorHandler();
 	}
 
@@ -59,11 +69,11 @@ class Application extends SymfontApplication {
 		if (!$this->checkCommand($input)) {
 			$output->writeln($this->logo());
 			$input = new ArgvInput(['command' => 'list']);
-		} else if (true === $input->hasParameterOption(['--help', '-h'], true)) {
+		} elseif (true === $input->hasParameterOption(['--help', '-h'], true)) {
 			$output->writeln($this->logo());
 		}
 
-		try{
+		try {
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
 			if ($e instanceof \Error) {
@@ -97,7 +107,7 @@ class Application extends SymfontApplication {
 				$fileName = substr($file->getBasename(), 0, -4);
 				$name = strtolower(rtrim($parent . ':' . $fileName, 'Command'));
 
-				$systemCommands[$name] = "\\W7\\Console\\Command\\" . $dir . "\\" . $fileName;
+				$systemCommands[$name] = '\\W7\\Console\\Command\\' . $dir . '\\' . $fileName;
 			}
 		}
 		$userCommands = iconfig()->getUserConfig('command');
