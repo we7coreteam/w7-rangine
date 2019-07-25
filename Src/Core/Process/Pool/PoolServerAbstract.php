@@ -14,16 +14,31 @@ abstract class PoolServerAbstract implements ServerInterface {
 	protected $config;
 	protected $poolConfig;
 
+	protected $canStart = false;
+
+	public function __construct() {
+		$this->init();
+	}
+
+	protected function init() {}
+
+	abstract protected function register() : bool;
+
 	public function registerPool($class) {
 		$this->processPool = new $class($this->poolConfig);
 		if (!($this->processPool instanceof PoolAbstract)) {
 			throw new \Exception('the pool must be instance PoolAbstract');
 		}
 
+		$this->canStart = $this->register();
 		return $this;
 	}
 
-	public function start() {}
+	public function start() {
+		if ($this->canStart) {
+			$this->processPool->start();
+		}
+	}
 
 	public function stop() {
 		return $this->processPool->stop();

@@ -2,6 +2,7 @@
 
 namespace W7\Core\Process\Pool;
 
+use Swoole\Process;
 use Swoole\Process\Pool as PoolManager;
 
 /**
@@ -12,28 +13,29 @@ use Swoole\Process\Pool as PoolManager;
 class IndependentPool extends PoolAbstract {
 	private $ipcType = 0;
 	private $pidFile;
-	private $daemonize;
+	private $daemon;
 
 
 	protected function init(){
 		$this->ipcType = $this->config['ipc_type'] ?? 0;
 		$this->pidFile = $this->config['pid_file'] ?? '/tmp/swoole_process_pool.pid';
-		$this->daemonize = $this->config['daemonize'] ?? false;
+		$this->daemon = $this->config['daemonize'] ?? false;
+	}
+
+	private function setDaemon() {
+		if ($this->daemon) {
+			Process::daemon(true, false);
+		}
+	}
+
+	private function setProcessName() {
+		isetProcessTitle('w7swoole_pool_master');
 	}
 
 	public function start() {
-		if ($this->daemonize) {
-			$pid = pcntl_fork();
-			if ($pid == -1) {
-				throw new \Exception('启动守护进程失败');
-			}
-			elseif ($pid > 0) {
-				//父进程退出,子进程变成孤儿进程被1号进程收养，进程脱离终端
-				exit(0);
-			}
-			// 让该进程脱离之前的会话，终端，进程组的控制
-			posix_setsid();
-		}
+		$this->setDaemon();
+		$this->setProcessName();
+
 		if ($this->processFactory->count() == 0) {
 			throw new \Exception('process num not be zero');
 		}
