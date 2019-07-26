@@ -62,8 +62,25 @@ class IndependentPool extends PoolAbstract {
 			throw new \Exception('stop process server fail');
 		}
 
+		$timeout = 20;
+		$startTime = time();
+		$result = true;
 		$pid = file_get_contents($this->pidFile);
+		while (Process::kill($pid, 0)) {
+			$result = Process::kill($pid, SIGTERM);
+			if ($result) {
+				break;
+			}
+			if (!$result) {
+				if (time() - $startTime >= $timeout) {
+					$result = false;
+					break;
+				}
+				usleep(10000);
+			}
+		}
+
 		unlink($this->pidFile);
-		return posix_kill($pid, SIGTERM);
+		return $result;
 	}
 }
