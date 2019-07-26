@@ -7,13 +7,11 @@ use W7\Core\Crontab\Process\CrontabExecutor;
 use W7\Core\Process\Pool\PoolServerAbstract;
 
 class CrontabServer extends PoolServerAbstract {
-	const DEFAULT_PID_FILE = '/tmp/swoole_crontab.pid';
-
 	protected function init() {
 		$this->config = iconfig()->getUserConfig('crontab');
 		$this->config['setting']['ipc_type'] = SWOOLE_IPC_MSGQUEUE;
 		$this->config['setting']['auto_start'] = $this->config['setting']['auto_start'] ?? false;
-		$this->config['setting']['pid_file'] = empty($this->config['setting']['pid_file']) ? self::DEFAULT_PID_FILE : $this->config['setting']['pid_file'];
+
 		$this->poolConfig = $this->config['setting'];
 	}
 

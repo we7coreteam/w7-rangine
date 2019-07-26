@@ -22,6 +22,14 @@ abstract class PoolServerAbstract implements ServerInterface {
 
 	protected function init() {}
 
+	private function checkSetting() {
+		if ($this->processPool instanceof IndependentPool) {
+			if (empty($this->config['setting']['pid_file'])) {
+				throw new \Exception('setting/pid_file parameter error');
+			}
+		}
+	}
+
 	abstract protected function register() : bool;
 
 	public function registerPool($class) {
@@ -29,6 +37,8 @@ abstract class PoolServerAbstract implements ServerInterface {
 		if (!($this->processPool instanceof PoolAbstract)) {
 			throw new \Exception('the pool must be instance PoolAbstract');
 		}
+
+		$this->checkSetting();
 
 		$this->canStart = $this->register();
 		return $this;
