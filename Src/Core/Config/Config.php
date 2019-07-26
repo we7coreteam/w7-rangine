@@ -98,33 +98,19 @@ class Config {
 
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
+
+		$setting = $this->getUserAppConfig('setting');
+		!defined('ENV') && define('ENV', $setting['env'] ?? '');
+		//现在的启动方式有通过env和参数的形式, 所以这里只在有配置的情况下进行检测
+		!defined('SERVER') && !empty($setting['server']) && define('SERVER', $setting['server']);
+
 		$this->checkSetting();
 	}
 
 	private function checkSetting() {
-		$setting = $this->getUserAppConfig('setting');
-
-		if (defined('ENV')) {
-			$env = ENV;
-		} else {
-			$env = $setting['env'] ?? '';
-		}
-		if (!is_numeric($env) || ((RELEASE|DEVELOPMENT) & $env) !== $env) {
+		if (!is_numeric(ENV) || ((RELEASE|DEVELOPMENT) & ENV) !== ENV) {
 			throw new \Exception("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
 		}
-		!defined('ENV') && define('ENV', $env);
-
-
-		if (defined('SERVER')) {
-			$server = SERVER;
-		} else {
-			$server = $setting['server'] ?? '';
-		}
-		//现在的启动方式有通过env和参数的形式, 所以这里只在有配置的情况下进行检测
-		if ($server && (!is_numeric($server) || ((HTTP|TCP|PROCESS|CRONTAB) & $server) !== $server)) {
-			throw new \Exception("config setting['server'] error, please use the constant HTTP, TCP, PROCESS, CRONTAB instead");
-		}
-		!defined('SERVER') && $server && define('SERVER', $server);
 	}
 
 	/**
