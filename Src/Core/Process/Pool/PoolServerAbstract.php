@@ -25,7 +25,7 @@ abstract class PoolServerAbstract implements ServerInterface {
 	private function checkSetting() {
 		if ($this->processPool instanceof IndependentPool) {
 			if (empty($this->config['setting']['pid_file'])) {
-				throw new \Exception('setting/pid_file parameter error');
+				throw new \Exception("config setting['pid_file'] parameter error");
 			}
 		}
 	}
