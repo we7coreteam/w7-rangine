@@ -2,17 +2,17 @@
 
 namespace W7\Core\Process;
 
+use W7\Core\Process\Pool\DependentPool;
 use W7\Core\Process\Pool\IndependentPool;
 use W7\Core\Process\Pool\PoolServerAbstract;
+use W7\Core\Process\Process\ReloadProcess;
 
 class ProcessServer extends PoolServerAbstract {
-	const DEFAULT_PID_FILE = '/tmp/swoole_user_process.pid';
 	private $userProcess;
 
 
 	protected function init() {
 		$this->config = iconfig()->getUserConfig('process');
-		$this->config['setting']['pid_file'] = empty($this->config['setting']['pid_file']) ? self::DEFAULT_PID_FILE : $this->config['setting']['pid_file'];
 		$this->poolConfig = $this->config['setting'];
 	}
 
@@ -38,13 +38,27 @@ class ProcessServer extends PoolServerAbstract {
 		return parent::TYPE_PROCESS;
 	}
 
+	private function getReloadProcess() {
+		return [
+			'enable' => true,
+			'class' => ReloadProcess::class,
+			'number' => 1
+		];
+	}
+
 	public function getUserProcess() {
-		if (!$this->userProcess) {
+		if (!$this->userProcess && (SERVER & PROCESS) === PROCESS) {
 			$process = iconfig()->getUserConfig('process')['process'];
 			foreach ($process as $key => $item) {
 				if ($process[$key]['enable']) {
 					$this->userProcess[$key] = $item;
 				}
+			}
+		}
+		if ($this->processPool instanceof DependentPool) {
+			$this->userProcess['reload'] = $this->getReloadProcess();
+			if ((ENV & RELEASE) === RELEASE) {
+				unset($this->userProcess['reload']);
 			}
 		}
 

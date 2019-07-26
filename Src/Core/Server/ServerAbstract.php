@@ -163,9 +163,8 @@ abstract class ServerAbstract implements ServerInterface {
 		if ((SERVER & CRONTAB) === CRONTAB) {
 			(new CrontabServer())->registerPool(DependentPool::class)->start();
 		}
-		if ((SERVER & PROCESS) === PROCESS) {
-			(new ProcessServer())->registerPool(DependentPool::class)->start();
-		}
+
+		(new ProcessServer())->registerPool(DependentPool::class)->start();
 	}
 
 	protected function registerServerContext() {
