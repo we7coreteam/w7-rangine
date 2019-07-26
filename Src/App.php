@@ -33,17 +33,16 @@ class App {
 	 */
 	private $container;
 
-	/**
-	 * @var ProviderManager
-	 */
-	private $providerManager;
-
 	public function __construct() {
-		$this->init();
+		static::$self = $this;
+		$this->container = new Container();
+		$this->registerRuntimeEnv();
 	}
 
-	protected function preInit() {
+	protected function registerRuntimeEnv() {
 		date_default_timezone_set('Asia/Shanghai');
+
+		iconfig();
 
 		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
 		$setting = iconfig()->getUserAppConfig('setting');
@@ -51,27 +50,9 @@ class App {
 		error_reporting($errorLevel);
 	}
 
-	private function init() {
-		static::$self = $this;
-		$this->container = new Container();
-		$this->getConfigger();
-		$this->preInit();
-
-		$this->providerManager = $this->container->get(ProviderManager::class);
-	}
-
-	private function register() {
-		$this->providerManager->register();
-	}
-
-	private function boot() {
-		$this->providerManager->boot();
-	}
-
 	public function runConsole() {
 		try{
-			$this->register();
-			$this->boot();
+			$this->container->get(ProviderManager::class)->register()->boot();
 			(new Application())->run();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
