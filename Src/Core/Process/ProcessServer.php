@@ -3,7 +3,6 @@
 namespace W7\Core\Process;
 
 use W7\Core\Process\Pool\DependentPool;
-use W7\Core\Process\Pool\IndependentPool;
 use W7\Core\Process\Pool\PoolServerAbstract;
 use W7\Core\Process\Process\ReloadProcess;
 
@@ -43,7 +42,7 @@ class ProcessServer extends PoolServerAbstract {
 	}
 
 	public function getUserProcess() {
-		if (!$this->userProcess && (SERVER & PROCESS) === PROCESS) {
+		if ((SERVER & PROCESS) === PROCESS) {
 			$process = iconfig()->getUserConfig('process')['process'];
 			foreach ($process as $key => $item) {
 				if ($process[$key]['enable']) {
