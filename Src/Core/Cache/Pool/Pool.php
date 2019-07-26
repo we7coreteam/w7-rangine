@@ -10,8 +10,8 @@ namespace W7\Core\Cache\Pool;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
-
 	private $creator;
+	protected $type = 'cache';
 
 	public function setCreator($creator) {
 		$this->creator = $creator;

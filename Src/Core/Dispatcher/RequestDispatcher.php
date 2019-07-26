@@ -39,15 +39,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			$middlewareHandler = new MiddlewareHandler($middlewares);
 			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
-			$errorMessage = sprintf('Uncaught Exception %s: "%s" at %s line %s',
-				get_class($throwable),
-				$throwable->getMessage(),
-				$throwable->getFile(),
-				$throwable->getLine()
-			);
-			ilogger()->error($errorMessage, array('exception' => $throwable));
-
-			$response = iloader()->withClass(ExceptionHandle::class)->withParams('type', App::$server->getType())->withSingle()->get()->handle($throwable);
+			$response = iloader()->withClass(ExceptionHandle::class)->withParams('type', App::$server->type)->withSingle()->get()->handle($throwable);
 		} finally {
 			return $response;
 		}

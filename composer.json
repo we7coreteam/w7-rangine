@@ -10,6 +10,7 @@
         }
     ],
     "require": {
+        "ext-swoole": ">=4.2.3",
         "w7/http-message": "^1.0",
         "w7/laravel-cache-model" : "^1.0",
         "illuminate/database": "5.6.*",

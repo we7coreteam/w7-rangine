@@ -42,13 +42,16 @@ abstract class CommandAbstract extends Command {
 	}
 
 	/**
-	 * 该分支下,命令行和自定义process都需要数据库,数据库注册暂放在command中
+	 * model -> newQuery -> DatabaseMananger -> function connection ->
+	 *      Factory -> createConnector 拿到一个Pdo连接 （ConnectorManager -> 从连接池里拿一个Pdo连接） -> createConnection 放置Pdo连接，生成连接操作对象 (PdoMysqlConnection)
+	 *
 	 * @return bool
 	 */
 	private function registerDb() {
 		if (static::$isRegister) {
 			return true;
 		}
+
 		//新增swoole连接mysql的方式
 		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
 			return new SwooleMySqlConnection($connection, $database, $prefix, $config);
@@ -57,13 +60,12 @@ abstract class CommandAbstract extends Command {
 			return new PdoMysqlConnection($connection, $database, $prefix, $config);
 		});
 
-		//新增swoole连接Mysql的容器
-		$container = new Container();
+		$container = iloader()->withClass(Container::class)->withSingle()->get();
 		$container->instance('db.connector.swoolemysql', new ConnectorManager());
 		$container->instance('db.connector.mysql', new ConnectorManager());
 
 		//侦听sql执行完后的事件，回收$connection
-		$dbDispatch = new Dispatcher($container);
+		$dbDispatch = iloader()->withClass(Dispatcher::class)->withSingle()->withParams('container', $container)->get();
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
 			/**
 			 *检测是否是事物里面的query
@@ -103,6 +105,7 @@ abstract class CommandAbstract extends Command {
 
 		Model::setEventDispatcher($dbDispatch);
 		Model::setConnectionResolver($dbManager);
+
 		static::$isRegister = true;
 	}
 

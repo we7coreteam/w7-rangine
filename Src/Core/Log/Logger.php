@@ -20,13 +20,9 @@ class Logger extends \Monolog\Logger {
 	}
 
 	public function addRecord($level, $message, array $context = array()) {
-		//关闭调试模式时，不写入日志
-		if ((ENV & DEBUG) !== DEBUG && empty($this->enable)) {
-			return true;
-		}
 		$result =  parent::addRecord($level, $message, $context);
 
-		if ((ENV & DEBUG) === DEBUG || $this->bufferLimit == 1) {
+		if ($this->bufferLimit == 1) {
 			$this->flushLog($this->getName());
 		}
 		return $result;

@@ -15,6 +15,8 @@ use W7\Core\Log\LogManager;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
+use Whoops\Handler\PlainTextHandler;
+use Whoops\Run;
 
 class App {
 	private static $self;
@@ -30,22 +32,48 @@ class App {
 	 */
 	private $loader;
 
-	public static function getApp() {
-		if (!empty(self::$self)) {
-			return self::$self;
-		}
-		self::$self = new static();
 
+	public function __construct() {
+		self::$self = $this;
+
+		$this->preInit();
+		$this->registerErrorHandler();
+	}
+
+	protected function preInit() {
+		//初始化配置
+		iconfig();
+
+		date_default_timezone_set('Asia/Shanghai');
+
+		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
+		$setting = iconfig()->getUserAppConfig('setting');
+		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
+		error_reporting($errorLevel);
+	}
+
+	private function registerErrorHandler() {
+		/**
+		 * 设置错误信息接管
+		 */
+		$processer = new Run();
+		$handle = new PlainTextHandler($this->getLogger());
+		if ((ENV & BACKTRACE) !== BACKTRACE) {
+			$handle->addTraceToOutput(false);
+			$handle->addPreviousToOutput(false);
+		}
+		$processer->pushHandler($handle);
+		$processer->register();
+	}
+
+	public static function getApp() {
 		return self::$self;
 	}
 
 	public function runConsole() {
 		try{
-			//初始化配置
-			iconfig();
 			iloader()->singleton(ProviderManager::class)->register()->boot();
 			$console = iloader()->singleton(Application::class);
-
 			$console->run();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());

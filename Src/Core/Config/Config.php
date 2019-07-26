@@ -83,10 +83,11 @@ class Config {
 
 	private function initConst() {
 		//在加载配置前定义需要的常量
-		!defined('RELEASE') && define('RELEASE', 0);
+		!defined('RELEASE') && define('RELEASE', 8);
 		!defined('DEBUG') && define('DEBUG', 1);
 		!defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
-		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG);
+		!defined('BACKTRACE') && define('BACKTRACE', 4);
+		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
 		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
 
 		//在加载配置前定义需要的常量

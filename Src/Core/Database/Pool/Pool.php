@@ -17,6 +17,8 @@ class Pool extends CoPoolAbstract {
 	 */
 	private $creator;
 
+	protected $type = 'database';
+
 	public function setCreator($creator) {
 		$this->creator = $creator;
 	}

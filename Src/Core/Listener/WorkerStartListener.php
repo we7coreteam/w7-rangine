@@ -11,6 +11,9 @@ use W7\App;
 class WorkerStartListener implements ListenerInterface {
 	public function run(...$params) {
 		\isetProcessTitle( 'w7swoole ' . App::$server->getType() . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
+		if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {
+			opcache_reset();
+		}
 
 		//设置安全限制目录
 		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?? [];

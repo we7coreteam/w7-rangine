@@ -13,6 +13,7 @@
 namespace W7\Console;
 
 use Symfony\Component\Console\Application as SymfontApplication;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -20,9 +21,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
-use W7\App;
-use Whoops\Handler\PlainTextHandler;
-use Whoops\Run;
 
 class Application extends SymfontApplication {
 	public function __construct() {
@@ -31,9 +29,6 @@ class Application extends SymfontApplication {
 
 		$this->setAutoExit(false);
 		$this->registerCommands();
-		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
-
-		$this->registerErrorHandler();
 	}
 
 	/**
@@ -69,28 +64,18 @@ class Application extends SymfontApplication {
 		if (!$this->checkCommand($input)) {
 			$output->writeln($this->logo());
 			$input = new ArgvInput(['command' => 'list']);
-		} elseif (true === $input->hasParameterOption(['--help', '-h'], true)) {
+		} else if (true === $input->hasParameterOption(['--help', '-h'], true)) {
 			$output->writeln($this->logo());
 		}
 
-		try {
+		try{
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
 			if ($e instanceof \Error) {
-				$e = new \Exception($e->getMessage(), $e->getCode(), $e->getPrevious());
+				$e = new RuntimeException('message: ' . $e->getMessage() . "\nfile: " . $e->getFile() . "\nline: " . $e->getLine(), $e->getCode());
 			}
 			$this->renderException($e, $output);
 		}
-	}
-
-	private function registerErrorHandler() {
-		/**
-		 * 设置错误信息接管
-		 */
-		$processer = new Run();
-		$handle = new PlainTextHandler(App::getApp()->getLogger());
-		$processer->pushHandler($handle);
-		$processer->register();
 	}
 
 	private function registerCommands() {
@@ -107,7 +92,7 @@ class Application extends SymfontApplication {
 				$fileName = substr($file->getBasename(), 0, -4);
 				$name = strtolower(rtrim($parent . ':' . $fileName, 'Command'));
 
-				$systemCommands[$name] = '\\W7\\Console\\Command\\' . $dir . '\\' . $fileName;
+				$systemCommands[$name] = "\\W7\\Console\\Command\\" . $dir . "\\" . $fileName;
 			}
 		}
 		$userCommands = iconfig()->getUserConfig('command');
