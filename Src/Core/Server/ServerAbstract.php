@@ -37,7 +37,7 @@ abstract class ServerAbstract implements ServerInterface {
 	const TYPE_WEBSOCKET = 'websocket';
 
 	/**
-	 * @var \Swoole\Http\Server
+	 * @var \Swoole\Server
 	 */
 	public $server;
 
@@ -94,6 +94,8 @@ abstract class ServerAbstract implements ServerInterface {
 	public function getServer() {
 		return $this->server;
 	}
+
+	public function listener(\Swoole\Server $server) {}
 
 	public function isRun() {
 		$status = $this->getStatus();
