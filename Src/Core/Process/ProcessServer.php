@@ -23,11 +23,6 @@ class ProcessServer extends PoolServerAbstract {
 		}
 
 		foreach ($userProcess as $name => $process) {
-			//在不随server启动下,过滤reload进程
-			if ($name === 'reload' && $this->processPool instanceof IndependentPool) {
-				continue;
-			}
-
 			$this->processPool->registerProcess($name, $process['class'], $process['number']);
 		}
 
@@ -40,6 +35,7 @@ class ProcessServer extends PoolServerAbstract {
 
 	private function getReloadProcess() {
 		return [
+			'name' => irandom(8) . '_reload',
 			'enable' => true,
 			'class' => ReloadProcess::class,
 			'number' => 1
@@ -55,11 +51,9 @@ class ProcessServer extends PoolServerAbstract {
 				}
 			}
 		}
-		if ($this->processPool instanceof DependentPool) {
-			$this->userProcess['reload'] = $this->getReloadProcess();
-			if ((ENV & RELEASE) === RELEASE) {
-				unset($this->userProcess['reload']);
-			}
+		if ($this->processPool instanceof DependentPool && (ENV & DEBUG) === DEBUG) {
+			$reloadProcess = $this->getReloadProcess();
+			$this->userProcess[$reloadProcess['name']] = $reloadProcess;
 		}
 
 		return $this->userProcess;
