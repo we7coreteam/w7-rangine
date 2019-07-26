@@ -36,48 +36,27 @@ class App {
 	public function __construct() {
 		self::$self = $this;
 
-		$this->preInit();
-		$this->registerErrorHandler();
-	}
-
-	protected function preInit() {
 		//初始化配置
 		iconfig();
-
-		date_default_timezone_set('Asia/Shanghai');
-
-		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
-		$setting = iconfig()->getUserAppConfig('setting');
-		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
-		error_reporting($errorLevel);
-	}
-
-	private function registerErrorHandler() {
-		/**
-		 * 设置错误信息接管
-		 */
-		$processer = new Run();
-		$handle = new PlainTextHandler($this->getLogger());
-		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$handle->addTraceToOutput(false);
-			$handle->addPreviousToOutput(false);
-		}
-		$processer->pushHandler($handle);
-		$processer->register();
-	}
-
-	public static function getApp() {
-		return self::$self;
+		$this->registerRuntimeEnv();
+		$this->registerErrorHandler();
+		$this->registerProvider();
 	}
 
 	public function runConsole() {
 		try{
-			iloader()->singleton(ProviderManager::class)->register()->boot();
+			/**
+			 * @var Application $console
+			 */
 			$console = iloader()->singleton(Application::class);
 			$console->run();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
 		}
+	}
+
+	public static function getApp() {
+		return self::$self;
 	}
 
 	public function getLoader() {
@@ -118,5 +97,33 @@ class App {
 		 */
 		$cache = $this->getLoader()->singleton(Cache::class);
 		return $cache;
+	}
+
+
+	private function registerRuntimeEnv() {
+		date_default_timezone_set('Asia/Shanghai');
+	}
+
+	private function registerErrorHandler() {
+		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
+		$setting = iconfig()->getUserAppConfig('setting');
+		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
+		error_reporting($errorLevel);
+
+		/**
+		 * 设置错误信息接管
+		 */
+		$processer = new Run();
+		$handle = new PlainTextHandler($this->getLogger());
+		if ((ENV & BACKTRACE) !== BACKTRACE) {
+			$handle->addTraceToOutput(false);
+			$handle->addPreviousToOutput(false);
+		}
+		$processer->pushHandler($handle);
+		$processer->register();
+	}
+
+	private function registerProvider() {
+		iloader()->singleton(ProviderManager::class)->register()->boot();
 	}
 }
