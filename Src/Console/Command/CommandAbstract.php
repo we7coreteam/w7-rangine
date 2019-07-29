@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * WeEngine Api System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\Console\Command;
 
 use Illuminate\Container\Container;
@@ -33,7 +43,7 @@ abstract class CommandAbstract extends Command {
 	 * @var Output
 	 */
 	protected $output;
-	static $isRegister;
+	public static $isRegister;
 
 	public function __construct(string $name = null) {
 		parent::__construct($name);
@@ -111,7 +121,7 @@ abstract class CommandAbstract extends Command {
 
 	private function releaseDb($data, $container) {
 		$connection = $data->connection;
-		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings )));
+		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings)));
 
 		$poolName = $connection->getPoolName();
 		if (empty($poolName)) {
@@ -140,7 +150,38 @@ abstract class CommandAbstract extends Command {
 		$this->input = $input;
 		$this->output = $output;
 
+		$this->overwriteConfigByOptions();
+
 		$this->handle($this->input->getOptions());
+	}
+
+	private function overwriteConfigByOptions() {
+		foreach ($this->input->getOptions() as $option => $value) {
+			if (is_null($value)) {
+				continue;
+			}
+			if (strpos($option, 'config') !== false) {
+				$option = explode('-', $option);
+				array_shift($option);
+				if (count($option) >= 2) {
+					$name = array_shift($option);
+					$config = iconfig()->getUserConfig($name);
+
+					$childConfig = &$config;
+					while (count($option) > 1) {
+						$key = array_shift($option);
+						if (! isset($childConfig[$key]) || ! is_array($childConfig[$key])) {
+							$childConfig[$key] = [];
+						}
+
+						$childConfig = &$childConfig[$key];
+					}
+					$childConfig[array_shift($option)] = $value;
+
+					iconfig()->setUserConfig($name, $config);
+				}
+			}
+		}
 	}
 
 	abstract protected function handle($options);
@@ -149,7 +190,8 @@ abstract class CommandAbstract extends Command {
 		$arguments['command'] = $command;
 		$input = new ArrayInput($arguments);
 		return $this->getApplication()->find($command)->run(
-			$input, ioutputer()
+			$input,
+			ioutputer()
 		);
 	}
 }
