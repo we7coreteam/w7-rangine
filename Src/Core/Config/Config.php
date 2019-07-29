@@ -78,15 +78,15 @@ class Config {
 		]
 	];
 
+	private $config = [];
+
 	private $allServer = [
 		HTTP => HttpServer::class,
 		TCP => TcpServer::class,
-		CRONTAB =>  CrontabServer::class,
 		PROCESS => ProcessServer::class,
+		CRONTAB => CrontabServer::class,
 		RELOAD => ReloadServer::class
 	];
-
-	private $config = [];
 
 	public function __construct() {
 		//初始化evn配置数据
@@ -97,32 +97,15 @@ class Config {
 		$env->load();
 		unset($env);
 
-		$this->initConst();
+		$this->initUserConst();
 	}
 
-	private function initConst() {
-		//在加载配置前定义需要的常量
-		!defined('RELEASE') && define('RELEASE', 8);
-		!defined('DEBUG') && define('DEBUG', 1);
-		!defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
-		!defined('BACKTRACE') && define('BACKTRACE', 4);
-		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
-		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
-
-		//在加载配置前定义需要的常量
-		!defined('HTTP') && define('HTTP', 1);
-		!defined('TCP') && define('TCP', 2);
-		!defined('PROCESS') && define('PROCESS', 4);
-		!defined('CRONTAB') && define('CRONTAB', 8);
-		!defined('RELOAD') && define('RELOAD', 16);
-
+	private function initUserConst() {
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
 
 		$setting = $this->getUserAppConfig('setting');
-		!defined('ENV') && define('ENV', $setting['env'] ?? '');
-		//现在的启动方式有通过env和参数的形式, 所以这里只在有配置的情况下进行检测
-		!defined('SERVER') && !empty($setting['server']) && define('SERVER', $setting['server']);
+		!defined('ENV') && define('ENV', $setting['env'] ?? DEVELOPMENT);
 
 		$this->checkSetting();
 	}

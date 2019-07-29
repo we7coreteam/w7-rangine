@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * WeEngine Api System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\Core\Process\Pool;
 
 use W7\Core\Server\ServerInterface;
@@ -19,23 +29,15 @@ abstract class PoolServerAbstract implements ServerInterface {
 
 	public function __construct() {
 		$this->init();
+		$this->registerPool(IndependentPool::class);
 	}
 
-	protected function init() {}
-
-	public function listener(\Swoole\Server $server) {
-		$this->registerPool(DependentPool::class);
+	protected function init() {
 	}
 
-	private function checkSetting() {
-		if ($this->processPool instanceof IndependentPool) {
-			if (empty($this->config['setting']['pid_file'])) {
-				throw new \Exception("config setting['pid_file'] parameter error");
-			}
-		}
+	public function listener() {
+		$this->registerPool(DependentPool::class)->start();
 	}
-
-	abstract protected function register() : bool;
 
 	public function registerPool($class) {
 		$this->processPool = new $class($this->poolConfig);
@@ -43,20 +45,18 @@ abstract class PoolServerAbstract implements ServerInterface {
 			throw new \Exception('the pool must be instance PoolAbstract');
 		}
 
-		$this->checkSetting();
-
 		$this->canStart = $this->register();
 		return $this;
 	}
 
-	public function start() {
-		if ($this->canStart) {
-			$this->processPool->start();
-		}
-	}
+	abstract protected function register() : bool;
 
-	public function stop() {
-		return $this->processPool->stop();
+	private function checkSetting() {
+		if ($this->processPool instanceof IndependentPool) {
+			if (empty($this->config['setting']['pid_file'])) {
+				throw new \Exception("config setting['pid_file'] parameter error");
+			}
+		}
 	}
 
 	public function getServer() {
@@ -85,7 +85,18 @@ abstract class PoolServerAbstract implements ServerInterface {
 		];
 	}
 
-	public function getPool() : PoolAbstract{
+	public function getPool() : PoolAbstract {
 		return $this->processPool;
+	}
+
+	public function start() {
+		$this->checkSetting();
+		if ($this->canStart) {
+			$this->processPool->start();
+		}
+	}
+
+	public function stop() {
+		return $this->processPool->stop();
 	}
 }

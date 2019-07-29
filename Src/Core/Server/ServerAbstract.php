@@ -1,8 +1,13 @@
 <?php
+
 /**
- * 服务父类，实现一些公共操作
- * @author donknap
- * @date 18-7-20 上午9:32
+ * WeEngine Api System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Core\Server;
@@ -53,7 +58,10 @@ abstract class ServerAbstract implements ServerInterface {
 	 * @throws CommandException
 	 */
 	public function __construct() {
-		App::$server = $this;
+		if (!App::$server) {
+			App::$server = $this;
+		}
+
 		$setting = \iconfig()->getServer();
 		if (empty($setting[$this->getType()]) || empty($setting[$this->getType()]['host'])) {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->getType()));
@@ -92,7 +100,8 @@ abstract class ServerAbstract implements ServerInterface {
 		return $this->server;
 	}
 
-	public function listener(\Swoole\Server $server) {}
+	public function listener(\Swoole\Server $server) {
+	}
 
 	public function isRun() {
 		$status = $this->getStatus();
@@ -131,10 +140,12 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 
 		if (!file_exists($this->setting['pid_file'])) {
-			return true;
+			$result = true;
 		} else {
 			unlink($this->setting['pid_file']);
 		}
+
+		App::$server = null;
 		return $result;
 	}
 
@@ -230,7 +241,7 @@ abstract class ServerAbstract implements ServerInterface {
 	private function releaseDb($data, $container) {
 		return true;
 		$connection = $data->connection;
-		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings )));
+		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings)));
 
 		$poolName = $connection->getPoolName();
 		if (empty($poolName)) {

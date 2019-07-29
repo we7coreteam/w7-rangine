@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-11-6 下午2:10
+ * WeEngine Api System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Tcp\Server;
@@ -16,7 +22,7 @@ class Server extends ServerAbstract {
 	}
 
 	public function start() {
-		$this->server = new TcpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+		$this->server = $this->getServer();
 		$this->server->set($this->setting);
 
 		ievent(Event::ON_USER_BEFORE_START, [$this->server]);
@@ -24,6 +30,13 @@ class Server extends ServerAbstract {
 		$this->registerService();
 
 		$this->server->start();
+	}
+
+	public function getServer() {
+		if (empty($this->server)) {
+			$this->server = new TcpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+		}
+		return $this->server;
 	}
 
 	/**

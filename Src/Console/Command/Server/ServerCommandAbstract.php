@@ -1,76 +1,36 @@
 <?php
 
+/**
+ * WeEngine Api System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\Console\Command\Server;
 
-use W7\App;
+use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
-use W7\Crontab\Server\CrontabServer;
-use W7\Core\Exception\CommandException;
-use W7\Core\Process\Pool\IndependentPool;
-use W7\Process\Server\ProcessServer;
-use W7\Reload\Server\ReloadServer;
 use W7\Core\Server\ServerInterface;
-use W7\Http\Server\Server as HttpServer;
-use W7\Tcp\Server\Server as TcpServer;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
-	//当前的server
-	protected $netServer;
-	//顺序不能变
-	protected $netServerMap = [
-		HTTP => 'Http',
-		TCP => 'Tcp',
-	];
-	protected $ordinaryServerMap = [
-		PROCESS => 'Process',
-		CRONTAB => 'Crontab'
-	];
+	private $servers;
+	private $curServer;
 
 	protected function configure() {
-		$this->addArgument('type', null, 'server type');
-	}
-
-	private function getHttpServer() {
-		$this->netServer = HTTP;
-		return new HttpServer();
-	}
-
-	private function getTcpServer() {
-		$this->netServer = TCP;
-		return new TcpServer();
-	}
-
-	private function getProcessServer() {
-		return (new ProcessServer())->registerPool(IndependentPool::class);
-	}
-
-	private function getCrontabServer() {
-		return (new CrontabServer())->registerPool(IndependentPool::class);
-	}
-
-	private function getReloadServer() {
-		return new ReloadServer();
+		$this->addOption('--config-app-setting-server', '-s', InputOption::VALUE_REQUIRED, 'server type');
 	}
 
 	private function getServer() : ServerInterface {
-		$type = $this->input->getArgument('type');
-		if (!defined('SERVER') && !$type) {
-			throw new CommandException('argument type error');
-		}
-		if (!defined('SERVER') && $type) {
-			try{
-				$type = strtoupper($type);
-				$server = eval('return ' . $type . ';');
-				define('SERVER', $server);
-			} catch (\Throwable $e) {
-				throw new CommandException('argument type error');
-			}
-		}
+		$this->servers = iconfig()->getUserAppConfig('setting')['server'];
 
-		$allServer = $this->netServerMap + $this->ordinaryServerMap;
-		foreach ($allServer as $key => $type) {
-			if ((SERVER & $key) === $key) {
-				return $this->{'get' . $type . 'Server'}();
+		foreach (iconfig()->getAllServer() as $key => $class) {
+			if (($this->servers & $key) === $key) {
+				$this->curServer = $key;
+				return new $class();
 			}
 		}
 
@@ -79,14 +39,10 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	private function addSubServer($server) {
 		$lines = [];
-		if (!$this->netServer) {
-			return $lines;
-		}
-
-		$servers = SERVER ^ $this->netServer;
-		foreach ($this->netServerMap as $key => $type) {
-			if (($servers & $key) === $key) {
-				$subServer = $this->{'get' . $type . 'Server'}();
+		$this->servers = $this->servers ^ $this->curServer;
+		foreach (iconfig()->getAllServer() as $key => $class) {
+			if (($this->servers & $key) === $key) {
+				$subServer = new $class();
 				$subServer->listener($server->getServer());
 
 				$statusInfo = '';
@@ -122,10 +78,6 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		];
 
 		$lines = array_merge($lines, $this->addSubServer($server));
-
-		if ((SERVER & HTTP === HTTP) || (SERVER & TCP === TCP)) {
-			App::getApp()::$server = $server;
-		}
 
 		$lines[] = '********************************************************************';
 		// 启动服务器
