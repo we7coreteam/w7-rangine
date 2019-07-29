@@ -7,6 +7,7 @@ use W7\Core\Server\ServerInterface;
 abstract class PoolServerAbstract implements ServerInterface {
 	const TYPE_PROCESS = 'process';
 	const TYPE_CRONTAB = 'crontab';
+	const TYPE_RELOAD = 'reload';
 	/**
 	 * @var PoolAbstract
 	 */
@@ -21,6 +22,10 @@ abstract class PoolServerAbstract implements ServerInterface {
 	}
 
 	protected function init() {}
+
+	public function listener(\Swoole\Server $server) {
+		$this->registerPool(DependentPool::class);
+	}
 
 	private function checkSetting() {
 		if ($this->processPool instanceof IndependentPool) {

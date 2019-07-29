@@ -4,10 +4,11 @@ namespace W7\Console\Command\Server;
 
 use W7\App;
 use W7\Console\Command\CommandAbstract;
-use W7\Core\Crontab\CrontabServer;
+use W7\Crontab\Server\CrontabServer;
 use W7\Core\Exception\CommandException;
 use W7\Core\Process\Pool\IndependentPool;
-use W7\Core\Process\ProcessServer;
+use W7\Process\Server\ProcessServer;
+use W7\Reload\Server\ReloadServer;
 use W7\Core\Server\ServerInterface;
 use W7\Http\Server\Server as HttpServer;
 use W7\Tcp\Server\Server as TcpServer;
@@ -45,6 +46,10 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	private function getCrontabServer() {
 		return (new CrontabServer())->registerPool(IndependentPool::class);
+	}
+
+	private function getReloadServer() {
+		return new ReloadServer();
 	}
 
 	private function getServer() : ServerInterface {

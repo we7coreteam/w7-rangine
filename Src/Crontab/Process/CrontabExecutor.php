@@ -1,6 +1,6 @@
 <?php
 
-namespace W7\Core\Crontab\Process;
+namespace W7\Crontab\Process;
 
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Process\ProcessAbstract;

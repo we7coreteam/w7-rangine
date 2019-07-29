@@ -18,7 +18,6 @@ use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use Swoole\Process;
-use W7\Core\Crontab\CrontabServer;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\App;
@@ -26,8 +25,6 @@ use W7\Core\Config\Event;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Exception\CommandException;
-use W7\Core\Process\Pool\DependentPool;
-use W7\Core\Process\ProcessServer;
 use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -143,7 +140,6 @@ abstract class ServerAbstract implements ServerInterface {
 
 	public function registerService() {
 		$this->registerSwooleEventListener();
-		$this->registerProcess();
 		$this->registerServerContext();
 		$this->registerDb();
 		$this->registerCacheModel();
@@ -159,14 +155,6 @@ abstract class ServerAbstract implements ServerInterface {
 				$this->registerEvent($event);
 			}
 		}
-	}
-
-	protected function registerProcess() {
-		if ((SERVER & CRONTAB) === CRONTAB) {
-			(new CrontabServer())->registerPool(DependentPool::class)->start();
-		}
-
-		(new ProcessServer())->registerPool(DependentPool::class)->start();
 	}
 
 	protected function registerServerContext() {

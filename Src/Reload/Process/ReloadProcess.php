@@ -4,7 +4,7 @@
  * @date 18-7-25 下午3:03
  */
 
-namespace W7\Core\Process\Process;
+namespace W7\Reload\Process;
 
 use W7\App;
 use W7\Core\Process\ProcessAbstract;
