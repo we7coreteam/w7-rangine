@@ -104,7 +104,7 @@ abstract class ProcessAbstract {
 
 	private function startByTimer() {
 		$this->runTimer = Timer::tick($this->interval * 1000, function ($timer) {
-			$this->exec(function () {
+			$this->doRun(function () {
 				$this->run();
 			});
 		});
@@ -113,14 +113,14 @@ abstract class ProcessAbstract {
 	private function startByEvent() {
 		$pipe = $this->pipe ? $this->pipe : $this->process->pipe;
 		swoole_event_add($pipe, function ($fd) {
-			$this->exec(function () {
+			$this->doRun(function () {
 				$data = $this->pipe ? '' : $this->process->read();
 				$this->read($data);
 			});
 		});
 	}
 
-	private function exec(\Closure $callback) {
+	private function doRun(\Closure $callback) {
 		$this->complete = false;
 		try{
 			$callback();
