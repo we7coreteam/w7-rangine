@@ -155,6 +155,18 @@ abstract class CommandAbstract extends Command {
 		$this->handle($this->input->getOptions());
 	}
 
+	private function getOptionRealValue($value) {
+		if (is_string($value)) {
+			try {
+				$value = eval('return ' . strtoupper($value) . ';');
+			} catch (\Throwable $e) {
+				//
+			}
+		}
+
+		return $value;
+	}
+
 	private function overwriteConfigByOptions() {
 		foreach ($this->input->getOptions() as $option => $value) {
 			if (is_null($value)) {
@@ -176,7 +188,7 @@ abstract class CommandAbstract extends Command {
 
 						$childConfig = &$childConfig[$key];
 					}
-					$childConfig[array_shift($option)] = $value;
+					$childConfig[array_shift($option)] = $this->getOptionRealValue($value);
 
 					iconfig()->setUserConfig($name, $config);
 				}
