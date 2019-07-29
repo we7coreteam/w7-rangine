@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-21 下午3:35
+ * WeEngine Api System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Core\Config;
@@ -17,7 +23,12 @@ use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Listener\WorkerStopListener;
+use W7\Crontab\Server\CrontabServer;
 use W7\Http\Listener\RequestListener;
+use W7\Http\Server\Server as HttpServer;
+use W7\Process\Server\ProcessServer;
+use W7\Reload\Server\ReloadServer;
+use W7\Tcp\Server\Server as TcpServer;
 use W7\Tcp\Listener\CloseListener;
 use W7\Tcp\Listener\ConnectListener;
 use W7\Tcp\Listener\ReceiveListener;
@@ -67,6 +78,14 @@ class Config {
 		]
 	];
 
+	private $allServer = [
+		HTTP => HttpServer::class,
+		TCP => TcpServer::class,
+		CRONTAB =>  CrontabServer::class,
+		PROCESS => ProcessServer::class,
+		RELOAD => ReloadServer::class
+	];
+
 	private $config = [];
 
 	public function __construct() {
@@ -95,6 +114,7 @@ class Config {
 		!defined('TCP') && define('TCP', 2);
 		!defined('PROCESS') && define('PROCESS', 4);
 		!defined('CRONTAB') && define('CRONTAB', 8);
+		!defined('RELOAD') && define('RELOAD', 16);
 
 		//加载所有的配置到内存中
 		$this->loadConfig('config');
@@ -134,6 +154,10 @@ class Config {
 		}
 		$this->server = array_merge([], $this->defaultServer, $this->getUserConfig('server'));
 		return $this->server;
+	}
+
+	public function getAllServer() {
+		return $this->allServer;
 	}
 
 	/**
