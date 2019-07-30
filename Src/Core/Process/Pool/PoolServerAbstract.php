@@ -35,6 +35,10 @@ abstract class PoolServerAbstract implements ServerInterface {
 	protected function init() {
 	}
 
+	/**
+	 * 添加子服务,只支持在http,tcp等server上添加
+	 * @throws \Exception
+	 */
 	public function listener() {
 		$this->registerPool(DependentPool::class)->start();
 	}

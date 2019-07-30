@@ -167,9 +167,12 @@ abstract class CommandAbstract extends Command {
 		return $value;
 	}
 
+	/**
+	 * 命令参数覆盖配置，例如 --config-app-setting-env=1 会覆盖config/app中的setting/env的值
+	 */
 	private function overwriteConfigByOptions() {
 		foreach ($this->input->getOptions() as $option => $value) {
-			if (is_null($value)) {
+			if (is_null($value) || trim($value) === '') {
 				continue;
 			}
 			if (strpos($option, 'config') !== false) {
