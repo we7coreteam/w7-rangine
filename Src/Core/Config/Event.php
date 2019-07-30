@@ -36,6 +36,10 @@ class Event
 
 	const ON_REQUEST = 'request';
 
+	const ON_HAND_SHAKE = 'handshake';
+	const ON_OPEN = 'open';
+	const ON_MESSAGE = 'message';
+
 	/**
 	 * 自定义事件
 	 */
@@ -45,4 +49,6 @@ class Event
     const ON_USER_BEFORE_REQUEST = 'beforeRequest';
     const ON_USER_AFTER_REQUEST = 'afterRequest';
     const ON_USER_TASK_FINISH = 'afterTaskFinish';
+    const ON_USER_HAND_SHAKE = 'beforeHandshake';
+	const ON_USER_OPEN = 'beforeOpen';
 }

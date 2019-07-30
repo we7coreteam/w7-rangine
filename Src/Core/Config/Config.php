@@ -20,6 +20,10 @@ use W7\Http\Listener\RequestListener;
 use W7\Tcp\Listener\CloseListener;
 use W7\Tcp\Listener\ConnectListener;
 use W7\Tcp\Listener\ReceiveListener;
+use W7\WebSocket\Listener\CloseListener as WebSocketCloseListener;
+use W7\WebSocket\Listener\HandshakeListener;
+use W7\WebSocket\Listener\MessageListener;
+use W7\WebSocket\Listener\OpenListener;
 
 class Config {
 	const VERSION = '1.0.0';
@@ -44,6 +48,12 @@ class Config {
 			Event::ON_CONNECT => ConnectListener::class,
 			Event::ON_CLOSE => CloseListener::class,
 		],
+		'websocket' => [
+			Event::ON_HAND_SHAKE => HandshakeListener::class,
+			Event::ON_CLOSE => WebSocketCloseListener::class,
+			Event::ON_MESSAGE => MessageListener::class,
+			Event::ON_OPEN => OpenListener::class
+		],
 		'manage' => [
 			Event::ON_START => StartListener::class,
 			Event::ON_MANAGER_START => ManagerStartListener::class,
@@ -57,7 +67,8 @@ class Config {
 			Event::ON_USER_BEFORE_REQUEST,
 			Event::ON_USER_AFTER_REQUEST,
 			Event::ON_USER_TASK_FINISH,
-			Event::ON_USER_AFTER_REQUEST
+			Event::ON_USER_AFTER_REQUEST,
+			Event::ON_USER_HAND_SHAKE
 		],
 	];
 
