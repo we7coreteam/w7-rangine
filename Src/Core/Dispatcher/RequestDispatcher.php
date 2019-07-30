@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * WeEngine Api System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\Core\Dispatcher;
 
 use W7\App;
@@ -39,7 +49,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			$middlewareHandler = new MiddlewareHandler($middlewares);
 			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
-			$response = iloader()->withClass(ExceptionHandle::class)->withParams('type', App::$server->type)->withSingle()->get()->handle($throwable);
+			$response = iloader()->withClass(ExceptionHandle::class)->withParams('type', App::$server->getType())->withSingle()->get()->handle($throwable);
 		} finally {
 			return $response;
 		}
@@ -72,7 +82,7 @@ class RequestDispatcher extends DispatcherAbstract {
 		return [
 			'name' => $route[1]['name'],
 			'module' => $route[1]['module'],
-			"method" => $method,
+			'method' => $method,
 			'controller' => $controller,
 			'args' => $route[2],
 			'middleware' => $route[1]['middleware']['before'],
