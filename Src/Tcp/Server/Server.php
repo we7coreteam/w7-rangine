@@ -1,13 +1,13 @@
 <?php
 
 /**
- * WeEngine Api System
+ * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.w7.cc>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
- * This is not a free software
- * Using it under the license terms
- * visited https://www.w7.cc for more details
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Tcp\Server;
