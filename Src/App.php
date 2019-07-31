@@ -37,6 +37,7 @@ class App {
 		self::$self = $this;
 
 		$this->preInit();
+		$this->registerSecurityDir();
 		$this->registerErrorHandler();
 	}
 
@@ -50,6 +51,24 @@ class App {
 		$setting = iconfig()->getUserAppConfig('setting');
 		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
 		error_reporting($errorLevel);
+	}
+
+	private function registerSecurityDir() {
+		//设置安全限制目录
+		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?? [];
+		if (is_array($openBaseDirConfig)) {
+			$openBaseDirConfig = implode(':', $openBaseDirConfig);
+		}
+
+		$openBaseDir = [
+			'/tmp',
+			sys_get_temp_dir(),
+			APP_PATH,
+			RUNTIME_PATH,
+			BASE_PATH . '/vendor',
+			$openBaseDirConfig,
+		];
+		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
 
 	private function registerErrorHandler() {
