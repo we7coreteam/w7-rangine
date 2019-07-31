@@ -52,12 +52,8 @@ class ConnectorManager {
 		 */
 		$connection = iloader()->singleton($connectionClass);
 
-		//未在协程中则不启用连接池
-		if (!isCo()) {
-			return $connection->connect($config);
-		}
-
 		if (empty($poolConfig) || empty($poolConfig['enable'])) {
+			ilogger()->channel('cache')->debug('create connection without pool');
 			return $connection->connect($config);
 		}
 
