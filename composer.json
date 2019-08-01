@@ -27,7 +27,8 @@
         "packaged/thrift": "^0.11.0",
         "symfony/console": "^4.2",
         "symfony/filesystem": "^4.2",
-        "filp/whoops": "^2.3"
+        "filp/whoops": "^2.3",
+        "w7/php-cs-fixer": "^1.0"
     },
     "require-dev": {
         "eaglewu/swoole-ide-helper": "dev-master",

@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\WebSocket\Listener;
 
 use Swoole\Http\Request;
@@ -13,10 +23,8 @@ class OpenListener extends ListenerAbstract {
 	}
 
 	/**
-	 * @param Psr7Request $request
-	 * @param int         $fd
-	 *
-	 * @throws Throwable
+	 * @param Server $server
+	 * @param Request $request
 	 */
 	private function onOpen(Server $server, Request $request): void {
 		//做数据绑定和记录

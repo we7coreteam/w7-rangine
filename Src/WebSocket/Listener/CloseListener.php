@@ -1,10 +1,19 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\WebSocket\Listener;
 
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
-
 
 class CloseListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -13,6 +22,6 @@ class CloseListener extends ListenerAbstract {
 	}
 
 	private function onClose(Server $server, int $fd, int $reactorId): void {
-
+		//删除数据绑定记录
 	}
 }

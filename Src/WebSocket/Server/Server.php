@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-20 上午9:14
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\WebSocket\Server;
@@ -14,7 +20,7 @@ class Server extends ServerAbstract {
 	public $type = parent::TYPE_WEBSOCKET;
 
 	public function start() {
-		$this->server = new WebSocketServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+		$this->server = $this->getServer();
 		$this->server->set($this->setting);
 
 		ievent(Event::ON_USER_BEFORE_START, [$this->server]);
@@ -43,5 +49,12 @@ class Server extends ServerAbstract {
 			$object = \iloader()->singleton($class);
 			$tcpServer->on($eventName, [$object, 'run']);
 		}
+	}
+
+	public function getServer() {
+		if (empty($this->server)) {
+			$this->server = new WebSocketServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+		}
+		return $this->server;
 	}
 }

@@ -1,8 +1,13 @@
 <?php
+
 /**
- * 服务父类，实现一些公共操作
- * @author donknap
- * @date 18-7-20 上午9:32
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Server;
@@ -29,11 +34,10 @@ use W7\Core\Exception\CommandException;
 use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
-
 	const TYPE_HTTP = 'http';
 	const TYPE_RPC = 'rpc';
 	const TYPE_TCP = 'tcp';
-	const TYPE_WEBSOCKET = 'websocket';
+	const TYPE_WEBSOCKET = 'webSocket';
 
 	/**
 	 * @var \Swoole\Http\Server
@@ -79,7 +83,6 @@ abstract class ServerAbstract implements ServerInterface {
 	public function getPname() {
 		return $this->setting['pname'];
 	}
-
 
 	public function getStatus() {
 		$pidFile = $this->setting['pid_file'];
@@ -145,7 +148,6 @@ abstract class ServerAbstract implements ServerInterface {
 		return $result;
 	}
 
-
 	public function registerService() {
 		$this->registerSwooleEventListener();
 		$this->registerProcesser();
@@ -170,7 +172,7 @@ abstract class ServerAbstract implements ServerInterface {
 				}
 
 				if (!class_exists($row['class'])) {
-					$row['class'] = sprintf("\\W7\\App\\Process\\%s", Str::studly($row['class']));
+					$row['class'] = sprintf('\\W7\\App\\Process\\%s', Str::studly($row['class']));
 				}
 
 				if (!class_exists($row['class'])) {
@@ -275,7 +277,7 @@ abstract class ServerAbstract implements ServerInterface {
 	private function releaseDb($data, $container) {
 		return true;
 		$connection = $data->connection;
-		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings )));
+		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings)));
 
 		$poolName = $connection->getPoolName();
 		if (empty($poolName)) {
