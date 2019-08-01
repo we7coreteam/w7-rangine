@@ -164,7 +164,7 @@ class Route {
 	 */
 	public function view($uri, $handler, $data = []) {
 		if (is_string($handler)) {
-			$handle = function () use ($uri, $handler, $data) {
+			$handler = function () use ($uri, $handler, $data) {
 				App::$server->setting['static_handler_locations'] = App::$server->setting['static_handler_locations'] ?? [];
 				App::$server->setting['static_handler_locations'][] = $handler;
 				App::$server->getServer()->set(App::$server->setting);
@@ -172,7 +172,7 @@ class Route {
 				return App::getApp()->getContext()->getResponse()->redirect('/' . trim($handler, '/'));
 			};
 		}
-		$this->add(self::METHOD_GET, $uri, $handle);
+		$this->add([self::METHOD_GET, self::METHOD_HEAD], $uri, $handler);
 	}
 
 	/**
