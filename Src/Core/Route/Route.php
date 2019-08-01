@@ -164,10 +164,16 @@ class Route {
 	 */
 	public function view($uri, $handler, $data = []) {
 		if (is_string($handler)) {
-			$handler = function () use ($uri, $handler, $data) {
+			$module = $this->getModule();
+			$handler = function () use ($uri, $handler, $data, $module) {
 				App::$server->setting['static_handler_locations'] = App::$server->setting['static_handler_locations'] ?? [];
 				App::$server->setting['static_handler_locations'][] = $handler;
 				App::$server->getServer()->set(App::$server->setting);
+
+				//如果是通过provider注册的，自动补充前缀
+				if ($module !== $this->defaultModule) {
+					$handler = $module . '/' . $handler;
+				}
 
 				return App::getApp()->getContext()->getResponse()->redirect('/' . trim($handler, '/'));
 			};
