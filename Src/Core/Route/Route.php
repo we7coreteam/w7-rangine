@@ -159,26 +159,41 @@ class Route {
 	/**
 	 * 注册一个直接显示的静态页
 	 * @param $uri
-	 * @param $handler
+	 * @param string $view
 	 * @param array $data
 	 */
-	public function view($uri, $handler, $data = []) {
-		if (is_string($handler)) {
-			$module = $this->getModule();
-			$handler = function () use ($uri, $handler, $data, $module) {
-				App::$server->setting['static_handler_locations'] = App::$server->setting['static_handler_locations'] ?? [];
-				App::$server->setting['static_handler_locations'][] = $handler;
-				App::$server->getServer()->set(App::$server->setting);
+	public function view($uri, string $view) {
+		$this->add([self::METHOD_GET, self::METHOD_HEAD], $uri, $view);
+	}
 
-				//如果是通过provider注册的，自动补充前缀
-				if ($module !== $this->defaultModule) {
-					$handler = $module . '/' . $handler;
-				}
+	private function getStaticResourceHandle($view, $data = []) {
+		$module = $this->getModule();
+		return function () use ($view, $data, $module) {
+			App::$server->setting['static_handler_locations'] = App::$server->setting['static_handler_locations'] ?? [];
+			App::$server->setting['static_handler_locations'][] = $view;
+			App::$server->getServer()->set(App::$server->setting);
 
-				return App::getApp()->getContext()->getResponse()->redirect('/' . trim($handler, '/'));
-			};
+			$view = ltrim($view, '/');
+			//如果是通过provider注册的，自动补充前缀
+			if ($module !== $this->defaultModule) {
+				$view = $module . '/' . $view;
+			}
+
+			return App::getApp()->getContext()->getResponse()->redirect('/' . $view);
+		};
+	}
+
+	private function isStaticResource($resource) {
+		if (is_string($resource)) {
+			$config = iconfig()->getServer();
+			if (!empty($config['common']['document_root'])) {
+				$module = $this->getModule() === $this->defaultModule ? '' : '/' . $this->getModule();
+				$path = rtrim($config['common']['document_root'], '/') . $module . '/' . ltrim($resource);
+				return file_exists($path);
+			}
 		}
-		$this->add([self::METHOD_GET, self::METHOD_HEAD], $uri, $handler);
+
+		return false;
 	}
 
 	/**
@@ -186,8 +201,13 @@ class Route {
 	 * @param $methods
 	 * @param $uri
 	 * @param $handler
+	 * @param string $name
+	 * @return bool
 	 */
 	public function add($methods, $uri, $handler, $name = '') {
+		if ($this->isStaticResource($handler)) {
+			return $this->add($methods, $uri, $this->getStaticResourceHandle($handler), $name);
+		}
 		$handler = $this->checkHandler($handler);
 
 		if (empty($methods)) {
