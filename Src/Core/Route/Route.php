@@ -8,6 +8,7 @@ namespace W7\Core\Route;
 
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
+use W7\App;
 
 class Route {
 	const METHOD_POST = 'POST';
@@ -146,6 +147,35 @@ class Route {
 	}
 
 	/**
+	 * 注册一个直接跳转路由
+	 * @param $uri
+	 * @param $destination
+	 * @param int $status
+	 */
+	public function redirect($uri, $destination, $status = 301) {
+		throw new \InvalidArgumentException('还未实现');
+	}
+
+	/**
+	 * 注册一个直接显示的静态页
+	 * @param $uri
+	 * @param $handler
+	 * @param array $data
+	 */
+	public function view($uri, $handler, $data = []) {
+		if (is_string($handler)) {
+			$handle = function () use ($uri, $handler, $data) {
+				App::$server->setting['static_handler_locations'] = App::$server->setting['static_handler_locations'] ?? [];
+				App::$server->setting['static_handler_locations'][] = $handler;
+				App::$server->getServer()->set(App::$server->setting);
+
+				return App::getApp()->getContext()->getResponse()->redirect('/' . trim($handler, '/'));
+			};
+		}
+		$this->add(self::METHOD_GET, $uri, $handle);
+	}
+
+	/**
 	 * 注册一个支持多种协议的路由
 	 * @param $methods
 	 * @param $uri
@@ -201,26 +231,6 @@ class Route {
 
 		$this->router->addRoute($methods, $uri, $routeHandler);
 		return true;
-	}
-
-	/**
-	 * 注册一个直接跳转路由
-	 * @param $uri
-	 * @param $destination
-	 * @param int $status
-	 */
-	public function redirect($uri, $destination, $status = 301) {
-		throw new \InvalidArgumentException('还未实现');
-	}
-
-	/**
-	 * 注册一个直接显示的静态页
-	 * @param $uri
-	 * @param $view
-	 * @param array $data
-	 */
-	public function view($uri, $view, $data = []) {
-		throw new \InvalidArgumentException('还未实现');
 	}
 
 	public function resource($name, $controller, $options = []) {
