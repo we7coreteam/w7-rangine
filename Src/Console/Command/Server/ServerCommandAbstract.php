@@ -24,12 +24,40 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$this->addOption('--config-app-setting-server', '-s', InputOption::VALUE_REQUIRED, 'server type');
 	}
 
+	private function registerProcessServer() {
+		//如果启动的server中含有http,tcp,ws的时候,对用户自定义服务的类型个数不做限制
+		//如果启动的server中不包含http,tcp,ws的时候,只能启动一个用户自定义服务
+		$alone = true;
+		$allServer = iconfig()->getAllServer();
+		foreach ($this->servers as $key => $item) {
+			if (!empty($allServer[$item])) {
+				$alone = false;
+				unset($this->servers[$key]);
+			}
+		}
+
+		if ($alone && $this->servers) {
+			$this->servers = [$this->servers[0]];
+		}
+
+//		$process = [];
+//		foreach ($this->servers as $item) {
+//
+//		}
+		//server的name的问题
+	}
+
 	private function getServer() : ServerInterface {
-		$this->servers = iconfig()->getUserAppConfig('setting')['server'];
+		$this->servers = trim(iconfig()->getUserAppConfig('setting')['server']);
+		if ((ENV & DEBUG) === DEBUG) {
+			$this->servers = $this->servers . '|reload';
+		}
+		$this->servers = explode('|', $this->servers);
+		$this->registerProcessServer();
 
 		foreach (iconfig()->getAllServer() as $key => $class) {
-			if (($this->servers & $key) === $key) {
-				$this->curServer = $key;
+			if (in_array($this->servers, $key)) {
+				unset($this->servers[$key]);
 				return new $class();
 			}
 		}

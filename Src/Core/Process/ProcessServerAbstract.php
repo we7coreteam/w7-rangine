@@ -48,6 +48,13 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 		$this->pool->start();
 	}
 
+	public function getStatus() {
+		$status =  parent::getStatus();
+		unset($status['managerPid'], $status['mode']);
+
+		return$status;
+	}
+
 	public function getPool() : PoolAbstract {
 		return $this->pool;
 	}

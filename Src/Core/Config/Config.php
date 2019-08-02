@@ -23,6 +23,7 @@ use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Listener\WorkerStopListener;
+use W7\Core\Server\ServerAbstract;
 use W7\Crontab\Server\Server as CrontabServer;
 use W7\Http\Listener\RequestListener;
 use W7\Http\Server\Server as HttpServer;
@@ -81,11 +82,11 @@ class Config {
 	private $config = [];
 
 	private $allServer = [
-		HTTP => HttpServer::class,
-		TCP => TcpServer::class,
-		PROCESS => ProcessServer::class,
-		CRONTAB => CrontabServer::class,
-		RELOAD => ReloadServer::class
+		ServerAbstract::TYPE_HTTP => HttpServer::class,
+		ServerAbstract::TYPE_TCP => TcpServer::class,
+		ServerAbstract::TYPE_PROCESS => ProcessServer::class,
+		ServerAbstract::TYPE_CRONTAB => CrontabServer::class,
+		ServerAbstract::TYPE_RELOAD => ReloadServer::class
 	];
 
 	public function __construct() {
