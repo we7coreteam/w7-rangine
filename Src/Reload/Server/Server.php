@@ -12,16 +12,19 @@
 
 namespace W7\Reload\Server;
 
-use W7\Core\Process\Pool\PoolServerAbstract;
-use W7\Reload\Process\ReloadProcess;
+use W7\Core\Process\ProcessServerAbstract;
+use W7\Core\Process\ReloadProcess;
 
-class ReloadServer extends PoolServerAbstract {
+class Server extends ProcessServerAbstract {
 	public function getType() {
 		return parent::TYPE_RELOAD;
 	}
 
-	protected function register(): bool {
-		$this->processPool->registerProcess('reload', ReloadProcess::class, 1);
-		return true;
+	protected function register() {
+		$this->pool->registerProcess('reload', ReloadProcess::class, 1);
+	}
+
+	public function start() {
+		throw new \Exception('cannot start alone');
 	}
 }

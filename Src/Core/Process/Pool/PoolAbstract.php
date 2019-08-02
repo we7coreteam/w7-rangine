@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Process\Pool;
 
 use Swoole\Process;
@@ -15,13 +25,14 @@ abstract class PoolAbstract {
 
 	public function __construct($config) {
 		$this->config = $config;
-		$this->mqKey = $this->config['mq_key'] ?? 0;
+		$this->mqKey = $this->config['message_queue_key'] ?? 0;
 		$this->processFactory = new ProcessFactory();
 
 		$this->init();
 	}
 
-	protected function init() {}
+	protected function init() {
+	}
 
 	/**
 	 * 保存添加的process

@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Process\Pool;
 
 use Swoole\Process;
@@ -15,10 +25,9 @@ class IndependentPool extends PoolAbstract {
 	private $pidFile;
 	private $daemon;
 
-
-	protected function init(){
+	protected function init() {
 		$this->ipcType = $this->config['ipc_type'] ?? 0;
-		$this->pidFile = $this->config['pid_file'] ?? '/tmp/swoole_process_pool.pid';
+		$this->pidFile = $this->config['pid_file'];
 		$this->daemon = $this->config['daemonize'] ?? false;
 	}
 
@@ -55,32 +64,5 @@ class IndependentPool extends PoolAbstract {
 
 		file_put_contents($this->pidFile, getmypid());
 		$manager->start();
-	}
-
-	public function stop() {
-		if (!file_exists($this->pidFile)) {
-			throw new \Exception('stop process server fail');
-		}
-
-		$timeout = 20;
-		$startTime = time();
-		$result = true;
-		$pid = file_get_contents($this->pidFile);
-		while (Process::kill($pid, 0)) {
-			$result = Process::kill($pid, SIGTERM);
-			if ($result) {
-				break;
-			}
-			if (!$result) {
-				if (time() - $startTime >= $timeout) {
-					$result = false;
-					break;
-				}
-				usleep(10000);
-			}
-		}
-
-		unlink($this->pidFile);
-		return $result;
 	}
 }

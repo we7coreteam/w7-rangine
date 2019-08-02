@@ -1,8 +1,8 @@
 <?php
 
-namespace W7\Crontab\Process;
+namespace W7\Core\Crontab\Process;
 
-use W7\Crontab\Task\TaskManager;
+use W7\Core\Crontab\Task\TaskManager;
 use W7\Core\Process\ProcessAbstract;
 
 class CrontabDispatcher extends ProcessAbstract {
@@ -18,7 +18,7 @@ class CrontabDispatcher extends ProcessAbstract {
 
 	public static function getTasks() {
 		if (!static::$tasks) {
-			$tasks = \iconfig()->getUserConfig('crontab')['task'];
+			$tasks = \iconfig()->getUserConfig('crontab');
 			foreach ($tasks as $name => $task) {
 				if (!empty($task['enable'])) {
 					static::$tasks[$name] = $task;

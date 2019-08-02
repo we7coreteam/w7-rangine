@@ -37,6 +37,9 @@ abstract class ServerAbstract implements ServerInterface {
 	const TYPE_RPC = 'rpc';
 	const TYPE_TCP = 'tcp';
 	const TYPE_WEBSOCKET = 'websocket';
+	const TYPE_PROCESS = 'process';
+	const TYPE_CRONTAB = 'crontab';
+	const TYPE_RELOAD = 'reload';
 
 	/**
 	 * @var \Swoole\Server
