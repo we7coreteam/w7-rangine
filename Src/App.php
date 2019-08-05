@@ -84,7 +84,7 @@ class App {
 			$handle->addTraceToOutput(false);
 			$handle->addPreviousToOutput(false);
 		}
-		$processer->pushHandler($handle);
+		$processer->prependHandler($handle);
 		$processer->register();
 	}
 
