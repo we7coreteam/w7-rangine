@@ -38,7 +38,7 @@ class Session {
 
 	protected function init() {
 		$config = iconfig()->getUserAppConfig('session');
-		$this->setName($config['name'] ?? 'PHP_SESSION_ID');
+		$this->setName($config['name'] ?? 'PHPSESSID');
 	}
 
 	public function setName($name) {
