@@ -158,7 +158,10 @@ abstract class CommandAbstract extends Command {
 	private function getOptionRealValue($value) {
 		if (is_string($value)) {
 			try {
-				$value = eval('return ' . strtoupper($value) . ';');
+				$tmp = eval('return ' . strtoupper($value) . ';');
+				if ($tmp !== strtoupper($value)) {
+					$value = $tmp;
+				}
 			} catch (\Throwable $e) {
 				//
 			}
