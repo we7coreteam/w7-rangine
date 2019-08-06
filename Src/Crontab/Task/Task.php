@@ -1,6 +1,6 @@
 <?php
 
-namespace W7\Core\Crontab\Task;
+namespace W7\Crontab\Task;
 
 use Exception;
 use InvalidArgumentException;

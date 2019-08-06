@@ -66,7 +66,7 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 
 		$setting = \iconfig()->getServer();
-		if (empty($setting[$this->getType()]) || empty($setting[$this->getType()]['host'])) {
+		if (empty($setting[$this->getType()])) {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
 		$this->setting = array_merge([], $setting['common']);

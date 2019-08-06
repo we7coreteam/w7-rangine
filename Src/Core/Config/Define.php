@@ -16,10 +16,3 @@
 !defined('BACKTRACE') && define('BACKTRACE', 4);
 !defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
 !defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
-
-//在加载配置前定义需要的常量
-!defined('HTTP') && define('HTTP', 1);
-!defined('TCP') && define('TCP', 2);
-!defined('PROCESS') && define('PROCESS', 4);
-!defined('CRONTAB') && define('CRONTAB', 8);
-!defined('RELOAD') && define('RELOAD', 16);

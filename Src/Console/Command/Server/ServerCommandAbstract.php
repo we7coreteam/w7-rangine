@@ -18,7 +18,6 @@ use W7\Core\Server\ServerInterface;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
 	private $servers;
-	private $curServer;
 
 	protected function configure() {
 		$this->addOption('--config-app-setting-server', '-s', InputOption::VALUE_REQUIRED, 'server type');
@@ -27,38 +26,72 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	private function registerProcessServer() {
 		//如果启动的server中含有http,tcp,ws的时候,对用户自定义服务的类型个数不做限制
 		//如果启动的server中不包含http,tcp,ws的时候,只能启动一个用户自定义服务
-		$alone = true;
+		$servers = [];
 		$allServer = iconfig()->getAllServer();
-		foreach ($this->servers as $key => $item) {
-			if (!empty($allServer[$item])) {
-				$alone = false;
-				unset($this->servers[$key]);
+		foreach ($allServer as $key => $server) {
+			if (!empty($server['can_add_sub_server'])) {
+				$servers[$key] = $server;
 			}
 		}
-
-		if ($alone && $this->servers) {
-			$this->servers = [$this->servers[0]];
+		$alone = true;
+		if (array_intersect($this->servers, array_keys($servers))) {
+//			在非单独启动自定义服务的情况下注册reload
+			$this->registerReloadServer();
+			$alone = false;
+		}
+		//不允许单独启动多个自定义服务
+		if ($alone && count($this->servers) > 1) {
+			throw new \Exception('only a single service can be started');
 		}
 
-//		$process = [];
-//		foreach ($this->servers as $item) {
-//
-//		}
-		//server的name的问题
+		//注册自定义服务
+		$process = [];
+		$supportServers = iconfig()->getServer();
+		foreach ($this->servers as $key => $item) {
+			if (empty($supportServers[$item])) {
+				throw new \Exception('not support this server');
+			}
+			if (!empty($allServer[$item])) {
+				continue;
+			}
+			$process[] = [
+				'name' => $item,
+				'class' => 'W7\App\Process\\' . ucfirst($item) . 'Process',
+				'number' => $supportServers[$item]['worker_num']
+			];
+			$supportServers['process'] = $supportServers[$item];
+			unset($this->servers[$key]);
+		}
+
+		if ($process) {
+			iconfig()->setUserConfig('process', $process);
+			iconfig()->setUserConfig('server', $supportServers);
+			$this->servers[] = 'process';
+		}
+	}
+
+	private function registerReloadServer() {
+		if ((ENV & DEBUG) !== DEBUG) {
+			return false;
+		}
+		$this->servers[] = 'reload';
+		$config = iconfig()->getServer();
+		$config['reload'] = [
+			'worker_num' => 1
+		];
+		iconfig()->setUserConfig('server', $config);
 	}
 
 	private function getServer() : ServerInterface {
 		$this->servers = trim(iconfig()->getUserAppConfig('setting')['server']);
-		if ((ENV & DEBUG) === DEBUG) {
-			$this->servers = $this->servers . '|reload';
-		}
 		$this->servers = explode('|', $this->servers);
+
 		$this->registerProcessServer();
 
-		foreach (iconfig()->getAllServer() as $key => $class) {
-			if (in_array($this->servers, $key)) {
-				unset($this->servers[$key]);
-				return new $class();
+		foreach (iconfig()->getAllServer() as $key => $handle) {
+			if (in_array($key, $this->servers)) {
+				unset($this->servers[array_search($key, $this->servers)]);
+				return new $handle['handle']();
 			}
 		}
 
@@ -67,10 +100,9 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	private function addSubServer($server) {
 		$lines = [];
-		$this->servers = $this->servers ^ $this->curServer;
-		foreach (iconfig()->getAllServer() as $key => $class) {
-			if (($this->servers & $key) === $key) {
-				$subServer = new $class();
+		foreach (iconfig()->getAllServer() as $key => $handle) {
+			if (in_array($key, $this->servers)) {
+				$subServer = new $handle['handle']();
 				$subServer->listener($server->getServer());
 
 				$statusInfo = '';

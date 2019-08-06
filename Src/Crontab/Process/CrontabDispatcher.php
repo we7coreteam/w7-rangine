@@ -1,8 +1,8 @@
 <?php
 
-namespace W7\Core\Crontab\Process;
+namespace W7\Crontab\Process;
 
-use W7\Core\Crontab\Task\TaskManager;
+use W7\Crontab\Task\TaskManager;
 use W7\Core\Process\ProcessAbstract;
 
 class CrontabDispatcher extends ProcessAbstract {

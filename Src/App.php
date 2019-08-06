@@ -124,6 +124,8 @@ class App {
 			$handle->addPreviousToOutput(false);
 		}
 		$processer->prependHandler($handle);
+		$processer->allowQuit(false);
+		$processer->writeToOutput(false);
 		$processer->register();
 	}
 

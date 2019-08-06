@@ -12,9 +12,9 @@
 
 namespace W7\Crontab\Server;
 
-use W7\Core\Crontab\Process\CrontabDispatcher;
-use W7\Core\Crontab\Process\CrontabExecutor;
 use W7\Core\Process\ProcessServerAbstract;
+use W7\Crontab\Process\CrontabDispatcher;
+use W7\Crontab\Process\CrontabExecutor;
 
 class Server extends ProcessServerAbstract {
 	public function getType() {

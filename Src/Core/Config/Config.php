@@ -82,11 +82,23 @@ class Config {
 	private $config = [];
 
 	private $allServer = [
-		ServerAbstract::TYPE_HTTP => HttpServer::class,
-		ServerAbstract::TYPE_TCP => TcpServer::class,
-		ServerAbstract::TYPE_PROCESS => ProcessServer::class,
-		ServerAbstract::TYPE_CRONTAB => CrontabServer::class,
-		ServerAbstract::TYPE_RELOAD => ReloadServer::class
+		ServerAbstract::TYPE_HTTP => [
+			'handle' => HttpServer::class,
+			'can_add_sub_server' => true
+		],
+		ServerAbstract::TYPE_TCP => [
+			'handle' => TcpServer::class,
+			'can_add_sub_server' => true
+		],
+		ServerAbstract::TYPE_PROCESS => [
+			'handle' => ProcessServer::class
+		],
+		ServerAbstract::TYPE_CRONTAB => [
+			'handle' => CrontabServer::class
+		],
+		ServerAbstract::TYPE_RELOAD => [
+			'handle' => ReloadServer::class
+		]
 	];
 
 	public function __construct() {
@@ -171,6 +183,9 @@ class Config {
 	}
 
 	public function setUserConfig($name, $data) {
+		if ($name === 'server') {
+			$this->server = null;
+		}
 		$this->config['config'][$name] = $data;
 	}
 

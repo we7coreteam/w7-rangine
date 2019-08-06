@@ -21,8 +21,8 @@ class Server extends ProcessServerAbstract {
 
 	protected function register() {
 		//虚拟配置
-		$process = iconfig()->getUserConfig('process');
-		foreach ($process as $process) {
+		$allProcess = iconfig()->getUserConfig('process');
+		foreach ($allProcess as $process) {
 			$this->pool->registerProcess($process['name'], $process['class'], $process['number']);
 		}
 	}

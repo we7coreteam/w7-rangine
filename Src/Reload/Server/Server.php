@@ -13,7 +13,7 @@
 namespace W7\Reload\Server;
 
 use W7\Core\Process\ProcessServerAbstract;
-use W7\Core\Process\ReloadProcess;
+use W7\Reload\Process\ReloadProcess;
 
 class Server extends ProcessServerAbstract {
 	public function getType() {

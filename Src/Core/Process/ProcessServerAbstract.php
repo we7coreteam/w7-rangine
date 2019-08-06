@@ -36,23 +36,30 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	protected function register() {
 	}
 
+	public function getStatus() {
+		$pidFile = $this->setting['pid_file'];
+		if (file_exists($pidFile)) {
+			$pids = explode(',', file_get_contents($pidFile));
+		}
+		return [
+			'host' => $this->connection['host'] ?? '',
+			'port' => $this->connection['port'] ?? '',
+			'type' => $this->connection['sock_type'] ?? '',
+			'workerNum' => $this->setting['worker_num'],
+			'masterPid' => !empty($pids[0]) ? $pids[0] : 0
+		];
+	}
+
 	public function start() {
 		$this->pool = new IndependentPool($this->checkSetting());
 		$this->register();
 		$this->pool->start();
 	}
 
-	public function listener(\Swoole\Server $server) {
+	public function listener($server = null) {
 		$this->pool = new DependentPool($this->checkSetting());
 		$this->register();
 		$this->pool->start();
-	}
-
-	public function getStatus() {
-		$status =  parent::getStatus();
-		unset($status['managerPid'], $status['mode']);
-
-		return$status;
 	}
 
 	public function getPool() : PoolAbstract {
