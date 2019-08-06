@@ -1,13 +1,13 @@
 <?php
 
 /**
- * This file is part of Rangine
+ * WeEngine Api System
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.w7.cc>
  *
- * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
- *
- * visited https://www.rangine.com/ for more details
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Core\Process\Pool;
@@ -49,7 +49,11 @@ class IndependentPool extends PoolAbstract {
 			throw new \Exception('process num not be zero');
 		}
 
-		$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey);
+		if (swoole_version() >= '4.4.0') {
+			$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey, true);
+		} else {
+			$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey);
+		}
 
 		$listens = iconfig()->getEvent()['process'];
 		if ($this->ipcType == 0) {
