@@ -21,8 +21,8 @@ class Server extends ProcessServerAbstract {
 		return parent::TYPE_CRONTAB;
 	}
 
-	protected function checkSetting() {
-		$setting = parent::checkSetting();
+	protected function getSetting() {
+		$setting = parent::getSetting();
 		$setting['ipc_type'] = SWOOLE_IPC_MSGQUEUE;
 		return $setting;
 	}

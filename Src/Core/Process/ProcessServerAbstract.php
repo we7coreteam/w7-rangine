@@ -23,7 +23,7 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	 */
 	protected $pool;
 
-	protected function checkSetting() {
+	protected function getSetting() {
 		$setting = array_merge($this->setting, $this->connection);
 		return [
 			'pid_file' => $setting['pid_file'],
@@ -51,13 +51,13 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	public function start() {
-		$this->pool = new IndependentPool($this->checkSetting());
+		$this->pool = new IndependentPool($this->getSetting());
 		$this->register();
 		$this->pool->start();
 	}
 
 	public function listener($server = null) {
-		$this->pool = new DependentPool($this->checkSetting());
+		$this->pool = new DependentPool($this->getSetting());
 		$this->register();
 		$this->pool->start();
 	}
