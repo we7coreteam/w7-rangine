@@ -15,6 +15,8 @@ namespace W7\WebSocket\Server;
 use Swoole\WebSocket\Server as WebSocketServer;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Config\Event;
+use W7\WebSocket\Message\Message;
+use W7\WebSocket\Parser\JsonParser;
 
 class Server extends ServerAbstract {
 	public $type = parent::TYPE_WEBSOCKET;
@@ -56,5 +58,69 @@ class Server extends ServerAbstract {
 			$this->server = new WebSocketServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
 		}
 		return $this->server;
+	}
+
+	public function sendTo($fd, Message $message) {
+		if (!$this->server->isEstablished($fd)) {
+			return false;
+		}
+		//parse 待定
+		$this->server->push($fd, (new JsonParser())->encode($message));
+	}
+
+	public function sendToSome(array $fds, Message $message) {
+		foreach ($fds as $fd) {
+			$this->sendTo($fd, $message);
+		}
+	}
+
+	public function sendToAll(Message $message) {
+		$this->pageEach(function ($fd) use ($message) {
+			$this->sendTo($fd, $message);
+		});
+	}
+
+	/**
+	 * Pagination traverse all valid WS connection
+	 *
+	 * @param callable $handler
+	 * @param int      $pageSize
+	 *
+	 * @return int
+	 */
+	public function pageEach(callable $handler, int $pageSize = 50): int {
+		$count = $startFd = 0;
+
+		while (true) {
+			$fdList = (array)$this->server->getClientList($startFd, $pageSize);
+			if (($num = count($fdList)) === 0) {
+				break;
+			}
+
+			$count += $num;
+
+			/** @var $fdList array */
+			foreach ($fdList as $fd) {
+				$handler($fd);
+			}
+
+			// It's last page.
+			if ($num < $pageSize) {
+				break;
+			}
+
+			// Get start fd for next page.
+			$startFd = end($fdList);
+		}
+
+		return $count;
+	}
+
+	public function disconnect(int $fd, int $code = 0, string $reason = ''): bool {
+		if ($this->server->isEstablished($fd)) {
+			return $this->server->disconnect($fd, $code, $reason);
+		}
+
+		return true;
 	}
 }

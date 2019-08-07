@@ -14,7 +14,6 @@ namespace W7\WebSocket\Message;
 
 use W7\App;
 use W7\Http\Message\Server\Response as Psr7Response;
-use W7\WebSocket\Parser\JsonParser;
 
 class Response extends Psr7Response {
 	/**
@@ -63,7 +62,6 @@ class Response extends Psr7Response {
 		}
 
 		$response = $response->withContent($content);
-		// Status code
 		$status && $response = $response->withStatus($status);
 
 		return $response;
@@ -74,7 +72,6 @@ class Response extends Psr7Response {
 		if ($body === null) {
 			$body = $this->getBody()->getContents();
 		}
-		$body = (new JsonParser())->encode(new Message($this->getFrame()->getMessage()->getCmd(), $body));
-		App::$server->getServer()->push($this->getFd(), $body);
+		App::$server->sendTo($this->getFd(), new Message($this->getFrame()->getMessage()->getCmd(), $body, $this->getStatusCode()));
 	}
 }
