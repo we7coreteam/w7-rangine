@@ -48,7 +48,7 @@ class Session {
 		$channel = $this->config['channel'] ?? CookieChannel::class;
 		$channel = new $channel($request, $this->getName());
 		if (!($channel instanceof ChannelAbstract)) {
-			throw new \Exception('session channel must instance of CookieChannel');
+			throw new \Exception('session channel must instance of ChannelAbstract');
 		}
 
 		return $channel->getId();
