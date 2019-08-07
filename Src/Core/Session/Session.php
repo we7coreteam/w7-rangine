@@ -16,6 +16,7 @@ class Session {
 	 */
 	private $name;
 	private $config;
+	private $beginTime;
 	private $expires;
 	/**
 	 * @var HandlerInterface
@@ -69,19 +70,21 @@ class Session {
 		return $this->handler->getId();
 	}
 
-	public function getExpires() {
+	public function getExpires($interval = false) {
 		if ($this->expires === null) {
-			$default = (int)ini_get("session.gc_maxlifetime");
-			if ($default != 0) {
-				$default = time() + $default;
+			$userExpires = (int)($this->config['expires'] ?? ini_get("session.gc_maxlifetime"));
+			$this->beginTime = 0;
+			if ($userExpires != 0) {
+				$this->beginTime = time();
+				$userExpires = $this->beginTime + $userExpires;
 			}
-			$this->expires = $default;
+			$this->expires = $userExpires;
 		}
-		return $this->expires;
+		return $interval ? $this->expires - $this->beginTime : $this->expires;
 	}
 
 	public function set($key, $value) {
-		$this->handler->set($key, $value, $this->getExpires());
+		$this->handler->set($key, $value, $this->getExpires(true));
 	}
 
 	public function get($key, $default = '') {
