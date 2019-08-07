@@ -13,5 +13,5 @@ interface HandlerInterface {
 
 	public function has($key);
 
-	public function clear();
+	public function destroy();
 }

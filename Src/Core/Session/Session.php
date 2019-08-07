@@ -16,10 +16,6 @@ class Session {
 	 */
 	private $name;
 	private $config;
-	/**
-	 * 过期时间
-	 * @var
-	 */
 	private $expires;
 	/**
 	 * @var HandlerInterface
@@ -74,19 +70,25 @@ class Session {
 	}
 
 	public function getExpires() {
+		if ($this->expires === null) {
+			$default = (int)ini_get("session.gc_maxlifetime");
+			if ($default != 0) {
+				$default = time() + $default;
+			}
+			$this->expires = $default;
+		}
 		return $this->expires;
 	}
 
-	public function set($key, $value, $expires = 0) {
-		$this->expires = $expires;
-		$this->handler->set($key, $value, $this->expires);
+	public function set($key, $value) {
+		$this->handler->set($key, $value, $this->getExpires());
 	}
 
 	public function get($key, $default = '') {
 		return $this->handler->get($key, $default);
 	}
 
-	public function clear() {
-		return $this->handler->clear();
+	public function destroy() {
+		return $this->handler->destroy();
 	}
 }

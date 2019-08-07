@@ -19,7 +19,7 @@ class RedisHandler extends HandlerAbstract {
 		return isset($session[$key]);
 	}
 
-	public function clear() {
+	public function destroy() {
 		return icache()->delete($this->id);
 	}
 }
