@@ -30,8 +30,7 @@ class Request extends Psr7Request {
 		$protocol = 'HTTP/1.1';
 		$request = new static('POST', $frame->getMessage()->getCmd(), [], $body, $protocol);
 		$request->frame = $frame;
-		return $request->withParsedBody($frame->getMessage()->getData())
-			->withUploadedFiles([]);
+		return $request->withParsedBody($frame->getMessage()->getData());
 	}
 
 	/**

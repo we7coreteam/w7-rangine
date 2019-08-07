@@ -13,7 +13,6 @@
 namespace W7\WebSocket\Message;
 
 use W7\App;
-use W7\Http\Message\Helper\JsonHelper;
 use W7\Http\Message\Server\Response as Psr7Response;
 use W7\WebSocket\Parser\JsonParser;
 
@@ -58,7 +57,7 @@ class Response extends Psr7Response {
 		if ((is_numeric($data)) || is_string($data)) {
 			$content = $data;
 		} elseif ($this->isArrayable($data)) {
-			$content = JsonHelper::encode($data, $encodingOptions);
+			$content = json_encode($data, $encodingOptions);
 		} else {
 			$content = '{}';
 		}

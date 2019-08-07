@@ -15,12 +15,12 @@ namespace W7\WebSocket\Message;
 class Message {
 	private $cmd;
 	private $data;
-	private $msg;
+	private $code;
 
-	public function __construct(string $cmd, $data, $msg = '') {
+	public function __construct(string $cmd, $data, $code = 200) {
 		$this->cmd  = $cmd;
 		$this->data = $data;
-		$this->msg  = $msg;
+		$this->code = $code;
 	}
 
 	public function setCmd(string $cmd): void {
@@ -42,7 +42,8 @@ class Message {
 	public function getPackage() {
 		return [
 			'cmd'  => $this->cmd,
-			'data' => $this->data
+			'data' => $this->data,
+			'code' => $this->code
 		];
 	}
 }
