@@ -2,6 +2,9 @@
 
 namespace W7\Core\Session;
 
+use W7\Core\Session\Channel\ChannelAbstract;
+use W7\Core\Session\Channel\CookieChannel;
+use W7\Core\Session\Handler\HandlerAbstract;
 use W7\Core\Session\Handler\HandlerInterface;
 use W7\Core\Session\Handler\RedisHandler;
 use W7\Http\Message\Server\Request;
@@ -12,11 +15,11 @@ class Session {
 	 * @var
 	 */
 	private $name;
+	private $config;
 	/**
-	 * session id
+	 * 过期时间
 	 * @var
 	 */
-	private $id;
 	private $expires;
 	/**
 	 * @var HandlerInterface
@@ -24,21 +27,34 @@ class Session {
 	private $handler;
 
 
-	public function __construct(Request $request, HandlerInterface $handler = null) {
-		$this->init();
+	public function __construct(Request $request) {
+		$this->config = iconfig()->getUserAppConfig('session');
 
-		$cookies = $request->getCookieParams();
-		if (empty($cookies[$this->getName()])) {
-			$cookies[$this->getName()] = $this->generateId();
-		}
-		$this->setId($cookies[$this->getName()]);
-
-		$this->handler = $handler ?? new RedisHandler();
+		$this->initName();
+		$this->initHandler($request);
 	}
 
-	protected function init() {
-		$config = iconfig()->getUserAppConfig('session');
-		$this->setName($config['name'] ?? 'PHPSESSID');
+	protected function initName() {
+		$this->setName($this->config['name'] ?? 'PHPSESSID');
+	}
+
+	protected function initHandler(Request $request) {
+		$handler = $this->config['handler'] ?? RedisHandler::class;
+		$this->handler = new $handler();
+		if (!($this->handler instanceof HandlerAbstract)) {
+			throw new \Exception('session handler must instance of HandlerAbstract');
+		}
+		$this->handler->setId($this->initId($request));
+	}
+
+	private function initId(Request $request) {
+		$channel = $this->config['channel'] ?? CookieChannel::class;
+		$channel = new $channel($request, $this->getName());
+		if (!($channel instanceof ChannelAbstract)) {
+			throw new \Exception('session channel must instance of CookieChannel');
+		}
+
+		return $channel->getId();
 	}
 
 	public function setName($name) {
@@ -50,32 +66,24 @@ class Session {
 	}
 
 	public function setId($id) {
-		$this->id = $id;
+		$this->handler->setId($id);
 	}
 
 	public function getId() {
-		return $this->id;
+		return $this->handler->getId();
 	}
 
 	public function getExpires() {
 		return $this->expires;
 	}
 
-	private function generateId() {
-		return \session_create_id();
-	}
-
-	private function getKey($key) {
-		return $this->name . ':' . $this->id . ':' . $key;
-	}
-
 	public function set($key, $value, $expires = 0) {
 		$this->expires = $expires;
-		$this->handler->set($this->getKey($key), $value, $this->expires);
+		$this->handler->set($key, $value, $this->expires);
 	}
 
-	public function get($key) {
-		return $this->handler->get($this->getKey($key));
+	public function get($key, $default = '') {
+		return $this->handler->get($key, $default);
 	}
 
 	public function clear() {
