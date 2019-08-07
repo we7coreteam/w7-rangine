@@ -8,8 +8,9 @@ use W7\Core\Session\Handler\HandlerAbstract;
 use W7\Core\Session\Handler\HandlerInterface;
 use W7\Core\Session\Handler\RedisHandler;
 use W7\Http\Message\Server\Request;
+use W7\Http\Message\Contract\Session as SessionInterface;
 
-class Session {
+class Session implements SessionInterface {
 	/**
 	 * session name
 	 * @var
