@@ -4,7 +4,7 @@
  * @date 18-10-18 下午6:15
  */
 
-namespace W7\Core\Log\Driver;
+namespace W7\Core\Log\Handler;
 
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
