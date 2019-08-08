@@ -2,7 +2,9 @@
 
 namespace W7\Core\Cache\Handler;
 
-class RedisHandler extends HandlerAbstract {
+use Psr\SimpleCache\CacheInterface;
+
+class RedisHandler implements CacheInterface {
 	/**
 	 * @var \Redis
 	 */

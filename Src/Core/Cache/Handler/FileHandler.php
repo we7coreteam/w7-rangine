@@ -4,8 +4,9 @@ namespace W7\Core\Cache\Handler;
 
 use Exception;
 use Illuminate\Filesystem\Filesystem;
+use Psr\SimpleCache\CacheInterface;
 
-class FileHandler extends HandlerAbstract {
+class FileHandler implements CacheInterface {
 	/**
 	 * @var Filesystem
 	 */
