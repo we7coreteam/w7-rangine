@@ -4,9 +4,9 @@ namespace W7\Core\Session;
 
 use W7\Core\Session\Channel\ChannelAbstract;
 use W7\Core\Session\Channel\CookieChannel;
+use W7\Core\Session\Handler\CacheHandler;
 use W7\Core\Session\Handler\HandlerAbstract;
 use W7\Core\Session\Handler\HandlerInterface;
-use W7\Core\Session\Handler\RedisHandler;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Contract\Session as SessionInterface;
 
@@ -37,8 +37,8 @@ class Session implements SessionInterface {
 	}
 
 	protected function initHandler(Request $request) {
-		$handler = $this->config['handler'] ?? RedisHandler::class;
-		$this->handler = new $handler();
+		$handler = $this->config['handler'] ?? CacheHandler::class;
+		$this->handler = new $handler($this->config);
 		if (!($this->handler instanceof HandlerAbstract)) {
 			throw new \Exception('session handler must instance of HandlerAbstract');
 		}
