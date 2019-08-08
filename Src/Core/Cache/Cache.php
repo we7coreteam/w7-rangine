@@ -179,6 +179,13 @@ namespace W7\Core\Cache;
  * @method getMode() {}
  */
 class Cache extends CacheAbstract {
+	public function set($key, $value, $ttl = null) {
+		$ttl = $this->getTtl($ttl);
+		$value = $this->serialize($value);
+		$params = ($ttl <= 0) ? [$key, $value] : [$key, $value, $ttl];
+		return $this->call('set', $params);
+	}
+
 	public function get($key, $default = null) {
 		$result = $this->call('get', [$key]);
 		if ($result === false || $result === null) {
@@ -188,15 +195,8 @@ class Cache extends CacheAbstract {
 		return $this->unserialize($result);
 	}
 
-	public function set($key, $value, $ttl = null) {
-		$ttl = $this->getTtl($ttl);
-		$value = $this->serialize($value);
-		$params = ($ttl <= 0) ? [$key, $value] : [$key, $value, $ttl];
-		return $this->call('set', $params);
-	}
-
 	public function delete($key) {
-		return (bool)$this->call('del', [$key]);
+		return (bool)$this->call('delete', [$key]);
 	}
 
 	public function setMultiple($values, $ttl = null) {
@@ -204,14 +204,14 @@ class Cache extends CacheAbstract {
 		foreach ($values as $key => &$value) {
 			$value = $this->serialize($value);
 		}
-		$result = $this->call('mset', [$values]);
+		$result = $this->call('setMultiple', [$values]);
 
 		return $result;
 	}
 
 	public function getMultiple($keys, $default = null) {
 		$keys = (array)$keys;
-		$mgetResult = $this->call('mget', [$keys]);
+		$mgetResult = $this->call('getMultiple', [$keys]);
 		if ($mgetResult === false) {
 			return $default;
 		}
@@ -224,15 +224,15 @@ class Cache extends CacheAbstract {
 	}
 
 	public function deleteMultiple($keys): bool {
-		return (bool)$this->call('del', [$keys]);
+		return (bool)$this->call('deleteMultiple', [$keys]);
 	}
 
 	public function has($key) {
-		return $this->call('exists', [$key]);
+		return $this->call('has', [$key]);
 	}
 
 	public function clear() {
-		return $this->call('flushDB', []);
+		return $this->call('clear', []);
 	}
 
 	public function __call($method, $arguments) {
