@@ -20,7 +20,6 @@ use Whoops\Run;
 
 class App {
 	private static $self;
-
 	/**
 	 * 服务器对象
 	 *
@@ -36,21 +35,16 @@ class App {
 	public function __construct() {
 		self::$self = $this;
 
-		$this->preInit();
-		$this->registerSecurityDir();
-		$this->registerErrorHandler();
-	}
-
-	protected function preInit() {
 		//初始化配置
 		iconfig();
+		$this->registerRuntimeEnv();
+		$this->registerSecurityDir();
+		$this->registerErrorHandler();
+		$this->registerProvider();
+	}
 
+	private function registerRuntimeEnv() {
 		date_default_timezone_set('Asia/Shanghai');
-
-		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
-		$setting = iconfig()->getUserAppConfig('setting');
-		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
-		error_reporting($errorLevel);
 	}
 
 	private function registerSecurityDir() {
@@ -75,6 +69,11 @@ class App {
 	}
 
 	private function registerErrorHandler() {
+		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
+		$setting = iconfig()->getUserAppConfig('setting');
+		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
+		error_reporting($errorLevel);
+
 		/**
 		 * 设置错误信息接管
 		 */
@@ -90,15 +89,20 @@ class App {
 		$processer->register();
 	}
 
+	private function registerProvider() {
+		iloader()->singleton(ProviderManager::class)->register()->boot();
+	}
+
 	public static function getApp() {
+		if (!self::$self) {
+			new static();
+		}
 		return self::$self;
 	}
 
 	public function runConsole() {
 		try{
-			iloader()->singleton(ProviderManager::class)->register()->boot();
-			$console = iloader()->singleton(Application::class);
-			$console->run();
+			iloader()->singleton(Application::class)->run();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
 		}
