@@ -7,6 +7,8 @@
 namespace W7\Core\Cache\Connection;
 
 
+use W7\Core\Cache\Handler\RedisHandler;
+
 class RedisConnection extends ConnectionAbstract {
 	/**
 	 * @param array $config
@@ -26,6 +28,6 @@ class RedisConnection extends ConnectionAbstract {
 		if (!empty($config['database'])) {
 			$redis->select(intval($config['database']));
 		}
-		return $redis;
+		return new RedisHandler($redis);
 	}
 }
