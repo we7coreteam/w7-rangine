@@ -8,7 +8,7 @@
 namespace W7\Core\Cache;
 
 
-use W7\App;
+use Psr\SimpleCache\CacheInterface;
 use W7\Core\Cache\Connection\ConnectionAbstract;
 use W7\Core\Cache\Pool\Pool;
 
@@ -38,7 +38,7 @@ class ConnectorManager {
 		$pool->releaseConnection($connection);
 	}
 
-	public function connect($name = 'default') {
+	public function connect($name = 'default') : CacheInterface {
 		$config = $this->config['connection'][$name] ?? [];
 		$poolConfig = $this->config['pool'][$name] ?? [];
 
@@ -52,12 +52,8 @@ class ConnectorManager {
 		 */
 		$connection = iloader()->singleton($connectionClass);
 
-		//未在协程中则不启用连接池
-		if (!isCo()) {
-			return $connection->connect($config);
-		}
-
 		if (empty($poolConfig) || empty($poolConfig['enable'])) {
+			ilogger()->channel('cache')->debug('create connection without pool');
 			return $connection->connect($config);
 		}
 
@@ -78,8 +74,13 @@ class ConnectorManager {
 	private function checkDriverSupport($driver) {
 		$className = sprintf("\\W7\\Core\\Cache\\Connection\\%sConnection", ucfirst($driver));
 		if (!class_exists($className)) {
+			//处理自定义的handler
+			$className = $driver;
+		}
+		if (!class_exists($className)) {
 			throw new \RuntimeException('This cache driver is not supported');
 		}
+
 		return $className;
 	}
 }

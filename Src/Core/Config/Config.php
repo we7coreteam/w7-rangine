@@ -76,31 +76,24 @@ class Config {
 		$env = new Env(BASE_PATH);
 		$env->load();
 		unset($env);
-		
-		//在加载配置前定义需要的常量
-		!defined('RELEASE') && define('RELEASE', 8);
-		!defined('DEBUG') && define('DEBUG', 1);
-		!defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
-		!defined('BACKTRACE') && define('BACKTRACE', 4);
-		!defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
-		!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));
 
+		$this->initUserConst();
+	}
+
+	private function initUserConst() {
+		//加载所有的配置到内存中
 		$this->loadConfig('config');
+
+		$setting = $this->getUserAppConfig('setting');
+		!defined('ENV') && define('ENV', $setting['env'] ?? DEVELOPMENT);
+
 		$this->checkSetting();
 	}
 
 	private function checkSetting() {
-		if (defined('ENV')) {
-			$env = ENV;
-		} else {
-			$setting = $this->getUserAppConfig('setting');
-			$env = $setting['env'] ?? '';
-		}
-
-		if (!is_numeric($env) || ((RELEASE|DEVELOPMENT) & $env) !== $env) {
+		if (!is_numeric(ENV) || ((RELEASE|DEVELOPMENT) & ENV) !== ENV) {
 			throw new \Exception("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
 		}
-		!defined('ENV') && define('ENV', $env);
 	}
 
 	/**

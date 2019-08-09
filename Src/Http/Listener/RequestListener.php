@@ -13,6 +13,8 @@ use Swoole\Http\Response;
 use Swoole\Http\Server;
 use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Session\Session;
+use W7\Http\Message\Base\Cookie;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 use W7\Http\Server\Dispather;
@@ -37,14 +39,19 @@ class RequestListener extends ListenerAbstract {
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
+		$psr7Request->session = new Session($psr7Request);
 		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
 
 		$dispather = \iloader()->singleton(Dispather::class);
 		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
+
+		$psr7Response = $psr7Response->withCookie(Cookie::new([
+			'name' => $psr7Request->session->getName(),
+			'value' => $psr7Request->session->getId(),
+			'expires' => $psr7Request->session->getExpires()
+		]));
 		$psr7Response->send();
 
 		ievent(Event::ON_USER_AFTER_REQUEST);
-
-		$context->destroy();
 	}
 }

@@ -73,7 +73,7 @@ class LogManager {
 			if ($channel['driver'] == 'stack') {
 				$stack[$name] = $channel;
 			} else {
-				$handlerClass = sprintf("\\W7\\Core\\Log\\Driver\\%sHandler", ucfirst($channel['driver']));
+				$handlerClass = sprintf("\\W7\\Core\\Log\\Handler\\%sHandler", ucfirst($channel['driver']));
 				$bufferLimit = $channel['buffer_limit'] ?? 1;
 				$handler = new BufferHandler($handlerClass::getHandler($channel), $bufferLimit, $channel['level'], true, true);
 

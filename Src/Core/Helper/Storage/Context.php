@@ -46,6 +46,8 @@ class Context {
 
 	const LOG_REQUEST_KEY = "requestlog";
 
+	private $recoverCallback;
+
 	/**
 	 * @return Request|null
 	 */
@@ -197,8 +199,15 @@ class Context {
 	 *
 	 * @return int|null Return null when in non-coroutine context
 	 */
-	private function getCoroutineId()
-	{
+	private function getCoroutineId() {
+		$cid = Coroutine::getuid();
+		if ($cid > 0 && empty($this->recoverCallback[$cid])) {
+			$this->recoverCallback[$cid] = true;
+			defer(function () {
+				$this->destroy();
+				unset($this->recoverCallback[Coroutine::getuid()]);
+			});
+		}
 		return Coroutine::getuid();
 	}
 }

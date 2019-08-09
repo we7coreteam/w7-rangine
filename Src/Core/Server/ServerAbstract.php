@@ -61,13 +61,13 @@ abstract class ServerAbstract implements ServerInterface {
 	 * @throws CommandException
 	 */
 	public function __construct() {
-		date_default_timezone_set('Asia/Shanghai');
 		App::$server = $this;
 		$setting = \iconfig()->getServer();
 		if (empty($setting[$this->type]) || empty($setting[$this->type]['host'])) {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
 		}
 		$this->setting = array_merge([], $setting['common']);
+		$this->enableCoroutine();
 		$this->connection = $setting[$this->type];
 	}
 
@@ -108,6 +108,13 @@ abstract class ServerAbstract implements ServerInterface {
 		} else {
 			return false;
 		}
+	}
+
+	protected function enableCoroutine() {
+		$this->setting['enable_coroutine'] = true;
+		$this->setting['task_enable_coroutine'] = true;
+		$this->setting['task_ipc_mode'] = 1;
+		$this->setting['message_queue_key'] = '';
 	}
 
 	public function stop() {
@@ -193,11 +200,6 @@ abstract class ServerAbstract implements ServerInterface {
 				$this->registerEvent($event);
 			}
 		}
-
-		//开启协程
-		//if (isCo()) {
-			\Swoole\Runtime::enableCoroutine(true);
-		//}
 	}
 
 	protected function registerServerContext() {

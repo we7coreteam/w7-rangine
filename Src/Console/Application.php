@@ -11,9 +11,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
-use W7\App;
-use Whoops\Handler\PlainTextHandler;
-use Whoops\Run;
 
 class Application extends SymfontApplication {
 	public function __construct() {
@@ -22,8 +19,6 @@ class Application extends SymfontApplication {
 
 		$this->setAutoExit(false);
 		$this->registerCommands();
-		//设置错误信息需要放到runConsole之后，等待注册了环境配置env后才可以使用config配置
-		$this->registerErrorHandler();
 	}
 
 	/**
@@ -71,21 +66,6 @@ class Application extends SymfontApplication {
 			}
 			$this->renderException($e, $output);
 		}
-	}
-
-	private function registerErrorHandler() {
-		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
-		$setting = iconfig()->getUserAppConfig('setting');
-		$errorLevel = $setting['error_level'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
-		error_reporting($errorLevel);
-
-		/**
-		 * 设置错误信息接管
-		 */
-		$processer = new Run();
-		$handle = new PlainTextHandler(App::getApp()->getLogger());
-		$processer->pushHandler($handle);
-		$processer->register();
 	}
 
 	private function registerCommands() {

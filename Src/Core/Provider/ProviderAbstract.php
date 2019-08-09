@@ -2,11 +2,12 @@
 
 namespace W7\Core\Provider;
 
+use Illuminate\Filesystem\Filesystem;
 use W7\Core\Route\RouteMapping;
 
 abstract class ProviderAbstract {
-	private $name;
-	private $namespace;
+	protected $name;
+	protected $namespace;
 	/**
 	 * @var \W7\Core\Config\Config
 	 */
@@ -62,6 +63,23 @@ abstract class ProviderAbstract {
 		], function () use ($fileName) {
 			$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
 		});
+	}
+
+	protected function registerView() {
+		$config = $this->config->getServer();
+		if (empty($config['common']['document_root'])) {
+			throw new \Exception("please set server['common'] ['document_root']");
+		}
+
+		$filesystem = new Filesystem();
+		$config = $this->config->getServer();
+		$config['common']['document_root'] = rtrim($config['common']['document_root'], '/');
+		$flagFilePath = $config['common']['document_root'] . '/' . $this->name . '/view.lock';
+
+		if ($filesystem->exists($this->rootPath . '/view') && !$filesystem->exists($flagFilePath)) {
+			$filesystem->copyDirectory($this->rootPath . '/view', $config['common']['document_root'] . '/' . $this->name);
+			$filesystem->put($flagFilePath, '');
+		}
 	}
 
 	protected function registerProvider($provider) {

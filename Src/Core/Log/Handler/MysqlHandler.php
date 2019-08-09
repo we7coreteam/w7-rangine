@@ -1,6 +1,6 @@
 <?php
 
-namespace W7\Core\Log\Driver;
+namespace W7\Core\Log\Handler;
 
 use Monolog\Handler\AbstractProcessingHandler;
 
