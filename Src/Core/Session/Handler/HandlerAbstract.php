@@ -3,7 +3,7 @@
 namespace W7\Core\Session\Handler;
 
 abstract class HandlerAbstract implements HandlerInterface {
-	protected $id;
+	private $id;
 	protected $config;
 
 	public function __construct($config) {
