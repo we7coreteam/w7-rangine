@@ -2,10 +2,13 @@
 
 namespace W7\Core\Session\Channel;
 
+use W7\Core\Session\Session;
 use W7\Http\Message\Server\Request;
+use W7\Http\Message\Server\Response;
 
 abstract class ChannelAbstract {
 	protected $sessionName;
+	protected $config;
 	/**
 	 * @var Request
 	 */
@@ -25,4 +28,6 @@ abstract class ChannelAbstract {
 	}
 
 	abstract function getId();
+
+	abstract function replenishResponse(Response $response, Session $session) : Response;
 }
