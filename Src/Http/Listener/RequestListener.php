@@ -45,13 +45,7 @@ class RequestListener extends ListenerAbstract {
 		$dispather = \iloader()->singleton(Dispather::class);
 		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
 
-		$psr7Response = $psr7Response->withCookie(Cookie::new([
-			'name' => $psr7Request->session->getName(),
-			'value' => $psr7Request->session->getId(),
-			'expires' => $psr7Request->session->getExpires(),
-			'httpOnly' => true,
-			'path' => '/',
-		]));
+		$psr7Response = $psr7Request->session->replenishResponse($psr7Response);
 		$psr7Response->send();
 
 		ievent(Event::ON_USER_AFTER_REQUEST);

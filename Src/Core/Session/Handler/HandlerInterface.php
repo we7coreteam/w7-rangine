@@ -5,7 +5,7 @@ namespace W7\Core\Session\Handler;
 interface HandlerInterface {
 	public function setId($id);
 
-	public function getId();
+	public function getId($hasPrefix = true);
 
 	public function set($key, $value, $ttl);
 

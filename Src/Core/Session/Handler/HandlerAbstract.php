@@ -14,7 +14,11 @@ abstract class HandlerAbstract implements HandlerInterface {
 		$this->id = $id;
 	}
 
-	public function getId() {
-		return $this->id;
+	public function getId($hasPrefix = true) {
+		if (!$hasPrefix) {
+			return $this->id;
+		}
+
+		return ($this->config['prefix'] ?? 'session:') . $this->id;
 	}
 }

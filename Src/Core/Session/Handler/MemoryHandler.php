@@ -1,18 +1,15 @@
 <?php
 
-
 namespace W7\Core\Session\Handler;
 
-
-class MemoryHandler extends HandlerAbstract
-{
+class MemoryHandler extends HandlerAbstract {
 	static private $sessionStore = [];
 
 	public function set($key, $value, $ttl) {
-		if (!isset(static::$sessionStore[$this->id])) {
-			static::$sessionStore[$this->id] = [];
+		if (!isset(static::$sessionStore[$this->getId()])) {
+			static::$sessionStore[$this->getId()] = [];
 		}
-		static::$sessionStore[$this->id][$key] = [
+		static::$sessionStore[$this->getId()][$key] = [
 			'data' => $value,
 			'expire' => time() + $ttl,
 		];
@@ -20,22 +17,22 @@ class MemoryHandler extends HandlerAbstract
 	}
 
 	public function get($key, $default = '') {
-		if (empty(static::$sessionStore[$this->id])) {
+		if (empty(static::$sessionStore[$this->getId()])) {
 			return $default;
 		}
-		if (isset(static::$sessionStore[$this->id][$key]) && static::$sessionStore[$this->id][$key]['expire'] > time()) {
-			return static::$sessionStore[$this->id][$key]['data'];
+		if (isset(static::$sessionStore[$this->getId()][$key]) && static::$sessionStore[$this->getId()][$key]['expire'] > time()) {
+			return static::$sessionStore[$this->getId()][$key]['data'];
 		} else {
 			return $default;
 		}
 	}
 
 	public function has($key) {
-		return isset(static::$sessionStore[$this->id][$key]);
+		return isset(static::$sessionStore[$this->getId()][$key]);
 	}
 
 	public function destroy() {
-		static::$sessionStore[$this->id] = [];
+		static::$sessionStore[$this->getId()] = [];
 		return true;
 	}
 }

@@ -8,22 +8,22 @@ class CacheHandler extends HandlerAbstract {
 	}
 
 	public function set($key, $value, $ttl) {
-		$session = $this->getCache()->get($this->id);
+		$session = $this->getCache()->get($this->getId());
 		$session[$key] = $value;
-		return $this->getCache()->set($this->id, $session, $ttl);
+		return $this->getCache()->set($this->getId(), $session, $ttl);
 	}
 
 	public function get($key, $default = '') {
-		$session = $this->getCache()->get($this->id);
+		$session = $this->getCache()->get($this->getId());
 		return $session[$key] ?? $default;
 	}
 
 	public function has($key) {
-		$session = $this->getCache()->get($this->id);
+		$session = $this->getCache()->get($this->getId());
 		return isset($session[$key]);
 	}
 
 	public function destroy() {
-		return $this->getCache()->delete($this->id);
+		return $this->getCache()->delete($this->getId());
 	}
 }
