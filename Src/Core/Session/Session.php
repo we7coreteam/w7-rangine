@@ -38,7 +38,7 @@ class Session implements SessionInterface {
 	}
 
 	protected function initHandler(Request $request) {
-		$handler = $this->config['handler'] ?? MemoryHandler::class;
+		$handler = $this->config['handler'] ?? CacheHandler::class;
 		$this->handler = new $handler($this->config);
 		if (!($this->handler instanceof HandlerAbstract)) {
 			throw new \Exception('session handler must instance of HandlerAbstract');
