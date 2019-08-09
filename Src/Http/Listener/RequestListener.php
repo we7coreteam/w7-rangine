@@ -48,7 +48,9 @@ class RequestListener extends ListenerAbstract {
 		$psr7Response = $psr7Response->withCookie(Cookie::new([
 			'name' => $psr7Request->session->getName(),
 			'value' => $psr7Request->session->getId(),
-			'expires' => $psr7Request->session->getExpires()
+			'expires' => $psr7Request->session->getExpires(),
+			'httpOnly' => true,
+			'path' => '/',
 		]));
 		$psr7Response->send();
 
