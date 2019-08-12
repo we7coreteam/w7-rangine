@@ -61,10 +61,7 @@ class Response extends Psr7Response {
 			$content = '{}';
 		}
 
-		$response = $response->withContent($content);
-		$status && $response = $response->withStatus($status);
-
-		return $response;
+		return $response->withContent($content)->withStatus($status);
 	}
 
 	public function send() {
