@@ -25,7 +25,7 @@ class CookieChannel extends ChannelAbstract {
 			'httpOnly' => isset($config['http_only']) ? $config['http_only'] : true,
 			'path' => isset($config['path']) ? $config['path'] : '/',
 			'domain' => isset($config['domain']) ? $config['domain'] : '',
-			'secure' => isset($config['secure']) ? $config['secure'] : true,
+			'secure' => isset($config['secure']) ? $config['secure'] : false,
 		]);
 
 		return $response->withCookie($cookie);
