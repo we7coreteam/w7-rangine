@@ -315,19 +315,6 @@ if (!function_exists('ienv')) {
 			return value($default);
 		}
 
-		//常量解析
-
-		if (strpos($value, '|') !== false || strpos($value, '^') !== false) {
-			$exec = 'return ' . $value . ';';
-			try{
-				$value = eval($exec);
-			} catch (Throwable $e) {
-				//
-			}
-		} else if (defined($value)) {
-			$value = constant($value);
-		}
-
 		switch (strtolower($value)) {
 			case 'true':
 			case '(true)':
@@ -341,6 +328,17 @@ if (!function_exists('ienv')) {
 			case 'null':
 			case '(null)':
 				return;
+		}
+
+		//常量解析
+		$exec = 'return ' . $value . ';';
+		try{
+			$result = @eval($exec);
+			if ($result !== false && $result !== "\0\0\0\0\0\0") {
+				$value = $result;
+			}
+		} catch (Throwable $e) {
+			//
 		}
 
 		if (($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {
