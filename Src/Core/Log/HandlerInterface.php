@@ -9,4 +9,5 @@ namespace W7\Core\Log;
 
 interface HandlerInterface {
 	static public function getHandler($config);
+	public function handleBatch(array $records);
 }

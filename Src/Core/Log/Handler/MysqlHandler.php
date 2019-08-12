@@ -3,8 +3,9 @@
 namespace W7\Core\Log\Handler;
 
 use Monolog\Handler\AbstractProcessingHandler;
+use W7\Core\Log\HandlerInterface;
 
-class MysqlHandler extends AbstractProcessingHandler {
+class MysqlHandler extends AbstractProcessingHandler implements HandlerInterface{
 	protected $table;
 	protected $connection;
 

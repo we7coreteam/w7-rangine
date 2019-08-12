@@ -25,4 +25,8 @@ class MailHandler implements HandlerInterface {
 		$swiftMailer = new \Swift_Mailer($transport);
 		return new SwiftMailerHandler($swiftMailer, $message, $config['level']);
 	}
+
+	public function handleBatch(array $records) {
+
+	}
 }
