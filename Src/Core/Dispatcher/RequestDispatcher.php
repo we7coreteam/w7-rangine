@@ -23,6 +23,8 @@ class RequestDispatcher extends DispatcherAbstract {
 		$psr7Response = $params[1];
 		$serverContext = App::$server->server->context;
 		$contextObj = App::getApp()->getContext();
+		$contextObj->setRequest($psr7Request);
+		$contextObj->setResponse($psr7Response);
 
 		try {
 			//根据router配置，获取到匹配的controller信息
@@ -30,7 +32,6 @@ class RequestDispatcher extends DispatcherAbstract {
 			$route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
 			$psr7Request = $psr7Request->withAttribute('route', $route);
 			$contextObj->setRequest($psr7Request);
-			$contextObj->setResponse($psr7Response);
 
 			$middlewares = $this->getMiddleware($route);
 			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);

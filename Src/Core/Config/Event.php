@@ -6,8 +6,7 @@
 
 namespace W7\Core\Config;
 
-class Event
-{
+class Event {
 	/**
 	 * swoole 事件
 	 */

@@ -37,7 +37,6 @@ abstract class ProviderAbstract {
 		$this->config = iconfig();
 		$this->router = irouter();
 		$this->logger = ilogger();
-
 	}
 
 	/**

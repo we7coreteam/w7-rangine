@@ -30,22 +30,27 @@ class ControllerMiddleware extends MiddlewareAbstract {
 			}
 
 			$response =  call_user_func_array($controllerHandler, $funArgs);
-			//如果结果是一个response对象，则直接输出，否则按json输出
-			if ($response instanceof ResponseInterface) {
-				return $response;
-			} elseif (is_object($response)) {
-				$response = 'Illegal type ' . get_class($response) . ', Must be a response object, an array, or a string';
-			} elseif (is_array($response)) {
-
-			} else {
-				$response = strval($response);
-			}
-
-			App::getApp()->getContext()->setResponse(App::getApp()->getContext()->getResponse()->json($response));
+			$this->parseResponse($response);
 
 			$handler->handle($request);
 		} catch (\Throwable $throwable) {
 			throw $throwable;
 		}
+	}
+
+	protected function parseResponse($response) {
+		//如果结果是一个response对象，则直接输出，否则按json输出
+		if ($response instanceof ResponseInterface) {
+			App::getApp()->getContext()->setResponse($response);
+			return true;
+		} elseif (is_object($response)) {
+			$response = 'Illegal type ' . get_class($response) . ', Must be a response object, an array, or a string';
+		} elseif (is_array($response)) {
+
+		} else {
+			$response = strval($response);
+		}
+
+		App::getApp()->getContext()->setResponse(App::getApp()->getContext()->getResponse()->json($response));
 	}
 }
