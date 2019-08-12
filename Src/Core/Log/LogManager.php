@@ -8,7 +8,6 @@ namespace W7\Core\Log;
 
 use Monolog\Handler\BufferHandler;
 use Monolog\Logger as MonoLogger;
-use W7\App;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 class LogManager {
@@ -73,7 +72,8 @@ class LogManager {
 			if ($channel['driver'] == 'stack') {
 				$stack[$name] = $channel;
 			} else {
-				$handlerClass = sprintf("\\W7\\Core\\Log\\Handler\\%sHandler", ucfirst($channel['driver']));
+				$handlerClass = $this->checkHandler($channel['driver']);
+
 				$bufferLimit = $channel['buffer_limit'] ?? 1;
 				$handler = new BufferHandler($handlerClass::getHandler($channel), $bufferLimit, $channel['level'], true, true);
 
@@ -108,6 +108,24 @@ class LogManager {
 		}
 
 		return true;
+	}
+
+	private function checkHandler($handler) {
+		$handlerClass = sprintf("\\W7\\Core\\Log\\Handler\\%sHandler", ucfirst($handler));
+		if (!class_exists($handlerClass)) {
+			//用户自定义的handler
+			$handlerClass = $handler;
+		}
+		if (!class_exists($handlerClass)) {
+			throw new \RuntimeException('this log handler is not supported');
+		}
+
+		$reflectClass = new \ReflectionClass($handlerClass);
+		if (!in_array(HandlerInterface::class, array_keys($reflectClass->getInterfaces()))) {
+			throw new \Exception('please implements W7\Core\Log\HandlerInterface');
+		}
+
+		return $handlerClass;
 	}
 
 	private function initCommonProcessor() {
@@ -156,5 +174,15 @@ class LogManager {
 			}
 		}
 		return true;
+	}
+
+	public function flushLog($channel = null) {
+		$loggers = $this->getLoggers($channel);
+
+		foreach ($loggers as $logger) {
+			foreach ($logger->getHandlers() as $handle) {
+				$handle->flush();
+			}
+		}
 	}
 }

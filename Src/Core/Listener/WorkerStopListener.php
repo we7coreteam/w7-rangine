@@ -6,8 +6,10 @@
 
 namespace W7\Core\Listener;
 
+use W7\Core\Log\LogManager;
+
 class WorkerStopListener implements ListenerInterface {
 	public function run(...$params) {
-		ilogger()->flushLog();
+		iloader()->singleton(LogManager::class)->flushLog();
 	}
 }

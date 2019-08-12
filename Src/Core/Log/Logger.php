@@ -23,23 +23,18 @@ class Logger extends \Monolog\Logger {
 		$result =  parent::addRecord($level, $message, $context);
 
 		if ($this->bufferLimit == 1) {
-			$this->flushLog($this->getName());
+			$this->flushLog();
 		}
 		return $result;
 	}
 
-	public function flushLog($channel = null) {
-		$logManager = iloader()->singleton(LogManager::class);
-		$loggers = $logManager->getLoggers($channel);
-
-		foreach ($loggers as $logger) {
-			foreach ($logger->getHandlers() as $handle) {
-				$handle->flush();
-			}
+	private function flushLog() {
+		foreach ($this->getHandlers() as $handler) {
+			$handler->flush();
 		}
 	}
 
 	public function __destruct() {
-		$this->flushLog($this->name);
+		$this->flushLog();
 	}
 }
