@@ -41,9 +41,9 @@ class ControllerMiddleware extends MiddlewareAbstract {
 				$response = strval($response);
 			}
 
-			$contextObj = App::getApp()->getContext();
-			return $contextObj->getResponse()->json($response);
+			App::getApp()->getContext()->setResponse(App::getApp()->getContext()->getResponse()->json($response));
 
+			$handler->handle($request);
 		} catch (\Throwable $throwable) {
 			throw $throwable;
 		}

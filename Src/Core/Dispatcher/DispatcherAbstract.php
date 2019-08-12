@@ -6,8 +6,7 @@
 
 namespace W7\Core\Dispatcher;
 
-abstract class DispatcherAbstract
-{
+abstract class DispatcherAbstract {
 	/**
 	 * 前置的中间件，用于定义一些系统的操作
 	 */

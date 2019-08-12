@@ -39,13 +39,10 @@ class RequestListener extends ListenerAbstract {
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
-		$psr7Request->session = new Session($psr7Request);
 		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
 
 		$dispather = \iloader()->singleton(Dispather::class);
 		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
-
-		$psr7Response = $psr7Request->session->replenishResponse($psr7Response);
 		$psr7Response->send();
 
 		ievent(Event::ON_USER_AFTER_REQUEST);

@@ -18,7 +18,6 @@ class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());
-		$context->setContextDataByKey(Context::MIDDLEWARE_KEY, $this->getMiddleware());
 
 		return true;
 	}
@@ -29,13 +28,5 @@ class BeforeStartListener extends ListenerAbstract {
 	private function getRoute() {
 		$routeInfo = iloader()->singleton(RouteMapping::class)->getMapping();
 		return new GroupCountBased($routeInfo);
-	}
-
-	private function getMiddleware() {
-		/**
-		 * @var MiddlewareMapping $middlerwareObj
-		 */
-		$middlerwareObj = iloader()->singleton(MiddlewareMapping::class);
-		return $middlerwareObj->getLastMiddle();
 	}
 }

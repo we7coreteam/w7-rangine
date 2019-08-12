@@ -9,7 +9,6 @@ namespace W7\Http\Listener;
 
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Helper\Storage\Context;
 use FastRoute\Dispatcher\GroupCountBased;
@@ -19,7 +18,6 @@ class BeforeStartListener extends ListenerAbstract {
 		$context = App::getApp()->getContext();
 		//注册路由的时候会调用中间件生成，所以要先生成路由再中间件
 		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());
-		$context->setContextDataByKey(Context::MIDDLEWARE_KEY, $this->getLastMiddleware());
 		return true;
 	}
 
@@ -29,13 +27,5 @@ class BeforeStartListener extends ListenerAbstract {
 	private function getRoute() {
 		$routeInfo = iloader()->singleton(RouteMapping::class)->getMapping();
 		return new GroupCountBased($routeInfo);
-	}
-
-	private function getLastMiddleware() {
-		/**
-		 * @var MiddlewareMapping $middlerwareObj
-		 */
-		$middlerwareObj = iloader()->singleton(MiddlewareMapping::class);
-		return $middlerwareObj->getLastMiddle();
 	}
 }
