@@ -68,7 +68,7 @@ abstract class ProviderAbstract {
 	protected function registerView() {
 		$config = $this->config->getServer();
 		if (empty($config['common']['document_root'])) {
-			throw new \Exception("please set server['common'] ['document_root']");
+			throw new \RuntimeException("please set server['common'] ['document_root']");
 		}
 
 		$filesystem = new Filesystem();

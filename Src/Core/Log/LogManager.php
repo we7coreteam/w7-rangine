@@ -122,7 +122,7 @@ class LogManager {
 
 		$reflectClass = new \ReflectionClass($handlerClass);
 		if (!in_array(HandlerInterface::class, array_keys($reflectClass->getInterfaces()))) {
-			throw new \Exception('please implements W7\Core\Log\HandlerInterface');
+			throw new \RuntimeException('please implements W7\Core\Log\HandlerInterface');
 		}
 
 		return $handlerClass;

@@ -85,7 +85,7 @@ class Loader {
 
 	private function object($name, $params = []) {
 		if (!class_exists($name)) {
-			throw new \Exception($name . ' not found');
+			throw new \RuntimeException($name . ' not found');
 		}
 
 		if (empty($params)) {
@@ -95,7 +95,7 @@ class Loader {
 		$reflection = new \ReflectionClass($name);
 
 		if (! $reflection->isInstantiable()) {
-			throw new \Exception($name . ' cannot be instantiated');
+			throw new \RuntimeException($name . ' cannot be instantiated');
 		}
 
 		$constructor = $reflection->getConstructor();

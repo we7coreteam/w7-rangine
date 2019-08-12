@@ -14,7 +14,7 @@ class RedisHandler extends HandlerAbstract {
 		$result = $redis->connect($config['host'], $config['port'], $config['timeout']);
 		if ($result === false) {
 			$error = sprintf('Redis connection failure host=%s port=%d', $config['host'], $config['port']);
-			throw new \Exception($error);
+			throw new \RuntimeException($error);
 		}
 		if (!empty($config['password'])) {
 			$redis->auth($config['password']);

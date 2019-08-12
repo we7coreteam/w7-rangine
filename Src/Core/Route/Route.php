@@ -168,7 +168,7 @@ class Route {
 
 	private function getStaticResourceHandle($view, $data = []) {
 		if (\swoole_version() < '4.4.0') {
-			throw new \Exception('Please upgrade swoole to 4.4.0 or later');
+			throw new \RuntimeException('Please upgrade swoole to 4.4.0 or later');
 		}
 		$module = $this->getModule();
 		return function () use ($view, $data, $module) {

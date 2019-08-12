@@ -45,7 +45,7 @@ class Session implements SessionInterface {
 		$handler = $this->config['handler'] ?? CacheHandler::class;
 		$this->handler = new $handler($this->config);
 		if (!($this->handler instanceof HandlerAbstract)) {
-			throw new \Exception('session handler must instance of HandlerAbstract');
+			throw new \RuntimeException('session handler must instance of HandlerAbstract');
 		}
 		$this->handler->setId($this->initId($request));
 	}
@@ -54,7 +54,7 @@ class Session implements SessionInterface {
 		$channel = $this->config['channel'] ?? CookieChannel::class;
 		$this->channel = new $channel($request, $this->getName());
 		if (!($this->channel instanceof ChannelAbstract)) {
-			throw new \Exception('session channel must instance of ChannelAbstract');
+			throw new \RuntimeException('session channel must instance of ChannelAbstract');
 		}
 
 		return $this->channel->getId();
