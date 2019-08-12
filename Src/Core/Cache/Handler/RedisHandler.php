@@ -2,13 +2,28 @@
 
 namespace W7\Core\Cache\Handler;
 
-use Psr\SimpleCache\CacheInterface;
-
-class RedisHandler implements CacheInterface {
+class RedisHandler extends HandlerAbstract {
 	/**
 	 * @var \Redis
 	 */
 	private $redis;
+
+
+	public static function getHandler($config) : HandlerAbstract {
+		$redis  = new \Redis();
+		$result = $redis->connect($config['host'], $config['port'], $config['timeout']);
+		if ($result === false) {
+			$error = sprintf('Redis connection failure host=%s port=%d', $config['host'], $config['port']);
+			throw new \Exception($error);
+		}
+		if (!empty($config['password'])) {
+			$redis->auth($config['password']);
+		}
+		if (!empty($config['database'])) {
+			$redis->select(intval($config['database']));
+		}
+		return new static($redis);
+	}
 
 	public function __construct(\Redis $redis) {
 		$this->redis = $redis;
@@ -44,6 +59,10 @@ class RedisHandler implements CacheInterface {
 
 	public function clear() {
 		return $this->redis->flushDB();
+	}
+
+	public function alive() {
+		return $this->redis->ping();
 	}
 
 	public function __call($name, $arguments) {

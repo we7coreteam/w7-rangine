@@ -4,15 +4,21 @@ namespace W7\Core\Cache\Handler;
 
 use Exception;
 use Illuminate\Filesystem\Filesystem;
-use Psr\SimpleCache\CacheInterface;
 
-class FileHandler implements CacheInterface {
+class FileHandler extends HandlerAbstract {
 	/**
 	 * @var Filesystem
 	 */
 	private $filesystem;
 	private $directory;
 
+	public static function getHandler($config) : HandlerAbstract {
+		// TODO: Implement getHandler() method.
+		if (empty($config['path'])) {
+			$config['path'] = RUNTIME_PATH . '/cache';
+		}
+		return new static($config['path']);
+	}
 
 	public function __construct($directory) {
 		$this->directory = $directory;

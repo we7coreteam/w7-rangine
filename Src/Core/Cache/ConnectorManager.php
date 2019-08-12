@@ -7,9 +7,7 @@
 
 namespace W7\Core\Cache;
 
-
 use Psr\SimpleCache\CacheInterface;
-use W7\Core\Cache\Connection\ConnectionAbstract;
 use W7\Core\Cache\Pool\Pool;
 
 class ConnectorManager {
@@ -46,15 +44,11 @@ class ConnectorManager {
 			throw new \RuntimeException('Cache is not configured.');
 		}
 
-		$connectionClass = $this->checkDriverSupport($config['driver']);
-		/**
-		 * @var ConnectionAbstract $connection
-		 */
-		$connection = iloader()->singleton($connectionClass);
+		$handlerClass = $this->checkHandler($config['driver']);
 
 		if (empty($poolConfig) || empty($poolConfig['enable'])) {
 			ilogger()->channel('cache')->debug('create connection without pool');
-			return $connection->connect($config);
+			return $handlerClass::getHandler($config);
 		}
 
 		/**
@@ -66,19 +60,24 @@ class ConnectorManager {
 					->get();
 		$pool->setConfig($config);
 		$pool->setMaxCount($poolConfig['max']);
-		$pool->setCreator($connection);
+		$pool->setCreator($handlerClass);
 
 		return $pool->getConnection();
 	}
 
-	private function checkDriverSupport($driver) {
-		$className = sprintf("\\W7\\Core\\Cache\\Connection\\%sConnection", ucfirst($driver));
+	private function checkHandler($handler) {
+		$className = sprintf("\\W7\\Core\\Cache\\Handler\\%sHandler", ucfirst($handler));
 		if (!class_exists($className)) {
 			//处理自定义的handler
-			$className = $driver;
+			$className = $handler;
 		}
 		if (!class_exists($className)) {
-			throw new \RuntimeException('This cache driver is not supported');
+			throw new \RuntimeException('this cache handler is not supported');
+		}
+
+		$reflectClass = new \ReflectionClass($className);
+		if (!in_array(CacheInterface::class, array_keys($reflectClass->getInterfaces()))) {
+			throw new \RuntimeException('please implements Psr\SimpleCache\CacheInterface');
 		}
 
 		return $className;
