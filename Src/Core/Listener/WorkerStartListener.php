@@ -15,21 +15,5 @@ class WorkerStartListener implements ListenerInterface {
 		}
 
 		\isetProcessTitle( 'w7swoole ' . App::$server->type . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
-
-		//设置安全限制目录
-		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?? [];
-		if (is_array($openBaseDirConfig)) {
-			$openBaseDirConfig = implode(':', $openBaseDirConfig);
-		}
-
-		$openBaseDir = [
-			'/tmp',
-			sys_get_temp_dir(),
-			APP_PATH,
-			RUNTIME_PATH,
-			BASE_PATH . '/vendor',
-			$openBaseDirConfig,
-		];
-		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
 }
