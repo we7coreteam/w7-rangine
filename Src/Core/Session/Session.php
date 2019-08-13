@@ -88,7 +88,11 @@ class Session implements SessionInterface {
 	}
 
 	public function get($key, $default = '') {
-		$data = unserialize($this->handler->read($this->prefix . $this->getId()));
+		try{
+			$data = unserialize($this->handler->read($this->prefix . $this->getId()));
+		} catch (\Throwable $e) {
+			$data = [];
+		}
 		return $data[$key] ?? $default;
 	}
 
