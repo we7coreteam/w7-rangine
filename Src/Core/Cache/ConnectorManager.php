@@ -69,10 +69,10 @@ class ConnectorManager {
 		$className = sprintf("\\W7\\Core\\Cache\\Handler\\%sHandler", ucfirst($handler));
 		if (!class_exists($className)) {
 			//处理自定义的handler
-			$className = $handler;
+			$className = sprintf("\\W7\\App\\Handler\\Cache\\%sHandler", ucfirst($handler));
 		}
 		if (!class_exists($className)) {
-			throw new \RuntimeException('this cache handler is not supported');
+			throw new \RuntimeException('cache handler ' . $handler . ' is not supported');
 		}
 
 		$reflectClass = new \ReflectionClass($className);

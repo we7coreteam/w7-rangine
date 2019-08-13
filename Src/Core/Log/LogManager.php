@@ -114,10 +114,10 @@ class LogManager {
 		$handlerClass = sprintf("\\W7\\Core\\Log\\Handler\\%sHandler", ucfirst($handler));
 		if (!class_exists($handlerClass)) {
 			//用户自定义的handler
-			$handlerClass = $handler;
+			$handlerClass = sprintf("\\W7\\App\\Handler\\Log\\%sHandler", ucfirst($handler));
 		}
 		if (!class_exists($handlerClass)) {
-			throw new \RuntimeException('this log handler is not supported');
+			throw new \RuntimeException('log handler ' . $handler . ' is not supported');
 		}
 
 		$reflectClass = new \ReflectionClass($handlerClass);

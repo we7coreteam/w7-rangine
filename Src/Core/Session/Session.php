@@ -3,8 +3,6 @@
 namespace W7\Core\Session;
 
 use W7\Core\Session\Channel\ChannelAbstract;
-use W7\Core\Session\Channel\CookieChannel;
-use W7\Core\Session\Handler\FileHandler;
 use W7\Core\Session\Handler\HandlerAbstract;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
@@ -36,8 +34,7 @@ class Session implements SessionInterface {
 	}
 
 	private function initHandler() {
-		$handler = $this->config['handler'] ?? FileHandler::class;
-		$handler = $this->getHandlerClass($handler);
+		$handler = $this->getHandlerClass();
 		$this->handler = new $handler($this->config);
 		if (!($this->handler instanceof HandlerAbstract)) {
 			throw new \RuntimeException('session handler must instance of HandlerAbstract');
@@ -45,30 +42,31 @@ class Session implements SessionInterface {
 	}
 
 	private function initChannel(Request $request) {
-		$channel = $this->config['channel'] ?? CookieChannel::class;
-		$channel = $this->getChannelClass($channel);
+		$channel = $this->getChannelClass();
 		$this->channel = new $channel($this->config, $request);
 		if (!($this->channel instanceof ChannelAbstract)) {
 			throw new \RuntimeException('session channel must instance of ChannelAbstract');
 		}
 	}
 
-	private function getHandlerClass($handler) {
+	private function getHandlerClass() {
+		$handler = $this->config['handler'] ?? 'file';
 		$class = sprintf("\\W7\\Core\\Session\\Handler\\%sHandler", ucfirst($handler));
 		if (!class_exists($class)) {
-			$class = $handler;
+			$class = sprintf("\\W7\\App\\Handler\\Session\\%sHandler", ucfirst($handler));
 		}
 		if (!class_exists($class)) {
-			throw new \RuntimeException('session not support this handler');
+			throw new \RuntimeException('session handler ' . $handler . ' is not support');
 		}
 
 		return $class;
 	}
 
-	private function getChannelClass($channel) {
+	private function getChannelClass() {
+		$channel = $this->config['channel'] ?? 'cookie';
 		$class = sprintf("\\W7\\Core\\Session\\Channel\\%sChannel", ucfirst($channel));
 		if (!class_exists($class)) {
-			$class = $channel;
+			$class = sprintf("\\W7\\App\\Channel\\Session\\%sChannel", ucfirst($channel));;
 		}
 		if (!class_exists($class)) {
 			throw new \RuntimeException('session not support this channel');
