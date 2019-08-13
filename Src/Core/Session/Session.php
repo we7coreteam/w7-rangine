@@ -84,7 +84,7 @@ class Session implements SessionInterface {
 	public function set($key, $value) {
 		$data = unserialize($this->handler->read($this->prefix . $this->getId()));
 		$data[$key] = $value;
-		$this->handler->write($this->prefix . $this->getId(), serialize($data));
+		return $this->handler->write($this->prefix . $this->getId(), serialize($data));
 	}
 
 	public function get($key, $default = '') {

@@ -4,6 +4,7 @@ namespace W7\Core\Session\Handler;
 
 use Exception;
 use Illuminate\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 class FileHandler extends HandlerAbstract {
 	/**
@@ -97,5 +98,17 @@ class FileHandler extends HandlerAbstract {
 		}
 
 		return false;
+	}
+
+	public function gc($maxlifetime) {
+		$files = Finder::create()
+			->in(self::$directory)
+			->files()
+			->ignoreDotFiles(true)
+			->date('<= now - '.$maxlifetime.' seconds');
+
+		foreach ($files as $file) {
+			$this->filesystem->delete($file->getRealPath());
+		}
 	}
 }
