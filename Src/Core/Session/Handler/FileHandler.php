@@ -10,45 +10,35 @@ class FileHandler extends HandlerAbstract {
 	 * @var Filesystem
 	 */
 	private $filesystem;
-	private $directory;
+	private static $directory;
+	private static $hasSet;
 
 
 	protected function init() {
-		if (empty($this->config['path'])) {
-			$this->config['path'] = RUNTIME_PATH . '/cache/session';
-		}
-		$this->directory = $this->config['path'];
 		$this->filesystem = new Filesystem();
+		$this->setPath();
 	}
 
-	public function set($key, $value, $ttl) {
-		$this->ensureCacheDirectoryExists($path = $this->getPath($this->getId()));
-		$session = $this->getPayload($this->getId());
-		$session[$key] = $value;
-
-		$result = $this->filesystem->put(
-			$path, $this->expiration($ttl).serialize($session), true
-		);
-
-		return $result !== false && $result > 0;
-	}
-
-	public function get($key, $default = '') {
-		$session = $this->getPayload($this->getId());
-		return $session[$key] ?? $default;
-	}
-
-	public function has($key) {
-		$session = $this->getPayload($this->getId());
-		return isset($session[$key]) ? true : false;
-	}
-
-	public function destroy() {
-		if ($this->filesystem->exists($file = $this->getPath($this->getId()))) {
-			return $this->filesystem->delete($file);
+	private function setPath() {
+		if (self::$hasSet) {
+			return true;
 		}
 
-		return false;
+		self::$directory = session_save_path();
+		$this->ensureCacheDirectoryExists(self::$directory);
+
+		$openBaseDir = ini_get('open_basedir');
+		ini_set('open_basedir', $openBaseDir . ':' . self::$directory);
+		if (!file_exists(self::$directory) || !is_writeable(self::$directory)) {
+			self::$directory = '/tmp/session';
+			$this->ensureCacheDirectoryExists(self::$directory);
+		}
+		ini_set('open_basedir', $openBaseDir . ':' . self::$directory);
+		if (!file_exists(self::$directory) || !is_writeable(self::$directory)) {
+			throw new \RuntimeException('session path ' . self::$directory . ' not exist or no permission');
+		}
+
+		self::$hasSet = true;
 	}
 
 	private function getPayload($key) {
@@ -59,31 +49,53 @@ class FileHandler extends HandlerAbstract {
 				$contents = $this->filesystem->get($path, true), 0, 10
 			);
 		} catch (Exception $e) {
-			$this->destroy();
+			$this->destroy($key);
 			return [];
 		}
 
 		if (time() >= $expire) {
-			$this->destroy();
+			$this->destroy($key);
 			return [];
 		}
 
-		return unserialize(substr($contents, 10));
+		return substr($contents, 10);
 	}
 
 	private function getPath($key) {
 		$parts = array_slice(str_split($hash = sha1($key), 2), 0, 2);
 
-		return $this->directory.'/'.implode('/', $parts).'/'.$hash;
-	}
-
-	private function ensureCacheDirectoryExists($path) {
-		if (!$this->filesystem->exists(dirname($path))) {
-			$this->filesystem->makeDirectory(dirname($path), 0777, true, true);
-		}
+		return self::$directory.'/'.implode('/', $parts).'/'.$hash;
 	}
 
 	private function expiration($seconds) {
 		return ($seconds === null || $seconds === 0) ? 9999999999 : ($seconds + time());
+	}
+
+	private function ensureCacheDirectoryExists($path) {
+		if (!$this->filesystem->exists($path)) {
+			$this->filesystem->makeDirectory($path, 0777, true, true);
+		}
+	}
+
+
+	public function write($session_id, $session_data) {
+		$this->ensureCacheDirectoryExists(dirname($path = $this->getPath($session_id)));
+		$result = $this->filesystem->put(
+			$path, $this->expiration($this->getExpires()).$session_data, true
+		);
+
+		return $result !== false && $result > 0;
+	}
+
+	public function read($session_id) {
+		return $this->getPayload($session_id);
+	}
+
+	public function destroy($session_id) {
+		if ($this->filesystem->exists($file = $this->getPath($session_id))) {
+			return $this->filesystem->delete($file);
+		}
+
+		return false;
 	}
 }

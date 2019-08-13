@@ -7,23 +7,15 @@ class CacheHandler extends HandlerAbstract {
 		return icache()->channel($this->config['cache_channel'] ?? 'default');
 	}
 
-	public function set($key, $value, $ttl) {
-		$session = $this->getCache()->get($this->getId());
-		$session[$key] = $value;
-		return $this->getCache()->set($this->getId(), $session, $ttl);
+	public function destroy($session_id) {
+		return $this->getCache()->delete($session_id);
 	}
 
-	public function get($key, $default = '') {
-		$session = $this->getCache()->get($this->getId());
-		return $session[$key] ?? $default;
+	public function write($session_id, $session_data) {
+		return $this->getCache()->set($session_id, $session_data, $this->getExpires());
 	}
 
-	public function has($key) {
-		$session = $this->getCache()->get($this->getId());
-		return isset($session[$key]);
-	}
-
-	public function destroy() {
-		return $this->getCache()->delete($this->getId());
+	public function read($session_id) {
+		return $this->getCache()->get($session_id);
 	}
 }
