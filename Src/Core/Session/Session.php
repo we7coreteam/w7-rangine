@@ -6,26 +6,19 @@ use W7\Core\Session\Channel\ChannelAbstract;
 use W7\Core\Session\Channel\CookieChannel;
 use W7\Core\Session\Handler\FileHandler;
 use W7\Core\Session\Handler\HandlerAbstract;
-use W7\Core\Session\Handler\HandlerInterface;
 use W7\Http\Message\Server\Request;
-use W7\Http\Message\Contract\Session as SessionInterface;
 use W7\Http\Message\Server\Response;
+use W7\Http\Message\Contract\Session as SessionInterface;
 
 class Session implements SessionInterface {
-	/**
-	 * session name
-	 * @var
-	 */
-	private $name;
+	private $prefix;
 	private $config;
-	private $beginTime;
-	private $expires;
 	/**
 	 * @var ChannelAbstract
 	 */
 	private $channel;
 	/**
-	 * @var HandlerInterface
+	 * @var HandlerAbstract
 	 */
 	private $handler;
 
@@ -33,86 +26,31 @@ class Session implements SessionInterface {
 	public function __construct(Request $request) {
 		$this->config = iconfig()->getUserAppConfig('session');
 
-		$this->initName();
-		$this->initHandler($request);
+		$this->initPrefix();
+		$this->initChannel($request);
+		$this->initHandler();
 	}
 
-	protected function initName() {
-		$this->setName($this->config['name'] ?? session_name());
+	private function initPrefix() {
+		$this->prefix = $this->config['prefix'] ?? session_name();
 	}
 
-	protected function initHandler(Request $request) {
+	private function initHandler() {
 		$handler = $this->config['handler'] ?? FileHandler::class;
 		$handler = $this->getHandlerClass($handler);
 		$this->handler = new $handler($this->config);
 		if (!($this->handler instanceof HandlerAbstract)) {
 			throw new \RuntimeException('session handler must instance of HandlerAbstract');
 		}
-		$this->handler->setId($this->initId($request));
 	}
 
-	private function initId(Request $request) {
+	private function initChannel(Request $request) {
 		$channel = $this->config['channel'] ?? CookieChannel::class;
 		$channel = $this->getChannelClass($channel);
-		$this->channel = new $channel($request, $this->getName());
+		$this->channel = new $channel($this->config, $request);
 		if (!($this->channel instanceof ChannelAbstract)) {
 			throw new \RuntimeException('session channel must instance of ChannelAbstract');
 		}
-
-		return $this->channel->getId();
-	}
-
-	public function setName($name) {
-		$this->name = $name;
-	}
-
-	public function getName() {
-		return $this->name;
-	}
-
-	public function setId($id) {
-		$this->handler->setId($id);
-	}
-
-	public function getId() {
-		return $this->handler->getId(false);
-	}
-
-	public function getExpires($interval = false) {
-		if ($this->expires === null) {
-			$userExpires = (int)($this->config['expires'] ?? ini_get("session.gc_maxlifetime"));
-			$this->beginTime = 0;
-			if ($userExpires != 0) {
-				$this->beginTime = time();
-				$userExpires = $this->beginTime + $userExpires;
-			}
-			$this->expires = $userExpires;
-		}
-		return $interval ? $this->expires - $this->beginTime : $this->expires;
-	}
-
-	public function getConfig() {
-		return $this->config;
-	}
-
-	public function replenishResponse(Response $response) {
-		return $this->channel->replenishResponse($response, $this);
-	}
-
-	public function set($key, $value) {
-		$this->handler->set($key, $value, $this->getExpires(true));
-	}
-
-	public function get($key, $default = '') {
-		return $this->handler->get($key, $default);
-	}
-
-	public function has($key) {
-		return $this->handler->has($key);
-	}
-
-	public function destroy() {
-		return $this->handler->destroy();
 	}
 
 	private function getHandlerClass($handler) {
@@ -137,5 +75,28 @@ class Session implements SessionInterface {
 		}
 
 		return $class;
+	}
+
+	public function getId() {
+		return $this->channel->getSessionId();
+	}
+
+	public function set($key, $value) {
+		$data = unserialize($this->handler->read($this->prefix . $this->getId()));
+		$data[$key] = $value;
+		$this->handler->write($this->prefix . $this->getId(), serialize($data));
+	}
+
+	public function get($key, $default = '') {
+		$data = unserialize($this->handler->read($this->prefix . $this->getId()));
+		return $data[$key] ?? $default;
+	}
+
+	public function destroy() {
+		return $this->handler->destroy($this->prefix . $this->getId());
+	}
+
+	public function replenishResponse(Response $response) {
+		return $this->channel->replenishResponse($response);
 	}
 }
