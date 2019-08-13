@@ -9,8 +9,9 @@ use W7\Http\Message\Server\Response;
 use W7\Http\Message\Contract\Session as SessionInterface;
 
 class Session implements SessionInterface {
-	private $prefix;
 	private $config;
+	private $prefix;
+	private static $gcCondition;
 	/**
 	 * @var ChannelAbstract
 	 */
@@ -75,6 +76,19 @@ class Session implements SessionInterface {
 		return $class;
 	}
 
+	private function getGcCondition() {
+		if (!self::$gcCondition) {
+			$gcDivisor = (int)($this->config['gc_divisor'] ?? ini_get('session.gc_divisor'));
+			$gcDivisor = $gcDivisor <= 0 ? 1 : $gcDivisor;
+			$gcProbability = (int)($this->config['gc_probability'] ?? ini_get('session.gc_probability'));
+			$gcProbability = $gcProbability <= 0 ? 1 : $gcProbability;
+
+			self::$gcCondition = $gcDivisor / $gcProbability;
+		}
+
+		return self::$gcCondition;
+	}
+
 	public function getId() {
 		return $this->channel->getSessionId();
 	}
@@ -82,6 +96,7 @@ class Session implements SessionInterface {
 	public function set($key, $value) {
 		try{
 			$data = unserialize($this->handler->read($this->prefix . $this->getId()));
+			$data = $data === false ? [] : $data;
 		} catch (\Throwable $e) {
 			$data = [];
 		}
@@ -93,6 +108,7 @@ class Session implements SessionInterface {
 	public function get($key, $default = '') {
 		try{
 			$data = unserialize($this->handler->read($this->prefix . $this->getId()));
+			$data = $data === false ? [] : $data;
 		} catch (\Throwable $e) {
 			$data = [];
 		}
@@ -101,6 +117,18 @@ class Session implements SessionInterface {
 
 	public function destroy() {
 		return $this->handler->destroy($this->prefix . $this->getId());
+	}
+
+	public function gc() {
+		static $requestNum;
+		++$requestNum;
+		$condition = $this->getGcCondition();
+		if ($requestNum > $condition) {
+			$requestNum = 0;
+			go(function () use ($requestNum) {
+				$this->handler->gc($this->handler->getExpires());
+			});
+		}
 	}
 
 	public function replenishResponse(Response $response) {

@@ -27,11 +27,11 @@ class FileHandler extends HandlerAbstract {
 		self::$directory = session_save_path();
 		$this->ensureCacheDirectoryExists(self::$directory);
 
-		if (!file_exists(self::$directory) || !is_writeable(self::$directory)) {
+		if (!file_exists(self::$directory) || !is_writeable(self::$directory) || !is_readable(self::$directory)) {
 			self::$directory = '/tmp/session';
 			$this->ensureCacheDirectoryExists(self::$directory);
 		}
-		if (!file_exists(self::$directory) || !is_writeable(self::$directory)) {
+		if (!file_exists(self::$directory) || !is_writeable(self::$directory) || !is_readable(self::$directory)) {
 			throw new \RuntimeException('session path ' . self::$directory . ' not exist or no permission');
 		}
 

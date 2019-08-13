@@ -14,6 +14,8 @@ use W7\Core\Session\Session;
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		$request->session = new Session($request);
+		$request->session->gc();
+
 		App::getApp()->getContext()->setResponse($request->session->replenishResponse(App::getApp()->getContext()->getResponse()));
 
 		return $handler->handle($request);
