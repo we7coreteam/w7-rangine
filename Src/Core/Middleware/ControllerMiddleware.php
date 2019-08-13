@@ -31,7 +31,7 @@ class ControllerMiddleware extends MiddlewareAbstract {
 		$response =  call_user_func_array($controllerHandler, $funArgs);
 		$this->parseResponse($response);
 
-		$handler->handle($request);
+		return $handler->handle($request);
 	}
 
 	protected function parseResponse($response) {
