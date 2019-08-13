@@ -8,7 +8,11 @@ abstract class HandlerAbstract implements HandlerInterface {
 
 	public function __construct($config) {
 		$this->config = $config;
+
+		$this->init();
 	}
+
+	protected function init(){}
 
 	public function setId($id) {
 		$this->id = $id;
