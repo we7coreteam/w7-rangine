@@ -82,7 +82,12 @@ class Session implements SessionInterface {
 	}
 
 	public function set($key, $value) {
-		$data = unserialize($this->handler->read($this->prefix . $this->getId()));
+		try{
+			$data = unserialize($this->handler->read($this->prefix . $this->getId()));
+		} catch (\Throwable $e) {
+			$data = [];
+		}
+
 		$data[$key] = $value;
 		return $this->handler->write($this->prefix . $this->getId(), serialize($data));
 	}
