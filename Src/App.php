@@ -64,6 +64,7 @@ class App {
 			RUNTIME_PATH,
 			BASE_PATH . '/vendor',
 			$openBaseDirConfig,
+			session_save_path()
 		];
 		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
