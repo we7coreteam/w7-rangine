@@ -41,10 +41,6 @@ class ControllerMiddleware extends MiddlewareAbstract {
 			return true;
 		} elseif (is_object($response)) {
 			$response = 'Illegal type ' . get_class($response) . ', Must be a response object, an array, or a string';
-		} elseif (is_array($response)) {
-
-		} else {
-			$response = strval($response);
 		}
 
 		App::getApp()->getContext()->setResponse(App::getApp()->getContext()->getResponse()->json($response));
