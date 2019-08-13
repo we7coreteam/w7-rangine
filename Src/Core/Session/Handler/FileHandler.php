@@ -2,7 +2,6 @@
 
 namespace W7\Core\Session\Handler;
 
-use Exception;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -46,7 +45,7 @@ class FileHandler extends HandlerAbstract {
 			$expire = substr(
 				$contents = $this->filesystem->get($path, true), 0, 10
 			);
-		} catch (Exception $e) {
+		} catch (\Throwable $e) {
 			$this->destroy($key);
 			return '';
 		}
