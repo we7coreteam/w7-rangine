@@ -28,13 +28,10 @@ class FileHandler extends HandlerAbstract {
 		self::$directory = session_save_path();
 		$this->ensureCacheDirectoryExists(self::$directory);
 
-		$openBaseDir = ini_get('open_basedir');
-		ini_set('open_basedir', $openBaseDir . ':' . self::$directory);
 		if (!file_exists(self::$directory) || !is_writeable(self::$directory)) {
 			self::$directory = '/tmp/session';
 			$this->ensureCacheDirectoryExists(self::$directory);
 		}
-		ini_set('open_basedir', $openBaseDir . ':' . self::$directory);
 		if (!file_exists(self::$directory) || !is_writeable(self::$directory)) {
 			throw new \RuntimeException('session path ' . self::$directory . ' not exist or no permission');
 		}
@@ -51,12 +48,12 @@ class FileHandler extends HandlerAbstract {
 			);
 		} catch (Exception $e) {
 			$this->destroy($key);
-			return [];
+			return '';
 		}
 
 		if (time() >= $expire) {
 			$this->destroy($key);
-			return [];
+			return '';
 		}
 
 		return substr($contents, 10);
