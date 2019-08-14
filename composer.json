@@ -30,7 +30,8 @@
 	},
 	"require-dev": {
 		"eaglewu/swoole-ide-helper": "dev-master",
-		"symfony/var-dumper": "^4.1"
+		"symfony/var-dumper": "^4.1",
+		"w7/php-cs-fixer": "^1.0"
 	},
 	"autoload": {
 		"psr-4": {
