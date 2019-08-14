@@ -47,15 +47,15 @@ class FileHandler extends HandlerAbstract {
 			);
 		} catch (\Throwable $e) {
 			$this->destroy($key);
-			return '';
+			return [];
 		}
 
 		if (time() >= $expire) {
 			$this->destroy($key);
-			return '';
+			return [];
 		}
 
-		return substr($contents, 10);
+		return unserialize(substr($contents, 10));
 	}
 
 	private function getPath($key) {
@@ -78,7 +78,7 @@ class FileHandler extends HandlerAbstract {
 	public function write($session_id, $session_data) {
 		$this->ensureCacheDirectoryExists(dirname($path = $this->getPath($session_id)));
 		$result = $this->filesystem->put(
-			$path, $this->expiration($this->getExpires()).$session_data, true
+			$path, $this->expiration($this->getExpires()).serialize($session_data), true
 		);
 
 		return $result !== false && $result > 0;

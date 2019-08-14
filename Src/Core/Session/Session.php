@@ -12,6 +12,7 @@ class Session implements SessionInterface {
 	private $config;
 	private $prefix;
 	private static $gcCondition;
+	private static $cache = [];
 	/**
 	 * @var ChannelAbstract
 	 */
@@ -93,25 +94,28 @@ class Session implements SessionInterface {
 		return $this->channel->getSessionId();
 	}
 
-	public function set($key, $value) {
+	private function readSession() {
 		try{
-			$data = unserialize($this->handler->read($this->prefix . $this->getId()));
-			$data = $data === false ? [] : $data;
+			$data = $this->handler->read($this->prefix . $this->getId());
+			$data = !is_array($data) ? [] : $data;
 		} catch (\Throwable $e) {
 			$data = [];
 		}
 
+		return $data;
+	}
+
+	public function set($key, $value) {
+		$data = $this->readSession();
+
 		$data[$key] = $value;
-		return $this->handler->write($this->prefix . $this->getId(), serialize($data));
+
+		return $this->handler->write($this->prefix . $this->getId(), $data);
 	}
 
 	public function get($key, $default = '') {
-		try{
-			$data = unserialize($this->handler->read($this->prefix . $this->getId()));
-			$data = $data === false ? [] : $data;
-		} catch (\Throwable $e) {
-			$data = [];
-		}
+		$data = $this->readSession();
+
 		return $data[$key] ?? $default;
 	}
 

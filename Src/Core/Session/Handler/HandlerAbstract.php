@@ -21,9 +21,9 @@ abstract class HandlerAbstract implements \SessionHandlerInterface {
 		return static::$expires;
 	}
 
-	public function open($save_path, $name) {}
+	final public function open($save_path, $name) {}
 
 	public function gc($maxlifetime) {}
 
-	public function close() {}
+	final public function close() {}
 }
