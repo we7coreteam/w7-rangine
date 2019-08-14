@@ -8,7 +8,6 @@ namespace W7\Core\Log\Handler;
 
 
 use Monolog\Handler\HandlerInterface as MonologInterface;
-use W7\Core\Log\HandlerInterface;
 
 class ErrorlogHandler extends \Monolog\Handler\ErrorLogHandler  implements HandlerInterface {
 	public static function getHandler($config): MonologInterface {

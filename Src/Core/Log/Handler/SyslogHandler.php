@@ -6,9 +6,7 @@
 
 namespace W7\Core\Log\Handler;
 
-
 use Monolog\Handler\HandlerInterface as MonologInterface;
-use W7\Core\Log\HandlerInterface;
 
 class SyslogHandler extends \Monolog\Handler\SyslogHandler implements HandlerInterface {
 	public static function getHandler($config): MonologInterface {

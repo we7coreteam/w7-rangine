@@ -4,7 +4,7 @@
  * @date 18-10-18 下午4:26
  */
 
-namespace W7\Core\Log;
+namespace W7\Core\Log\Handler;
 
 use Monolog\Handler\HandlerInterface as MonologInterface;
 

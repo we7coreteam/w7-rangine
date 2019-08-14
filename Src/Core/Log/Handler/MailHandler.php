@@ -8,9 +8,8 @@ namespace W7\Core\Log\Handler;
 
 use Monolog\Handler\HandlerInterface as MonologInterface;
 use Monolog\Handler\SwiftMailerHandler;
-use W7\Core\Log\HandlerInterface;
 
-class MailHandler implements HandlerInterface {
+class MailHandler extends HandlerAbstract {
 	public static function getHandler($config): MonologInterface {
 		if (empty($config['to']) || empty($config['subject']) || empty($config['username']) || empty($config['password'])) {
 			return null;

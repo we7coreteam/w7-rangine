@@ -8,6 +8,7 @@ namespace W7\Core\Log;
 
 use Monolog\Handler\BufferHandler;
 use Monolog\Logger as MonoLogger;
+use W7\Core\Log\Handler\HandlerInterface;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 class LogManager {
@@ -122,7 +123,7 @@ class LogManager {
 
 		$reflectClass = new \ReflectionClass($handlerClass);
 		if (!in_array(HandlerInterface::class, array_keys($reflectClass->getInterfaces()))) {
-			throw new \RuntimeException('please implements W7\Core\Log\HandlerInterface');
+			throw new \RuntimeException('please implements ' . HandlerInterface::class);
 		}
 
 		return $handlerClass;

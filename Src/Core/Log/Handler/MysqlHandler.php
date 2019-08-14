@@ -2,11 +2,9 @@
 
 namespace W7\Core\Log\Handler;
 
-use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Handler\HandlerInterface as MonologInterface;
-use W7\Core\Log\HandlerInterface;
 
-class MysqlHandler extends AbstractProcessingHandler implements HandlerInterface{
+class MysqlHandler extends HandlerAbstract {
 	protected $table;
 	protected $connection;
 
@@ -27,9 +25,5 @@ class MysqlHandler extends AbstractProcessingHandler implements HandlerInterface
 			];
 		}
 		idb()->connection($this->connection)->table($this->table)->insert($records);
-	}
-
-	protected function write(array $record) {
-
 	}
 }
