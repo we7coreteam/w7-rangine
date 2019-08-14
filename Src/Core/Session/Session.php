@@ -93,25 +93,27 @@ class Session implements SessionInterface {
 		return $this->channel->getSessionId();
 	}
 
-	public function set($key, $value) {
+	private function readSession() {
 		try{
 			$data = unserialize($this->handler->read($this->prefix . $this->getId()));
-			$data = $data === false ? [] : $data;
+			$data = !is_array($data) ? [] : $data;
 		} catch (\Throwable $e) {
 			$data = [];
 		}
+
+		return $data;
+	}
+
+	public function set($key, $value) {
+		$data = $this->readSession();
 
 		$data[$key] = $value;
 		return $this->handler->write($this->prefix . $this->getId(), serialize($data));
 	}
 
 	public function get($key, $default = '') {
-		try{
-			$data = unserialize($this->handler->read($this->prefix . $this->getId()));
-			$data = $data === false ? [] : $data;
-		} catch (\Throwable $e) {
-			$data = [];
-		}
+		$data = $this->readSession();
+
 		return $data[$key] ?? $default;
 	}
 
