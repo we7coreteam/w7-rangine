@@ -7,10 +7,11 @@
 namespace W7\Core\Log\Handler;
 
 
+use Monolog\Handler\HandlerInterface as MonologInterface;
 use W7\Core\Log\HandlerInterface;
 
 class SyslogHandler extends \Monolog\Handler\SyslogHandler implements HandlerInterface {
-	static public function getHandler($config) {
+	public static function getHandler($config): MonologInterface {
 		return new static('w7-', LOG_USER, $config['level']);
 	}
 }

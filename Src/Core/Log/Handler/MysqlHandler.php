@@ -3,13 +3,14 @@
 namespace W7\Core\Log\Handler;
 
 use Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Handler\HandlerInterface as MonologInterface;
 use W7\Core\Log\HandlerInterface;
 
 class MysqlHandler extends AbstractProcessingHandler implements HandlerInterface{
 	protected $table;
 	protected $connection;
 
-	static public function getHandler($config) {
+	public static function getHandler($config): MonologInterface {
 		$handle = new static();
 		$handle->table = $config['table'] ?? 'log';
 		$handle->connection = $config['connection'] ?? 'default';

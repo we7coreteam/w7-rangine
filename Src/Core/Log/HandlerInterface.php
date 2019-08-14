@@ -6,8 +6,9 @@
 
 namespace W7\Core\Log;
 
+use Monolog\Handler\HandlerInterface as MonologInterface;
 
 interface HandlerInterface {
-	static public function getHandler($config);
+	static public function getHandler($config) : MonologInterface;
 	public function handleBatch(array $records);
 }
