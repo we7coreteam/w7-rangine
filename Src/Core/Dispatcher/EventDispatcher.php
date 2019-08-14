@@ -1,7 +1,13 @@
 <?php
+
 /**
- * author: alex
- * date: 18-8-3 上午9:38
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Dispatcher;
@@ -10,8 +16,7 @@ use W7\App;
 use W7\Core\Listener\ListenerInterface;
 use W7\Core\Config\Event;
 
-class EventDispatcher extends DispatcherAbstract
-{
+class EventDispatcher extends DispatcherAbstract {
 	private $listener = [];
 	private $serverType;
 	private $swooleEvent = [];
@@ -21,16 +26,14 @@ class EventDispatcher extends DispatcherAbstract
 	 * EventDispatcher constructor.
 	 * @throws \ReflectionException
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		$this->serverType = App::$server->type;
 		$this->initAllowEvent();
 		//用户事件无需手动注册，自动获取即可
 		$this->register();
 	}
 
-	public function register()
-	{
+	public function register() {
 		//根据用户自定义事件列表，添加侦听队列
 		$event = \iconfig()->getEvent()['system'];
 		if (empty($event)) {
@@ -42,14 +45,14 @@ class EventDispatcher extends DispatcherAbstract
 		$listenerClass = [];
 		foreach ($event as $eventName) {
 			$listenerClass[$eventName] = [];
-			$listenerClass[$eventName]['framework'] = sprintf("\\W7\\Core\\Listener\\%sListener", ucfirst($eventName));
+			$listenerClass[$eventName]['framework'] = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
 			foreach ($serverSupport as $serverName => $server) {
-				$class = sprintf("\\W7\\%s\\Listener\\%sListener", ucfirst($serverName), ucfirst($eventName));
+				$class = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst($serverName), ucfirst($eventName));
 				if (class_exists($class)) {
 					$listenerClass[$eventName][$serverName] = $class;
 				}
 			}
-			$listenerClass[$eventName]['user'] = sprintf("\\W7\\App\\Listener\\%sListener", ucfirst($eventName));
+			$listenerClass[$eventName]['user'] = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
 		}
 		$this->listener = $listenerClass;
 		return true;
@@ -59,8 +62,7 @@ class EventDispatcher extends DispatcherAbstract
 	 * @param mixed ...$param
 	 * @return bool
 	 */
-	public function dispatch(...$param)
-	{
+	public function dispatch(...$param) {
 		$eventName = $param[0];
 		$args = $param[1];
 		if (!in_array($eventName, $this->systemEvent)) {
@@ -76,7 +78,7 @@ class EventDispatcher extends DispatcherAbstract
 				if (class_exists($class)) {
 					$object = \iloader()->singleton($class);
 					if ($object instanceof ListenerInterface) {
-                        call_user_func_array([$object, 'run'], $args);
+						call_user_func_array([$object, 'run'], $args);
 					}
 				}
 			}
@@ -88,8 +90,7 @@ class EventDispatcher extends DispatcherAbstract
 	 * @return bool
 	 * @throws \ReflectionException
 	 */
-	private function initAllowEvent()
-	{
+	private function initAllowEvent() {
 		$eventReflectionClass = new \ReflectionClass(Event::class);
 		$event = $eventReflectionClass->getConstants();
 		foreach ($event as $eventKey => $eventName) {

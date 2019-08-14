@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Dispatcher;
 
 use W7\App;
@@ -34,9 +44,6 @@ class RequestDispatcher extends DispatcherAbstract {
 			$contextObj->setRequest($psr7Request);
 
 			$middlewares = $this->getMiddleware($route);
-			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
-			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
-
 			$middlewareHandler = new MiddlewareHandler($middlewares);
 			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
@@ -73,7 +80,7 @@ class RequestDispatcher extends DispatcherAbstract {
 		return [
 			'name' => $route[1]['name'],
 			'module' => $route[1]['module'],
-			"method" => $method,
+			'method' => $method,
 			'controller' => $controller,
 			'args' => $route[2],
 			'middleware' => $route[1]['middleware']['before'],
@@ -87,14 +94,5 @@ class RequestDispatcher extends DispatcherAbstract {
 		$lastMiddleware = $middlewareMap->getLastMiddleware();
 
 		return array_merge($this->beforeMiddleware, $routeMiddleware, $controllerMiddleware, $this->afterMiddleware, $lastMiddleware);
-	}
-
-	private function getRequestLogContextData($controller, $method) {
-		$contextData = [
-			'controller' => $controller,
-			'method' => $method,
-			'requestTime' => microtime(true),
-		];
-		return $contextData;
 	}
 }
