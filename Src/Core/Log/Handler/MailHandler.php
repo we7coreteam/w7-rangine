@@ -4,13 +4,13 @@
  * @date 18-10-18 下午6:27
  */
 
-namespace W7\Core\Log\Driver;
+namespace W7\Core\Log\Handler;
 
+use Monolog\Handler\HandlerInterface as MonologInterface;
 use Monolog\Handler\SwiftMailerHandler;
-use W7\Core\Log\HandlerInterface;
 
-class MailHandler implements HandlerInterface {
-	static public function getHandler($config) {
+class MailHandler extends HandlerAbstract {
+	public static function getHandler($config): MonologInterface {
 		if (empty($config['to']) || empty($config['subject']) || empty($config['username']) || empty($config['password'])) {
 			return null;
 		}
@@ -24,5 +24,9 @@ class MailHandler implements HandlerInterface {
 
 		$swiftMailer = new \Swift_Mailer($transport);
 		return new SwiftMailerHandler($swiftMailer, $message, $config['level']);
+	}
+
+	public function handleBatch(array $records) {
+
 	}
 }

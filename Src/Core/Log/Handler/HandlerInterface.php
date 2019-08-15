@@ -10,12 +10,11 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\Core\Log\Handler;
 
-use W7\Core\Log\LogManager;
+use Monolog\Handler\HandlerInterface as MonologInterface;
 
-class WorkerStopListener implements ListenerInterface {
-	public function run(...$params) {
-		iloader()->singleton(LogManager::class)->flushLog();
-	}
+interface HandlerInterface {
+	public static function getHandler($config) : MonologInterface;
+	public function handleBatch(array $records);
 }

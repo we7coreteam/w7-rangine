@@ -1,14 +1,14 @@
 <?php
 
-namespace W7\Core\Log\Driver;
+namespace W7\Core\Log\Handler;
 
-use Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Handler\HandlerInterface as MonologInterface;
 
-class MysqlHandler extends AbstractProcessingHandler {
+class MysqlHandler extends HandlerAbstract {
 	protected $table;
 	protected $connection;
 
-	static public function getHandler($config) {
+	public static function getHandler($config): MonologInterface {
 		$handle = new static();
 		$handle->table = $config['table'] ?? 'log';
 		$handle->connection = $config['connection'] ?? 'default';
@@ -25,9 +25,5 @@ class MysqlHandler extends AbstractProcessingHandler {
 			];
 		}
 		idb()->connection($this->connection)->table($this->table)->insert($records);
-	}
-
-	protected function write(array $record) {
-
 	}
 }

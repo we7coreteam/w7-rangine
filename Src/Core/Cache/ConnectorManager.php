@@ -1,15 +1,18 @@
 <?php
+
 /**
- * 缓存连接管理
- * @author donknap
- * @date 18-12-30 上午11:59
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Cache;
 
-
-use W7\App;
-use W7\Core\Cache\Connection\ConnectionAbstract;
+use Psr\SimpleCache\CacheInterface;
 use W7\Core\Cache\Pool\Pool;
 
 class ConnectorManager {
@@ -38,7 +41,7 @@ class ConnectorManager {
 		$pool->releaseConnection($connection);
 	}
 
-	public function connect($name = 'default') {
+	public function connect($name = 'default') : CacheInterface {
 		$config = $this->config['connection'][$name] ?? [];
 		$poolConfig = $this->config['pool'][$name] ?? [];
 
@@ -46,19 +49,11 @@ class ConnectorManager {
 			throw new \RuntimeException('Cache is not configured.');
 		}
 
-		$connectionClass = $this->checkDriverSupport($config['driver']);
-		/**
-		 * @var ConnectionAbstract $connection
-		 */
-		$connection = iloader()->singleton($connectionClass);
-
-		//未在协程中则不启用连接池
-		if (!isCo()) {
-			return $connection->connect($config);
-		}
+		$handlerClass = $this->checkHandler($config['driver']);
 
 		if (empty($poolConfig) || empty($poolConfig['enable'])) {
-			return $connection->connect($config);
+			ilogger()->channel('cache')->debug('create connection without pool');
+			return $handlerClass::getHandler($config);
 		}
 
 		/**
@@ -70,16 +65,26 @@ class ConnectorManager {
 					->get();
 		$pool->setConfig($config);
 		$pool->setMaxCount($poolConfig['max']);
-		$pool->setCreator($connection);
+		$pool->setCreator($handlerClass);
 
 		return $pool->getConnection();
 	}
 
-	private function checkDriverSupport($driver) {
-		$className = sprintf("\\W7\\Core\\Cache\\Connection\\%sConnection", ucfirst($driver));
+	private function checkHandler($handler) {
+		$className = sprintf('\\W7\\Core\\Cache\\Handler\\%sHandler', ucfirst($handler));
 		if (!class_exists($className)) {
-			throw new \RuntimeException('This cache driver is not supported');
+			//处理自定义的handler
+			$className = sprintf('\\W7\\App\\Handler\\Cache\\%sHandler', ucfirst($handler));
 		}
+		if (!class_exists($className)) {
+			throw new \RuntimeException('cache handler ' . $handler . ' is not supported');
+		}
+
+		$reflectClass = new \ReflectionClass($className);
+		if (!in_array(CacheInterface::class, array_keys($reflectClass->getInterfaces()))) {
+			throw new \RuntimeException('please implements Psr\SimpleCache\CacheInterface');
+		}
+
 		return $className;
 	}
 }

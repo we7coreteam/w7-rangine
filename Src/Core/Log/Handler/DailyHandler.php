@@ -4,16 +4,16 @@
  * @date 18-10-18 下午6:15
  */
 
-namespace W7\Core\Log\Driver;
+namespace W7\Core\Log\Handler;
 
 use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\HandlerInterface as MonologInterface;
 use Monolog\Handler\RotatingFileHandler;
-use W7\Core\Log\HandlerInterface;
 
 class DailyHandler extends RotatingFileHandler implements HandlerInterface {
 	const SIMPLE_FORMAT = "[%datetime%] [workid:%workid% coid:%coid%] %channel%.%level_name%: %message% %context% %extra%\n\n";
 
-	static public function getHandler($config) {
+	public static function getHandler($config): MonologInterface {
 		$handler = new static($config['path'], $config['days'], $config['level']);
 		$formatter = new LineFormatter(self::SIMPLE_FORMAT);
 		$formatter->includeStacktraces(true);

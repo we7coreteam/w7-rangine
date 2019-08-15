@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Dispatcher;
 
 use W7\App;
@@ -9,6 +19,7 @@ use W7\Core\Exception\ExceptionHandle;
 use W7\Core\Exception\HttpException;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Middleware\MiddlewareHandler;
+use W7\Core\Middleware\MiddlewareMapping;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 
@@ -21,7 +32,6 @@ class RequestDispatcher extends DispatcherAbstract {
 		$psr7Request = $params[0];
 		$psr7Response = $params[1];
 		$serverContext = App::$server->server->context;
-
 		$contextObj = App::getApp()->getContext();
 		$contextObj->setRequest($psr7Request);
 		$contextObj->setResponse($psr7Response);
@@ -31,11 +41,9 @@ class RequestDispatcher extends DispatcherAbstract {
 			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
 			$route = $this->getRoute($psr7Request, $serverContext[Context::ROUTE_KEY]);
 			$psr7Request = $psr7Request->withAttribute('route', $route);
+			$contextObj->setRequest($psr7Request);
 
-			$middlewares = $this->getMiddleware($route, $serverContext[Context::MIDDLEWARE_KEY]);
-			$requestLogContextData  = $this->getRequestLogContextData($route['controller'], $route['method']);
-			$contextObj->setContextDataByKey(Context::LOG_REQUEST_KEY, $requestLogContextData);
-
+			$middlewares = $this->getMiddleware($route);
 			$middlewareHandler = new MiddlewareHandler($middlewares);
 			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
@@ -72,25 +80,19 @@ class RequestDispatcher extends DispatcherAbstract {
 		return [
 			'name' => $route[1]['name'],
 			'module' => $route[1]['module'],
-			"method" => $method,
+			'method' => $method,
 			'controller' => $controller,
 			'args' => $route[2],
 			'middleware' => $route[1]['middleware']['before'],
 		];
 	}
 
-	private function getMiddleware($route, $lastMiddleware) {
-		$result = $route['middleware'];
-		array_push($result, $lastMiddleware);
-		return $result;
-	}
+	private function getMiddleware($route) {
+		$routeMiddleware = $route['middleware'];
+		$middlewareMap = iloader()->singleton(MiddlewareMapping::class);
+		$controllerMiddleware = $middlewareMap->getControllerMiddleware();
+		$lastMiddleware = $middlewareMap->getLastMiddleware();
 
-	private function getRequestLogContextData($controller, $method) {
-		$contextData = [
-			'controller' => $controller,
-			'method' => $method,
-			'requestTime' => microtime(true),
-		];
-		return $contextData;
+		return array_merge($this->beforeMiddleware, $routeMiddleware, $controllerMiddleware, $this->afterMiddleware, $lastMiddleware);
 	}
 }

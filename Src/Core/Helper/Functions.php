@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-19 上午10:49
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 use Swoole\Coroutine;
@@ -42,7 +48,6 @@ if (!function_exists('iprocess')) {
 	 * @return bool|\Swoole\Process|void
 	 */
 	function iprocessPool($name, $number) {
-
 	}
 
 	/**
@@ -54,7 +59,7 @@ if (!function_exists('iprocess')) {
 		return $dispatcher;
 	}
 }
-if (!function_exists("ievent")) {
+if (!function_exists('ievent')) {
 	/**
 	 * 派发一个事件
 	 * @param $eventName
@@ -62,8 +67,7 @@ if (!function_exists("ievent")) {
 	 * @return bool
 	 * @throws Exception
 	 */
-	function ievent($eventName, $args = [])
-	{
+	function ievent($eventName, $args = []) {
 		/**
 		 * @var EventDispatcher $dispatcher
 		 */
@@ -71,7 +75,7 @@ if (!function_exists("ievent")) {
 		return $dispatcher->dispatch($eventName, $args);
 	}
 }
-if (!function_exists("itask")) {
+if (!function_exists('itask')) {
 	/**
 	 * 派发一个异步任务
 	 * @param string $taskName
@@ -109,7 +113,7 @@ if (!function_exists("itask")) {
 	}
 }
 
-if (!function_exists("iuuid")) {
+if (!function_exists('iuuid')) {
 	/**
 	 * 获取UUID
 	 * @return string
@@ -161,7 +165,7 @@ if (!function_exists('iconfig')) {
 	}
 }
 
-if (!function_exists("ilogger")) {
+if (!function_exists('ilogger')) {
 	/**
 	 * 返回logger对象
 	 * @return \W7\Core\Log\Logger
@@ -171,7 +175,7 @@ if (!function_exists("ilogger")) {
 	}
 }
 
-if (!function_exists("idb")) {
+if (!function_exists('idb')) {
 	/**
 	 * 返回一个数据库连接对象
 	 * @return \W7\Core\Database\DatabaseManager
@@ -181,7 +185,7 @@ if (!function_exists("idb")) {
 	}
 }
 
-if (!function_exists("icontext")) {
+if (!function_exists('icontext')) {
 	/**
 	 * 返回logger对象
 	 * @return \W7\Core\Helper\Storage\Context
@@ -191,7 +195,7 @@ if (!function_exists("icontext")) {
 	}
 }
 
-if (!function_exists("icache")) {
+if (!function_exists('icache')) {
 	/**
 	 * @return \W7\Core\Cache\Cache
 	 */
@@ -200,7 +204,7 @@ if (!function_exists("icache")) {
 	}
 }
 
-if (!function_exists("irouter")) {
+if (!function_exists('irouter')) {
 	/**
 	 * @return \W7\Core\Route\Route
 	 */
@@ -219,21 +223,22 @@ if (!function_exists('isCo')) {
 	}
 }
 
-if (!function_exists("getClientIp")) {
+if (!function_exists('getClientIp')) {
 	function getClientIp() {
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-			return $_SERVER['HTTP_CLIENT_IP'];
+		$request = App::getApp()->getContext()->getRequest();
+
+		if ($request->getHeader('X-Forwarded-For')) {
+			return $request->getHeader('X-Forwarded-For');
+		}
+		if ($request->getHeader('X-Real-IP')) {
+			return $request->getHeader('X-Real-IP');
 		}
 
-		if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-			return $_SERVER['HTTP_X_FORWARDED_FOR'];
-		}
-
-		return $_SERVER['REMOTE_ADDR'];
+		return $request->getSwooleRequest()->server['remote_addr'];
 	}
 }
 
-if (!function_exists("isWorkerStatus")) {
+if (!function_exists('isWorkerStatus')) {
 	function isWorkerStatus() {
 		if (App::$server === null) {
 			return false;
@@ -268,8 +273,8 @@ if (!function_exists('isetProcessTitle')) {
 }
 
 if (!function_exists('irandom')) {
-	function irandom($length, $numeric = FALSE) {
-		$seed = base_convert(md5(microtime() . $_SERVER['DOCUMENT_ROOT']), 16, $numeric ? 10 : 35);
+	function irandom($length, $numeric = false) {
+		$seed = base_convert(md5(microtime()), 16, $numeric ? 10 : 35);
 		$seed = $numeric ? (str_replace('0', '', $seed) . '012340567890') : ($seed . 'zZ' . strtoupper($seed));
 		if ($numeric) {
 			$hash = '';
@@ -296,9 +301,9 @@ if (!function_exists('idd')) {
 			VarDumper::setHandler(null);
 		} else {
 			foreach ($vars as $var) {
-				echo "<pre>";
+				echo '<pre>';
 				print_r($var);
-				echo "</pre>";
+				echo '</pre>';
 			}
 		}
 		$content = ob_get_clean();
@@ -315,19 +320,6 @@ if (!function_exists('ienv')) {
 			return value($default);
 		}
 
-		//常量解析
-
-		if (strpos($value, '|') !== false || strpos($value, '^') !== false) {
-			$exec = 'return ' . $value . ';';
-			try{
-				$value = eval($exec);
-			} catch (Throwable $e) {
-				//
-			}
-		} else if (defined($value)) {
-			$value = constant($value);
-		}
-
 		switch (strtolower($value)) {
 			case 'true':
 			case '(true)':
@@ -341,6 +333,17 @@ if (!function_exists('ienv')) {
 			case 'null':
 			case '(null)':
 				return;
+		}
+
+		//常量解析
+		$exec = 'return ' . $value . ';';
+		try {
+			$result = @eval($exec);
+			if ($result !== false && $result !== "\0\0\0\0\0\0") {
+				$value = $result;
+			}
+		} catch (Throwable $e) {
+			//
 		}
 
 		if (($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {

@@ -1,12 +1,23 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Provider;
 
+use Illuminate\Filesystem\Filesystem;
 use W7\Core\Route\RouteMapping;
 
 abstract class ProviderAbstract {
-	private $name;
-	private $namespace;
+	protected $name;
+	protected $namespace;
 	/**
 	 * @var \W7\Core\Config\Config
 	 */
@@ -36,22 +47,23 @@ abstract class ProviderAbstract {
 		$this->config = iconfig();
 		$this->router = irouter();
 		$this->logger = ilogger();
-
 	}
 
 	/**
 	 * Register any application services.
 	 * @return void
 	 */
-	public function register() {}
+	public function register() {
+	}
 
 	/**
 	 * boot any application services
 	 * @return mixed
 	 */
-	public function boot() {}
+	public function boot() {
+	}
 
-	protected function registerConfig ($fileName, $key) {
+	protected function registerConfig($fileName, $key) {
 		$this->mergeConfigFrom($this->rootPath . '/config/' . $fileName, $key);
 	}
 
@@ -62,6 +74,23 @@ abstract class ProviderAbstract {
 		], function () use ($fileName) {
 			$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
 		});
+	}
+
+	protected function registerView() {
+		$config = $this->config->getServer();
+		if (empty($config['common']['document_root'])) {
+			throw new \RuntimeException("please set server['common'] ['document_root']");
+		}
+
+		$filesystem = new Filesystem();
+		$config = $this->config->getServer();
+		$config['common']['document_root'] = rtrim($config['common']['document_root'], '/');
+		$flagFilePath = $config['common']['document_root'] . '/' . $this->name . '/view.lock';
+
+		if ($filesystem->exists($this->rootPath . '/view') && !$filesystem->exists($flagFilePath)) {
+			$filesystem->copyDirectory($this->rootPath . '/view', $config['common']['document_root'] . '/' . $this->name);
+			$filesystem->put($flagFilePath, '');
+		}
 	}
 
 	protected function registerProvider($provider) {
@@ -164,7 +193,8 @@ abstract class ProviderAbstract {
 		}
 
 		static::$publishGroups[$group] = array_merge(
-			static::$publishGroups[$group], $paths
+			static::$publishGroups[$group],
+			$paths
 		);
 	}
 

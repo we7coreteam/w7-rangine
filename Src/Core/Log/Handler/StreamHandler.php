@@ -4,15 +4,15 @@
  * @date 18-10-18 下午4:25
  */
 
-namespace W7\Core\Log\Driver;
+namespace W7\Core\Log\Handler;
 
 use Monolog\Formatter\LineFormatter;
-use W7\Core\Log\HandlerInterface;
+use Monolog\Handler\HandlerInterface as MonologInterface;
 
 class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInterface {
 	const SIMPLE_FORMAT = "[%datetime%] [workid:%workid% co/task:%coid%] %channel%.%level_name%: %message% %context% %extra%\n\n";
 
-	static public function getHandler($config) {
+	public static function getHandler($config): MonologInterface {
 		$handler = new static($config['path'], $config['level']);
 		$formatter = new LineFormatter(self::SIMPLE_FORMAT);
 		$formatter->includeStacktraces(true);
