@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Session\Handler;
 
 use Illuminate\Filesystem\Filesystem;
@@ -10,9 +20,7 @@ class FileHandler extends HandlerAbstract {
 	 * @var Filesystem
 	 */
 	private $filesystem;
-	private static $directory;
-	private static $hasSet;
-
+	private $directory;
 
 	protected function init() {
 		$this->filesystem = new Filesystem();
@@ -20,22 +28,16 @@ class FileHandler extends HandlerAbstract {
 	}
 
 	private function setPath() {
-		if (self::$hasSet) {
-			return true;
-		}
+		$this->directory = session_save_path();
+		$this->ensureCacheDirectoryExists($this->directory);
 
-		self::$directory = session_save_path();
-		$this->ensureCacheDirectoryExists(self::$directory);
-
-		if (!file_exists(self::$directory) || !is_writeable(self::$directory) || !is_readable(self::$directory)) {
-			self::$directory = '/tmp/session';
-			$this->ensureCacheDirectoryExists(self::$directory);
+		if (!file_exists($this->directory) || !is_writeable($this->directory) || !is_readable($this->directory)) {
+			$this->directory = '/tmp/session';
+			$this->ensureCacheDirectoryExists($this->directory);
 		}
-		if (!file_exists(self::$directory) || !is_writeable(self::$directory) || !is_readable(self::$directory)) {
-			throw new \RuntimeException('session path ' . self::$directory . ' not exist or no permission');
+		if (!file_exists($this->directory) || !is_writeable($this->directory) || !is_readable($this->directory)) {
+			throw new \RuntimeException('session path ' . $this->directory . ' not exist or no permission');
 		}
-
-		self::$hasSet = true;
 	}
 
 	private function getPayload($key) {
@@ -43,7 +45,9 @@ class FileHandler extends HandlerAbstract {
 
 		try {
 			$expire = substr(
-				$contents = $this->filesystem->get($path, true), 0, 10
+				$contents = $this->filesystem->get($path, true),
+				0,
+				10
 			);
 		} catch (\Throwable $e) {
 			$this->destroy($key);
@@ -61,7 +65,7 @@ class FileHandler extends HandlerAbstract {
 	private function getPath($key) {
 		$parts = array_slice(str_split($hash = sha1($key), 2), 0, 2);
 
-		return self::$directory.'/'.implode('/', $parts).'/'.$hash;
+		return $this->directory . '/'.implode('/', $parts) . '/' . $hash;
 	}
 
 	private function expiration($seconds) {
@@ -74,11 +78,12 @@ class FileHandler extends HandlerAbstract {
 		}
 	}
 
-
 	public function write($session_id, $session_data) {
 		$this->ensureCacheDirectoryExists(dirname($path = $this->getPath($session_id)));
 		$result = $this->filesystem->put(
-			$path, $this->expiration($this->getExpires()).$session_data, true
+			$path,
+			$this->expiration($this->getExpires()).$session_data,
+			true
 		);
 
 		return $result !== false && $result > 0;
@@ -98,7 +103,7 @@ class FileHandler extends HandlerAbstract {
 
 	public function gc($maxlifetime) {
 		$files = Finder::create()
-			->in(self::$directory)
+			->in($this->directory)
 			->files()
 			->ignoreDotFiles(true)
 			->date('<= now - '.$maxlifetime.' seconds');

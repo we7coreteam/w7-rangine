@@ -14,7 +14,7 @@ namespace W7\Core\Session\Handler;
 
 abstract class HandlerAbstract implements \SessionHandlerInterface {
 	protected $config;
-	protected static $expires;
+	protected $expires;
 
 	public function __construct($config) {
 		$this->config = $config;
@@ -25,11 +25,11 @@ abstract class HandlerAbstract implements \SessionHandlerInterface {
 	}
 
 	public function getExpires() {
-		if (static::$expires === null) {
+		if ($this->expires === null) {
 			$userExpires = (int)($this->config['expires'] ?? ini_get('session.gc_maxlifetime'));
-			static::$expires = $userExpires <= 0 ? 0 : $userExpires;
+			$this->expires = $userExpires <= 0 ? 0 : $userExpires;
 		}
-		return static::$expires;
+		return $this->expires;
 	}
 
 	final public function open($save_path, $name) {

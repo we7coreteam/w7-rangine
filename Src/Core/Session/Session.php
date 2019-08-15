@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Session;
 
 use W7\Core\Session\Channel\ChannelAbstract;
@@ -16,11 +26,11 @@ class Session implements SessionInterface {
 	 * @var ChannelAbstract
 	 */
 	private $channel;
+	private static $channelClass;
 	/**
 	 * @var HandlerAbstract
 	 */
-	private $handler;
-
+	private static $handler;
 
 	public function __construct(Request $request) {
 		$this->config = iconfig()->getUserAppConfig('session');
@@ -35,11 +45,16 @@ class Session implements SessionInterface {
 	}
 
 	private function initHandler() {
+		if (self::$handler) {
+			return true;
+		}
+
 		$handler = $this->getHandlerClass();
-		$this->handler = new $handler($this->config);
-		if (!($this->handler instanceof HandlerAbstract)) {
+		$handler = new $handler($this->config);
+		if (!($handler instanceof HandlerAbstract)) {
 			throw new \RuntimeException('session handler must instance of HandlerAbstract');
 		}
+		self::$handler = $handler;
 	}
 
 	private function initChannel(Request $request) {
@@ -52,9 +67,9 @@ class Session implements SessionInterface {
 
 	private function getHandlerClass() {
 		$handler = $this->config['handler'] ?? 'file';
-		$class = sprintf("\\W7\\Core\\Session\\Handler\\%sHandler", ucfirst($handler));
+		$class = sprintf('\\W7\\Core\\Session\\Handler\\%sHandler', ucfirst($handler));
 		if (!class_exists($class)) {
-			$class = sprintf("\\W7\\App\\Handler\\Session\\%sHandler", ucfirst($handler));
+			$class = sprintf('\\W7\\App\\Handler\\Session\\%sHandler', ucfirst($handler));
 		}
 		if (!class_exists($class)) {
 			throw new \RuntimeException('session handler ' . $handler . ' is not support');
@@ -64,16 +79,19 @@ class Session implements SessionInterface {
 	}
 
 	private function getChannelClass() {
-		$channel = $this->config['channel'] ?? 'cookie';
-		$class = sprintf("\\W7\\Core\\Session\\Channel\\%sChannel", ucfirst($channel));
-		if (!class_exists($class)) {
-			$class = sprintf("\\W7\\App\\Channel\\Session\\%sChannel", ucfirst($channel));;
-		}
-		if (!class_exists($class)) {
-			throw new \RuntimeException('session not support this channel');
+		if (!self::$channelClass) {
+			$channel = $this->config['channel'] ?? 'cookie';
+			$class = sprintf('\\W7\\Core\\Session\\Channel\\%sChannel', ucfirst($channel));
+			if (!class_exists($class)) {
+				$class = sprintf('\\W7\\App\\Channel\\Session\\%sChannel', ucfirst($channel));
+			}
+			if (!class_exists($class)) {
+				throw new \RuntimeException('session not support this channel');
+			}
+			self::$channelClass = $class;
 		}
 
-		return $class;
+		return self::$channelClass;
 	}
 
 	private function getGcCondition() {
@@ -94,8 +112,8 @@ class Session implements SessionInterface {
 	}
 
 	private function readSession() {
-		try{
-			$data = unserialize($this->handler->read($this->prefix . $this->getId()));
+		try {
+			$data = unserialize(self::$handler->read($this->prefix . $this->getId()));
 			$data = !is_array($data) ? [] : $data;
 		} catch (\Throwable $e) {
 			$data = [];
@@ -108,7 +126,7 @@ class Session implements SessionInterface {
 		$data = $this->readSession();
 
 		$data[$key] = $value;
-		return $this->handler->write($this->prefix . $this->getId(), serialize($data));
+		return self::$handler->write($this->prefix . $this->getId(), serialize($data));
 	}
 
 	public function get($key, $default = '') {
@@ -118,7 +136,7 @@ class Session implements SessionInterface {
 	}
 
 	public function destroy() {
-		return $this->handler->destroy($this->prefix . $this->getId());
+		return self::$handler->destroy($this->prefix . $this->getId());
 	}
 
 	public function gc() {
@@ -128,7 +146,7 @@ class Session implements SessionInterface {
 		if ($requestNum > $condition) {
 			$requestNum = 0;
 			go(function () use ($requestNum) {
-				$this->handler->gc($this->handler->getExpires());
+				self::$handler->gc(self::$handler->getExpires());
 			});
 		}
 	}
