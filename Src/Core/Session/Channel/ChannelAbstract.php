@@ -40,7 +40,7 @@ abstract class ChannelAbstract {
 	protected function getExpires() {
 		if ($this->expires === null) {
 			$userExpires = (int)($this->config['expires'] ?? ini_get('session.gc_maxlifetime'));
-			$this->expires = time() + $userExpires;
+			$this->expires = $userExpires <= 0 ? 0 : time() + $userExpires;
 		}
 		return $this->expires;
 	}
