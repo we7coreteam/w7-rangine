@@ -29,7 +29,7 @@
 		"filp/whoops": "^2.3"
 	},
 	"require-dev": {
-		"eaglewu/swoole-ide-helper": "dev-master",
+		"swoole/ide-helper": "^4.4",
 		"symfony/var-dumper": "^4.1",
 		"w7/php-cs-fixer": "^1.0"
 	},
