@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
@@ -43,15 +53,17 @@ abstract class ProviderAbstract {
 	 * Register any application services.
 	 * @return void
 	 */
-	public function register() {}
+	public function register() {
+	}
 
 	/**
 	 * boot any application services
 	 * @return mixed
 	 */
-	public function boot() {}
+	public function boot() {
+	}
 
-	protected function registerConfig ($fileName, $key) {
+	protected function registerConfig($fileName, $key) {
 		$this->mergeConfigFrom($this->rootPath . '/config/' . $fileName, $key);
 	}
 
@@ -64,7 +76,7 @@ abstract class ProviderAbstract {
 		});
 	}
 
-	protected function registerView() {
+	protected function registerStaticResource() {
 		$config = $this->config->getServer();
 		if (empty($config['common']['document_root'])) {
 			throw new \RuntimeException("please set server['common'] ['document_root']");
@@ -181,7 +193,8 @@ abstract class ProviderAbstract {
 		}
 
 		static::$publishGroups[$group] = array_merge(
-			static::$publishGroups[$group], $paths
+			static::$publishGroups[$group],
+			$paths
 		);
 	}
 
