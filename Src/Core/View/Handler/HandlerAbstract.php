@@ -13,20 +13,14 @@
 namespace W7\Core\View\Handler;
 
 abstract class HandlerAbstract {
-	protected static $config;
-	protected static $templatePath;
+	protected $config;
+	protected $templatePath;
 
-	public function __construct() {
-		$this->initConfig();
+	public function __construct($config) {
+		$this->config = $config;
+		$this->templatePath = BASE_PATH . '/view';
+
 		$this->init();
-	}
-
-	private function initConfig() {
-		if (static::$templatePath) {
-			return true;
-		}
-		static::$config = iconfig()->getUserAppConfig('view');
-		static::$templatePath = BASE_PATH . '/view';
 	}
 
 	protected function init() {

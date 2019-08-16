@@ -28,9 +28,10 @@ class TwigHandler extends HandlerAbstract {
 			return true;
 		}
 
-		$loader = new FilesystemLoader(self::$templatePath);
+		$loader = new FilesystemLoader($this->templatePath);
 		self::$twig = new Environment($loader);
 		$this->addFunction();
+		$this->addGlobal();
 	}
 
 	private function addFunction() {
@@ -52,6 +53,13 @@ class TwigHandler extends HandlerAbstract {
 		self::$twig->addFunction(new TwigFunction('idd', function () {
 			return idd(...func_get_args());
 		}));
+	}
+
+	private function addGlobal() {
+		self::$twig->addGlobal('__STATIC__', $this->config['static'] ?? '/static/');
+		self::$twig->addGlobal('__CSS__', $this->config['css'] ?? '/static/css/');
+		self::$twig->addGlobal('__JS__', $this->config['js'] ?? '/static/js/');
+		self::$twig->addGlobal('__IMAGES__', $this->config['images'] ?? '/static/images/');
 	}
 
 	public function render($name, $context = []) : string {

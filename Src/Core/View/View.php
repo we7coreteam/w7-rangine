@@ -24,7 +24,7 @@ class View {
 
 	private function getHandler() : HandlerAbstract {
 		$class = $this->getHandlerClass();
-		return new $class();
+		return new $class($this->config);
 	}
 
 	private function getHandlerClass() {
