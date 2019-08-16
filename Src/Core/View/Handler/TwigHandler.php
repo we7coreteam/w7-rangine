@@ -29,7 +29,7 @@ class TwigHandler extends HandlerAbstract {
 		}
 
 		$loader = new FilesystemLoader($this->templatePath);
-		self::$twig = new Environment($loader);
+		self::$twig = new Environment($loader, $this->config);
 		$this->addFunction();
 		$this->addGlobal();
 	}
