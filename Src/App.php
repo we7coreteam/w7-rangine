@@ -68,6 +68,8 @@ class App {
 			BASE_PATH . '/config',
 			BASE_PATH . '/route',
 			BASE_PATH . '/public',
+			BASE_PATH . '/components',
+			BASE_PATH . '/composer.json',
 			RUNTIME_PATH,
 			BASE_PATH . '/vendor',
 			$openBaseDirConfig,
