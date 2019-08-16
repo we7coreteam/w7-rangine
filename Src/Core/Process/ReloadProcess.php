@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-25 下午3:03
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Process;
@@ -10,7 +16,6 @@ use Swoole\Process;
 use W7\App;
 
 class ReloadProcess implements ProcessInterface {
-
 	/**
 	 * 监听文件变化的路径
 	 *
@@ -18,7 +23,8 @@ class ReloadProcess implements ProcessInterface {
 	 */
 	private $watchDir = [
 		APP_PATH,
-		BASE_PATH. DIRECTORY_SEPARATOR. 'config'
+		BASE_PATH. DIRECTORY_SEPARATOR. 'config',
+		BASE_PATH. DIRECTORY_SEPARATOR. 'view'
 	];
 
 	/**
@@ -78,7 +84,7 @@ class ReloadProcess implements ProcessInterface {
 				$server->getServer()->reload();
 
 				if (!$this->debug) {
-					ioutputer()->writeln("Reloaded in " . date('m-d H:i:s') . "...");
+					ioutputer()->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
 				}
 			}
 		}
@@ -102,7 +108,7 @@ class ReloadProcess implements ProcessInterface {
 			if ($entry !== '.' && $entry !== '..') {
 				if (is_dir($dir . '/' . $entry)) {
 					$md5File[] = $this->md5File($dir . '/' . $entry);
-				} elseif (substr($entry, -4) === '.php') {
+				} elseif (substr($entry, -4) === '.php' || substr($entry, -5) === '.html') {
 					$md5File[] = md5_file($dir . '/' . $entry);
 				}
 				$md5File[] = $entry;

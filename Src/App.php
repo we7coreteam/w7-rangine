@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-19 上午10:25
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7;
@@ -30,7 +36,6 @@ class App {
 	 * @var Loader
 	 */
 	private $loader;
-
 
 	public function __construct() {
 		self::$self = $this;
@@ -64,7 +69,8 @@ class App {
 			RUNTIME_PATH,
 			BASE_PATH . '/vendor',
 			$openBaseDirConfig,
-			session_save_path()
+			session_save_path(),
+			BASE_PATH . '/view'
 		];
 		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
@@ -102,7 +108,7 @@ class App {
 	}
 
 	public function runConsole() {
-		try{
+		try {
 			iloader()->singleton(Application::class)->run();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
