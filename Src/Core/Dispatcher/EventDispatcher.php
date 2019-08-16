@@ -15,13 +15,7 @@ namespace W7\Core\Dispatcher;
 use Illuminate\Events\Dispatcher;
 
 class EventDispatcher extends Dispatcher {
-	/**
-	 * @var Dispatcher
-	 */
-	private $dispatcher;
-
 	public function __construct() {
-		$this->dispatcher = new Dispatcher();
 		$this->register();
 	}
 
