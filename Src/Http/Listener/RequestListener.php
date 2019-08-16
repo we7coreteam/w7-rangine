@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-21 上午11:08
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Http\Listener;
@@ -11,10 +17,8 @@ use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
-use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Session\Session;
-use W7\Http\Message\Base\Cookie;
+use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 use W7\Http\Server\Dispather;
@@ -32,7 +36,7 @@ class RequestListener extends ListenerAbstract {
 	 * @throws \ReflectionException
 	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
-		ievent(Event::ON_USER_BEFORE_REQUEST);
+		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST);
 
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
@@ -45,6 +49,6 @@ class RequestListener extends ListenerAbstract {
 		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
-		ievent(Event::ON_USER_AFTER_REQUEST);
+		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 	}
 }

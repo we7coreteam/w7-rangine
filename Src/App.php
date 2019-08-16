@@ -15,6 +15,7 @@ namespace W7;
 use W7\Console\Application;
 use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
+use W7\Core\Database\DatabaseProvider;
 use W7\Core\Helper\Loader;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogManager;
@@ -46,6 +47,7 @@ class App {
 		$this->registerSecurityDir();
 		$this->registerErrorHandler();
 		$this->registerProvider();
+		$this->registerDatabase();
 	}
 
 	private function registerRuntimeEnv() {
@@ -98,6 +100,10 @@ class App {
 
 	private function registerProvider() {
 		iloader()->singleton(ProviderManager::class)->register()->boot();
+	}
+
+	private function registerDatabase() {
+		iloader()->singleton(DatabaseProvider::class)->register();
 	}
 
 	public static function getApp() {

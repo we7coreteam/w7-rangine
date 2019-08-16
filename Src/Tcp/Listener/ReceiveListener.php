@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 19-3-4 下午6:09
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Tcp\Listener;
@@ -9,8 +15,8 @@ namespace W7\Tcp\Listener;
 use W7\App;
 use Swoole\Coroutine;
 use Swoole\Server;
-use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\SwooleEvent;
 use W7\Tcp\Protocol\Dispatcher;
 
 class ReceiveListener extends ListenerAbstract {
@@ -25,13 +31,13 @@ class ReceiveListener extends ListenerAbstract {
 
 	/**
 	 * 根据用户选择的protocol，把data传到对应protocol的dispatcher
-     * @param server $server
-     * @param reactorId $reactorId
-     * @param fd $fd
-     * @param data $data
-     */
+	 * @param server $server
+	 * @param reactorId $reactorId
+	 * @param fd $fd
+	 * @param data $data
+	 */
 	private function dispatch(Server $server, $reactorId, $fd, $data) {
-		ievent(Event::ON_USER_BEFORE_REQUEST);
+		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST);
 
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('reactorid', $reactorId);
@@ -43,6 +49,6 @@ class ReceiveListener extends ListenerAbstract {
 		$protocol = $serverConf['protocol'] ?? '';
 		Dispatcher::dispatch($protocol, $server, $fd, $data);
 
-		ievent(Event::ON_USER_AFTER_REQUEST);
+		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 	}
 }

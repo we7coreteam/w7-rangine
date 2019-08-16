@@ -1,14 +1,20 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-20 上午9:14
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Http\Server;
 
 use Swoole\Http\Server as HttpServer;
 use W7\Core\Server\ServerAbstract;
-use W7\Core\Config\Event;
+use W7\Core\Server\SwooleEvent;
 
 class Server extends ServerAbstract {
 	public $type = parent::TYPE_HTTP;
@@ -20,7 +26,12 @@ class Server extends ServerAbstract {
 		$this->server = $this->getServer();
 		$this->server->set($this->setting);
 
-		ievent(Event::ON_USER_BEFORE_START, [$this->server]);
+		/**
+		 * 该版本暂时放在此, 流程冲突, 在容器分支中移除
+		 */
+		iloader()->singleton(SwooleEvent::class)->register();
+
+		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
