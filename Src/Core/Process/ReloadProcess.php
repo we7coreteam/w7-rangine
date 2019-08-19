@@ -39,20 +39,16 @@ class ReloadProcess implements ProcessInterface {
 	 *
 	 * @var int
 	 */
-	private $interval = 5;
+	private $interval = 1;
 
 	private $enabled = false;
-
-	private $debug = false;
 
 	/**
 	 * 初始化方法
 	 */
 	public function __construct() {
-		$reloadConfig = \iconfig()->getUserAppConfig('reload');
-		$this->interval = !empty($reloadConfig['interval']) ? $reloadConfig['interval'] : $this->interval;
 		$this->enabled = ((ENV & DEBUG) === DEBUG);
-		$this->debug = (bool)$reloadConfig['debug'];
+		$reloadConfig = \iconfig()->getUserAppConfig('reload');
 		$this->watchDir = array_merge($this->watchDir, $reloadConfig['path'] ?? []);
 
 		$this->md5File = $this->getWatchDirMd5();
@@ -66,26 +62,21 @@ class ReloadProcess implements ProcessInterface {
 	}
 
 	public function run(Process $process) {
+		ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
+
 		$server = App::$server;
-		if ($this->debug) {
-			ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
-		}
 		while (true) {
 			sleep($this->interval);
-			if ($this->debug) {
-				$startReload = true;
-			} else {
-				$md5File = $this->getWatchDirMd5();
-				$startReload = (strcmp($this->md5File, $md5File) !== 0);
-				$this->md5File = $md5File;
-			}
+
+			$md5File = $this->getWatchDirMd5();
+			$startReload = (strcmp($this->md5File, $md5File) !== 0);
+			$this->md5File = $md5File;
+
 			if ($startReload) {
 				$server->isRun();
 				$server->getServer()->reload();
 
-				if (!$this->debug) {
-					ioutputer()->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
-				}
+				ioutputer()->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
 			}
 		}
 	}
@@ -103,7 +94,7 @@ class ReloadProcess implements ProcessInterface {
 		}
 
 		$md5File = array();
-		$d	   = dir($dir);
+		$d = dir($dir);
 		while (false !== ($entry = $d->read())) {
 			if ($entry !== '.' && $entry !== '..') {
 				if (is_dir($dir . '/' . $entry)) {
