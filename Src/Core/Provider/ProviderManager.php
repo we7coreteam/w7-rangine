@@ -80,7 +80,7 @@ class ProviderManager {
 			$path = BASE_PATH . '/vendor/' . $conf['name'];
 		}
 
-		$path .= '/src';
+		$path .= '/';
 		return $path;
 	}
 
