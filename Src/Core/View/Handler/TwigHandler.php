@@ -31,7 +31,7 @@ class TwigHandler extends HandlerAbstract {
 		$loader = new FilesystemLoader($this->templatePath);
 		self::$twig = new Environment($loader, $this->config);
 		$this->addFunction();
-		$this->addGlobal();
+		$this->registerConst();
 	}
 
 	private function addFunction() {
@@ -55,7 +55,7 @@ class TwigHandler extends HandlerAbstract {
 		}));
 	}
 
-	private function addGlobal() {
+	private function registerConst() {
 		self::$twig->addGlobal('__STATIC__', $this->config['static'] ?? '/static/');
 		self::$twig->addGlobal('__CSS__', $this->config['css'] ?? '/static/css/');
 		self::$twig->addGlobal('__JS__', $this->config['js'] ?? '/static/js/');
