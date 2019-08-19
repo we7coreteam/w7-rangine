@@ -27,7 +27,8 @@
 		"packaged/thrift": "^0.11.0",
 		"symfony/console": "^4.2",
 		"filp/whoops": "^2.3",
-		"twig/twig": "^2.0"
+		"twig/twig": "^2.0",
+		"smarty/smarty": "^3.1"
 	},
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",
