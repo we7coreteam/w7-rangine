@@ -15,54 +15,33 @@ namespace W7\Core\View\Handler;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
-use W7\App;
 
 class TwigHandler extends HandlerAbstract {
 	/**
 	 * @var Environment
 	 */
-	private static $twig;
+	private $twig;
 
 	protected function init() {
-		if (self::$twig) {
-			return true;
-		}
-
-		$loader = new FilesystemLoader($this->templatePath);
-		self::$twig = new Environment($loader, $this->config);
-		$this->addFunction();
-		$this->registerConst();
+		$loader = new FilesystemLoader(self::$templatePath);
+		$this->twig = new Environment($loader, $this->config);
 	}
 
-	private function addFunction() {
-		self::$twig->addFunction(new TwigFunction('irandom', function () {
-			return irandom(...func_get_args());
-		}));
-		self::$twig->addFunction(new TwigFunction('irequest', function () {
-			return App::getApp()->getContext()->getRequest();
-		}));
-		self::$twig->addFunction(new TwigFunction('icache', function () {
-			return icache();
-		}));
-		self::$twig->addFunction(new TwigFunction('getClientIp', function () {
-			return getClientIp();
-		}));
-		self::$twig->addFunction(new TwigFunction('ienv', function () {
-			return ienv(...func_get_args());
-		}));
-		self::$twig->addFunction(new TwigFunction('idd', function () {
-			return idd(...func_get_args());
-		}));
+	public function registerFunction($name, \Closure $callback) {
+		$this->twig->addFunction(new TwigFunction($name, $callback));
 	}
 
-	private function registerConst() {
-		self::$twig->addGlobal('__STATIC__', $this->config['static'] ?? '/static/');
-		self::$twig->addGlobal('__CSS__', $this->config['css'] ?? '/static/css/');
-		self::$twig->addGlobal('__JS__', $this->config['js'] ?? '/static/js/');
-		self::$twig->addGlobal('__IMAGES__', $this->config['images'] ?? '/static/images/');
+	public function registerConst($name, $value) {
+		$this->twig->addGlobal($name, $value);
+	}
+
+	public function registerObject($name, $object) {
+		$this->registerFunction($name, function () use ($object) {
+			return $object;
+		});
 	}
 
 	public function render($name, $context = []) : string {
-		return self::$twig->render($name, $context);
+		return $this->twig->render($name, $context);
 	}
 }

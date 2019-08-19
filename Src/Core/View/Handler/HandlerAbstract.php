@@ -12,19 +12,85 @@
 
 namespace W7\Core\View\Handler;
 
+use W7\App;
+
 abstract class HandlerAbstract {
 	protected $config;
-	protected $templatePath;
+	protected static $templatePath = [];
+	const __STATIC__ = '__STATIC__';
+	const __CSS__ = '__CSS__';
+	const __JS__ = '__JS__';
+	const __IMAGES__ = '__IMAGES__';
 
 	public function __construct($config) {
 		$this->config = $config;
-		$this->templatePath = BASE_PATH . '/view';
-
+		$this->initTemplatePath();
 		$this->init();
+		$this->registerSystemFunction();
+		$this->registerSystemConst();
+		$this->registerSystemObject();
+	}
+
+	protected function initTemplatePath() {
+		if (!static::$templatePath) {
+			$config = $this->config['template_path'] ?? '';
+			$config = is_array($config) ? $config : [];
+			array_unshift($config, BASE_PATH . '/view');
+			static::$templatePath = $config;
+		}
+
+		return static::$templatePath;
+	}
+
+	protected function getStaticPath() {
+		return $this->config['static'] ?? '/static/';
+	}
+
+	protected function getCssPath() {
+		return $this->config['css'] ?? '/static/css/';
+	}
+
+	protected function getJsPath() {
+		return $this->config['js'] ?? '/static/js/';
+	}
+
+	protected function getImagesPath() {
+		return $this->config['images'] ?? '/static/images/';
 	}
 
 	protected function init() {
 	}
+
+	protected function registerSystemFunction() {
+		$this->registerFunction('irandom', function () {
+			return irandom(...func_get_args());
+		});
+		$this->registerFunction('getClientIp', function () {
+			return getClientIp();
+		});
+		$this->registerFunction('ienv', function () {
+			return ienv(...func_get_args());
+		});
+		$this->registerFunction('idd', function () {
+			return idd(...func_get_args());
+		});
+	}
+
+	protected function registerSystemConst() {
+		$this->registerConst(HandlerAbstract::__STATIC__, $this->getStaticPath());
+		$this->registerConst(HandlerAbstract::__CSS__, $this->getCssPath());
+		$this->registerConst(HandlerAbstract::__JS__, $this->getJsPath());
+		$this->registerConst(HandlerAbstract::__IMAGES__, $this->getImagesPath());
+	}
+
+	protected function registerSystemObject() {
+		$this->registerObject('irequest', App::getApp()->getContext()->getRequest());
+		$this->registerObject('icache', icache());
+	}
+
+	abstract public function registerFunction($name, \Closure $callback);
+	abstract public function registerConst($name, $value);
+	abstract public function registerObject($name, $object);
 
 	abstract public function render($name, $context = []) : string;
 }

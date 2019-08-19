@@ -17,6 +17,9 @@ use W7\Core\View\Handler\HandlerAbstract;
 class View {
 	private $config;
 	private $handlerClass;
+	private $customFunctions = [];
+	private $customConsts = [];
+	private $customObjs = [];
 
 	public function __construct() {
 		$this->config = iconfig()->getUserAppConfig('view');
@@ -43,7 +46,39 @@ class View {
 		return $this->handlerClass;
 	}
 
+	public function addTemplatePath($path) {
+		$this->config['template_path'] = $this->config['template_path'] ?? '';
+		$this->config['template_path'] = is_array($this->config['template_path']) ? $this->config['template_path'] : [];
+		$this->config['template_path'][] = $path;
+	}
+
+	public function registerFunction($name, $callback) {
+		$this->customFunctions[$name] = $callback;
+	}
+
+	public function registerConst($name, $value) {
+		$this->customConsts[$name] = $value;
+	}
+
+	public function registerObject($name, $object) {
+		$this->customObjs[$name] = $object;
+	}
+
+	private function addResourceToHandler(HandlerAbstract $handler) {
+		foreach ($this->customFunctions as $name => $callback) {
+			$handler->registerFunction($name, $callback);
+		}
+		foreach ($this->customConsts as $name => $value) {
+			$handler->registerConst($name, $value);
+		}
+		foreach ($this->customObjs as $name => $object) {
+			$handler->registerObject($name, $object);
+		}
+	}
+
 	public function render($name, $context = []) {
-		return $this->getHandler()->render($name, $context);
+		$handler = $this->getHandler();
+		$this->addResourceToHandler($handler);
+		return $handler->render($name, $context);
 	}
 }
