@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Console\Command;
 
 use Illuminate\Filesystem\Filesystem;
@@ -13,7 +23,6 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 	 */
 	protected $filesystem;
 	protected $name;
-
 
 	protected function configure() {
 		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the generate file name');
@@ -37,7 +46,8 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 		$this->output->info($this->name.' created successfully.');
 	}
 
-	protected function before() {}
+	protected function before() {
+	}
 
 	/**
 	 * Get the stub file for the generator.
@@ -51,7 +61,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 			$this->filesystem->copyDirectory($this->getStub(), $this->rootPath());
 		} else {
 			if (!$this->filesystem->exists($this->rootPath())) {
-				$this->filesystem->makeDirectory($this->rootPath());
+				$this->filesystem->makeDirectory($this->rootPath(), 0755, true);
 			}
 			$this->filesystem->copy($this->getStub(), $this->rootPath() . $this->name . '.stub');
 		}
@@ -85,7 +95,8 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 		}
 	}
 
-	protected function after(){}
+	protected function after() {
+	}
 
 	/**
 	 * Replace the given string in the given file.
