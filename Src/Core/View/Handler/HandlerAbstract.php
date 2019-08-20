@@ -42,22 +42,6 @@ abstract class HandlerAbstract {
 		return static::$templatePath;
 	}
 
-	protected function getStaticPath() {
-		return $this->config['static'] ?? '/static/';
-	}
-
-	protected function getCssPath() {
-		return $this->config['css'] ?? '/static/css/';
-	}
-
-	protected function getJsPath() {
-		return $this->config['js'] ?? '/static/js/';
-	}
-
-	protected function getImagesPath() {
-		return $this->config['images'] ?? '/static/images/';
-	}
-
 	protected function init() {
 	}
 
@@ -77,10 +61,10 @@ abstract class HandlerAbstract {
 	}
 
 	protected function registerSystemConst() {
-		$this->registerConst(HandlerAbstract::__STATIC__, $this->getStaticPath());
-		$this->registerConst(HandlerAbstract::__CSS__, $this->getCssPath());
-		$this->registerConst(HandlerAbstract::__JS__, $this->getJsPath());
-		$this->registerConst(HandlerAbstract::__IMAGES__, $this->getImagesPath());
+		$this->registerConst(HandlerAbstract::__STATIC__, $this->config['static'] ?? '/static/');
+		$this->registerConst(HandlerAbstract::__CSS__, $this->config['css'] ?? '/static/css/');
+		$this->registerConst(HandlerAbstract::__JS__, $this->config['js'] ?? '/static/js/');
+		$this->registerConst(HandlerAbstract::__IMAGES__, $this->config['images'] ?? '/static/images/');
 	}
 
 	protected function registerSystemObject() {
