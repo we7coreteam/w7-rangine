@@ -20,9 +20,9 @@ class SmartyHandler extends HandlerAbstract {
 
 	protected function init() {
 		$this->smarty = new \Smarty();
-		$this->smarty->addTemplateDir(self::$templatePath);
+		$this->smarty->setTemplateDir(self::$templatePath);
 		$this->smarty->setCacheDir($this->config['cache_path'] ?? self::$templatePath[0] . '/cache');
-		$this->smarty->setCompileDir($this->config['cache_path'] ?? self::$templatePath[0] . '/compiler');
+		$this->smarty->setCompileDir($this->config['compiler_path'] ?? self::$templatePath[0] . '/compiler');
 		$this->smarty->debugging = $this->config['debug'];
 		if (!empty($this->config['cache'])) {
 			$this->smarty->caching = 1;
