@@ -13,6 +13,7 @@
 namespace W7\Core\View\Handler;
 
 use Twig\Environment;
+use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 
@@ -25,6 +26,9 @@ class TwigHandler extends HandlerAbstract {
 	protected function init() {
 		$loader = new FilesystemLoader(self::$templatePath, self::$templatePath[0]);
 		$this->twig = new Environment($loader, $this->config);
+		if ($this->config['debug']) {
+			$this->twig->addExtension(new DebugExtension());
+		}
 	}
 
 	public function registerFunction($name, \Closure $callback) {
@@ -36,9 +40,7 @@ class TwigHandler extends HandlerAbstract {
 	}
 
 	public function registerObject($name, $object) {
-		$this->registerFunction($name, function () use ($object) {
-			return $object;
-		});
+		$this->twig->addGlobal($name, $object);
 	}
 
 	public function render($name, $context = []) : string {

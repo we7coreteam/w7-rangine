@@ -13,6 +13,7 @@
 namespace W7\Core\View\Handler;
 
 use W7\App;
+use W7\Core\Exception\DumpException;
 
 abstract class HandlerAbstract {
 	protected $config;
@@ -23,7 +24,9 @@ abstract class HandlerAbstract {
 	const __IMAGES__ = '__IMAGES__';
 
 	public function __construct($config) {
+		$config['debug'] = $config['debug'] ?? ((ENV & DEBUG) === DEBUG);
 		$this->config = $config;
+
 		$this->initTemplatePath();
 		$this->init();
 		$this->registerSystemFunction();
@@ -56,7 +59,11 @@ abstract class HandlerAbstract {
 			return ienv(...func_get_args());
 		});
 		$this->registerFunction('idd', function () {
-			return idd(...func_get_args());
+			try {
+				idd(...func_get_args());
+			} catch (DumpException $e) {
+				echo $e->getMessage();
+			}
 		});
 	}
 
