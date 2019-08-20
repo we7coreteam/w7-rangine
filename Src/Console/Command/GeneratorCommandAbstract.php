@@ -26,6 +26,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 
 	protected function configure() {
 		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the generate file name');
+		$this->addOption('--force', '-f', null, 'force overwrite file');
 		$this->filesystem = new Filesystem();
 	}
 
@@ -36,6 +37,10 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 		$this->name = $options['name'];
 
 		$this->before();
+
+		if (empty($options['force']) && $this->filesystem->exists($this->getRealPath())) {
+			throw new CommandException($this->name . ' already exists!');
+		}
 
 		$this->copyStub();
 		$this->replaceStub();
@@ -124,5 +129,9 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 		$savePath = trim($this->savePath(), '/');
 
 		return BASE_PATH . '/' . $savePath . '/';
+	}
+
+	protected function getRealPath() {
+		return $this->rootPath() . $this->name . '.php';
 	}
 }
