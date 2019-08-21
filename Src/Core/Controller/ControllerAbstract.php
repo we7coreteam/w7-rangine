@@ -14,7 +14,6 @@ namespace W7\Core\Controller;
 
 use Illuminate\Validation\DatabasePresenceVerifier;
 use W7\App;
-use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
@@ -86,11 +85,7 @@ abstract class ControllerAbstract {
 	 * @return Factory;
 	 */
 	private function getValidater() {
-		$translator = iloader()->withClass(Translator::class)->withSingle()->withParams([
-			'loader' => new ArrayLoader(),
-			'locale' => 'zh-CN',
-		])->get();
-
+		$translator = iloader()->singleton(Translator::class);
 		$validate = iloader()->withClass(Factory::class)->withSingle()->withParams([
 			'translator' => $translator,
 		])->get();
