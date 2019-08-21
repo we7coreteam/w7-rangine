@@ -12,7 +12,14 @@
 
 namespace W7\Core\Provider;
 
+use W7\Core\Database\DatabaseProvider;
+use W7\Core\Lang\TranslatorProvider;
+
 class ProviderManager {
+	private $providerMap = [
+		DatabaseProvider::class,
+		TranslatorProvider::class
+	];
 	private static $providers = [];
 
 	/**
@@ -20,6 +27,9 @@ class ProviderManager {
 	 */
 	public function register() {
 		$providerMap = $this->findProviders();
+		foreach ($this->providerMap as $key => $provider) {
+			$providerMap[$provider] = $provider;
+		}
 		foreach ($providerMap as $name => $providers) {
 			$providers = (array) $providers;
 			foreach ($providers as $provider) {
