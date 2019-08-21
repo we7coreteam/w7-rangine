@@ -48,7 +48,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 
 		$this->after();
 
-		$this->output->info($this->name.' created successfully.');
+		$this->output->success($this->name.' created successfully.');
 	}
 
 	protected function before() {
