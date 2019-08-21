@@ -13,6 +13,7 @@
 namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
+use W7\Console\Application;
 use W7\Core\Route\RouteMapping;
 use W7\Core\View\View;
 
@@ -126,8 +127,11 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerCommand($name, $class) {
-		$userCommands = $this->config->getUserConfig('command');
-		$this->config->setUserConfig('command', array_merge($userCommands, [$name => $class]));
+		/**
+		 * @var  Application
+		 */
+		$application = iloader()->singleton(Application::class);
+		$application->add(new $class($name));
 	}
 
 	protected function registerProcess($name, $class) {
