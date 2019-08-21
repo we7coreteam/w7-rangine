@@ -80,7 +80,6 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	protected function restart() {
 		$this->stop();
-		sleep(1);
 		$this->start();
 	}
 }
