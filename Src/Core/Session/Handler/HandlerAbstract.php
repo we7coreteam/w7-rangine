@@ -26,8 +26,8 @@ abstract class HandlerAbstract implements \SessionHandlerInterface {
 
 	public function getExpires() {
 		if ($this->expires === null) {
-			$userExpires = (int)($this->config['expires'] ?? ini_get('session.gc_maxlifetime'));
-			$this->expires = $userExpires <= 0 ? 0 : $userExpires;
+			$configExpires = (int)($this->config['expires'] ?? 0);
+			$this->expires = $configExpires <= 0 ? ini_get('session.gc_maxlifetime') : $configExpires;
 		}
 		return $this->expires;
 	}

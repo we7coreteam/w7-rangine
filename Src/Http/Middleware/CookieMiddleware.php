@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -37,10 +37,10 @@ class CookieMiddleware extends MiddlewareAbstract {
 		if (isset($config['secure'])) {
 			ini_set('session.cookie_secure', $config['secure']);
 		}
-		if (!isset($config['expires'])) {
-			$config['expires'] = ini_get('session.gc_maxlifetime');
+		$config = iconfig()->getUserAppConfig('session');
+		if (isset($config['expires']) && $config['expires'] > 0) {
+			ini_set('session.cookie_lifetime', (int)$config['expires']);
 		}
-		ini_set('session.cookie_lifetime', (int)$config['expires']);
 	}
 
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
