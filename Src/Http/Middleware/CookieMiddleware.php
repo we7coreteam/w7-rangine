@@ -38,7 +38,7 @@ class CookieMiddleware extends MiddlewareAbstract {
 			ini_set('session.cookie_secure', $config['secure']);
 		}
 		$config = iconfig()->getUserAppConfig('session');
-		if (isset($config['expires']) && $config['expires'] > 0) {
+		if (isset($config['expires']) && $config['expires'] >= 0) {
 			ini_set('session.cookie_lifetime', (int)$config['expires']);
 		}
 	}
