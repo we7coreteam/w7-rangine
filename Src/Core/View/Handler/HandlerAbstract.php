@@ -65,6 +65,9 @@ abstract class HandlerAbstract {
 				echo $e->getMessage();
 			}
 		});
+		$this->registerFunction('itrans', function () {
+			return itrans(...func_get_args());
+		});
 	}
 
 	protected function registerSystemConst() {
