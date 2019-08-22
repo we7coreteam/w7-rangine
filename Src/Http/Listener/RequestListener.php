@@ -21,7 +21,7 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
-use W7\Http\Server\Dispather;
+use W7\Http\Server\Dispatcher;
 
 class RequestListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -45,7 +45,7 @@ class RequestListener extends ListenerAbstract {
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
 		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
 
-		$dispather = \iloader()->singleton(Dispather::class);
+		$dispather = \iloader()->singleton(Dispatcher::class);
 		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
