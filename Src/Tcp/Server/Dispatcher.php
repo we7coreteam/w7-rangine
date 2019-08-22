@@ -8,6 +8,6 @@ namespace W7\Tcp\Server;
 
 use W7\Core\Dispatcher\RequestDispatcher;
 
-class Dispather extends RequestDispatcher {
+class Dispatcher extends RequestDispatcher {
 
 }

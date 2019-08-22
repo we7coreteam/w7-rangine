@@ -16,7 +16,7 @@ use W7\Core\Dispatcher\RequestDispatcher;
 use W7\Core\Session\Middleware\SessionMiddleware;
 use W7\Http\Middleware\CookieMiddleware;
 
-class Dispather extends RequestDispatcher {
+class Dispatcher extends RequestDispatcher {
 	public $beforeMiddleware = [
 		[CookieMiddleware::class],
 		[SessionMiddleware::class]
