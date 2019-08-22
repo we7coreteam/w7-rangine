@@ -39,7 +39,7 @@ class SmartyHandler extends HandlerAbstract {
 	}
 
 	public function registerObject($name, $object) {
-		$this->smarty->registerObject($name, $object);
+		$this->smarty->registerObject($name, $object, null, false);
 	}
 
 	public function render($name, $context = []): string {
