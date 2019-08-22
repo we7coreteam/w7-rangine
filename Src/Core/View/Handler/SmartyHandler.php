@@ -23,7 +23,7 @@ class SmartyHandler extends HandlerAbstract {
 		$this->smarty->setTemplateDir(self::$templatePath);
 		$this->smarty->setCacheDir($this->config['cache_path'] ?? self::$templatePath[0] . '/cache');
 		$this->smarty->setCompileDir($this->config['compiler_path'] ?? self::$templatePath[0] . '/compiler');
-		$this->smarty->debugging = $this->config['debug'];
+		$this->smarty->debugging = (ENV & DEBUG) === DEBUG;
 		if (!empty($this->config['cache'])) {
 			$this->smarty->caching = 1;
 			$this->smarty->setCacheLifetime($this->config['life_time'] ?? $this->smarty->cache_lifetime);
@@ -45,6 +45,12 @@ class SmartyHandler extends HandlerAbstract {
 	public function render($name, $context = []): string {
 		foreach ($context as $key => $item) {
 			$this->smarty->assign($key, $item);
+		}
+
+		if ($this->smarty->debugging) {
+			ob_start();
+			$this->smarty->display($name);
+			return ob_get_clean();
 		}
 
 		return $this->smarty->fetch($name);
