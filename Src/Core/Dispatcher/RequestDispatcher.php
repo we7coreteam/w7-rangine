@@ -27,7 +27,7 @@ class RequestDispatcher extends DispatcherAbstract {
 	/**
 	 * @var GroupCountBased
 	 */
-	private $router;
+	protected $router;
 
 	public function dispatch(...$params) {
 		/**
