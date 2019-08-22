@@ -13,6 +13,8 @@
 namespace W7\Console\Io;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Output extends SymfonyStyle {
@@ -25,6 +27,10 @@ class Output extends SymfonyStyle {
 	 * 左边字符
 	 */
 	const LEFT_CHAR = '  ';
+
+	public function __construct() {
+		parent::__construct(new ArgvInput(), new ConsoleOutput());
+	}
 
 	private function writeKey($key) {
 		echo "\033[0;32m$key \e[0m";

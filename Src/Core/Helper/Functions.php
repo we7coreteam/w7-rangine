@@ -18,8 +18,6 @@ use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
 use W7\Core\Lang\Translator;
 use W7\Console\Io\Output;
-use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use W7\Core\Dispatcher\ProcessDispatcher;
 use W7\Core\Dispatcher\ProcessPoolDispatcher;
 use W7\Core\Message\TaskMessage;
@@ -140,7 +138,7 @@ if (!function_exists('iloader')) {
 	 * @return \W7\Core\Helper\Loader
 	 */
 	function iloader() {
-		return \W7\App::getApp()->getLoader();
+		return App::getApp()->getLoader();
 	}
 }
 
@@ -150,7 +148,7 @@ if (!function_exists('ioutputer')) {
 	 * @return W7\Console\Io\Output
 	 */
 	function ioutputer() {
-		return iloader()->withClass(Output::class)->withParams(['input' => new ArgvInput(), 'output' => new ConsoleOutput()])->withSingle()->get();
+		return iloader()->singleton(Output::class);
 	}
 }
 
