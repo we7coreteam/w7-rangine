@@ -12,16 +12,10 @@
 
 namespace W7\Core\Provider;
 
-use W7\Core\Database\CacheModelProvider;
-use W7\Core\Database\DatabaseProvider;
-use W7\Core\Lang\TranslatorProvider;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class ProviderManager {
-	private $providerMap = [
-		DatabaseProvider::class,
-		CacheModelProvider::class,
-		TranslatorProvider::class
-	];
 	private static $providers = [];
 
 	/**
@@ -29,9 +23,6 @@ class ProviderManager {
 	 */
 	public function register() {
 		$providerMap = $this->findProviders();
-		foreach ($this->providerMap as $key => $provider) {
-			$providerMap[$provider] = $provider;
-		}
 		foreach ($providerMap as $name => $providers) {
 			$providers = (array) $providers;
 			foreach ($providers as $provider) {
@@ -63,6 +54,56 @@ class ProviderManager {
 	}
 
 	private function findProviders() {
+		$systemProviders = $this->findSystemProviders();
+		$appProvider = $this->findAppProvider();
+		$vendorProviders = $this->findVendorProviders();
+
+		return array_merge($systemProviders, $appProvider, $vendorProviders);
+	}
+
+	private function findSystemProviders() {
+		$providers = [];
+
+		$dir = dirname(__DIR__, 2);
+		$files = Finder::create()
+			->in($dir)
+			->files()
+			->ignoreDotFiles(true)
+			->name('/^[\w\W\d]+Provider.php$/');
+
+		/**
+		 * @var SplFileInfo $file
+		 */
+		foreach ($files as $file) {
+			$path = str_replace([$dir, '.php', '/'], ['W7', '', '\\'], $file->getRealPath());
+			$providers[$path] = $path;
+		}
+
+		return $providers;
+	}
+
+	private function findAppProvider() {
+		$providers = [];
+
+		$dir = BASE_PATH . '/app';
+		$files = Finder::create()
+			->in($dir)
+			->files()
+			->ignoreDotFiles(true)
+			->name('/^[\w\W\d]+Provider.php$/');
+
+		/**
+		 * @var SplFileInfo $file
+		 */
+		foreach ($files as $file) {
+			$path = str_replace([$dir, '.php', '/'], ['W7/App', '', '\\'], $file->getRealPath());
+			$providers[$path] = $path;
+		}
+
+		return $providers;
+	}
+
+	private function findVendorProviders() {
 		ob_start();
 		require_once BASE_PATH . '/vendor/composer/installed.json';
 		$content = ob_get_clean();
