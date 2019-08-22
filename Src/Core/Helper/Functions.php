@@ -16,7 +16,7 @@ use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
-use Illuminate\Translation\Translator;
+use W7\Core\Lang\Translator;
 use W7\Console\Io\Output;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;

@@ -14,10 +14,10 @@ namespace W7\Core\Controller;
 
 use Illuminate\Validation\DatabasePresenceVerifier;
 use W7\App;
-use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use W7\Core\Exception\HttpException;
+use W7\Core\Lang\Translator;
 use W7\Core\View\View;
 use W7\Http\Message\Server\Request;
 

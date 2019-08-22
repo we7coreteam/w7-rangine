@@ -12,27 +12,10 @@
 
 namespace W7\Core\Lang;
 
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Translation\Translator;
 use W7\Core\Provider\ProviderAbstract;
 
 class TranslatorProvider extends ProviderAbstract {
 	public function register() {
-		$config = iconfig()->getUserAppConfig('setting');
-		iloader()->withClass(Translator::class)->withParams('loader', $this->getFileLoader())->withParams('locale', $config['lang'] ?? 'zh-CN')->withSingle()->get();
-	}
-
-	private function getFileLoader() {
-		$paths = [
-			BASE_PATH . '/vendor/caouecs/laravel-lang/src/',
-			BASE_PATH . '/config/lang/'
-		];
-
-		$loader = new FileLoader(new Filesystem(), '', $paths);
-		if (\is_callable([$loader, 'addJsonPath'])) {
-			$loader->addJsonPath(BASE_PATH . '/vendor/caouecs/laravel-lang/json/');
-			$loader->addJsonPath(BASE_PATH . '/config/lang/json/');
-		}
-		return $loader;
+		iloader()->singleton(Translator::class);
 	}
 }
