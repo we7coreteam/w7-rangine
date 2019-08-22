@@ -1,23 +1,29 @@
 <?php
+
 /**
- * 开启服务之前，先构造中间件数据及路由数据
- * @author donknap
- * @date 18-7-25 下午4:51
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Http\Listener;
 
-use W7\App;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Route\RouteMapping;
-use W7\Core\Helper\Storage\Context;
 use FastRoute\Dispatcher\GroupCountBased;
+use W7\Http\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		$context = App::getApp()->getContext();
-		//注册路由的时候会调用中间件生成，所以要先生成路由再中间件
-		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());
+		/**
+		 * @var Dispatcher $requestDispatcher
+		 */
+		$requestDispatcher = iloader()->singleton(Dispatcher::class);
+		$requestDispatcher->setRouter($this->getRoute());
 		return true;
 	}
 
