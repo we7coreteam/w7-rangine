@@ -17,7 +17,6 @@ use Swoole\Process;
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Exception\CommandException;
-use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
 	const TYPE_HTTP = 'http';
@@ -138,7 +137,6 @@ abstract class ServerAbstract implements ServerInterface {
 		$this->registerSwooleEventListener();
 		$this->registerProcesser();
 		$this->registerServerContext();
-		$this->registerCacheModel();
 	}
 
 	protected function registerProcesser() {
@@ -212,13 +210,6 @@ abstract class ServerAbstract implements ServerInterface {
 					iloader()->singleton(EventDispatcher::class)->dispatch($eventName, func_get_args());
 				});
 			}
-		}
-	}
-
-	protected function registerCacheModel() {
-		$config = iconfig()->getUserAppConfig('cache');
-		if (!empty($config['default']) && !empty($config['default']['model']) && !empty($config['default']['host']) && !empty($config['default']['port'])) {
-			Cache::setCacheResolver(icache());
 		}
 	}
 }

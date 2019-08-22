@@ -12,12 +12,14 @@
 
 namespace W7\Core\Provider;
 
+use W7\Core\Database\CacheModelProvider;
 use W7\Core\Database\DatabaseProvider;
 use W7\Core\Lang\TranslatorProvider;
 
 class ProviderManager {
 	private $providerMap = [
 		DatabaseProvider::class,
+		CacheModelProvider::class,
 		TranslatorProvider::class
 	];
 	private static $providers = [];
