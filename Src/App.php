@@ -40,12 +40,17 @@ class App {
 	public function __construct() {
 		self::$self = $this;
 
-		//初始化配置
-		iconfig();
-		$this->registerRuntimeEnv();
-		$this->registerSecurityDir();
-		$this->registerErrorHandler();
-		$this->registerProvider();
+		try {
+			//初始化配置
+			iconfig();
+			$this->registerRuntimeEnv();
+			$this->registerSecurityDir();
+			$this->registerErrorHandler();
+			$this->registerProvider();
+		} catch (\Throwable $e) {
+			ioutputer()->error($e->getMessage());
+			throw $e;
+		}
 	}
 
 	private function registerRuntimeEnv() {
