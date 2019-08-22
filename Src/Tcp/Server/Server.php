@@ -23,14 +23,10 @@ class Server extends ServerAbstract {
 		$this->server = new TcpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
 		$this->server->set($this->setting);
 
-		/**
-		 * 该版本暂时放在此, 流程冲突, 在容器分支中移除
-		 */
-		iloader()->singleton(SwooleEvent::class)->register();
-
-		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
 		//执行一些公共操作，注册事件等
 		$this->registerService();
+
+		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
 
 		$this->server->start();
 	}

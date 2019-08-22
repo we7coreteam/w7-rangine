@@ -136,7 +136,6 @@ abstract class ServerAbstract implements ServerInterface {
 	public function registerService() {
 		$this->registerSwooleEventListener();
 		$this->registerProcesser();
-		$this->registerServerContext();
 	}
 
 	protected function registerProcesser() {
@@ -175,15 +174,11 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 	}
 
-	protected function registerServerContext() {
-		$contextObj = App::getApp()->getContext();
-		$this->server->context = $contextObj->getContextData();
-	}
-
 	protected function registerSwooleEventListener() {
-		$eventTypes = [$this->type, 'task', 'manage'];
+		iloader()->singleton(SwooleEvent::class)->register();
 
 		$swooleEvents = iloader()->singleton(SwooleEvent::class)->getDefaultEvent();
+		$eventTypes = [$this->type, 'task', 'manage'];
 		foreach ($eventTypes as $name) {
 			$event = $swooleEvents[$name];
 			if (!empty($event)) {
