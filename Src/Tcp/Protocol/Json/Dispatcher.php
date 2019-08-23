@@ -28,8 +28,11 @@ class Dispatcher implements DispatcherInterface {
 		$psr7Request = $psr7Request->withParsedBody($params['data']);
 		$psr7Response = new Response();
 
-		$dispather = \iloader()->singleton(RequestDispatcher::class);
-		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
+		/**
+		 * @var RequestDispatcher $dispatcher
+		 */
+		$dispatcher = \iloader()->singleton(RequestDispatcher::class);
+		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
 		$content = $psr7Response->getBody()->getContents();
 		$server->send($fd, $content);

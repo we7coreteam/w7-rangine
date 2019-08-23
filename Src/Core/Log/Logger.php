@@ -1,10 +1,18 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-10-18 下午7:31
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Log;
+
+use Monolog\Handler\BufferHandler;
 
 class Logger extends \Monolog\Logger {
 	/**
@@ -29,6 +37,9 @@ class Logger extends \Monolog\Logger {
 	}
 
 	private function flushLog() {
+		/**
+		 * @var BufferHandler $handler
+		 */
 		foreach ($this->getHandlers() as $handler) {
 			$handler->flush();
 		}

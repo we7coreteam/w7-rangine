@@ -31,10 +31,11 @@ class ReceiveListener extends ListenerAbstract {
 
 	/**
 	 * 根据用户选择的protocol，把data传到对应protocol的dispatcher
-	 * @param server $server
-	 * @param reactorId $reactorId
-	 * @param fd $fd
-	 * @param data $data
+	 * @param Server $server
+	 * @param $reactorId
+	 * @param $fd
+	 * @param $data
+	 * @throws \Exception
 	 */
 	private function dispatch(Server $server, $reactorId, $fd, $data) {
 		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST);

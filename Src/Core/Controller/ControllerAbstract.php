@@ -85,7 +85,13 @@ abstract class ControllerAbstract {
 	 * @return Factory;
 	 */
 	private function getValidater() {
+		/**
+		 * @var Translator $translator
+		 */
 		$translator = iloader()->singleton(Translator::class);
+		/**
+		 * @var Factory $validate
+		 */
 		$validate = iloader()->withClass(Factory::class)->withSingle()->withParams([
 			'translator' => $translator,
 		])->get();

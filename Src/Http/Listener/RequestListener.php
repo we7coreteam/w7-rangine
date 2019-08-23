@@ -30,10 +30,10 @@ class RequestListener extends ListenerAbstract {
 	}
 
 	/**
+	 * @param Server $server
 	 * @param Request $request
 	 * @param Response $response
-	 * @return \Psr\Http\Message\ResponseInterface|Response
-	 * @throws \ReflectionException
+	 * @throws \Exception
 	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
 		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST);
@@ -45,8 +45,11 @@ class RequestListener extends ListenerAbstract {
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
 		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
 
-		$dispather = \iloader()->singleton(Dispatcher::class);
-		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
+		/**
+		 * @var Dispatcher $dispatcher
+		 */
+		$dispatcher = \iloader()->singleton(Dispatcher::class);
+		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
 		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);

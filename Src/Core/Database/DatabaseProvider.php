@@ -52,6 +52,9 @@ class DatabaseProvider extends ProviderAbstract {
 		$container->instance('db.connector.mysql', new ConnectorManager());
 
 		//侦听sql执行完后的事件，回收$connection
+		/**
+		 * @var EventDispatcher $dbDispatch
+		 */
 		$dbDispatch = iloader()->singleton(EventDispatcher::class);
 		$dbDispatch->setContainer($container);
 

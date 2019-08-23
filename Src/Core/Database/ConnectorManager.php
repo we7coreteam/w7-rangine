@@ -1,26 +1,30 @@
 <?php
+
 /**
- * 创建数据库连接管理器，将判断是直接返回还是创建连接池
- * @author donknap
- * @date 18-10-24 下午3:31
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Database;
-
 
 use Illuminate\Database\Connectors\MySqlConnector;
 use W7\Core\Database\Connector\SwooleMySqlConnector;
 use W7\Core\Database\Pool\Pool;
 
 class ConnectorManager {
-	private $poolconfig;
+	private $poolConfig;
 	private $pool;
 	private $mySqlConnector; //swoole的协程mysql连接
 	private $pdoConnector; //laravel原始的Pdo连接
 	private $defaultConnection;
 
 	public function __construct() {
-		$this->poolconfig = \iconfig()->getUserAppConfig('pool')['database'] ?? [];
+		$this->poolConfig = \iconfig()->getUserAppConfig('pool')['database'] ?? [];
 	}
 
 	/**
@@ -30,7 +34,7 @@ class ConnectorManager {
 	 */
 	public function connect(array $config) {
 		//未设置连接池时，直接返回数据连接对象
-		if (empty($this->poolconfig[$config['name']]) || empty($this->poolconfig[$config['name']]['enable'])) {
+		if (empty($this->poolConfig[$config['name']]) || empty($this->poolConfig[$config['name']]['enable'])) {
 			return $this->getDefaultConnection($config);
 		}
 		$pool = $this->getPool($config['name'], $config);
@@ -52,7 +56,7 @@ class ConnectorManager {
 		$pool = new Pool($name);
 		$pool->setConfig($option);
 		$pool->setCreator($this->getDefaultConnector($option['driver']));
-		$pool->setMaxCount($this->poolconfig[$name]['max']);
+		$pool->setMaxCount($this->poolConfig[$name]['max']);
 
 		$this->pool[$name] = $pool;
 		return $this->pool[$name];
@@ -76,9 +80,6 @@ class ConnectorManager {
 	private function getDefaultConnection($config) {
 		ilogger()->channel('database')->debug('create connection without pool');
 
-		if (!empty($this->defaultConnection)) {
-			//return $this->defaultConnection;
-		}
 		$this->defaultConnection = $this->getDefaultConnector($config['driver'])->connect($config);
 		return $this->defaultConnection;
 	}
