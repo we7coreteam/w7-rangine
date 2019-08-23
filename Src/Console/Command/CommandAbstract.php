@@ -28,7 +28,6 @@ abstract class CommandAbstract extends Command {
 	 * @var Output
 	 */
 	protected $output;
-	public static $isRegister;
 
 	public function __construct(string $name = null) {
 		parent::__construct($name);
