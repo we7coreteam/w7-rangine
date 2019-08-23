@@ -78,7 +78,7 @@ class ConnectorManager {
 	}
 
 	private function getDefaultConnection($config) {
-		ilogger()->channel('database')->debug('create connection without pool');
+		ilogger()->channel('database')->debug($config['name'] . ' create connection without pool');
 
 		$this->defaultConnection = $this->getDefaultConnector($config['driver'])->connect($config);
 		return $this->defaultConnection;
