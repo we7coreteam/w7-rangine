@@ -1,19 +1,22 @@
 <?php
+
 /**
- * 服务父类，实现一些公共操作
- * @author donknap
- * @date 18-7-20 上午9:32
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Server;
 
-use W7\App;
+use Illuminate\Support\Str;
 use Swoole\Process;
-use W7\Core\Config\Event;
-use W7\Core\Crontab\CrontabServer;
+use W7\App;
+use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Exception\CommandException;
-use W7\Core\Process\Pool\DependentPool;
-use W7\Core\Process\ProcessServer;
 
 abstract class ServerAbstract implements ServerInterface {
 	const TYPE_HTTP = 'http';
@@ -121,6 +124,7 @@ abstract class ServerAbstract implements ServerInterface {
 				usleep(10000);
 			}
 		}
+
 		if (!file_exists($this->setting['pid_file'])) {
 			return true;
 		} else {
@@ -132,7 +136,6 @@ abstract class ServerAbstract implements ServerInterface {
 	public function registerService() {
 		$this->registerSwooleEventListener();
 		$this->registerProcesser();
-		return true;
 	}
 
 	protected function registerProcesser() {
@@ -150,7 +153,7 @@ abstract class ServerAbstract implements ServerInterface {
 				}
 
 				if (!class_exists($row['class'])) {
-					$row['class'] = sprintf("\\W7\\App\\Process\\%s", Str::studly($row['class']));
+					$row['class'] = sprintf('\\W7\\App\\Process\\%s', Str::studly($row['class']));
 				}
 
 				if (!class_exists($row['class'])) {
@@ -172,10 +175,12 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerSwooleEventListener() {
-		$event = [$this->type, 'task', 'manage'];
-		
-		foreach ($event as $name) {
-			$event = \iconfig()->getEvent()[$name];
+		iloader()->get(SwooleEvent::class)->register();
+
+		$swooleEvents = iloader()->get(SwooleEvent::class)->getDefaultEvent();
+		$eventTypes = [$this->type, 'task', 'manage'];
+		foreach ($eventTypes as $name) {
+			$event = $swooleEvents[$name];
 			if (!empty($event)) {
 				$this->registerEvent($event);
 			}
@@ -190,14 +195,15 @@ abstract class ServerAbstract implements ServerInterface {
 			if (empty($class)) {
 				continue;
 			}
-			$object = \iloader()->get($class);
-			if ($eventName == Event::ON_REQUEST) {
+			if ($eventName == SwooleEvent::ON_REQUEST) {
 				$server = \W7\App::$server->server;
-				$this->server->on(Event::ON_REQUEST, function ($request, $response) use ($server, $object) {
-					$object->run($server, $request, $response);
+				$this->server->on(SwooleEvent::ON_REQUEST, function ($request, $response) use ($server) {
+					iloader()->get(EventDispatcher::class)->dispatch(SwooleEvent::ON_REQUEST, [$server, $request, $response]);
 				});
 			} else {
-				$this->server->on($eventName, [$object, 'run']);
+				$this->server->on($eventName, function () use ($eventName) {
+					iloader()->get(EventDispatcher::class)->dispatch($eventName, func_get_args());
+				});
 			}
 		}
 	}

@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-19 上午10:25
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7;
@@ -10,18 +16,16 @@ use W7\Console\Application;
 use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
 use W7\Core\Container\Container;
-use W7\Core\Container\Context;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogManager;
+use W7\Core\Helper\Storage\Context;
 use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
+use Whoops\Handler\PlainTextHandler;
+use Whoops\Run;
 
 class App {
-	/**
-	 * @var App
-	 */
 	private static $self;
-
 	/**
 	 * 服务器对象
 	 *
@@ -33,44 +37,95 @@ class App {
 	 */
 	private $container;
 
-
 	public function __construct() {
-		static::$self = $this;
+		self::$self = $this;
 
-		$this->registerContainer();
-		$this->registerRuntimeEnv();
-		$this->registerProvider();
-	}
-
-	private function registerContainer() {
-		$this->container = new Container();
+		try {
+			//初始化配置
+			iconfig();
+			$this->registerRuntimeEnv();
+			$this->registerSecurityDir();
+			$this->registerErrorHandler();
+			$this->registerProvider();
+		} catch (\Throwable $e) {
+			ioutputer()->error($e->getMessage());
+			throw $e;
+		}
 	}
 
 	private function registerRuntimeEnv() {
 		date_default_timezone_set('Asia/Shanghai');
+	}
+
+	private function registerSecurityDir() {
+		//设置安全限制目录
+		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?? [];
+		if (is_array($openBaseDirConfig)) {
+			$openBaseDirConfig = implode(':', $openBaseDirConfig);
+		}
+
+		$openBaseDir = [
+			'/tmp',
+			sys_get_temp_dir(),
+			APP_PATH,
+			BASE_PATH . '/config',
+			BASE_PATH . '/route',
+			BASE_PATH . '/public',
+			BASE_PATH . '/components',
+			BASE_PATH . '/composer.json',
+			RUNTIME_PATH,
+			BASE_PATH . '/vendor',
+			$openBaseDirConfig,
+			session_save_path(),
+			BASE_PATH . '/view'
+		];
+		ini_set('open_basedir', implode(':', $openBaseDir));
+	}
+
+	private function registerErrorHandler() {
 		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
 		$setting = iconfig()->getUserAppConfig('setting');
 		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
 		error_reporting($errorLevel);
+
+		/**
+		 * 设置错误信息接管
+		 */
+		$processer = new Run();
+		$handle = new PlainTextHandler($this->getLogger());
+		if ((ENV & BACKTRACE) !== BACKTRACE) {
+			$handle->addTraceToOutput(false);
+			$handle->addPreviousToOutput(false);
+		}
+		$processer->prependHandler($handle);
+		$processer->allowQuit(false);
+		$processer->writeToOutput(false);
+		$processer->register();
 	}
 
 	private function registerProvider() {
-		$this->container->get(ProviderManager::class)->register()->boot();
+		iloader()->get(ProviderManager::class)->register()->boot();
+	}
+
+	public static function getApp() {
+		if (!self::$self) {
+			new static();
+		}
+		return self::$self;
 	}
 
 	public function runConsole() {
-		try{
-			(new Application())->run();
+		try {
+			iloader()->get(Application::class)->run();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
 		}
 	}
 
-	public static function getApp() {
-		return self::$self;
-	}
-
-	public function getLoader() {
+	public function getContainer() {
+		if (empty($this->container)) {
+			$this->container = new Container();
+		}
 		return $this->container;
 	}
 
@@ -81,7 +136,7 @@ class App {
 		/**
 		 * @var LogManager $logManager
 		 */
-		$logManager = $this->container->get(LogManager::class);
+		$logManager = iloader()->get(LogManager::class);
 		return $logManager->getDefaultChannel();
 	}
 
@@ -89,11 +144,11 @@ class App {
 	 * @return Context
 	 */
 	public function getContext() {
-		return $this->container->get(Context::class);
+		return $this->getContainer()->get(Context::class);
 	}
 
 	public function getConfigger() {
-		return $this->container->get(Config::class);
+		return $this->getContainer()->get(Config::class);
 	}
 
 	/**
@@ -103,6 +158,7 @@ class App {
 		/**
 		 * @var Cache $cache;
 		 */
-		return $this->container->get(Cache::class);
+		$cache = $this->getContainer()->get(Cache::class);
+		return $cache;
 	}
 }

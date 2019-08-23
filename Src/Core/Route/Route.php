@@ -1,13 +1,20 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-12-17 下午8:18
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Route;
 
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
+use W7\App;
 
 class Route {
 	const METHOD_POST = 'POST';
@@ -146,12 +153,70 @@ class Route {
 	}
 
 	/**
+	 * 注册一个直接跳转路由
+	 * @param $uri
+	 * @param $destination
+	 * @param int $status
+	 */
+	public function redirect($uri, $destination, $status = 301) {
+		throw new \InvalidArgumentException('还未实现');
+	}
+
+	/**
+	 * 注册一个直接显示的静态页
+	 * @param $uri
+	 * @param string $view
+	 * @param array $data
+	 */
+	public function view($uri, string $view) {
+		$this->add([self::METHOD_GET, self::METHOD_HEAD], $uri, $view);
+	}
+
+	private function getStaticResourceHandle($view, $data = []) {
+		if (\swoole_version() < '4.4.0') {
+			throw new \RuntimeException('Please upgrade swoole to 4.4.0 or later');
+		}
+		$module = $this->getModule();
+		return function () use ($view, $data, $module) {
+			App::$server->setting['static_handler_locations'] = App::$server->setting['static_handler_locations'] ?? [];
+			App::$server->setting['static_handler_locations'][] = $view;
+			App::$server->getServer()->set(App::$server->setting);
+
+			$view = ltrim($view, '/');
+			//如果是通过provider注册的，自动补充前缀
+			if ($module !== $this->defaultModule) {
+				$view = $module . '/' . $view;
+			}
+
+			return App::getApp()->getContext()->getResponse()->redirect('/' . $view);
+		};
+	}
+
+	private function isStaticResource($resource) {
+		if (is_string($resource)) {
+			$config = iconfig()->getServer();
+			if (!empty($config['common']['document_root'])) {
+				$module = $this->getModule() === $this->defaultModule ? '' : '/' . $this->getModule();
+				$path = rtrim($config['common']['document_root'], '/') . $module . '/' . ltrim($resource);
+				return file_exists($path);
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * 注册一个支持多种协议的路由
 	 * @param $methods
 	 * @param $uri
 	 * @param $handler
+	 * @param string $name
+	 * @return bool
 	 */
 	public function add($methods, $uri, $handler, $name = '') {
+		if ($this->isStaticResource($handler)) {
+			return $this->add($methods, $uri, $this->getStaticResourceHandle($handler), $name);
+		}
 		$handler = $this->checkHandler($handler);
 
 		if (empty($methods)) {
@@ -201,26 +266,6 @@ class Route {
 
 		$this->router->addRoute($methods, $uri, $routeHandler);
 		return true;
-	}
-
-	/**
-	 * 注册一个直接跳转路由
-	 * @param $uri
-	 * @param $destination
-	 * @param int $status
-	 */
-	public function redirect($uri, $destination, $status = 301) {
-		throw new \InvalidArgumentException('还未实现');
-	}
-
-	/**
-	 * 注册一个直接显示的静态页
-	 * @param $uri
-	 * @param $view
-	 * @param array $data
-	 */
-	public function view($uri, $view, $data = []) {
-		throw new \InvalidArgumentException('还未实现');
 	}
 
 	public function resource($name, $controller, $options = []) {

@@ -1,37 +1,46 @@
 <?php
+
 /**
- * 缓存连接管理
- * @author donknap
- * @date 18-12-30 上午11:59
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Cache;
 
-use W7\App;
-use W7\Core\Cache\Connection\ConnectionAbstract;
+use Psr\SimpleCache\CacheInterface;
+use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\Pool;
 
 class ConnectorManager {
-	private $poolConfig;
 	private $config;
 	private $pool;
 	
 	public function __construct() {
 		$this->pool = [];
 		$this->config['connection'] = \iconfig()->getUserAppConfig('cache') ?? [];
-		$this->poolConfig = \iconfig()->getUserAppConfig('pool')['cache'] ?? [];
+		$this->config['pool'] = \iconfig()->getUserAppConfig('pool')['cache'] ?? [];
 	}
 
-	public function connect($name = 'default') {
+	public function connect($name = 'default') : CacheInterface {
 		$config = $this->config['connection'][$name] ?? [];
+		$poolConfig = $this->config['pool'][$name] ?? [];
 
 		if (empty($config)) {
 			throw new \RuntimeException('Cache is not configured.');
 		}
 
-		//未在协程中则不启用连接池
-		if (!isCo() || empty($this->poolConfig['enable'])) {
-			return $this->getConnectorManager($config)->connect($config);
+		if (!$poolConfig || empty($poolConfig['enable'])) {
+			ilogger()->channel('cache')->debug('create connection without pool');
+			/**
+			 * @var HandlerAbstract $handlerClass
+			 */
+			$handlerClass = $this->checkHandler($config['driver']);
+			return $handlerClass::getHandler($config);
 		}
 
 		return $this->getPool($name)->getConnection();
@@ -48,35 +57,40 @@ class ConnectorManager {
 
 	/**
 	 * @param $name
-	 * @return Pool
+	 * @return mixed
 	 */
-	private function getPool($name, $config) {
+	private function getPool($name) {
 		if (!empty($this->pool[$name])) {
 			return $this->pool[$name];
 		}
+
+		$config = $this->config['connection'][$name];
+		$poolConfig = $this->config['pool'][$name];
+
 		$pool = new Pool($name);
 		$pool->setConfig($config);
-		$pool->setCreator($this->getConnectorManager($config));
-		$pool->setMaxCount($this->poolConfig[$name]['max']);
+		$pool->setCreator($this->checkHandler($config['driver']));
+		$pool->setMaxCount($poolConfig['max'] ?? 1);
 
 		$this->pool[$name] = $pool;
 		return $this->pool[$name];
 	}
 
-	private function checkDriverSupport($driver) {
-		$className = sprintf("\\W7\\Core\\Cache\\Connection\\%sConnection", ucfirst($driver));
+	private function checkHandler($handler) {
+		$className = sprintf('\\W7\\Core\\Cache\\Handler\\%sHandler', ucfirst($handler));
 		if (!class_exists($className)) {
-			throw new \RuntimeException('This cache driver is not supported');
+			//处理自定义的handler
+			$className = sprintf('\\W7\\App\\Handler\\Cache\\%sHandler', ucfirst($handler));
 		}
-		return $className;
-	}
+		if (!class_exists($className)) {
+			throw new \RuntimeException('cache handler ' . $handler . ' is not supported');
+		}
 
-	private function getConnectorManager($config) {
-		$connectionClass = $this->checkDriverSupport($config['driver']);
-		/**
-		 * @var ConnectionAbstract $connection
-		 */
-		$connection = iloader()->get($connectionClass);
-		return $connection;
+		$reflectClass = new \ReflectionClass($className);
+		if (!in_array(CacheInterface::class, array_keys($reflectClass->getInterfaces()))) {
+			throw new \RuntimeException('please implements Psr\SimpleCache\CacheInterface');
+		}
+
+		return $className;
 	}
 }

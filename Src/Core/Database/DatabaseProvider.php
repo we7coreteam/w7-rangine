@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Database;
 
 use Illuminate\Container\Container;
@@ -10,26 +20,24 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
-use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Fluent;
 use W7\App;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
+use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
 	public function register() {
-		// TODO: Implement register() method.
-		iloader()->set('model-container', function () {
-			return new Container();
-		});
-		iloader()->set('events', function () {
-			return new Dispatcher(iloader()->get('model-container'));
-		});
-
 		$this->registerDb();
 	}
 
+	/**
+	 * model -> newQuery -> DatabaseMananger -> function connection ->
+	 *      Factory -> createConnector 拿到一个Pdo连接 （ConnectorManager -> 从连接池里拿一个Pdo连接） -> createConnection 放置Pdo连接，生成连接操作对象 (PdoMysqlConnection)
+	 *
+	 * @return bool
+	 */
 	private function registerDb() {
 		//新增swoole连接mysql的方式
 		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
@@ -39,13 +47,17 @@ class DatabaseProvider extends ProviderAbstract {
 			return new PdoMysqlConnection($connection, $database, $prefix, $config);
 		});
 
-		//新增swoole连接Mysql的容器
-		$container = iloader()->get('model-container');
+		$container = new Container();
 		$container->instance('db.connector.swoolemysql', new ConnectorManager());
 		$container->instance('db.connector.mysql', new ConnectorManager());
 
 		//侦听sql执行完后的事件，回收$connection
-		$dbDispatch = iloader()->get('events');
+		/**
+		 * @var EventDispatcher $dbDispatch
+		 */
+		$dbDispatch = iloader()->get(EventDispatcher::class);
+		$dbDispatch->setContainer($container);
+
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
 			/**
 			 *检测是否是事物里面的query
@@ -89,7 +101,7 @@ class DatabaseProvider extends ProviderAbstract {
 
 	private function releaseDb($data, $container) {
 		$connection = $data->connection;
-		ilogger()->channel('database')->debug($data->sql ?? '' . ', params: ' . implode(',', $data->bindings ?? []));
+		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings)));
 
 		$poolName = $connection->getPoolName();
 		if (empty($poolName)) {
@@ -105,6 +117,10 @@ class DatabaseProvider extends ProviderAbstract {
 			return false;
 		}
 		$connectorManager = $container->make('db.connector.' . $poolType);
-		$connectorManager->release($activePdo);
+		$pool = $connectorManager->getCreatedPool($poolName);
+		if (empty($pool)) {
+			return true;
+		}
+		$pool->releaseConnection($activePdo);
 	}
 }

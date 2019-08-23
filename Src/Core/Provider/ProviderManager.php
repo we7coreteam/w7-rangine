@@ -1,25 +1,21 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Provider;
 
-use W7\Console\ConsoleProvider;
-use W7\Core\Cache\CacheProvider;
-use W7\Core\Database\DatabaseProvider;
-use W7\Core\Exception\ExceptionProvider;
-use W7\Core\Filesystem\FilesystemProvider;
-use W7\Core\Lang\TranslatorProvider;
-use W7\Core\Validation\ValidateProvider;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class ProviderManager {
-	private $providerMap = [
-		ExceptionProvider::class,
-		ConsoleProvider::class,
-		FilesystemProvider::class,
-		CacheProvider::class,
-		DatabaseProvider::class,
-		TranslatorProvider::class,
-		ValidateProvider::class
-	];
 	private static $providers = [];
 
 	/**
@@ -27,15 +23,13 @@ class ProviderManager {
 	 */
 	public function register() {
 		$providerMap = $this->findProviders();
-		foreach ($this->providerMap as $key => $provider) {
-			$providerMap[$provider] = $provider;
-		}
 		foreach ($providerMap as $name => $providers) {
 			$providers = (array) $providers;
 			foreach ($providers as $provider) {
 				$this->registerProvider($provider, $name);
 			}
 		}
+		return $this;
 	}
 
 	public function registerProvider($provider, $name = null) {
@@ -60,6 +54,56 @@ class ProviderManager {
 	}
 
 	private function findProviders() {
+		$systemProviders = $this->findSystemProviders();
+		$appProvider = $this->findAppProvider();
+		$vendorProviders = $this->findVendorProviders();
+
+		return array_merge($systemProviders, $appProvider, $vendorProviders);
+	}
+
+	private function findSystemProviders() {
+		$providers = [];
+
+		$dir = dirname(__DIR__, 2);
+		$files = Finder::create()
+			->in($dir)
+			->files()
+			->ignoreDotFiles(true)
+			->name('/^[\w\W\d]+Provider.php$/');
+
+		/**
+		 * @var SplFileInfo $file
+		 */
+		foreach ($files as $file) {
+			$path = str_replace([$dir, '.php', '/'], ['W7', '', '\\'], $file->getRealPath());
+			$providers[$path] = $path;
+		}
+
+		return $providers;
+	}
+
+	private function findAppProvider() {
+		$providers = [];
+
+		$dir = BASE_PATH . '/app';
+		$files = Finder::create()
+			->in($dir)
+			->files()
+			->ignoreDotFiles(true)
+			->name('/^[\w\W\d]+Provider.php$/');
+
+		/**
+		 * @var SplFileInfo $file
+		 */
+		foreach ($files as $file) {
+			$path = str_replace([$dir, '.php', '/'], ['W7/App', '', '\\'], $file->getRealPath());
+			$providers[$path] = $path;
+		}
+
+		return $providers;
+	}
+
+	private function findVendorProviders() {
 		ob_start();
 		require_once BASE_PATH . '/vendor/composer/installed.json';
 		$content = ob_get_clean();
@@ -73,7 +117,7 @@ class ProviderManager {
 				$reloadPath[] = $this->getProviderPath($item);
 			}
 		}
-		$this->setReloadPath($reloadPath);
+		$this->setReloadListenerPath($reloadPath);
 
 		return $providers;
 	}
@@ -89,11 +133,11 @@ class ProviderManager {
 			$path = BASE_PATH . '/vendor/' . $conf['name'];
 		}
 
-		$path .= '/src';
+		$path .= '/';
 		return $path;
 	}
 
-	private function setReloadPath($reloadPath) {
+	private function setReloadListenerPath($reloadPath) {
 		if ((ENV & DEBUG) !== DEBUG) {
 			return false;
 		}

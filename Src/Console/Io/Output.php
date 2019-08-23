@@ -1,13 +1,20 @@
 <?php
+
 /**
- * 处理控制台输出
- * @author Swoft\Console\Output
- * @date 18-7-19 上午10:18
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Console\Io;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Output extends SymfonyStyle {
@@ -21,6 +28,9 @@ class Output extends SymfonyStyle {
 	 */
 	const LEFT_CHAR = '  ';
 
+	public function __construct() {
+		parent::__construct(new ArgvInput(), new ConsoleOutput());
+	}
 
 	private function writeKey($key) {
 		echo "\033[0;32m$key \e[0m";
@@ -54,7 +64,7 @@ class Output extends SymfonyStyle {
 	}
 
 	public function info($content) {
-		$this->write($content);
+		$this->write('<info>'.$content.'</info>');
 	}
 
 	/**

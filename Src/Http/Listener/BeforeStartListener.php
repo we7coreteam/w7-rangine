@@ -1,23 +1,29 @@
 <?php
+
 /**
- * 开启服务之前，先构造中间件数据及路由数据
- * @author donknap
- * @date 18-7-25 下午4:51
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Http\Listener;
 
-use W7\Core\Container\Context;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\RouteMapping;
 use FastRoute\Dispatcher\GroupCountBased;
+use W7\Http\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		//注册路由的时候会调用中间件生成，所以要先生成路由再中间件
-		iloader()->set(Context::ROUTE_KEY, $this->getRoute());
-		iloader()->set(Context::MIDDLEWARE_KEY, $this->getLastMiddleware());
+		/**
+		 * @var Dispatcher $requestDispatcher
+		 */
+		$requestDispatcher = iloader()->get(Dispatcher::class);
+		$requestDispatcher->setRouter($this->getRoute());
 		return true;
 	}
 
@@ -27,13 +33,5 @@ class BeforeStartListener extends ListenerAbstract {
 	private function getRoute() {
 		$routeInfo = iloader()->get(RouteMapping::class)->getMapping();
 		return new GroupCountBased($routeInfo);
-	}
-
-	private function getLastMiddleware() {
-		/**
-		 * @var MiddlewareMapping $middlerwareObj
-		 */
-		$middlerwareObj = iloader()->get(MiddlewareMapping::class);
-		return $middlerwareObj->getLastMiddle();
 	}
 }

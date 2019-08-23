@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Tcp\Protocol\Thrift;
 
 use Swoole\Server;
@@ -11,6 +21,9 @@ use W7\Tcp\Protocol\Thrift\Core\DispatcherProcessor;
 use W7\Tcp\Protocol\Thrift\Core\RpcSocket;
 
 class Dispatcher implements DispatcherInterface {
+	/**
+	 * @var TMultiplexedProcessor
+	 */
 	private $process;
 
 	public function __construct() {
@@ -49,7 +62,7 @@ class Dispatcher implements DispatcherInterface {
 		$socket->server = $server;
 		$socket->setHandle($fd);
 
-		try{
+		try {
 			$protocol = new TBinaryProtocol($socket, false, false);
 			$this->process->process($protocol, $protocol);
 		} catch (\Throwable $e) {
