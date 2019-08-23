@@ -35,7 +35,7 @@ class ConnectorManager {
 		}
 
 		if (empty($poolConfig) || empty($poolConfig['enable'])) {
-			ilogger()->channel('cache')->debug('create connection without pool');
+			ilogger()->channel('cache')->debug($name . ' create connection without pool');
 			/**
 			 * @var HandlerAbstract $handlerClass
 			 */
