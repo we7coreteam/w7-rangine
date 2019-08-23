@@ -104,7 +104,7 @@ class App {
 	}
 
 	private function registerProvider() {
-		iloader()->get(ProviderManager::class)->register()->boot();
+		$this->getContainer()->get(ProviderManager::class)->register()->boot();
 	}
 
 	public static function getApp() {
@@ -116,7 +116,7 @@ class App {
 
 	public function runConsole() {
 		try {
-			iloader()->get(Application::class)->run();
+			$this->getContainer()->get(Application::class)->run();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
 		}
@@ -136,7 +136,7 @@ class App {
 		/**
 		 * @var LogManager $logManager
 		 */
-		$logManager = iloader()->get(LogManager::class);
+		$logManager = $this->getContainer()->get(LogManager::class);
 		return $logManager->getDefaultChannel();
 	}
 
