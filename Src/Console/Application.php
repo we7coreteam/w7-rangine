@@ -80,10 +80,23 @@ class Application extends SymfontApplication {
 	}
 
 	private function registerCommands() {
-		$systemCommands = [];
+		$this->autoRegisterCommands(RANGINE_FRAMEWORK_PATH  . '/Console/Command', '\\W7\\Console', 'rangine');
+		$this->autoRegisterCommands(APP_PATH  . '/Command', '\\W7\\App', 'app');
+	}
+
+	public function autoRegisterCommands($path, $namespace, $group) {
+		$commands = $this->findCommands($path, $namespace, $group);
+		foreach ($commands as $name => $class) {
+			$commandObj = new $class($name);
+			$this->add($commandObj);
+		}
+	}
+
+	private function findCommands($path, $namespace, $group) {
+		$commands = [];
 
 		$files = Finder::create()
-			->in(RANGINE_FRAMEWORK_PATH  . '/Console/Command/')
+			->in($path)
 			->files()
 			->ignoreDotFiles(true)
 			->name('/^[\w\W\d]+Command.php$/');
@@ -92,19 +105,15 @@ class Application extends SymfontApplication {
 		 * @var SplFileInfo $file
 		 */
 		foreach ($files as $file) {
-			$dir = str_replace([RANGINE_FRAMEWORK_PATH . '/Console/Command/', '/'], ['', '\\'], $file->getPath());
-			$parent = str_replace('\\', ':', $dir);
+			$dir = trim(str_replace([$path, '/'], ['', '\\'], $file->getPath()), '\\');
+			//如果command没有组,默认属于$group下
+			$parent = str_replace('\\', ':', $dir == '' ? $group : $dir);
 			$name = strtolower($parent . ':' . $file->getBasename('Command.php'));
 
-			$systemCommands[$name] = '\\W7\\Console\\Command\\' . $dir . '\\' . $file->getBasename('.php');
+			$commands[$name] = $namespace . '\\Command\\' . ($dir !== '' ? $dir . '\\' : '') . $file->getBasename('.php');
 		}
-		$userCommands = iconfig()->getUserConfig('command');
-		$commands = array_merge($systemCommands, $userCommands);
 
-		foreach ($commands as $name => $class) {
-			$commandObj = new $class($name);
-			$this->add($commandObj);
-		}
+		return $commands;
 	}
 
 	private function checkCommand($input) {
