@@ -16,15 +16,15 @@ use W7\App;
 use W7\Core\Exception\DumpException;
 
 abstract class HandlerAbstract {
-	protected $config;
+	protected $config = [];
 	protected static $templatePath = [];
 	const __STATIC__ = '__STATIC__';
 	const __CSS__ = '__CSS__';
 	const __JS__ = '__JS__';
 	const __IMAGES__ = '__IMAGES__';
 
-	public function __construct($config) {
-		$config['debug'] = $config['debug'] ?? ((ENV & DEBUG) === DEBUG);
+	public function __construct(array $config) {
+		$config['debug'] = (ENV & DEBUG) === DEBUG;
 		$this->config = $config;
 
 		$this->initTemplatePath();
