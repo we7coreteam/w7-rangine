@@ -21,10 +21,13 @@ class ReloadProcess implements ProcessInterface {
 	 *
 	 * @var string
 	 */
-	private $watchDir = [
+	private static $watchDir = [
 		APP_PATH,
-		BASE_PATH. DIRECTORY_SEPARATOR. 'config',
-		BASE_PATH. DIRECTORY_SEPARATOR. 'view'
+		BASE_PATH. DIRECTORY_SEPARATOR. 'config'
+	];
+
+	private static $fileTypes = [
+		'php'
 	];
 
 	/**
@@ -49,7 +52,8 @@ class ReloadProcess implements ProcessInterface {
 	public function __construct() {
 		$this->enabled = ((ENV & DEBUG) === DEBUG);
 		$reloadConfig = \iconfig()->getUserAppConfig('reload');
-		$this->watchDir = array_merge($this->watchDir, $reloadConfig['path'] ?? []);
+		self::$watchDir = array_merge(self::$watchDir, $reloadConfig['path'] ?? []);
+		self::$fileTypes = array_merge(self::$fileTypes, $reloadConfig['type'] ?? []);
 
 		$this->md5File = $this->getWatchDirMd5();
 	}
@@ -59,6 +63,14 @@ class ReloadProcess implements ProcessInterface {
 			return true;
 		}
 		return false;
+	}
+
+	public static function addDir($dir) {
+		self::$watchDir[] = $dir;
+	}
+
+	public static function addType($type) {
+		self::$fileTypes[] = trim($type, '.');
 	}
 
 	public function run(Process $process) {
@@ -99,7 +111,9 @@ class ReloadProcess implements ProcessInterface {
 			if ($entry !== '.' && $entry !== '..') {
 				if (is_dir($dir . '/' . $entry)) {
 					$md5File[] = $this->md5File($dir . '/' . $entry);
-				} elseif (substr($entry, -4) === '.php' || substr($entry, -5) === '.html') {
+				}
+				$extension = pathinfo($entry, PATHINFO_EXTENSION);
+				if (in_array($extension, self::$fileTypes)) {
 					$md5File[] = md5_file($dir . '/' . $entry);
 				}
 				$md5File[] = $entry;
@@ -112,7 +126,7 @@ class ReloadProcess implements ProcessInterface {
 
 	private function getWatchDirMd5() {
 		$md5 = [];
-		foreach ($this->watchDir as $dir) {
+		foreach (self::$watchDir as $dir) {
 			$md5[] = $this->md5File($dir);
 		}
 		return md5(implode('', $md5));

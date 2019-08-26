@@ -23,6 +23,7 @@ class View {
 
 	public function __construct() {
 		$this->config = iconfig()->getUserAppConfig('view');
+		$this->config['suffix'] = empty($this->config['suffix']) ? 'html' : $this->config['suffix'];
 	}
 
 	private function getHandler() : HandlerAbstract {
@@ -44,6 +45,10 @@ class View {
 		}
 
 		return $this->handlerClass;
+	}
+
+	public function getSuffix() {
+		return $this->config['suffix'];
 	}
 
 	public function addTemplatePath($path) {

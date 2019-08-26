@@ -36,6 +36,7 @@ abstract class HandlerAbstract {
 
 	protected function initTemplatePath() {
 		if (!static::$templatePath) {
+			//通过provider注册时把provider的path加进来
 			$config = $this->config['template_path'] ?? '';
 			$config = is_array($config) ? $config : [];
 			array_unshift($config, BASE_PATH . '/view');

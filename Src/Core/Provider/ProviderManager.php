@@ -14,6 +14,7 @@ namespace W7\Core\Provider;
 
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use W7\Core\Process\ReloadProcess;
 
 class ProviderManager {
 	private static $providers = [];
@@ -110,19 +111,17 @@ class ProviderManager {
 		$content = json_decode($content, true);
 
 		$providers = [];
-		$reloadPath = [];
 		foreach ($content as $item) {
 			if (!empty($item['extra']['rangine']['providers'])) {
 				$providers[str_replace('/', '.', $item['name'])] = $item['extra']['rangine']['providers'];
-				$reloadPath[] = $this->getProviderPath($item);
+				$this->addReloadPath($item);
 			}
 		}
-		$this->setReloadListenerPath($reloadPath);
 
 		return $providers;
 	}
 
-	private function getProviderPath($conf) {
+	private function addReloadPath($conf) {
 		if ((ENV & DEBUG) !== DEBUG) {
 			return '';
 		}
@@ -132,18 +131,9 @@ class ProviderManager {
 		} else {
 			$path = BASE_PATH . '/vendor/' . $conf['name'];
 		}
-
 		$path .= '/';
-		return $path;
-	}
 
-	private function setReloadListenerPath($reloadPath) {
-		if ((ENV & DEBUG) !== DEBUG) {
-			return false;
-		}
-
-		$config = iconfig()->getUserConfig('app');
-		$config['reload']['path'] = $reloadPath;
-		iconfig()->setUserConfig('app', $config);
+		ReloadProcess::addDir($path . 'src');
+		ReloadProcess::addDir($path . 'view');
 	}
 }
