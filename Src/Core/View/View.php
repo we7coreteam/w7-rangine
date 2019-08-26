@@ -52,8 +52,7 @@ class View {
 	}
 
 	public function addTemplatePath($path) {
-		$this->config['template_path'] = $this->config['template_path'] ?? '';
-		$this->config['template_path'] = is_array($this->config['template_path']) ? $this->config['template_path'] : [];
+		$this->config['template_path'] = (array)($this->config['template_path'] ?? []);
 		$this->config['template_path'][] = $path;
 	}
 
