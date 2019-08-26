@@ -55,17 +55,16 @@ class ProviderManager {
 	}
 
 	private function findProviders() {
-		$systemProviders = $this->findSystemProviders();
-		$appProvider = $this->findAppProvider();
+		$systemProviders = $this->autoFindProviders(dirname(__DIR__, 2), 'W7');
+		$appProvider = $this->autoFindProviders(BASE_PATH . '/app', 'W7/App');
 		$vendorProviders = $this->findVendorProviders();
 
 		return array_merge($systemProviders, $appProvider, $vendorProviders);
 	}
 
-	private function findSystemProviders() {
+	public function autoFindProviders($dir, $namespace) {
 		$providers = [];
 
-		$dir = dirname(__DIR__, 2);
 		$files = Finder::create()
 			->in($dir)
 			->files()
@@ -76,28 +75,7 @@ class ProviderManager {
 		 * @var SplFileInfo $file
 		 */
 		foreach ($files as $file) {
-			$path = str_replace([$dir, '.php', '/'], ['W7', '', '\\'], $file->getRealPath());
-			$providers[$path] = $path;
-		}
-
-		return $providers;
-	}
-
-	private function findAppProvider() {
-		$providers = [];
-
-		$dir = BASE_PATH . '/app';
-		$files = Finder::create()
-			->in($dir)
-			->files()
-			->ignoreDotFiles(true)
-			->name('/^[\w\W\d]+Provider.php$/');
-
-		/**
-		 * @var SplFileInfo $file
-		 */
-		foreach ($files as $file) {
-			$path = str_replace([$dir, '.php', '/'], ['W7/App', '', '\\'], $file->getRealPath());
+			$path = str_replace([$dir, '.php', '/'], [$namespace, '', '\\'], $file->getRealPath());
 			$providers[$path] = $path;
 		}
 
