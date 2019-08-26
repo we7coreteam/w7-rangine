@@ -84,15 +84,15 @@ class Application extends SymfontApplication {
 		$this->autoRegisterCommands(APP_PATH  . '/Command', '\\W7\\App', 'app');
 	}
 
-	public function autoRegisterCommands($path, $namespace, $group) {
-		$commands = $this->findCommands($path, $namespace, $group);
+	public function autoRegisterCommands($path, $namespace, $group, $forceGroup = false) {
+		$commands = $this->findCommands($path, $namespace, $group, $forceGroup);
 		foreach ($commands as $name => $class) {
 			$commandObj = new $class($name);
 			$this->add($commandObj);
 		}
 	}
 
-	private function findCommands($path, $namespace, $group) {
+	private function findCommands($path, $namespace, $defaultGroup, $forceGroup = false) {
 		$commands = [];
 
 		$files = Finder::create()
@@ -100,14 +100,15 @@ class Application extends SymfontApplication {
 			->files()
 			->ignoreDotFiles(true)
 			->name('/^[\w\W\d]+Command.php$/');
+		$prefix = $forceGroup ? $defaultGroup . ':' : '';
 
 		/**
 		 * @var SplFileInfo $file
 		 */
 		foreach ($files as $file) {
 			$dir = trim(str_replace([$path, '/'], ['', '\\'], $file->getPath()), '\\');
-			//如果command没有组,默认属于$group下
-			$parent = str_replace('\\', ':', $dir == '' ? $group : $dir);
+			//如果command没有组,默认属于$defaultGroup下
+			$parent = str_replace('\\', ':', $dir == '' ? $defaultGroup : $prefix . $dir);
 			$name = strtolower($parent . ':' . $file->getBasename('Command.php'));
 
 			$commands[$name] = $namespace . '\\Command\\' . ($dir !== '' ? $dir . '\\' : '') . $file->getBasename('.php');
