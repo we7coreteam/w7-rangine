@@ -83,6 +83,6 @@ class View {
 	public function render($name, $context = []) {
 		$handler = $this->getHandler();
 		$this->addResourceToHandler($handler);
-		return $handler->render($name, $context);
+		return $handler->render($name . '.'. $this->getSuffix(), $context);
 	}
 }
