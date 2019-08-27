@@ -109,17 +109,8 @@ abstract class ProviderAbstract {
 		}
 	}
 
-	protected function registerView() {
-		$this->view->addTemplatePath($this->rootPath . '/view/');
-	}
-
-	protected function publishView($sourceFileName, $targetFileName = null, $group = null) {
-		if (!$targetFileName) {
-			$targetFileName = $sourceFileName;
-		}
-		$this->publishes([
-			$this->rootPath . '/view/' . $sourceFileName => BASE_PATH . '/view/' . $targetFileName
-		], $group);
+	protected function registerView($namespace) {
+		$this->view->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
 	}
 
 	protected function registerProvider($provider) {

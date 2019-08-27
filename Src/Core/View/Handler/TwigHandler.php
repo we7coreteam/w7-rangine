@@ -24,7 +24,10 @@ class TwigHandler extends HandlerAbstract {
 	private $twig;
 
 	protected function init() {
-		$loader = new FilesystemLoader(self::$templatePath, self::$templatePath[0]);
+		$loader = new FilesystemLoader([self::$defaultTemplatePath], self::$defaultTemplatePath);
+		foreach (self::$providerTemplatePath as $namespace => $path) {
+			$loader->setPaths($path, $namespace);
+		}
 		$this->twig = new Environment($loader, $this->config);
 		if ($this->config['debug']) {
 			$this->twig->addExtension(new DebugExtension());

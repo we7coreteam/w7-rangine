@@ -17,7 +17,9 @@ use W7\Core\Exception\DumpException;
 
 abstract class HandlerAbstract {
 	protected $config = [];
-	protected static $templatePath = [];
+	protected static $providerTemplatePath = [];
+	protected static $defaultTemplatePath;
+	const DEFAULT_NAMESPACE = '__MAIN__';
 	const __STATIC__ = '__STATIC__';
 	const __CSS__ = '__CSS__';
 	const __JS__ = '__JS__';
@@ -35,14 +37,11 @@ abstract class HandlerAbstract {
 	}
 
 	protected function initTemplatePath() {
-		if (!static::$templatePath) {
+		if (!static::$defaultTemplatePath) {
 			//通过provider注册时把provider的path加进来
-			$config = (array)($this->config['template_path'] ?? []);
-			array_unshift($config, BASE_PATH . '/view');
-			static::$templatePath = $config;
+			static::$providerTemplatePath = (array)($this->config['provider_template_path'] ?? []);
+			static::$defaultTemplatePath = BASE_PATH . '/view';
 		}
-
-		return static::$templatePath;
 	}
 
 	protected function init() {
@@ -85,6 +84,21 @@ abstract class HandlerAbstract {
 	abstract public function registerFunction($name, \Closure $callback);
 	abstract public function registerConst($name, $value);
 	abstract public function registerObject($name, $object);
+
+	protected function parseName($name) {
+		if (isset($name[0]) && '@' == $name[0]) {
+			if (false === $pos = strpos($name, '/')) {
+				throw new \RuntimeException(sprintf('Malformed namespaced template name "%s" (expecting "@namespace/template_name").', $name));
+			}
+
+			$namespace = substr($name, 1, $pos - 1);
+			$name = substr($name, $pos + 1);
+
+			return [$namespace, $name];
+		}
+
+		return [static::DEFAULT_NAMESPACE, $name];
+	}
 
 	abstract public function render($name, $context = []) : string;
 }
