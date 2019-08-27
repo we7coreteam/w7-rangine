@@ -335,15 +335,19 @@ if (!function_exists('ienv')) {
 				return;
 		}
 
-		//常量解析
-		$exec = 'return ' . $value . ';';
-		try {
-			$result = @eval($exec);
-			if ($result !== false && $result !== "\0\0\0\0\0\0") {
-				$value = $result;
+		if (strpos($value, '|') !== false || strpos($value, '^') !== false) {
+			//常量解析
+			$exec = 'return ' . $value . ';';
+			try {
+				$result = @eval($exec);
+				if ($result !== false && $result !== "\0\0\0\0\0\0") {
+					$value = $result;
+				}
+			} catch (Throwable $e) {
+				//
 			}
-		} catch (Throwable $e) {
-			//
+		} elseif (defined($value)) {
+			$value = constant($value);
 		}
 
 		if (($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {
