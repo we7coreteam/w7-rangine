@@ -126,12 +126,12 @@ abstract class ProviderAbstract {
 		iloader()->singleton(ProviderManager::class)->registerProvider($provider);
 	}
 
-	protected function registerCommand($forceGroup = false) {
+	protected function registerCommand($group = null, $forceGroup = false) {
 		/**
 		 * @var  Application $application
 		 */
 		$application = iloader()->singleton(Application::class);
-		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $this->name, $forceGroup);
+		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $group ?? $this->name, $forceGroup);
 	}
 
 	protected function registerProcess($name, $class) {
