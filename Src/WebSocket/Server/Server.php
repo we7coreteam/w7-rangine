@@ -22,6 +22,9 @@ class Server extends ServerAbstract {
 	public $type = parent::TYPE_WEBSOCKET;
 
 	public function start() {
+		if ($this->setting['dispatch_mode'] == 1 || $this->setting['dispatch_mode'] == 3) {
+			throw new \RuntimeException('not support the dispatch mode, please reset config/server.php/common/dispatch_mode');
+		}
 		$this->server = $this->getServer();
 		$this->server->set($this->setting);
 
