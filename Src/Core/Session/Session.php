@@ -31,6 +31,7 @@ class Session implements SessionInterface {
 	 * @var HandlerAbstract
 	 */
 	private static $handler;
+	private $cache;
 
 	public function __construct(Request $request) {
 		$this->config = iconfig()->getUserAppConfig('session');
@@ -112,12 +113,18 @@ class Session implements SessionInterface {
 	}
 
 	private function readSession() {
+		//只读一次, 防止在临界点上,第一次读有数据,第二次读不到
+		if (isset($this->cache)) {
+			return $this->cache;
+		}
+
 		try {
 			$data = unserialize(self::$handler->read($this->prefix . $this->getId()));
 			$data = !is_array($data) ? [] : $data;
 		} catch (\Throwable $e) {
 			$data = [];
 		}
+		$this->cache = $data;
 
 		return $data;
 	}
@@ -126,6 +133,7 @@ class Session implements SessionInterface {
 		$data = $this->readSession();
 
 		$data[$key] = $value;
+		$this->cache[$key] = $value;
 		return self::$handler->write($this->prefix . $this->getId(), serialize($data));
 	}
 
@@ -136,6 +144,7 @@ class Session implements SessionInterface {
 	}
 
 	public function destroy() {
+		$this->cache = null;
 		return self::$handler->destroy($this->prefix . $this->getId());
 	}
 
