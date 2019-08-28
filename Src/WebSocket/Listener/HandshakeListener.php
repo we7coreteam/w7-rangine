@@ -37,13 +37,11 @@ class HandshakeListener extends ListenerAbstract {
 			$secWebSocketKey = $request->header['sec-websocket-key'];
 			$patten = '#^[+/0-9A-Za-z]{21}[AQgw]==$#';
 			if (0 === preg_match($patten, $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
-				$response->end();
 				return false;
 			}
 
 			$psr7Request = Psr7Request::loadFromSwooleRequest($request);
-			if (!ievent(SwooleEvent::ON_USER_HAND_SHAKE, [$psr7Request])) {
-				$response->end();
+			if (ievent(SwooleEvent::ON_USER_BEFORE_HAND_SHAKE, [$psr7Request]) === false) {
 				return false;
 			}
 
@@ -68,9 +66,7 @@ class HandshakeListener extends ListenerAbstract {
 			$response->status(101);
 
 			App::$server->getServer()->defer(function () use ($request) {
-				(new OpenListener())->run(App::$server->getServer(), $request);
-				//ievent目前不能直接触发类似Event::ON_OPEN的事件
-//			    ievent(Event::ON_USER_OPEN, [App::$server->getServer(), $request]);
+				ievent(SwooleEvent::ON_OPEN, [App::$server->getServer(), $request]);
 			});
 		} catch (\Throwable $e) {
 		} finally {

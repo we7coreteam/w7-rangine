@@ -14,6 +14,7 @@ namespace W7\WebSocket\Listener;
 
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\SwooleEvent;
 
 class CloseListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -23,5 +24,6 @@ class CloseListener extends ListenerAbstract {
 
 	private function onClose(Server $server, int $fd, int $reactorId): void {
 		//删除数据绑定记录
+		ievent(SwooleEvent::ON_USER_BEFORE_CLOSE, [$server, $fd, $reactorId]);
 	}
 }

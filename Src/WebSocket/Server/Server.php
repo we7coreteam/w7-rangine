@@ -25,9 +25,10 @@ class Server extends ServerAbstract {
 		$this->server = $this->getServer();
 		$this->server->set($this->setting);
 
-		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
 		//执行一些公共操作，注册事件等
 		$this->registerService();
+
+		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
 
 		$this->server->start();
 	}

@@ -15,6 +15,7 @@ namespace W7\WebSocket\Listener;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Server;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\SwooleEvent;
 
 class OpenListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -25,8 +26,10 @@ class OpenListener extends ListenerAbstract {
 	/**
 	 * @param Server $server
 	 * @param Request $request
+	 * @throws \Exception
 	 */
 	private function onOpen(Server $server, Request $request): void {
 		//做数据绑定和记录
+		ievent(SwooleEvent::ON_USER_BEFORE_OPEN, [$server, $request]);
 	}
 }

@@ -18,10 +18,10 @@ use Swoole\Websocket\Server;
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\SwooleEvent;
-use W7\Http\Server\Dispather;
 use W7\WebSocket\Message\Frame;
 use W7\WebSocket\Message\Request;
 use W7\WebSocket\Message\Response;
+use W7\WebSocket\Server\Dispatcher;
 
 class MessageListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -40,8 +40,8 @@ class MessageListener extends ListenerAbstract {
 		$psr7Request = Request::loadFromWebSocketFrame($frame);
 		$psr7Response = Response::loadFromWebSocketFrame($frame);
 
-		$dispather = \iloader()->singleton(Dispather::class);
-		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
+		$dispatcher = \iloader()->singleton(Dispatcher::class);
+		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
 		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);

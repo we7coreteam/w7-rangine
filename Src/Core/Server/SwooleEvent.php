@@ -72,8 +72,9 @@ class SwooleEvent {
 	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
 	const ON_USER_AFTER_REQUEST = 'afterRequest';
 	const ON_USER_TASK_FINISH = 'afterTaskFinish';
-	const ON_USER_HAND_SHAKE = 'beforeHandshake';
-	const ON_USER_OPEN = 'beforeOpen';
+	const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandshake';
+	const ON_USER_BEFORE_OPEN = 'beforeOpen';
+	const ON_USER_BEFORE_CLOSE = 'beforeClose';
 
 	public function getDefaultEvent() {
 		return [
@@ -112,7 +113,10 @@ class SwooleEvent {
 			self::ON_USER_BEFORE_REQUEST,
 			self::ON_USER_AFTER_REQUEST,
 			self::ON_USER_TASK_FINISH,
-			self::ON_USER_AFTER_REQUEST
+			self::ON_USER_AFTER_REQUEST,
+			self::ON_USER_BEFORE_HAND_SHAKE,
+			self::ON_USER_BEFORE_OPEN,
+			self::ON_USER_BEFORE_CLOSE
 		];
 	}
 
