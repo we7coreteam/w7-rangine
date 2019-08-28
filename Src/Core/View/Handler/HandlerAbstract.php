@@ -85,20 +85,5 @@ abstract class HandlerAbstract {
 	abstract public function registerConst($name, $value);
 	abstract public function registerObject($name, $object);
 
-	protected function parseName($name) {
-		if (isset($name[0]) && '@' == $name[0]) {
-			if (false === $pos = strpos($name, '/')) {
-				throw new \RuntimeException(sprintf('Malformed namespaced template name "%s" (expecting "@namespace/template_name").', $name));
-			}
-
-			$namespace = substr($name, 1, $pos - 1);
-			$name = substr($name, $pos + 1);
-
-			return [$namespace, $name];
-		}
-
-		return [static::DEFAULT_NAMESPACE, $name];
-	}
-
-	abstract public function render($name, $context = []) : string;
+	abstract public function render($namespace, $name, $context = []) : string;
 }

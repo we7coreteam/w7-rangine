@@ -46,7 +46,10 @@ class TwigHandler extends HandlerAbstract {
 		$this->twig->addGlobal($name, $object);
 	}
 
-	public function render($name, $context = []) : string {
+	public function render($namespace, $name, $context = []) : string {
+		if ($namespace !== self::DEFAULT_NAMESPACE) {
+			$name = '@' . $namespace . '/' . $name;
+		}
 		return $this->twig->render($name, $context);
 	}
 }

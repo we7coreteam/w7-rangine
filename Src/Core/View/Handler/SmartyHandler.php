@@ -42,11 +42,9 @@ class SmartyHandler extends HandlerAbstract {
 		$this->smarty->registerObject($name, $object, null, false);
 	}
 
-	public function render($name, $context = []): string {
-		$info = $this->parseName($name);
-		$name = $info[1];
-		if ($info[0] !== self::DEFAULT_NAMESPACE) {
-			$this->smarty->setTemplateDir(self::$providerTemplatePath[$info[0]]);
+	public function render($namespace, $name, $context = []): string {
+		if ($namespace !== self::DEFAULT_NAMESPACE) {
+			$this->smarty->setTemplateDir(self::$providerTemplatePath[$namespace]);
 		}
 
 		foreach ($context as $key => $item) {
