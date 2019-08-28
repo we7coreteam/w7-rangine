@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-8-29 上午10:31
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Exception;
@@ -17,8 +23,8 @@ abstract class ResponseException extends \LogicException {
 	 */
 	public $isLoggable = true;
 
-	public function __construct($message = "", $code = 0, \Throwable $previous = null) {
-		parent::__construct($message, $code, $previous);
+	public function __construct($message = '', $code = 0, \Throwable $previous = null) {
+		parent::__construct($message, (int)$code, $previous);
 		$this->response = App::getApp()->getContext()->getResponse();
 	}
 
