@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-10-18 下午6:15
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Log\Handler;
@@ -15,7 +21,7 @@ class DailyHandler extends RotatingFileHandler implements HandlerInterface {
 
 	public static function getHandler($config): MonologInterface {
 		$handler = new static($config['path'], $config['days'], $config['level']);
-		$formatter = new LineFormatter(self::SIMPLE_FORMAT);
+		$formatter = new LineFormatter(empty($config['format']) ? self::SIMPLE_FORMAT : $config['format']);
 		$formatter->includeStacktraces(true);
 		$handler->setFormatter($formatter);
 		return $handler;
@@ -23,12 +29,11 @@ class DailyHandler extends RotatingFileHandler implements HandlerInterface {
 
 	protected function streamWrite($stream, array $record) {
 		if (isCo()) {
-			go(function() use ($stream, $record) {
+			go(function () use ($stream, $record) {
 				@parent::streamWrite($stream, $record);
 			});
 		} else {
 			@parent::streamWrite($stream, $record);
 		}
-
 	}
 }

@@ -12,6 +12,8 @@
 
 namespace W7\Core\Log;
 
+use Monolog\Handler\BufferHandler;
+
 class Logger extends \Monolog\Logger {
 	/**
 	 * @param $name
@@ -35,6 +37,9 @@ class Logger extends \Monolog\Logger {
 	}
 
 	private function flushLog() {
+		/**
+		 * @var BufferHandler $handler
+		 */
 		foreach ($this->getHandlers() as $handler) {
 			$handler->flush();
 		}

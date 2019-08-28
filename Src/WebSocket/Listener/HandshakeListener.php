@@ -15,8 +15,8 @@ namespace W7\WebSocket\Listener;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use W7\App;
-use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 
 class HandshakeListener extends ListenerAbstract {
@@ -42,7 +42,7 @@ class HandshakeListener extends ListenerAbstract {
 			}
 
 			$psr7Request = Psr7Request::loadFromSwooleRequest($request);
-			if (!ievent(Event::ON_USER_HAND_SHAKE, [$psr7Request])) {
+			if (!ievent(SwooleEvent::ON_USER_HAND_SHAKE, [$psr7Request])) {
 				$response->end();
 				return false;
 			}

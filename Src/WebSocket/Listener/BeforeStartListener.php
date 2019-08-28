@@ -12,17 +12,18 @@
 
 namespace W7\WebSocket\Listener;
 
-use W7\App;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Route\RouteMapping;
-use W7\Core\Helper\Storage\Context;
 use FastRoute\Dispatcher\GroupCountBased;
+use W7\WebSocket\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		$context = App::getApp()->getContext();
-		//注册路由的时候会调用中间件生成，所以要先生成路由再中间件
-		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());
+		/**
+		 * @var Dispatcher $requestDispatcher
+		 */
+		$requestDispatcher = iloader()->singleton(Dispatcher::class);
+		$requestDispatcher->setRouter($this->getRoute());
 		return true;
 	}
 

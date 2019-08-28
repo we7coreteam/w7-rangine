@@ -12,6 +12,10 @@
 
 namespace W7\Core\Provider;
 
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
+use W7\Core\Process\ReloadProcess;
+
 class ProviderManager {
 	private static $providers = [];
 
@@ -51,25 +55,51 @@ class ProviderManager {
 	}
 
 	private function findProviders() {
+		$systemProviders = $this->autoFindProviders(dirname(__DIR__, 2), 'W7');
+		$appProvider = $this->autoFindProviders(BASE_PATH . '/app', 'W7/App');
+		$vendorProviders = $this->findVendorProviders();
+
+		return array_merge($systemProviders, $appProvider, $vendorProviders);
+	}
+
+	public function autoFindProviders($dir, $namespace) {
+		$providers = [];
+
+		$files = Finder::create()
+			->in($dir)
+			->files()
+			->ignoreDotFiles(true)
+			->name('/^[\w\W\d]+Provider.php$/');
+
+		/**
+		 * @var SplFileInfo $file
+		 */
+		foreach ($files as $file) {
+			$path = str_replace([$dir, '.php', '/'], [$namespace, '', '\\'], $file->getRealPath());
+			$providers[$path] = $path;
+		}
+
+		return $providers;
+	}
+
+	private function findVendorProviders() {
 		ob_start();
 		require_once BASE_PATH . '/vendor/composer/installed.json';
 		$content = ob_get_clean();
 		$content = json_decode($content, true);
 
 		$providers = [];
-		$reloadPath = [];
 		foreach ($content as $item) {
 			if (!empty($item['extra']['rangine']['providers'])) {
 				$providers[str_replace('/', '.', $item['name'])] = $item['extra']['rangine']['providers'];
-				$reloadPath[] = $this->getProviderPath($item);
+				$this->addReloadPath($item);
 			}
 		}
-		$this->setReloadListenerPath($reloadPath);
 
 		return $providers;
 	}
 
-	private function getProviderPath($conf) {
+	private function addReloadPath($conf) {
 		if ((ENV & DEBUG) !== DEBUG) {
 			return '';
 		}
@@ -79,18 +109,9 @@ class ProviderManager {
 		} else {
 			$path = BASE_PATH . '/vendor/' . $conf['name'];
 		}
+		$path .= '/';
 
-		$path .= '/src';
-		return $path;
-	}
-
-	private function setReloadListenerPath($reloadPath) {
-		if ((ENV & DEBUG) !== DEBUG) {
-			return false;
-		}
-
-		$config = iconfig()->getUserConfig('app');
-		$config['reload']['path'] = $reloadPath;
-		iconfig()->setUserConfig('app', $config);
+		ReloadProcess::addDir($path . 'src');
+		ReloadProcess::addDir($path . 'view');
 	}
 }

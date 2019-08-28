@@ -16,8 +16,8 @@ use Swoole\Coroutine;
 use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
 use W7\App;
-use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\SwooleEvent;
 use W7\Http\Server\Dispather;
 use W7\WebSocket\Message\Frame;
 use W7\WebSocket\Message\Request;
@@ -30,7 +30,7 @@ class MessageListener extends ListenerAbstract {
 	}
 
 	private function onMessage(Server $server, SwooleFrame $frame): void {
-		ievent(Event::ON_USER_BEFORE_REQUEST);
+		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST);
 
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
@@ -44,6 +44,6 @@ class MessageListener extends ListenerAbstract {
 		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
-		ievent(Event::ON_USER_AFTER_REQUEST);
+		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 	}
 }

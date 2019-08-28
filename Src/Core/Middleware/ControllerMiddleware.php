@@ -17,6 +17,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use W7\Core\Helper\StringHelper;
+use W7\Http\Message\Server\Response;
 
 class ControllerMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
@@ -46,7 +47,7 @@ class ControllerMiddleware extends MiddlewareAbstract {
 
 	protected function parseResponse($response) {
 		//如果结果是一个response对象，则直接输出，否则按json输出
-		if ($response instanceof ResponseInterface) {
+		if ($response instanceof Response) {
 			App::getApp()->getContext()->setResponse($response);
 			return true;
 		} elseif (is_object($response)) {

@@ -12,26 +12,11 @@
 
 namespace W7\Core\Server;
 
-use Illuminate\Container\Container;
-use Illuminate\Database\Connection;
-use Illuminate\Database\Connectors\ConnectionFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Events\QueryExecuted;
-use Illuminate\Database\Events\TransactionBeginning;
-use Illuminate\Database\Events\TransactionCommitted;
-use Illuminate\Database\Events\TransactionRolledBack;
-use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
 use Swoole\Process;
-use W7\Core\Database\Connection\PdoMysqlConnection;
-use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\App;
-use W7\Core\Config\Event;
-use W7\Core\Database\ConnectorManager;
-use W7\Core\Database\DatabaseManager;
+use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Exception\CommandException;
-use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
 	const TYPE_HTTP = 'http';
@@ -151,10 +136,6 @@ abstract class ServerAbstract implements ServerInterface {
 	public function registerService() {
 		$this->registerSwooleEventListener();
 		$this->registerProcesser();
-		$this->registerServerContext();
-		$this->registerDb();
-		$this->registerCacheModel();
-		return true;
 	}
 
 	protected function registerProcesser() {
@@ -194,111 +175,16 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerSwooleEventListener() {
-		$event = [$this->type, 'task', 'manage'];
-		
-		foreach ($event as $name) {
-			$event = \iconfig()->getEvent()[$name];
+		iloader()->singleton(SwooleEvent::class)->register();
+
+		$swooleEvents = iloader()->singleton(SwooleEvent::class)->getDefaultEvent();
+		$eventTypes = [$this->type, 'task', 'manage'];
+		foreach ($eventTypes as $name) {
+			$event = $swooleEvents[$name];
 			if (!empty($event)) {
 				$this->registerEvent($event);
 			}
 		}
-	}
-
-	protected function registerServerContext() {
-		$contextObj = App::getApp()->getContext();
-		$this->server->context = $contextObj->getContextData();
-	}
-
-	/**
-	 * model -> newQuery -> DatabaseMananger -> function connection ->
-	 *      Factory -> createConnector 拿到一个Pdo连接 （ConnectorManager -> 从连接池里拿一个Pdo连接） -> createConnection 放置Pdo连接，生成连接操作对象 (PdoMysqlConnection)
-	 *
-	 * @return bool
-	 */
-	private function registerDb() {
-		//新增swoole连接mysql的方式
-		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
-			return new SwooleMySqlConnection($connection, $database, $prefix, $config);
-		});
-		Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
-			return new PdoMysqlConnection($connection, $database, $prefix, $config);
-		});
-
-		$container = iloader()->withClass(Container::class)->withSingle()->get();
-		//$container->instance('db.connector.swoolemysql', new SwooleMySqlConnector());
-		//$container->instance('db.connector.mysql', new PdoMySqlConnector());
-		$container->instance('db.connector.swoolemysql', new ConnectorManager());
-		$container->instance('db.connector.mysql', new ConnectorManager());
-
-		//侦听sql执行完后的事件，回收$connection
-		$dbDispatch = iloader()->withClass(Dispatcher::class)->withSingle()->withParams('container', $container)->get();
-		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
-			/**
-			 *检测是否是事物里面的query
-			 */
-			if (App::getApp()->getContext()->getContextDataByKey('db-transaction')) {
-				return false;
-			}
-			return $this->releaseDb($data, $container);
-		});
-		$dbDispatch->listen(TransactionBeginning::class, function ($data) {
-			$connection = $data->connection;
-			App::getApp()->getContext()->setContextDataByKey('db-transaction', $connection);
-		});
-		$dbDispatch->listen(TransactionCommitted::class, function ($data) use ($container) {
-			if (idb()->transactionLevel() === 0) {
-				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
-				return $this->releaseDb($data, $container);
-			}
-		});
-		$dbDispatch->listen(TransactionRolledBack::class, function ($data) use ($container) {
-			if (idb()->transactionLevel() === 0) {
-				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
-				return $this->releaseDb($data, $container);
-			}
-		});
-
-		$container->instance('events', $dbDispatch);
-
-		//添加配置信息到容器
-		$dbconfig = \iconfig()->getUserAppConfig('database');
-
-		$container->instance('config', new Fluent());
-		$container['config']['database.default'] = 'default';
-		$container['config']['database.connections'] = $dbconfig;
-		$factory = new ConnectionFactory($container);
-		$dbManager = new DatabaseManager($container, $factory);
-
-		Model::setEventDispatcher($dbDispatch);
-		Model::setConnectionResolver($dbManager);
-		return true;
-	}
-
-	private function releaseDb($data, $container) {
-		return true;
-		$connection = $data->connection;
-		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings)));
-
-		$poolName = $connection->getPoolName();
-		if (empty($poolName)) {
-			return true;
-		}
-		list($poolType, $poolName) = explode(':', $poolName);
-		if (empty($poolType)) {
-			$poolType = 'swoolemysql';
-		}
-
-		$activePdo = $connection->getActiveConnection();
-		if (empty($activePdo)) {
-			return false;
-		}
-		$connectorManager = $container->make('db.connector.' . $poolType);
-		$pool = $connectorManager->getCreatedPool($poolName);
-		if (empty($pool)) {
-			return true;
-		}
-		$pool->releaseConnection($activePdo);
-		return true;
 	}
 
 	protected function registerEvent($event) {
@@ -309,22 +195,16 @@ abstract class ServerAbstract implements ServerInterface {
 			if (empty($class)) {
 				continue;
 			}
-			$object = \iloader()->singleton($class);
-			if ($eventName == Event::ON_REQUEST) {
+			if ($eventName == SwooleEvent::ON_REQUEST) {
 				$server = \W7\App::$server->server;
-				$this->server->on(Event::ON_REQUEST, function ($request, $response) use ($server, $object) {
-					$object->run($server, $request, $response);
+				$this->server->on(SwooleEvent::ON_REQUEST, function ($request, $response) use ($server) {
+					iloader()->singleton(EventDispatcher::class)->dispatch(SwooleEvent::ON_REQUEST, [$server, $request, $response]);
 				});
 			} else {
-				$this->server->on($eventName, [$object, 'run']);
+				$this->server->on($eventName, function () use ($eventName) {
+					iloader()->singleton(EventDispatcher::class)->dispatch($eventName, func_get_args());
+				});
 			}
-		}
-	}
-
-	protected function registerCacheModel() {
-		$config = iconfig()->getUserAppConfig('cache');
-		if (!empty($config['default']) && !empty($config['default']['model']) && !empty($config['default']['host']) && !empty($config['default']['port'])) {
-			Cache::setCacheResolver(icache());
 		}
 	}
 }

@@ -12,6 +12,7 @@
 
 namespace W7\Core\Cache\Pool;
 
+use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
@@ -26,6 +27,9 @@ class Pool extends CoPoolAbstract {
 		if (empty($this->creator)) {
 			throw new \RuntimeException('Invalid cache creator');
 		}
+		/**
+		 * @var HandlerAbstract $connectionClass
+		 */
 		$connectionClass = $this->creator;
 		$connection = $connectionClass::getHandler($this->config);
 		$connection->poolName = sprintf('%s:%s', $this->config['driver'], $this->poolName);

@@ -16,6 +16,13 @@ use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
+use W7\Core\Lang\Translator;
+use W7\Console\Io\Output;
+use W7\Core\Dispatcher\ProcessDispatcher;
+use W7\Core\Dispatcher\ProcessPoolDispatcher;
+use W7\Core\Message\TaskMessage;
+use Illuminate\Database\Eloquent\Model;
+use W7\Core\Route\Route;
 
 if (!function_exists('iprocess')) {
 	/**
@@ -28,7 +35,7 @@ if (!function_exists('iprocess')) {
 		/**
 		 * @var \W7\Core\Dispatcher\ProcessDispatcher $dispatcher
 		 */
-		$dispatcher = iloader()->singleton(\W7\Core\Dispatcher\ProcessDispatcher::class);
+		$dispatcher = iloader()->singleton(ProcessDispatcher::class);
 		return $dispatcher->dispatch($name, $server);
 	}
 
@@ -37,7 +44,7 @@ if (!function_exists('iprocess')) {
 	 * @return \W7\Core\Dispatcher\ProcessDispatcher
 	 */
 	function iprocessManager() {
-		$dispatcher = iloader()->singleton(\W7\Core\Dispatcher\ProcessDispatcher::class);
+		$dispatcher = iloader()->singleton(ProcessDispatcher::class);
 		return $dispatcher;
 	}
 
@@ -55,7 +62,7 @@ if (!function_exists('iprocess')) {
 	 * @return \W7\Core\Dispatcher\ProcessPoolDispatcher
 	 */
 	function iprocessPoolManager() {
-		$dispatcher = iloader()->singleton(\W7\Core\Dispatcher\ProcessPoolDispatcher::class);
+		$dispatcher = iloader()->singleton(ProcessPoolDispatcher::class);
 		return $dispatcher;
 	}
 }
@@ -86,11 +93,11 @@ if (!function_exists('itask')) {
 	 */
 	function itask($taskName, $params = [], int $timeout = 3) {
 		//构造一个任务消息
-		$taskMessage = new \W7\Core\Message\TaskMessage();
+		$taskMessage = new TaskMessage();
 		$taskMessage->task = $taskName;
 		$taskMessage->params = $params;
 		$taskMessage->timeout = $timeout;
-		$taskMessage->type = \W7\Core\Message\TaskMessage::OPERATION_TASK_ASYNC;
+		$taskMessage->type = TaskMessage::OPERATION_TASK_ASYNC;
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
@@ -100,11 +107,11 @@ if (!function_exists('itask')) {
 
 	function itaskCo($taskName, $params = [], int $timeout = 3) {
 		//构造一个任务消息
-		$taskMessage = new \W7\Core\Message\TaskMessage();
+		$taskMessage = new TaskMessage();
 		$taskMessage->task = $taskName;
 		$taskMessage->params = $params;
 		$taskMessage->timeout = $timeout;
-		$taskMessage->type = \W7\Core\Message\TaskMessage::OPERATION_TASK_CO;
+		$taskMessage->type = TaskMessage::OPERATION_TASK_CO;
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
@@ -131,7 +138,7 @@ if (!function_exists('iloader')) {
 	 * @return \W7\Core\Helper\Loader
 	 */
 	function iloader() {
-		return \W7\App::getApp()->getLoader();
+		return App::getApp()->getLoader();
 	}
 }
 
@@ -141,17 +148,7 @@ if (!function_exists('ioutputer')) {
 	 * @return W7\Console\Io\Output
 	 */
 	function ioutputer() {
-		return iloader()->singleton(\W7\Console\Io\Output::class);
-	}
-}
-
-if (!function_exists('iinputer')) {
-	/**
-	 * 输入对象
-	 * @return W7\Console\Io\Input
-	 */
-	function iinputer() {
-		return iloader()->singleton(\W7\Console\Io\Input::class);
+		return iloader()->singleton(Output::class);
 	}
 }
 
@@ -181,7 +178,7 @@ if (!function_exists('idb')) {
 	 * @return \W7\Core\Database\DatabaseManager
 	 */
 	function idb() {
-		return \Illuminate\Database\Eloquent\Model::getConnectionResolver();
+		return Model::getConnectionResolver();
 	}
 }
 
@@ -209,7 +206,7 @@ if (!function_exists('irouter')) {
 	 * @return \W7\Core\Route\Route
 	 */
 	function irouter() {
-		return iloader()->singleton(\W7\Core\Route\Route::class);
+		return iloader()->singleton(Route::class);
 	}
 }
 
@@ -335,15 +332,19 @@ if (!function_exists('ienv')) {
 				return;
 		}
 
-		//常量解析
-		$exec = 'return ' . $value . ';';
-		try {
-			$result = @eval($exec);
-			if ($result !== false && $result !== "\0\0\0\0\0\0") {
-				$value = $result;
+		if (strpos($value, '|') !== false || strpos($value, '^') !== false) {
+			//常量解析
+			$exec = 'return ' . $value . ';';
+			try {
+				$result = @eval($exec);
+				if ($result !== false && $result !== "\0\0\0\0\0\0") {
+					$value = $result;
+				}
+			} catch (Throwable $e) {
+				//
 			}
-		} catch (Throwable $e) {
-			//
+		} elseif (defined($value)) {
+			$value = constant($value);
 		}
 
 		if (($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {
@@ -351,5 +352,13 @@ if (!function_exists('ienv')) {
 		}
 
 		return $value;
+	}
+}
+if (!function_exists('itrans')) {
+	function itrans($id = null, $replace = [], $locale = null) {
+		if (is_null($id)) {
+			return iloader()->singleton(Translator::class);
+		}
+		return iloader()->singleton(Translator::class)->trans($id, $replace, $locale);
 	}
 }

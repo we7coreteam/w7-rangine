@@ -37,14 +37,6 @@ abstract class ChannelAbstract {
 		return static::$sessionName;
 	}
 
-	protected function getExpires() {
-		if ($this->expires === null) {
-			$userExpires = (int)($this->config['expires'] ?? ini_get('session.gc_maxlifetime'));
-			$this->expires = $userExpires <= 0 ? 0 : time() + $userExpires;
-		}
-		return $this->expires;
-	}
-
 	protected function generateId() {
 		return \session_create_id();
 	}

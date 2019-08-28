@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Console\Command;
 
 use Illuminate\Filesystem\Filesystem;
@@ -14,9 +24,9 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 	protected $filesystem;
 	protected $name;
 
-
 	protected function configure() {
 		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the generate file name');
+		$this->addOption('--force', '-f', null, 'force overwrite file');
 		$this->filesystem = new Filesystem();
 	}
 
@@ -28,16 +38,21 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 
 		$this->before();
 
+		if (empty($options['force']) && $this->filesystem->exists($this->getRealPath())) {
+			throw new CommandException($this->name . ' already exists!');
+		}
+
 		$this->copyStub();
 		$this->replaceStub();
 		$this->renameStubs();
 
 		$this->after();
 
-		$this->output->info($this->name.' created successfully.');
+		$this->output->success($this->name.' created successfully.');
 	}
 
-	protected function before() {}
+	protected function before() {
+	}
 
 	/**
 	 * Get the stub file for the generator.
@@ -51,7 +66,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 			$this->filesystem->copyDirectory($this->getStub(), $this->rootPath());
 		} else {
 			if (!$this->filesystem->exists($this->rootPath())) {
-				$this->filesystem->makeDirectory($this->rootPath());
+				$this->filesystem->makeDirectory($this->rootPath(), 0755, true);
 			}
 			$this->filesystem->copy($this->getStub(), $this->rootPath() . $this->name . '.stub');
 		}
@@ -85,7 +100,8 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 		}
 	}
 
-	protected function after(){}
+	protected function after() {
+	}
 
 	/**
 	 * Replace the given string in the given file.
@@ -113,5 +129,9 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 		$savePath = trim($this->savePath(), '/');
 
 		return BASE_PATH . '/' . $savePath . '/';
+	}
+
+	protected function getRealPath() {
+		return $this->rootPath() . $this->name . '.php';
 	}
 }

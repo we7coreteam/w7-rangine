@@ -12,18 +12,18 @@
 
 namespace W7\Tcp\Listener;
 
-use W7\App;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Route\RouteMapping;
-use W7\Core\Helper\Storage\Context;
 use FastRoute\Dispatcher\GroupCountBased;
+use W7\Tcp\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		$context = App::getApp()->getContext();
-		$context->setContextDataByKey(Context::ROUTE_KEY, $this->getRoute());
-
-		return true;
+		/**
+		 * @var Dispatcher $requestDispatcher
+		 */
+		$requestDispatcher = iloader()->singleton(Dispatcher::class);
+		$requestDispatcher->setRouter($this->getRoute());
 	}
 
 	/**

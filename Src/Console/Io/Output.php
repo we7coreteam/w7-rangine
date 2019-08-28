@@ -1,16 +1,23 @@
 <?php
+
 /**
- * 处理控制台输出
- * @author Swoft\Console\Output
- * @date 18-7-19 上午10:18
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Console\Io;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
-class Output extends ConsoleOutput {
+class Output extends SymfonyStyle {
 	/**
 	 * 间隙字符
 	 */
@@ -21,71 +28,17 @@ class Output extends ConsoleOutput {
 	 */
 	const LEFT_CHAR = '  ';
 
+	public function __construct() {
+		parent::__construct(new ArgvInput(), new ConsoleOutput());
+	}
 
 	private function writeKey($key) {
 		echo "\033[0;32m$key \e[0m";
 	}
 
-	/**
-	 * Write a string as standard output.
-	 *
-	 * @param  string  $string
-	 * @param  string  $style
-	 * @param  int|string|null  $options
-	 * @return void
-	 */
-	public function line($string, $style = null, $options = null) {
-		$string = sprintf('<%s>%s</>', $style, $string);
-		$this->writeln($string, $options);
-	}
-
-	/**
-	 * Write a string as information output.
-	 *
-	 * @param  string  $string
-	 * @param  int|string|null  $options
-	 * @return void
-	 */
-	public function info($string, $options = null) {
-		$this->line($string, 'info', $options);
-	}
-
-	/**
-	 * Write a string as comment output.
-	 *
-	 * @param  string  $string
-	 * @param  int|string|null  $options
-	 * @return void
-	 */
-	public function comment($string, $options = null) {
-		$this->line($string, 'comment', $options);
-	}
-
-	/**
-	 * Write a string as question output.
-	 *
-	 * @param  string  $string
-	 * @param  int|string|null  $options
-	 * @return void
-	 */
-	public function question($string, $options = null) {
-		$this->line($string, 'question', $options);
-	}
-
-	/**
-	 * Write a string as error output.
-	 *
-	 * @param  string  $string
-	 * @param  int|string|null  $options
-	 * @return void
-	 */
-	public function error($string, $options = null) {
-		$this->line($string, 'error', $options);
-	}
-
-	public function table($header, $rows) {
+	public function table(array $headers, array $rows) {
 		$table = new Table($this);
-		$table->setHeaders($header);
+		$table->setHeaders($headers);
 		$table->setRows($rows);
 		$table->render();
 	}
@@ -108,6 +61,10 @@ class Output extends ConsoleOutput {
 			$this->writeItems((array)$items);
 			$this->writeln('');
 		}
+	}
+
+	public function info($content) {
+		$this->write('<info>'.$content.'</info>');
 	}
 
 	/**

@@ -14,7 +14,7 @@ namespace W7\WebSocket\Server;
 
 use Swoole\WebSocket\Server as WebSocketServer;
 use W7\Core\Server\ServerAbstract;
-use W7\Core\Config\Event;
+use W7\Core\Server\SwooleEvent;
 use W7\WebSocket\Message\Message;
 use W7\WebSocket\Parser\JsonParser;
 
@@ -25,7 +25,7 @@ class Server extends ServerAbstract {
 		$this->server = $this->getServer();
 		$this->server->set($this->setting);
 
-		ievent(Event::ON_USER_BEFORE_START, [$this->server]);
+		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
@@ -43,7 +43,7 @@ class Server extends ServerAbstract {
 			'open_http2_protocol' => false,
 			'open_http_protocol' => false
 		]);
-		$event = \iconfig()->getEvent()[parent::TYPE_WEBSOCKET];
+		$event = (new SwooleEvent())->getDefaultEvent()[parent::TYPE_WEBSOCKET];
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;
@@ -88,7 +88,7 @@ class Server extends ServerAbstract {
 	 *
 	 * @return int
 	 */
-	public function pageEach(callable $handler, int $pageSize = 50): int {
+	public function pageEach(callable $handler, $pageSize = 50): int {
 		$count = $startFd = 0;
 
 		while (true) {
@@ -116,7 +116,7 @@ class Server extends ServerAbstract {
 		return $count;
 	}
 
-	public function disconnect(int $fd, int $code = 0, string $reason = ''): bool {
+	public function disconnect($fd, $code = 0, $reason = ''): bool {
 		if ($this->server->isEstablished($fd)) {
 			return $this->server->disconnect($fd, $code, $reason);
 		}

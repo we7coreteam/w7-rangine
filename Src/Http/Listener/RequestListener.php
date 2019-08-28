@@ -17,11 +17,11 @@ use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
-use W7\Core\Config\Event;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
-use W7\Http\Server\Dispather;
+use W7\Http\Server\Dispatcher;
 
 class RequestListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -30,13 +30,13 @@ class RequestListener extends ListenerAbstract {
 	}
 
 	/**
+	 * @param Server $server
 	 * @param Request $request
 	 * @param Response $response
-	 * @return \Psr\Http\Message\ResponseInterface|Response
-	 * @throws \ReflectionException
+	 * @throws \Exception
 	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
-		ievent(Event::ON_USER_BEFORE_REQUEST);
+		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST);
 
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
@@ -45,10 +45,13 @@ class RequestListener extends ListenerAbstract {
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
 		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
 
-		$dispather = \iloader()->singleton(Dispather::class);
-		$psr7Response = $dispather->dispatch($psr7Request, $psr7Response);
+		/**
+		 * @var Dispatcher $dispatcher
+		 */
+		$dispatcher = \iloader()->singleton(Dispatcher::class);
+		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
-		ievent(Event::ON_USER_AFTER_REQUEST);
+		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 	}
 }

@@ -12,71 +12,14 @@
 
 namespace W7\Core\Config;
 
-use W7\Core\Listener\FinishListener;
-use W7\Core\Listener\ManagerStartListener;
-use W7\Core\Listener\PipeMessageListener;
-use W7\Core\Listener\StartListener;
-use W7\Core\Listener\TaskListener;
-use W7\Core\Listener\WorkerErrorListener;
-use W7\Core\Listener\WorkerStartListener;
-use W7\Core\Listener\WorkerStopListener;
 use W7\Core\Process\CrontabProcess;
 use W7\Core\Process\ReloadProcess;
-use W7\Http\Listener\RequestListener;
-use W7\Tcp\Listener\CloseListener;
-use W7\Tcp\Listener\ConnectListener;
-use W7\Tcp\Listener\ReceiveListener;
-use W7\WebSocket\Listener\CloseListener as WebSocketCloseListener;
-use W7\WebSocket\Listener\HandshakeListener;
-use W7\WebSocket\Listener\MessageListener;
-use W7\WebSocket\Listener\OpenListener;
 
 class Config {
 	const VERSION = '1.0.0';
 
 	private $server;
 	private $defaultServer = [];
-
-	private $event;
-	/**
-	 * 系统内置的一些事件侦听，用户也可以在config/app.php中进行附加配置
-	 */
-	private $defaultEvent = [
-		'task' => [
-			Event::ON_TASK => TaskListener::class,
-			Event::ON_FINISH => FinishListener::class,
-		],
-		'http' => [
-			Event::ON_REQUEST => RequestListener::class,
-		],
-		'tcp' => [
-			Event::ON_RECEIVE => ReceiveListener::class,
-			Event::ON_CONNECT => ConnectListener::class,
-			Event::ON_CLOSE => CloseListener::class,
-		],
-		'webSocket' => [
-			Event::ON_HAND_SHAKE => HandshakeListener::class,
-			Event::ON_CLOSE => WebSocketCloseListener::class,
-			Event::ON_MESSAGE => MessageListener::class,
-			Event::ON_OPEN => OpenListener::class
-		],
-		'manage' => [
-			Event::ON_START => StartListener::class,
-			Event::ON_MANAGER_START => ManagerStartListener::class,
-			Event::ON_WORKER_START => WorkerStartListener::class,
-			Event::ON_WORKER_STOP => WorkerStopListener::class,
-			Event::ON_WORKER_ERROR => WorkerErrorListener::class,
-			Event::ON_PIPE_MESSAGE => PipeMessageListener::class,
-		],
-		'system' =>[
-			Event::ON_USER_BEFORE_START,
-			Event::ON_USER_BEFORE_REQUEST,
-			Event::ON_USER_AFTER_REQUEST,
-			Event::ON_USER_TASK_FINISH,
-			Event::ON_USER_AFTER_REQUEST,
-			Event::ON_USER_HAND_SHAKE
-		],
-	];
 
 	private $process = [
 		ReloadProcess::class,
@@ -111,18 +54,6 @@ class Config {
 		if (!is_numeric(ENV) || ((RELEASE|DEVELOPMENT) & ENV) !== ENV) {
 			throw new \RuntimeException("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
 		}
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getEvent() {
-		if (!empty($this->event)) {
-			return $this->event;
-		}
-		$this->event = array_merge([], $this->defaultEvent, $this->getUserAppConfig('event'));
-
-		return $this->event;
 	}
 
 	/**

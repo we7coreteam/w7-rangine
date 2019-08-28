@@ -14,13 +14,14 @@ namespace W7\Core\Log;
 
 use Monolog\Handler\BufferHandler;
 use Monolog\Logger as MonoLogger;
+use W7\Core\Log\Handler\HandlerAbstract;
 use W7\Core\Log\Handler\HandlerInterface;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 class LogManager {
 	private $channel = [];
 	private $config;
-	private $commonProcessor;
+	private $commonProcessor = [];
 	private $commonSetting;
 
 	public function __construct() {
@@ -65,7 +66,6 @@ class LogManager {
 
 	/**
 	 * 初始化通道，
-	 * @param $channelConfig
 	 * @return bool
 	 */
 	private function initChannel() {
@@ -79,6 +79,9 @@ class LogManager {
 			if ($channel['driver'] == 'stack') {
 				$stack[$name] = $channel;
 			} else {
+				/**
+				 * @var HandlerAbstract $handlerClass
+				 */
 				$handlerClass = $this->checkHandler($channel['driver']);
 
 				$bufferLimit = $channel['buffer_limit'] ?? 1;
@@ -137,12 +140,9 @@ class LogManager {
 
 	private function initCommonProcessor() {
 		$swooleProcessor = iloader()->singleton(SwooleProcessor::class);
-		//不记录产生日志的文件和行号
-		//异常中会带，普通日志函数又是一样的
-		//$introProcessor = iloader()->singleton(IntrospectionProcessor::class);
 		return [
-			$swooleProcessor,
-			//$introProcessor
+			//用户自定义processor?
+			$swooleProcessor
 		];
 	}
 
@@ -162,10 +162,8 @@ class LogManager {
 		$logger = new Logger($name, [], []);
 		$logger->bufferLimit = $this->config['channel'][$name]['buffer_limit'] ?? 1;
 
-		if (!empty($this->commonProcessor)) {
-			foreach ($this->commonProcessor as $processor) {
-				$logger->pushProcessor($processor);
-			}
+		foreach ($this->commonProcessor as $processor) {
+			$logger->pushProcessor($processor);
 		}
 		return $logger;
 	}
@@ -187,6 +185,9 @@ class LogManager {
 		$loggers = $this->getLoggers($channel);
 
 		foreach ($loggers as $logger) {
+			/**
+			 * @var BufferHandler $handle
+			 */
 			foreach ($logger->getHandlers() as $handle) {
 				$handle->flush();
 			}

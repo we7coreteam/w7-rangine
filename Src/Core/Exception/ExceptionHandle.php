@@ -36,7 +36,7 @@ class ExceptionHandle {
 		}
 	}
 
-	public function log($throwable) {
+	public function log(\Throwable $throwable) {
 		$errorMessage = sprintf(
 			'Uncaught Exception %s: "%s" at %s line %s',
 			get_class($throwable),

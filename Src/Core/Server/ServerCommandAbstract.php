@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Server;
 
 use W7\App;
@@ -13,9 +23,8 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$server = $this->createServer();
 		$status = $server->getStatus();
 
-
 		if ($server->isRun()) {
-			$this->output->writeln("The server have been running!(PID: {$status['masterPid']})", true);
+			$this->output->warning("The server have been running!(PID: {$status['masterPid']})", true);
 			return $this->restart();
 		}
 
@@ -57,21 +66,20 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$server = $this->createServer();
 		// 是否已启动
 		if (!$server->isRun()) {
-			$this->output->writeln('The server is not running!', true, true);
+			$this->output->warning('The server is not running!', true, true);
+			return true;
 		}
-		$this->output->writeln(sprintf('Server %s is stopping ...', $server->type));
+		$this->output->info(sprintf('Server %s is stopping ...', $server->type));
 		$result = $server->stop();
 		if (!$result) {
-			$this->output->writeln(sprintf('Server %s stop fail', $server->type), true, true);
+			$this->output->warning(sprintf('Server %s stop fail', $server->type), true, true);
+			return false;
 		}
-		$this->output->writeln(sprintf('Server %s stop success!', $server->type));
+		$this->output->success(sprintf('Server %s stop success!', $server->type));
 	}
 
 	protected function restart() {
-		$server = $this->createServer();
-		if ($server->isRun()) {
-			$this->stop();
-		}
+		$this->stop();
 		$this->start();
 	}
 }

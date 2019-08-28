@@ -40,12 +40,17 @@ class App {
 	public function __construct() {
 		self::$self = $this;
 
-		//初始化配置
-		iconfig();
-		$this->registerRuntimeEnv();
-		$this->registerSecurityDir();
-		$this->registerErrorHandler();
-		$this->registerProvider();
+		try {
+			//初始化配置
+			iconfig();
+			$this->registerRuntimeEnv();
+			$this->registerSecurityDir();
+			$this->registerErrorHandler();
+			$this->registerProvider();
+		} catch (\Throwable $e) {
+			ioutputer()->error($e->getMessage());
+			throw $e;
+		}
 	}
 
 	private function registerRuntimeEnv() {
@@ -66,10 +71,13 @@ class App {
 			BASE_PATH . '/config',
 			BASE_PATH . '/route',
 			BASE_PATH . '/public',
+			BASE_PATH . '/components',
+			BASE_PATH . '/composer.json',
 			RUNTIME_PATH,
 			BASE_PATH . '/vendor',
 			$openBaseDirConfig,
-			session_save_path()
+			session_save_path(),
+			BASE_PATH . '/view'
 		];
 		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
@@ -96,7 +104,7 @@ class App {
 	}
 
 	private function registerProvider() {
-		iloader()->singleton(ProviderManager::class)->register()->boot();
+		$this->getLoader()->singleton(ProviderManager::class)->register()->boot();
 	}
 
 	public static function getApp() {
@@ -108,7 +116,7 @@ class App {
 
 	public function runConsole() {
 		try {
-			iloader()->singleton(Application::class)->run();
+			$this->getLoader()->singleton(Application::class)->run();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
 		}
@@ -128,7 +136,7 @@ class App {
 		/**
 		 * @var LogManager $logManager
 		 */
-		$logManager = iloader()->singleton(LogManager::class);
+		$logManager = $this->getLoader()->singleton(LogManager::class);
 		return $logManager->getDefaultChannel();
 	}
 
