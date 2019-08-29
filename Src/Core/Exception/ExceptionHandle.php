@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.rangine.com>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -13,36 +13,10 @@
 namespace W7\Core\Exception;
 
 class ExceptionHandle {
-	private $exceptionMap = [
-		'http' => HttpException::class,
-		'http_dev' => HttpDevException::class,
-		'http_release' => HttpReleaseException::class,
-		'tcp' => TcpException::class,
-		'tcp_dev' => TcpException::class,
-		'tcp_release' => HttpReleaseException::class
-	];
-	private static $userExceptionMap = [];
 	private $type;
-	private $env;
 
 	public function __construct($type) {
-		$this->type = $type;
-		$this->env = 'release';
-		if ((ENV & DEBUG) === DEBUG) {
-			$this->env = 'dev';
-		}
-	}
-
-	public static function registerUserExceptionMap($map) {
-		static::$userExceptionMap = $map;
-	}
-
-	private function getRealException($name) {
-		if (!empty(static::$userExceptionMap[$name])) {
-			return static::$userExceptionMap[$name];
-		}
-
-		return $name;
+		$this->type = ucfirst($type);
 	}
 
 	public function log(\Throwable $throwable) {
@@ -65,21 +39,13 @@ class ExceptionHandle {
 	public function handle(\Throwable $throwable) {
 		$previous = $throwable;
 		if (!($throwable instanceof ResponseExceptionAbstract)) {
-			$exception = $this->exceptionMap[$this->type . '_' . $this->env];
-			$exception = $this->getRealException($exception);
-			$throwable = new $exception($throwable->getMessage(), $throwable->getCode(), $throwable);
-		} elseif (!empty(static::$userExceptionMap[get_class($throwable)])) {
-			$userException =  $this->getRealException(get_class($throwable));
-			$throwable = new $userException($throwable->getMessage(), $throwable->getCode(), $throwable->getPrevious());
+			$class = 'W7\Core\Exception\\' . $this->type . 'FatalException';
+			$throwable = new $class($throwable->getMessage(), $throwable->getCode(), $throwable);
 		}
 
 		if ($throwable->isLoggable) {
 			$this->log($previous);
 		}
 		return $throwable->render();
-	}
-
-	public function registerException($type, $class) {
-		$this->exceptionMap[$type] = $class;
 	}
 }
