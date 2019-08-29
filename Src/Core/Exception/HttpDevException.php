@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Exception;
 
 use Psr\Http\Message\ResponseInterface;
@@ -10,7 +20,7 @@ use Whoops\Run;
 class HttpDevException extends HttpException {
 	public function render(): ResponseInterface {
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$content = 'message: ' . $this->getMessage() . "<br/>file: " . $this->getFile() . "<br/>line: " . $this->getLine();
+			$content = 'message: ' . $this->getMessage() . '<br/>file: ' . $this->getFile() . '<br/>line: ' . $this->getLine();
 		} else {
 			ob_start();
 			$render = new PrettyPageHandler();
@@ -22,6 +32,6 @@ class HttpDevException extends HttpException {
 			$content = ob_get_clean();
 		}
 
-		return $this->response->withContent($content);
+		return $this->response->html($content);
 	}
 }

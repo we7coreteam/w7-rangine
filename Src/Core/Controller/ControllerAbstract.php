@@ -55,7 +55,7 @@ abstract class ControllerAbstract {
 	}
 
 	protected function responseHtml($data) {
-		return $this->response()->withHeader('Content-Type', 'text/html;charset=utf-8')->withContent($data);
+		return $this->response()->html($data);
 	}
 
 	protected function render($name, $context = []) {
