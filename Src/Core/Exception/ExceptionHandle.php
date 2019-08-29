@@ -64,11 +64,11 @@ class ExceptionHandle {
 
 	public function handle(\Throwable $throwable) {
 		$previous = $throwable;
-		if (!($throwable instanceof ResponseException)) {
+		if (!($throwable instanceof ResponseExceptionAbstract)) {
 			$exception = $this->exceptionMap[$this->type . '_' . $this->env];
 			$exception = $this->getRealException($exception);
 			$throwable = new $exception($throwable->getMessage(), $throwable->getCode(), $throwable);
-		} else if (!empty(static::$userExceptionMap[get_class($throwable)])) {
+		} elseif (!empty(static::$userExceptionMap[get_class($throwable)])) {
 			$userException =  $this->getRealException(get_class($throwable));
 			$throwable = new $userException($throwable->getMessage(), $throwable->getCode(), $throwable->getPrevious());
 		}

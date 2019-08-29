@@ -14,7 +14,7 @@ namespace W7\Core\Exception;
 
 use Psr\Http\Message\ResponseInterface;
 
-class HttpException extends TcpException {
+class HttpException extends ResponseExceptionAbstract {
 	public function render(): ResponseInterface {
 		return $this->response->withData(['error' => $this->getMessage()], $this->getCode());
 	}
