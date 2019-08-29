@@ -45,5 +45,9 @@
 			"Src/Core/Helper/Functions.php",
 			"Src/Core/Config/Define.php"
 		]
-	}
+	},
+	"bin": [
+		"bin/rangine-server",
+		"bin/rangine-gerent"
+	]
 }
