@@ -21,6 +21,7 @@ class ExceptionHandle {
 		'tcp_dev' => TcpException::class,
 		'tcp_release' => HttpReleaseException::class
 	];
+	private static $userExceptionMap = [];
 	private $type;
 	private $env;
 
@@ -30,6 +31,18 @@ class ExceptionHandle {
 		if ((ENV & DEBUG) === DEBUG) {
 			$this->env = 'dev';
 		}
+	}
+
+	public static function registerUserExceptionMap($map) {
+		static::$userExceptionMap = $map;
+	}
+
+	private function getRealException($name) {
+		if (!empty(static::$userExceptionMap[$name])) {
+			return static::$userExceptionMap[$name];
+		}
+
+		return $name;
 	}
 
 	public function log(\Throwable $throwable) {
@@ -53,8 +66,13 @@ class ExceptionHandle {
 		$previous = $throwable;
 		if (!($throwable instanceof ResponseException)) {
 			$exception = $this->exceptionMap[$this->type . '_' . $this->env];
+			$exception = $this->getRealException($exception);
 			$throwable = new $exception($throwable->getMessage(), $throwable->getCode(), $throwable);
+		} else if (!empty(static::$userExceptionMap[get_class($throwable)])) {
+			$userException =  $this->getRealException(get_class($throwable));
+			$throwable = new $userException($throwable->getMessage(), $throwable->getCode(), $throwable->getPrevious());
 		}
+
 		if ($throwable->isLoggable) {
 			$this->log($previous);
 		}

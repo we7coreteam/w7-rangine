@@ -16,7 +16,8 @@ use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Exception\ExceptionHandle;
-use W7\Core\Exception\HttpException;
+use W7\Core\Exception\RouteNotAllowException;
+use W7\Core\Exception\RouteNotFoundException;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Http\Message\Server\Request;
@@ -70,10 +71,10 @@ class RequestDispatcher extends DispatcherAbstract {
 		$controller = $method = '';
 		switch ($route[0]) {
 			case Dispatcher::NOT_FOUND:
-				throw new HttpException('Route not found', 404);
+				throw new RouteNotFoundException('Route not found', 404);
 				break;
 			case Dispatcher::METHOD_NOT_ALLOWED:
-				throw new HttpException('Route not allowed', 405);
+				throw new RouteNotAllowException('Route not allowed', 405);
 				break;
 			case Dispatcher::FOUND:
 				if ($route[1]['handler'] instanceof \Closure) {
