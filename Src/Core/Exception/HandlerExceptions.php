@@ -24,16 +24,12 @@ class HandlerExceptions {
 	 */
 	private $handler;
 
-	public function __construct() {
-		$this->registerErrorHandle();
-	}
-
 	/**
 	 * Register system error handle
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	protected function registerErrorHandle(): void {
+	public function registerErrorHandle(): void {
 		set_error_handler([$this, 'handleError'], error_reporting());
 		set_exception_handler([$this, 'handleException']);
 		register_shutdown_function(function () {

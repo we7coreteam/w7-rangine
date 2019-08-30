@@ -90,7 +90,7 @@ class App {
 		/**
 		 * 设置错误信息接管
 		 */
-		iloader()->singleton(HandlerExceptions::class);
+		iloader()->singleton(HandlerExceptions::class)->registerErrorHandle();
 	}
 
 	private function registerProvider() {
