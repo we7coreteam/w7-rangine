@@ -52,8 +52,8 @@ class HandlerExceptions {
 	 * @param int $line
 	 * @throws \ErrorException
 	 */
-	public function handleError(int $num, string $str, string $file, int $line): void {
-		throw new \ErrorException($str, 0, $num, $file, $line);
+	public function handleError(int $type, string $message, string $file, int $line): void {
+		throw new \ErrorException($message, 0, $type, $file, $line);
 	}
 
 	public function log(\Throwable $throwable) {
