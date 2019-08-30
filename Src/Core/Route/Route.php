@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-12-17 下午8:18
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Route;
@@ -167,21 +173,15 @@ class Route {
 	}
 
 	private function getStaticResourceHandle($view, $data = []) {
-		if (\swoole_version() < '4.4.0') {
-			throw new \RuntimeException('Please upgrade swoole to 4.4.0 or later');
-		}
 		$module = $this->getModule();
-		return function () use ($view, $data, $module) {
-			App::$server->setting['static_handler_locations'] = App::$server->setting['static_handler_locations'] ?? [];
-			App::$server->setting['static_handler_locations'][] = $view;
-			App::$server->getServer()->set(App::$server->setting);
 
-			$view = ltrim($view, '/');
-			//如果是通过provider注册的，自动补充前缀
-			if ($module !== $this->defaultModule) {
-				$view = $module . '/' . $view;
-			}
+		$view = ltrim($view, '/');
+		//如果是通过provider注册的，自动补充前缀
+		if ($module !== $this->defaultModule) {
+			$view = $module . '/' . $view;
+		}
 
+		return function () use ($view) {
 			return App::getApp()->getContext()->getResponse()->redirect('/' . $view);
 		};
 	}
