@@ -48,7 +48,7 @@ class App {
 			$this->registerProvider();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
-			throw $e;
+			exit();
 		}
 	}
 
