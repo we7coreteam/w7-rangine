@@ -21,7 +21,7 @@ use W7\Core\Log\Processor\SwooleProcessor;
 class LogManager {
 	private $channel = [];
 	private $config;
-	private $commonProcessor;
+	private $commonProcessor = [];
 	private $commonSetting;
 
 	public function __construct() {
@@ -144,8 +144,8 @@ class LogManager {
 		//异常中会带，普通日志函数又是一样的
 		//$introProcessor = iloader()->singleton(IntrospectionProcessor::class);
 		return [
-			$swooleProcessor,
-			//$introProcessor
+			//用户自定义processor?
+			$swooleProcessor
 		];
 	}
 
@@ -165,10 +165,8 @@ class LogManager {
 		$logger = new Logger($name, [], []);
 		$logger->bufferLimit = $this->config['channel'][$name]['buffer_limit'] ?? 1;
 
-		if (!empty($this->commonProcessor)) {
-			foreach ($this->commonProcessor as $processor) {
-				$logger->pushProcessor($processor);
-			}
+		foreach ($this->commonProcessor as $processor) {
+			$logger->pushProcessor($processor);
 		}
 		return $logger;
 	}

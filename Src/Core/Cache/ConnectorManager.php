@@ -19,7 +19,7 @@ use W7\Core\Cache\Pool\Pool;
 class ConnectorManager {
 	private $config;
 	private $pool;
-	
+
 	public function __construct() {
 		$this->pool = [];
 		$this->config['connection'] = \iconfig()->getUserAppConfig('cache') ?? [];
@@ -34,7 +34,7 @@ class ConnectorManager {
 			throw new \RuntimeException('Cache is not configured.');
 		}
 
-		if (!$poolConfig || empty($poolConfig['enable'])) {
+		if (empty($poolConfig) || empty($poolConfig['enable'])) {
 			ilogger()->channel('cache')->debug($name . ' create connection without pool');
 			/**
 			 * @var HandlerAbstract $handlerClass
@@ -52,14 +52,14 @@ class ConnectorManager {
 		}
 		list($poolType, $poolName) = explode(':', $connection->poolName);
 
-		$this->getPool($poolName)->releaseConnection($connection);
+		return $this->getPool($poolName)->releaseConnection($connection);
 	}
 
 	/**
 	 * @param $name
 	 * @return mixed
 	 */
-	private function getPool($name) {
+	private function getPool($name) : Pool {
 		if (!empty($this->pool[$name])) {
 			return $this->pool[$name];
 		}

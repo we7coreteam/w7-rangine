@@ -20,10 +20,10 @@ class SmartyHandler extends HandlerAbstract {
 
 	protected function init() {
 		$this->smarty = new \Smarty();
-		$this->smarty->setTemplateDir(self::$templatePath);
-		$this->smarty->setCacheDir($this->config['cache_path'] ?? self::$templatePath[0] . '/cache');
-		$this->smarty->setCompileDir($this->config['compiler_path'] ?? self::$templatePath[0] . '/compiler');
-		$this->smarty->debugging = (ENV & DEBUG) === DEBUG;
+		$this->smarty->setTemplateDir(self::$defaultTemplatePath);
+		$this->smarty->setCacheDir($this->config['cache_path'] ?? self::$defaultTemplatePath . '/cache');
+		$this->smarty->setCompileDir($this->config['compiler_path'] ?? self::$defaultTemplatePath . '/compiler');
+		$this->smarty->debugging = $this->config['debug'];
 		if (!empty($this->config['cache'])) {
 			$this->smarty->caching = 1;
 			$this->smarty->setCacheLifetime($this->config['life_time'] ?? $this->smarty->cache_lifetime);
@@ -42,7 +42,11 @@ class SmartyHandler extends HandlerAbstract {
 		$this->smarty->registerObject($name, $object, null, false);
 	}
 
-	public function render($name, $context = []): string {
+	public function render($namespace, $name, $context = []): string {
+		if ($namespace !== self::DEFAULT_NAMESPACE) {
+			$this->smarty->setTemplateDir(self::$providerTemplatePath[$namespace]);
+		}
+
 		foreach ($context as $key => $item) {
 			$this->smarty->assign($key, $item);
 		}

@@ -24,6 +24,7 @@ class Server extends ServerAbstract {
 			$this->connection['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
 		$this->server = $this->getServer();
+		$this->setting['http_parse_post'] = true;
 		$this->server->set($this->setting);
 
 		//执行一些公共操作，注册事件等

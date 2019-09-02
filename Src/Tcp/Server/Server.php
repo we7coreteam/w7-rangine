@@ -43,7 +43,7 @@ class Server extends ServerAbstract {
 			'open_http_protocol' => false,
 			'open_websocket_protocol' => false,
 		]);
-		$event = \iconfig()->getEvent()[parent::TYPE_TCP];
+		$event = (new SwooleEvent())->getDefaultEvent()[parent::TYPE_TCP];
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;

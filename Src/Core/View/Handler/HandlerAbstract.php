@@ -16,15 +16,17 @@ use W7\App;
 use W7\Core\Exception\DumpException;
 
 abstract class HandlerAbstract {
-	protected $config;
-	protected static $templatePath = [];
+	protected $config = [];
+	protected static $providerTemplatePath = [];
+	protected static $defaultTemplatePath;
+	const DEFAULT_NAMESPACE = '__MAIN__';
 	const __STATIC__ = '__STATIC__';
 	const __CSS__ = '__CSS__';
 	const __JS__ = '__JS__';
 	const __IMAGES__ = '__IMAGES__';
 
-	public function __construct($config) {
-		$config['debug'] = $config['debug'] ?? ((ENV & DEBUG) === DEBUG);
+	public function __construct(array $config) {
+		$config['debug'] = (ENV & DEBUG) === DEBUG;
 		$this->config = $config;
 
 		$this->initTemplatePath();
@@ -35,14 +37,11 @@ abstract class HandlerAbstract {
 	}
 
 	protected function initTemplatePath() {
-		if (!static::$templatePath) {
-			$config = $this->config['template_path'] ?? '';
-			$config = is_array($config) ? $config : [];
-			array_unshift($config, BASE_PATH . '/view');
-			static::$templatePath = $config;
+		if (!static::$defaultTemplatePath) {
+			//通过provider注册时把provider的path加进来
+			static::$providerTemplatePath = (array)($this->config['provider_template_path'] ?? []);
+			static::$defaultTemplatePath = BASE_PATH . '/view';
 		}
-
-		return static::$templatePath;
 	}
 
 	protected function init() {
@@ -86,5 +85,5 @@ abstract class HandlerAbstract {
 	abstract public function registerConst($name, $value);
 	abstract public function registerObject($name, $object);
 
-	abstract public function render($name, $context = []) : string;
+	abstract public function render($namespace, $name, $context = []) : string;
 }

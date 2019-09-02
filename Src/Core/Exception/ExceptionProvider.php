@@ -12,13 +12,17 @@
 
 namespace W7\Core\Exception;
 
-use W7\App;
+use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Provider\ProviderAbstract;
 
 class ExceptionProvider extends ProviderAbstract {
 	public function register() {
-		iloader()->set(ExceptionHandle::class, function () {
-			return new ExceptionHandle(App::$server->type);
-		});
+		$userHandler = 'W7\App\Handler\Exception\ExceptionHandler';
+		if (class_exists($userHandler)) {
+			$handler = new $userHandler();
+			if ($handler instanceof ExceptionHandler) {
+				iloader()->get(HandlerExceptions::class)->setHandler($handler);
+			}
+		}
 	}
 }

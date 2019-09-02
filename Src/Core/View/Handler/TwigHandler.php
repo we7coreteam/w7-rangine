@@ -24,8 +24,10 @@ class TwigHandler extends HandlerAbstract {
 	private $twig;
 
 	protected function init() {
-		$loader = new FilesystemLoader(self::$templatePath, self::$templatePath[0]);
-		$this->config['debug'] = (ENV & DEBUG) === DEBUG;
+		$loader = new FilesystemLoader([self::$defaultTemplatePath], self::$defaultTemplatePath);
+		foreach (self::$providerTemplatePath as $namespace => $path) {
+			$loader->setPaths($path, $namespace);
+		}
 		$this->twig = new Environment($loader, $this->config);
 		if ($this->config['debug']) {
 			$this->twig->addExtension(new DebugExtension());
@@ -44,7 +46,10 @@ class TwigHandler extends HandlerAbstract {
 		$this->twig->addGlobal($name, $object);
 	}
 
-	public function render($name, $context = []) : string {
+	public function render($namespace, $name, $context = []) : string {
+		if ($namespace !== self::DEFAULT_NAMESPACE) {
+			$name = '@' . $namespace . '/' . $name;
+		}
 		return $this->twig->render($name, $context);
 	}
 }

@@ -10,12 +10,13 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Exception;
+namespace W7\Core\Exception\Handler;
 
 use Psr\Http\Message\ResponseInterface;
+use W7\Core\Exception\ResponseExceptionAbstract;
 
-class HttpException extends ResponseExceptionAbstract {
-	public function render(): ResponseInterface {
-		return $this->response->withData(['error' => $this->getMessage()], $this->getCode());
+class ExceptionHandler extends HandlerAbstract {
+	public function handle(ResponseExceptionAbstract $e) : ResponseInterface {
+		return $e->render();
 	}
 }

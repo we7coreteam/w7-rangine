@@ -23,6 +23,7 @@ class View {
 
 	public function __construct() {
 		$this->config = iconfig()->getUserAppConfig('view');
+		$this->config['suffix'] = empty($this->config['suffix']) ? 'html' : $this->config['suffix'];
 	}
 
 	private function getHandler() : HandlerAbstract {
@@ -46,10 +47,16 @@ class View {
 		return $this->handlerClass;
 	}
 
-	public function addTemplatePath($path) {
-		$this->config['template_path'] = $this->config['template_path'] ?? '';
-		$this->config['template_path'] = is_array($this->config['template_path']) ? $this->config['template_path'] : [];
-		$this->config['template_path'][] = $path;
+	public function getSuffix() {
+		return $this->config['suffix'];
+	}
+
+	public function addProviderTemplatePath($namespace, $path) {
+		$this->config['provider_template_path'] = (array)($this->config['provider_template_path'] ?? []);
+		if (!empty($this->config['provider_template_path'][$namespace])) {
+			throw new \RuntimeException('the namespace ' . $namespace . ' is exist');
+		}
+		$this->config['provider_template_path'][$namespace] = $path;
 	}
 
 	public function registerFunction($name, $callback) {
@@ -76,9 +83,25 @@ class View {
 		}
 	}
 
+	private function parseName($name) {
+		if (isset($name[0]) && '@' == $name[0]) {
+			if (false === $pos = strpos($name, '/')) {
+				throw new \RuntimeException(sprintf('Malformed namespaced template name "%s" (expecting "@namespace/template_name").', $name));
+			}
+
+			$namespace = substr($name, 1, $pos - 1);
+			$name = substr($name, $pos + 1);
+
+			return [$namespace, $name];
+		}
+
+		return [HandlerAbstract::DEFAULT_NAMESPACE, $name];
+	}
+
 	public function render($name, $context = []) {
 		$handler = $this->getHandler();
 		$this->addResourceToHandler($handler);
-		return $handler->render($name, $context);
+		[$namespace, $name] = $this->parseName($name);
+		return $handler->render($namespace, $name . '.'. $this->getSuffix(), $context);
 	}
 }

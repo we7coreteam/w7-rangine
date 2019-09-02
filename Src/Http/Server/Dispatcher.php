@@ -14,11 +14,9 @@ namespace W7\Http\Server;
 
 use W7\Core\Dispatcher\RequestDispatcher;
 use W7\Core\Session\Middleware\SessionMiddleware;
-use W7\Http\Middleware\CookieMiddleware;
 
 class Dispatcher extends RequestDispatcher {
 	public $beforeMiddleware = [
-		[CookieMiddleware::class],
 		[SessionMiddleware::class]
 	];
 }

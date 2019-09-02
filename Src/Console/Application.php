@@ -21,6 +21,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Application extends SymfontApplication {
 	public function __construct() {
@@ -79,29 +80,41 @@ class Application extends SymfontApplication {
 	}
 
 	private function registerCommands() {
-		$systemCommands = [];
-		foreach ((new Finder)->in(RANGINE_FRAMEWORK_PATH  . '/Console/Command/')->files() as $file) {
-			if ($file->getExtension() !== 'php') {
-				continue;
-			}
+		$this->autoRegisterCommands(RANGINE_FRAMEWORK_PATH  . '/Console/Command', '\\W7\\Console', 'rangine');
+		$this->autoRegisterCommands(APP_PATH  . '/Command', '\\W7\\App', 'app');
+	}
 
-			if (strrchr($file->getFilename(), 'Abstract') === false) {
-				$dir = str_replace([RANGINE_FRAMEWORK_PATH . '/Console/Command/', '/'], ['', '\\'], $file->getPath());
-
-				$parent = str_replace('\\', ':', $dir);
-				$fileName = substr($file->getBasename(), 0, -4);
-				$name = strtolower(rtrim($parent . ':' . $fileName, 'Command'));
-
-				$systemCommands[$name] = '\\W7\\Console\\Command\\' . $dir . '\\' . $fileName;
-			}
-		}
-		$userCommands = iconfig()->getUserConfig('command');
-		$commands = array_merge($systemCommands, $userCommands);
-
+	public function autoRegisterCommands($path, $namespace, $group, $forceGroup = false) {
+		$commands = $this->findCommands($path, $namespace, $group, $forceGroup);
 		foreach ($commands as $name => $class) {
 			$commandObj = new $class($name);
 			$this->add($commandObj);
 		}
+	}
+
+	private function findCommands($path, $namespace, $defaultGroup, $forceGroup = false) {
+		$commands = [];
+
+		$files = Finder::create()
+			->in($path)
+			->files()
+			->ignoreDotFiles(true)
+			->name('/^[\w\W\d]+Command.php$/');
+		$prefix = $forceGroup ? $defaultGroup . ':' : '';
+
+		/**
+		 * @var SplFileInfo $file
+		 */
+		foreach ($files as $file) {
+			$dir = trim(str_replace([$path, '/'], ['', '\\'], $file->getPath()), '\\');
+			//如果command没有组,默认属于$defaultGroup下
+			$parent = str_replace('\\', ':', $dir == '' ? $defaultGroup : $prefix . $dir);
+			$name = strtolower($parent . ':' . $file->getBasename('Command.php'));
+
+			$commands[$name] = $namespace . '\\Command\\' . ($dir !== '' ? $dir . '\\' : '') . $file->getBasename('.php');
+		}
+
+		return $commands;
 	}
 
 	private function checkCommand($input) {

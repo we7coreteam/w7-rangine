@@ -10,15 +10,12 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Http\Middleware;
+namespace W7\Http\Provider;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Middleware\MiddlewareAbstract;
+use W7\Core\Provider\ProviderAbstract;
 
-class CookieMiddleware extends MiddlewareAbstract {
-	public function __construct() {
+class CookieProvider extends ProviderAbstract {
+	public function register() {
 		$this->initCookieEnv();
 	}
 
@@ -41,9 +38,5 @@ class CookieMiddleware extends MiddlewareAbstract {
 		if (isset($config['expires']) && $config['expires'] >= 0) {
 			ini_set('session.cookie_lifetime', (int)$config['expires']);
 		}
-	}
-
-	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		return $handler->handle($request);
 	}
 }

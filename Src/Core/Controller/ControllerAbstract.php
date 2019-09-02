@@ -15,7 +15,7 @@ namespace W7\Core\Controller;
 use W7\App;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
-use W7\Core\Exception\HttpException;
+use W7\Core\Exception\ValidatorException;
 use W7\Core\View\View;
 use W7\Http\Message\Server\Request;
 
@@ -53,7 +53,7 @@ abstract class ControllerAbstract {
 	}
 
 	protected function responseHtml($data) {
-		return $this->response()->withHeader('Content-Type', 'text/html;charset=utf-8')->withContent($data);
+		return $this->response()->html($data);
 	}
 
 	protected function render($name, $context = []) {
@@ -62,7 +62,7 @@ abstract class ControllerAbstract {
 
 	public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = []) {
 		if (empty($request)) {
-			throw new HttpException('Request object not found');
+			throw new ValidatorException('Request object not found');
 		}
 		$requestData = array_merge([], $request->getQueryParams(), $request->post());
 		try {
@@ -78,7 +78,7 @@ abstract class ControllerAbstract {
 			foreach ($errors as $field => $message) {
 				$errorMessage[] = $field . ' : ' . $message[0];
 			}
-			throw new HttpException(implode('; ', $errorMessage));
+			throw new ValidatorException(implode('; ', $errorMessage));
 		}
 		return $result;
 	}

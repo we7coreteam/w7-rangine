@@ -109,29 +109,20 @@ abstract class ProviderAbstract {
 		}
 	}
 
-	protected function registerView() {
-		$this->view->addTemplatePath($this->rootPath . '/view/');
-	}
-
-	protected function publishView($sourceFileName, $targetFileName = null, $group = null) {
-		if (!$targetFileName) {
-			$targetFileName = $sourceFileName;
-		}
-		$this->publishes([
-			$this->rootPath . '/view/' . $sourceFileName => BASE_PATH . '/view/' . $targetFileName
-		], $group);
+	protected function registerView($namespace) {
+		$this->view->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
 	}
 
 	protected function registerProvider($provider) {
 		iloader()->get(ProviderManager::class)->registerProvider($provider);
 	}
 
-	protected function registerCommand($name, $class) {
+	protected function registerCommand($group = null, $forceGroup = false) {
 		/**
-		 * @var  Application
+		 * @var  Application $application
 		 */
 		$application = iloader()->get(Application::class);
-		$application->add(new $class($name));
+		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $group ?? $this->name, $forceGroup);
 	}
 
 	protected function registerProcess($name, $class) {
