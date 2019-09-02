@@ -12,5 +12,10 @@
 
 namespace W7\Core\Exception;
 
-class FaviconException extends RouteNotFoundException {
+use Psr\Http\Message\ResponseInterface;
+
+class FaviconException extends ResponseExceptionAbstract {
+	public function render(): ResponseInterface {
+		return $this->response->withData(['error' => $this->getMessage()], $this->getCode());
+	}
 }
