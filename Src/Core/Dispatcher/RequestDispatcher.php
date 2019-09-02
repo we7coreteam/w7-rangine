@@ -15,8 +15,10 @@ namespace W7\Core\Dispatcher;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
-use W7\Core\Exception\ExceptionHandle;
-use W7\Core\Exception\HttpException;
+use W7\Core\Exception\FaviconException;
+use W7\Core\Exception\HandlerExceptions;
+use W7\Core\Exception\RouteNotAllowException;
+use W7\Core\Exception\RouteNotFoundException;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Http\Message\Server\Request;
@@ -51,7 +53,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			$middlewareHandler = new MiddlewareHandler($middleWares);
 			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
-			$response = iloader()->withClass(ExceptionHandle::class)->withParams('type', App::$server->type)->withSingle()->get()->handle($throwable);
+			$response = iloader()->singleton(HandlerExceptions::class)->handle($throwable);
 		} finally {
 			return $response;
 		}
@@ -64,16 +66,19 @@ class RequestDispatcher extends DispatcherAbstract {
 	private function getRoute(ServerRequestInterface $request) {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
+		if ($url === '/favicon.ico') {
+			throw new FaviconException('Route Ignore', 404);
+		}
 
 		$route = $this->router->dispatch($httpMethod, $url);
 
 		$controller = $method = '';
 		switch ($route[0]) {
 			case Dispatcher::NOT_FOUND:
-				throw new HttpException('Route not found', 404);
+				throw new RouteNotFoundException('Route not found', 404);
 				break;
 			case Dispatcher::METHOD_NOT_ALLOWED:
-				throw new HttpException('Route not allowed', 405);
+				throw new RouteNotAllowException('Route not allowed', 405);
 				break;
 			case Dispatcher::FOUND:
 				if ($route[1]['handler'] instanceof \Closure) {

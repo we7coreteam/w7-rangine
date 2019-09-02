@@ -15,14 +15,13 @@ namespace W7;
 use W7\Console\Application;
 use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
+use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Helper\Loader;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogManager;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
-use Whoops\Handler\PlainTextHandler;
-use Whoops\Run;
 
 class App {
 	private static $self;
@@ -49,7 +48,7 @@ class App {
 			$this->registerProvider();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
-			throw $e;
+			exit();
 		}
 	}
 
@@ -91,16 +90,7 @@ class App {
 		/**
 		 * 设置错误信息接管
 		 */
-		$processer = new Run();
-		$handle = new PlainTextHandler($this->getLogger());
-		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$handle->addTraceToOutput(false);
-			$handle->addPreviousToOutput(false);
-		}
-		$processer->prependHandler($handle);
-		$processer->allowQuit(false);
-		$processer->writeToOutput(false);
-		$processer->register();
+		iloader()->singleton(HandlerExceptions::class)->registerErrorHandle();
 	}
 
 	private function registerProvider() {

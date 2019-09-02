@@ -14,8 +14,12 @@ namespace W7\Core\Exception;
 
 use Psr\Http\Message\ResponseInterface;
 
-class HttpException extends ResponseExceptionAbstract {
-	public function render(): ResponseInterface {
+class TcpFatalException extends FatalExceptionAbstract {
+	protected function development(): ResponseInterface {
 		return $this->response->withData(['error' => $this->getMessage()], $this->getCode());
+	}
+
+	protected function release(): ResponseInterface {
+		return $this->response->withData(['error' => '系统内部错误'], 500);
 	}
 }

@@ -15,7 +15,7 @@ namespace W7\Core\Exception;
 use W7\App;
 use Psr\Http\Message\ResponseInterface;
 
-abstract class ResponseException extends \LogicException {
+abstract class ResponseExceptionAbstract extends \LogicException {
 	protected $response;
 	/**
 	 * 该类异常是否需要写入日志

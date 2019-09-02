@@ -12,19 +12,11 @@
 
 namespace W7\Core\Config;
 
-use W7\Core\Process\CrontabProcess;
-use W7\Core\Process\ReloadProcess;
-
 class Config {
-	const VERSION = '1.0.0';
+	const VERSION = '1.3.0';
 
 	private $server;
 	private $defaultServer = [];
-
-	private $process = [
-		ReloadProcess::class,
-		CrontabProcess::class,
-	];
 
 	private $config = [];
 
@@ -68,13 +60,6 @@ class Config {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getProcess() {
-		return $this->process;
-	}
-
-	/**
 	 * 获取config目录下配置文件
 	 * @param $type
 	 * @return mixed|null
@@ -101,6 +86,9 @@ class Config {
 	}
 
 	public function setUserConfig($name, $data) {
+		if ($name === 'server') {
+			$this->server = [];
+		}
 		$this->config['config'][$name] = $data;
 	}
 

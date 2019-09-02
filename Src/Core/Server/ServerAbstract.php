@@ -17,6 +17,8 @@ use Swoole\Process;
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Exception\CommandException;
+use W7\Core\Process\CrontabProcess;
+use W7\Core\Process\ReloadProcess;
 
 abstract class ServerAbstract implements ServerInterface {
 	const TYPE_HTTP = 'http';
@@ -28,6 +30,11 @@ abstract class ServerAbstract implements ServerInterface {
 	 * @var \Swoole\Http\Server
 	 */
 	public $server;
+
+	protected $process = [
+		ReloadProcess::class,
+		CrontabProcess::class
+	];
 
 	/**
 	 * 服务类型
@@ -139,8 +146,7 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerProcesser() {
-		$processName = \iconfig()->getProcess();
-		foreach ($processName as $name) {
+		foreach ($this->process as $name) {
 			\iprocess($name, App::$server->server);
 		}
 
