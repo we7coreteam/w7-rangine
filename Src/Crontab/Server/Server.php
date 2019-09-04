@@ -13,12 +13,15 @@
 namespace W7\Crontab\Server;
 
 use W7\Core\Process\ProcessServerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Crontab\Process\CrontabDispatcher;
 use W7\Crontab\Process\CrontabExecutor;
 
 class Server extends ProcessServerAbstract {
+	public $canAddSubServer =  false;
+
 	public function getType() {
-		return parent::TYPE_CRONTAB;
+		return ServerEnum::TYPE_CRONTAB;
 	}
 
 	protected function getSetting() {

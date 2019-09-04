@@ -13,10 +13,13 @@
 namespace W7\Process\Server;
 
 use W7\Core\Process\ProcessServerAbstract;
+use W7\Core\Server\ServerEnum;
 
 class Server extends ProcessServerAbstract {
+	public $canAddSubServer =  false;
+
 	public function getType() {
-		return parent::TYPE_PROCESS;
+		return ServerEnum::TYPE_PROCESS;
 	}
 
 	protected function register() {

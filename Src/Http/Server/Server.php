@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-20 上午9:14
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Http\Server;
@@ -9,10 +15,11 @@ namespace W7\Http\Server;
 use Swoole\Http\Server as HttpServer;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Config\Event;
+use W7\Core\Server\ServerEnum;
 
 class Server extends ServerAbstract {
 	public function getType() {
-		return parent::TYPE_HTTP;
+		return ServerEnum::TYPE_HTTP;
 	}
 
 	public function start() {

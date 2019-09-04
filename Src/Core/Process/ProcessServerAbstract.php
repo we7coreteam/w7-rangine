@@ -33,6 +33,10 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 		];
 	}
 
+	protected function checkSetting() {
+		return true;
+	}
+
 	protected function register() {
 	}
 

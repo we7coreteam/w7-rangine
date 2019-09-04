@@ -33,14 +33,6 @@ use W7\Core\Exception\CommandException;
 use W7\Laravel\CacheModel\Caches\Cache;
 
 abstract class ServerAbstract implements ServerInterface {
-	const TYPE_HTTP = 'http';
-	const TYPE_RPC = 'rpc';
-	const TYPE_TCP = 'tcp';
-	const TYPE_WEBSOCKET = 'websocket';
-	const TYPE_PROCESS = 'process';
-	const TYPE_CRONTAB = 'crontab';
-	const TYPE_RELOAD = 'reload';
-
 	/**
 	 * @var \Swoole\Server
 	 */
@@ -56,6 +48,8 @@ abstract class ServerAbstract implements ServerInterface {
 	 */
 	public $connection;
 
+	public $canAddSubServer = true;
+
 	/**
 	 * ServerAbstract constructor.
 	 * @throws CommandException
@@ -66,12 +60,17 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 
 		$setting = \iconfig()->getServer();
-		if (empty($setting[$this->getType()])) {
-			throw new CommandException(sprintf('缺少服务配置 %s', $this->getType()));
-		}
 		$this->setting = array_merge([], $setting['common']);
 		$this->enableCoroutine();
 		$this->connection = $setting[$this->getType()];
+
+		$this->checkSetting();
+	}
+
+	protected function checkSetting() {
+		if (empty($this->setting[$this->getType()])) {
+			throw new CommandException(sprintf('缺少服务配置 %s', $this->getType()));
+		}
 	}
 
 	/**

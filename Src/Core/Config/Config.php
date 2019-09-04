@@ -23,13 +23,7 @@ use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
 use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Listener\WorkerStopListener;
-use W7\Core\Server\ServerAbstract;
-use W7\Crontab\Server\Server as CrontabServer;
 use W7\Http\Listener\RequestListener;
-use W7\Http\Server\Server as HttpServer;
-use W7\Process\Server\Server as ProcessServer;
-use W7\Reload\Server\Server as ReloadServer;
-use W7\Tcp\Server\Server as TcpServer;
 use W7\Tcp\Listener\CloseListener;
 use W7\Tcp\Listener\ConnectListener;
 use W7\Tcp\Listener\ReceiveListener;
@@ -81,26 +75,6 @@ class Config {
 
 	private $config = [];
 
-	private $allServer = [
-		ServerAbstract::TYPE_HTTP => [
-			'handle' => HttpServer::class,
-			'can_add_sub_server' => true
-		],
-		ServerAbstract::TYPE_TCP => [
-			'handle' => TcpServer::class,
-			'can_add_sub_server' => true
-		],
-		ServerAbstract::TYPE_PROCESS => [
-			'handle' => ProcessServer::class
-		],
-		ServerAbstract::TYPE_CRONTAB => [
-			'handle' => CrontabServer::class
-		],
-		ServerAbstract::TYPE_RELOAD => [
-			'handle' => ReloadServer::class
-		]
-	];
-
 	public function __construct() {
 		//初始化evn配置数据
 		/**
@@ -150,10 +124,6 @@ class Config {
 		}
 		$this->server = array_merge([], $this->defaultServer, $this->getUserConfig('server'));
 		return $this->server;
-	}
-
-	public function getAllServer() {
-		return $this->allServer;
 	}
 
 	/**

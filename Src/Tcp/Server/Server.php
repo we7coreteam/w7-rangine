@@ -15,10 +15,11 @@ namespace W7\Tcp\Server;
 use Swoole\Server as TcpServer;
 use W7\Core\Config\Event;
 use W7\Core\Server\ServerAbstract;
+use W7\Core\Server\ServerEnum;
 
 class Server extends ServerAbstract {
 	public function getType() {
-		return parent::TYPE_TCP;
+		return ServerEnum::TYPE_TCP;
 	}
 
 	public function start() {
