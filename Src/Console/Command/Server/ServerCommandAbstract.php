@@ -127,7 +127,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$status = $server->getStatus();
 
 		if ($server->isRun()) {
-			$this->output->writeln("The server have been running!(PID: {$status['masterPid']})", true);
+			$this->output->warning("The server have been running!(PID: {$status['masterPid']})", true);
 			return $this->restart();
 		}
 
@@ -155,22 +155,20 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$server = $this->getServer();
 		// 是否已启动
 		if (!$server->isRun()) {
-			$this->output->writeln('The server is not running!', true, true);
+			$this->output->warning('The server is not running!', true, true);
+			return true;
 		}
-		$this->output->writeln(sprintf('Server %s is stopping ...', $server->getType()));
+		$this->output->info(sprintf('Server %s is stopping ...', $server->getType()));
 		$result = $server->stop();
 		if (!$result) {
-			$this->output->writeln(sprintf('Server %s stop fail', $server->getType()), true, true);
-		} else {
-			$this->output->writeln(sprintf('Server %s stop success!', $server->getType()));
+			$this->output->warning(sprintf('Server %s stop fail', $server->getType()), true, true);
+			return false;
 		}
+		$this->output->success(sprintf('Server %s stop success!', $server->getType()));
 	}
 
 	protected function restart() {
-		$server = $this->getServer();
-		if ($server->isRun()) {
-			$this->stop();
-		}
+		$this->stop();
 		$this->start();
 	}
 }
