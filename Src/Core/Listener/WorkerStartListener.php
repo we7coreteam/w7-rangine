@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-21 上午11:18
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Listener;
@@ -10,25 +16,10 @@ use W7\App;
 
 class WorkerStartListener implements ListenerInterface {
 	public function run(...$params) {
-		\isetProcessTitle( 'w7swoole ' . App::$server->getType() . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
 		if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {
 			opcache_reset();
 		}
 
-		//设置安全限制目录
-		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?? [];
-		if (is_array($openBaseDirConfig)) {
-			$openBaseDirConfig = implode(':', $openBaseDirConfig);
-		}
-
-		$openBaseDir = [
-			'/tmp',
-			sys_get_temp_dir(),
-			APP_PATH,
-			RUNTIME_PATH,
-			BASE_PATH . '/vendor',
-			$openBaseDirConfig,
-		];
-		ini_set('open_basedir', implode(':', $openBaseDir));
+		\isetProcessTitle('w7swoole ' . App::$server->getType() . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
 	}
 }

@@ -1,8 +1,13 @@
 <?php
+
 /**
- * 加载助手
- * @author donknap
- * @date 18-7-19 上午10:24
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Helper;
@@ -85,7 +90,7 @@ class Loader {
 
 	private function object($name, $params = []) {
 		if (!class_exists($name)) {
-			throw new \Exception($name . ' not found');
+			throw new \RuntimeException($name . ' not found');
 		}
 
 		if (empty($params)) {
@@ -95,7 +100,7 @@ class Loader {
 		$reflection = new \ReflectionClass($name);
 
 		if (! $reflection->isInstantiable()) {
-			throw new \Exception($name . ' cannot be instantiated');
+			throw new \RuntimeException($name . ' cannot be instantiated');
 		}
 
 		$constructor = $reflection->getConstructor();

@@ -1,19 +1,24 @@
 <?php
+
 /**
- * 控制器的父类
- * @author donknap
- * @date 18-11-12 上午11:38
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Controller;
 
 use Illuminate\Validation\DatabasePresenceVerifier;
 use W7\App;
-use Illuminate\Translation\ArrayLoader;
-use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
-use W7\Core\Exception\HttpException;
+use W7\Core\Exception\ValidatorException;
+use W7\Core\Lang\Translator;
+use W7\Core\View\View;
 use W7\Http\Message\Server\Request;
 
 abstract class ControllerAbstract {
@@ -50,12 +55,16 @@ abstract class ControllerAbstract {
 	}
 
 	protected function responseHtml($data) {
-		return $this->response()->withHeader('Content-Type', 'text/html;charset=utf-8')->withContent($data);
+		return $this->response()->html($data);
+	}
+
+	protected function render($name, $context = []) {
+		return $this->responseHtml(iloader()->singleton(View::class)->render($name, $context));
 	}
 
 	public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = []) {
 		if (empty($request)) {
-			throw new HttpException('Request object not found');
+			throw new ValidatorException('Request object not found');
 		}
 		$requestData = array_merge([], $request->getQueryParams(), $request->post());
 		try {
@@ -67,7 +76,7 @@ abstract class ControllerAbstract {
 			foreach ($errors as $field => $message) {
 				$errorMessage[] = $field . ' : ' . $message[0];
 			}
-			throw new HttpException(implode('; ', $errorMessage));
+			throw new ValidatorException(implode('; ', $errorMessage));
 		}
 		return $result;
 	}
@@ -76,11 +85,13 @@ abstract class ControllerAbstract {
 	 * @return Factory;
 	 */
 	private function getValidater() {
-		$translator = iloader()->withClass(Translator::class)->withSingle()->withParams([
-			'loader' => new ArrayLoader(),
-			'locale' => 'zh-CN',
-		])->get();
-
+		/**
+		 * @var Translator $translator
+		 */
+		$translator = iloader()->singleton(Translator::class);
+		/**
+		 * @var Factory $validate
+		 */
 		$validate = iloader()->withClass(Factory::class)->withSingle()->withParams([
 			'translator' => $translator,
 		])->get();

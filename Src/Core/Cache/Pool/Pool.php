@@ -1,12 +1,18 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-12-30 上午11:49
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Cache\Pool;
 
-
+use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
@@ -21,7 +27,11 @@ class Pool extends CoPoolAbstract {
 		if (empty($this->creator)) {
 			throw new \RuntimeException('Invalid cache creator');
 		}
-		$connection = $this->creator->connect($this->config);
+		/**
+		 * @var HandlerAbstract $connectionClass
+		 */
+		$connectionClass = $this->creator;
+		$connection = $connectionClass::getHandler($this->config);
 		$connection->poolName = sprintf('%s:%s', $this->config['driver'], $this->poolName);
 		return $connection;
 	}
@@ -29,7 +39,7 @@ class Pool extends CoPoolAbstract {
 	public function getConnection() {
 		$connect = parent::getConnection();
 		try {
-			$result = $connect->ping();
+			$connect->alive();
 			return $connect;
 		} catch (\Throwable $e) {
 			return $this->createConnection();

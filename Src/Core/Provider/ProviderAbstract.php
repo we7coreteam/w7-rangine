@@ -1,12 +1,25 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Provider;
 
+use Illuminate\Filesystem\Filesystem;
+use W7\Console\Application;
 use W7\Core\Route\RouteMapping;
+use W7\Core\View\View;
 
 abstract class ProviderAbstract {
-	private $name;
-	private $namespace;
+	protected $name;
+	protected $namespace;
 	/**
 	 * @var \W7\Core\Config\Config
 	 */
@@ -19,6 +32,10 @@ abstract class ProviderAbstract {
 	 * @var \W7\Core\Log\Logger
 	 */
 	protected $logger;
+	/**
+	 * @var View
+	 */
+	protected $view;
 	protected $defer;
 	public static $publishes = [];
 	public static $publishGroups = [];
@@ -36,22 +53,34 @@ abstract class ProviderAbstract {
 		$this->config = iconfig();
 		$this->router = irouter();
 		$this->logger = ilogger();
+		$this->view = iloader()->singleton(View::class);
 	}
 
 	/**
 	 * Register any application services.
 	 * @return void
 	 */
-	public function register() {}
+	public function register() {
+	}
 
 	/**
 	 * boot any application services
 	 * @return mixed
 	 */
-	public function boot() {}
+	public function boot() {
+	}
 
-	protected function registerConfig ($fileName, $key) {
+	protected function registerConfig($fileName, $key) {
 		$this->mergeConfigFrom($this->rootPath . '/config/' . $fileName, $key);
+	}
+
+	protected function publishConfig($sourceFileName, $targetFileName = null, $group = null) {
+		if (!$targetFileName) {
+			$targetFileName = $sourceFileName;
+		}
+		$this->publishes([
+			$this->rootPath . '/config/' . $sourceFileName => BASE_PATH . '/config/' . $targetFileName
+		], $group);
 	}
 
 	protected function registerRoute($fileName) {
@@ -63,13 +92,37 @@ abstract class ProviderAbstract {
 		});
 	}
 
+	protected function registerStaticResource() {
+		$config = $this->config->getServer();
+		if (empty($config['common']['document_root'])) {
+			throw new \RuntimeException("please set server['common']['document_root']");
+		}
+
+		$filesystem = new Filesystem();
+		$config = $this->config->getServer();
+		$config['common']['document_root'] = rtrim($config['common']['document_root'], '/');
+		$flagFilePath = $config['common']['document_root'] . '/' . $this->name . '/resource.lock';
+
+		if ($filesystem->exists($this->rootPath . '/resource') && !$filesystem->exists($flagFilePath)) {
+			$filesystem->copyDirectory($this->rootPath . '/resource', $config['common']['document_root'] . '/' . $this->name);
+			$filesystem->put($flagFilePath, '');
+		}
+	}
+
+	protected function registerView($namespace) {
+		$this->view->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
+	}
+
 	protected function registerProvider($provider) {
 		iloader()->singleton(ProviderManager::class)->registerProvider($provider);
 	}
 
-	protected function registerCommand($name, $class) {
-		$userCommands = $this->config->getUserConfig('command');
-		$this->config->setUserConfig('command', array_merge($userCommands, [$name => $class]));
+	protected function registerCommand($group = null, $forceGroup = false) {
+		/**
+		 * @var  Application $application
+		 */
+		$application = iloader()->singleton(Application::class);
+		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $group ?? $this->name, $forceGroup);
 	}
 
 	protected function registerProcess($name, $class, $number = 1) {
@@ -81,15 +134,6 @@ abstract class ProviderAbstract {
 		];
 
 		$this->config->setUserConfig('process', $processConfig);
-	}
-
-	protected function publishConfig($sourceFileName, $targetFileName = null, $group = null) {
-		if (!$targetFileName) {
-			$targetFileName = $sourceFileName;
-		}
-		$this->publishes([
-			$this->rootPath . '/config/' . $sourceFileName => BASE_PATH . '/config/' . $targetFileName
-		], $group);
 	}
 
 	protected function setRootPath($path) {
@@ -114,6 +158,9 @@ abstract class ProviderAbstract {
 	protected function loadRouteFrom($path) {
 		$config = include $path;
 		if (is_array($config)) {
+			/**
+			 * @var RouteMapping $routeMapping
+			 */
 			$routeMapping = iloader()->singleton(RouteMapping::class);
 			$routeConfig = $routeMapping->getRouteConfig();
 			$routeConfig[] = $config;
@@ -163,7 +210,8 @@ abstract class ProviderAbstract {
 		}
 
 		static::$publishGroups[$group] = array_merge(
-			static::$publishGroups[$group], $paths
+			static::$publishGroups[$group],
+			$paths
 		);
 	}
 

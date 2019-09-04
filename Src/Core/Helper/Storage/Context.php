@@ -1,9 +1,15 @@
 <?php
+
 /**
- * 存储上下文数据，方便调用
- * @author donknap & Swoft\Core
- * @date 18-7-24 下午3:09
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
+
 namespace W7\Core\Helper\Storage;
 
 use Psr\Http\Message\RequestInterface;
@@ -41,34 +47,28 @@ class Context {
 	/**
 	 * 路由表
 	 */
-	const ROUTE_KEY = "route";
-
-
-	const LOG_REQUEST_KEY = "requestlog";
+	const ROUTE_KEY = 'route';
 
 	private $recoverCallback;
 
 	/**
 	 * @return Request|null
 	 */
-	public function getRequest()
-	{
+	public function getRequest() {
 		return self::getCoroutineContext(self::REQUEST_KEY);
 	}
 
 	/**
 	 * @return Response|null
 	 */
-	public function getResponse()
-	{
+	public function getResponse() {
 		return self::getCoroutineContext(self::RESPONSE_KEY);
 	}
 
 	/**
 	 * @return array|null
 	 */
-	public function getContextData()
-	{
+	public function getContextData() {
 		return self::getCoroutineContext(self::DATA_KEY);
 	}
 
@@ -77,8 +77,7 @@ class Context {
 	 *
 	 * @param RequestInterface $request
 	 */
-	public function setRequest(RequestInterface $request)
-	{
+	public function setRequest(RequestInterface $request) {
 		$coroutineId = self::getCoroutineId();
 		self::$context[$coroutineId][self::REQUEST_KEY] = $request;
 	}
@@ -88,8 +87,7 @@ class Context {
 	 *
 	 * @param ResponseInterface $response
 	 */
-	public function setResponse(ResponseInterface $response)
-	{
+	public function setResponse(ResponseInterface $response) {
 		$coroutineId = self::getCoroutineId();
 		self::$context[$coroutineId][self::RESPONSE_KEY] = $response;
 	}
@@ -99,8 +97,7 @@ class Context {
 	 *
 	 * @param array $contextData
 	 */
-	public function setContextData(array $contextData = [])
-	{
+	public function setContextData(array $contextData = []) {
 		$existContext = [];
 		$coroutineId = self::getCoroutineId();
 		if (isset(self::$context[$coroutineId][self::DATA_KEY])) {
@@ -115,36 +112,10 @@ class Context {
 	 * @param string $key
 	 * @param mixed $val
 	 */
-	public function setContextDataByKey(string $key, $val)
-	{
+	public function setContextDataByKey(string $key, $val) {
 		$coroutineId = self::getCoroutineId();
 		self::$context[$coroutineId][self::DATA_KEY][$key] = $val;
 	}
-
-	/**
-	 * Get Current Request Log ID
-	 *
-	 * @return string
-	 */
-	public function getLogid(): string
-	{
-		$contextData = self::getCoroutineContext(static::LOG_REQUEST_KEY);
-		$logid = $contextData['logid'] ?? '';
-		return $logid;
-	}
-
-	/**
-	 * Get Current Request Span ID
-	 *
-	 * @return int
-	 */
-	public function getSpanid(): int
-	{
-		$contextData = self::getCoroutineContext(static::LOG_REQUEST_KEY);
-
-		return $contextData['spanid'] ? (int)$contextData['spanid'] : 0;
-	}
-
 
 	/**
 	 * Get context data by key
@@ -153,8 +124,7 @@ class Context {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function getContextDataByKey(string $key, $default = null)
-	{
+	public function getContextDataByKey(string $key, $default = null) {
 		$coroutineId = self::getCoroutineId();
 		if (isset(self::$context[$coroutineId][self::DATA_KEY][$key])) {
 			return self::$context[$coroutineId][self::DATA_KEY][$key];
@@ -166,8 +136,7 @@ class Context {
 	/**
 	 * Destroy all current coroutine context data
 	 */
-	public function destroy()
-	{
+	public function destroy() {
 		$coroutineId = self::getCoroutineId();
 		if (isset(self::$context[$coroutineId])) {
 			unset(self::$context[$coroutineId]);
@@ -180,8 +149,7 @@ class Context {
 	 * @param string $key key of context
 	 * @return mixed|null
 	 */
-	private function getCoroutineContext(string $key)
-	{
+	private function getCoroutineContext(string $key) {
 		$coroutineId = self::getCoroutineId();
 		if (!isset(self::$context[$coroutineId])) {
 			return null;

@@ -33,7 +33,7 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 		];
 	}
 
-	protected function checkSetting() {
+	protected function checkSetting($setting) {
 		return true;
 	}
 

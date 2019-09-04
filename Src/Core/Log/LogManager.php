@@ -1,20 +1,27 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-10-18 下午3:40
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Log;
 
 use Monolog\Handler\BufferHandler;
 use Monolog\Logger as MonoLogger;
-use W7\App;
+use W7\Core\Log\Handler\HandlerAbstract;
+use W7\Core\Log\Handler\HandlerInterface;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 class LogManager {
 	private $channel = [];
 	private $config;
-	private $commonProcessor;
+	private $commonProcessor = [];
 	private $commonSetting;
 
 	public function __construct() {
@@ -59,7 +66,6 @@ class LogManager {
 
 	/**
 	 * 初始化通道，
-	 * @param $channelConfig
 	 * @return bool
 	 */
 	private function initChannel() {
@@ -73,7 +79,11 @@ class LogManager {
 			if ($channel['driver'] == 'stack') {
 				$stack[$name] = $channel;
 			} else {
-				$handlerClass = sprintf("\\W7\\Core\\Log\\Driver\\%sHandler", ucfirst($channel['driver']));
+				/**
+				 * @var HandlerAbstract $handlerClass
+				 */
+				$handlerClass = $this->checkHandler($channel['driver']);
+
 				$bufferLimit = $channel['buffer_limit'] ?? 1;
 				$handler = new BufferHandler($handlerClass::getHandler($channel), $bufferLimit, $channel['level'], true, true);
 
@@ -110,14 +120,29 @@ class LogManager {
 		return true;
 	}
 
+	private function checkHandler($handler) {
+		$handlerClass = sprintf('\\W7\\Core\\Log\\Handler\\%sHandler', ucfirst($handler));
+		if (!class_exists($handlerClass)) {
+			//用户自定义的handler
+			$handlerClass = sprintf('\\W7\\App\\Handler\\Log\\%sHandler', ucfirst($handler));
+		}
+		if (!class_exists($handlerClass)) {
+			throw new \RuntimeException('log handler ' . $handler . ' is not supported');
+		}
+
+		$reflectClass = new \ReflectionClass($handlerClass);
+		if (!in_array(HandlerInterface::class, array_keys($reflectClass->getInterfaces()))) {
+			throw new \RuntimeException('please implements ' . HandlerInterface::class);
+		}
+
+		return $handlerClass;
+	}
+
 	private function initCommonProcessor() {
 		$swooleProcessor = iloader()->singleton(SwooleProcessor::class);
-		//不记录产生日志的文件和行号
-		//异常中会带，普通日志函数又是一样的
-		//$introProcessor = iloader()->singleton(IntrospectionProcessor::class);
 		return [
-			$swooleProcessor,
-			//$introProcessor
+			//用户自定义processor?
+			$swooleProcessor
 		];
 	}
 
@@ -137,10 +162,8 @@ class LogManager {
 		$logger = new Logger($name, [], []);
 		$logger->bufferLimit = $this->config['channel'][$name]['buffer_limit'] ?? 1;
 
-		if (!empty($this->commonProcessor)) {
-			foreach ($this->commonProcessor as $processor) {
-				$logger->pushProcessor($processor);
-			}
+		foreach ($this->commonProcessor as $processor) {
+			$logger->pushProcessor($processor);
 		}
 		return $logger;
 	}
@@ -156,5 +179,18 @@ class LogManager {
 			}
 		}
 		return true;
+	}
+
+	public function flushLog($channel = null) {
+		$loggers = $this->getLoggers($channel);
+
+		foreach ($loggers as $logger) {
+			/**
+			 * @var BufferHandler $handle
+			 */
+			foreach ($logger->getHandlers() as $handle) {
+				$handle->flush();
+			}
+		}
 	}
 }

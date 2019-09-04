@@ -16,7 +16,7 @@ use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Server\ServerEnum;
 
 class Server extends ProcessServerAbstract {
-	public $canAddSubServer =  false;
+	public static $canAddSubServer =  false;
 
 	public function getType() {
 		return ServerEnum::TYPE_PROCESS;

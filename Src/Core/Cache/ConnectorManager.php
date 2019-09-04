@@ -1,44 +1,32 @@
 <?php
+
 /**
- * 缓存连接管理
- * @author donknap
- * @date 18-12-30 上午11:59
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Cache;
 
-
-use W7\App;
-use W7\Core\Cache\Connection\ConnectionAbstract;
+use Psr\SimpleCache\CacheInterface;
+use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\Pool;
 
 class ConnectorManager {
 	private $config;
 	private $pool;
-	
+
 	public function __construct() {
 		$this->pool = [];
 		$this->config['connection'] = \iconfig()->getUserAppConfig('cache') ?? [];
 		$this->config['pool'] = \iconfig()->getUserAppConfig('pool')['cache'] ?? [];
 	}
 
-	public function release($connection) {
-		if (empty($connection->poolName)) {
-			return true;
-		}
-		list($poolType, $poolName) = explode(':', $connection->poolName);
-		/**
-		 * @var Pool $pool
-		 */
-		$pool = iloader()->withClass(Pool::class)
-			->withSingle()->withAlias($poolName)
-			->withParams(['name' => $poolName])
-			->get();
-
-		$pool->releaseConnection($connection);
-	}
-
-	public function connect($name = 'default') {
+	public function connect($name = 'default') : CacheInterface {
 		$config = $this->config['connection'][$name] ?? [];
 		$poolConfig = $this->config['pool'][$name] ?? [];
 
@@ -46,40 +34,63 @@ class ConnectorManager {
 			throw new \RuntimeException('Cache is not configured.');
 		}
 
-		$connectionClass = $this->checkDriverSupport($config['driver']);
-		/**
-		 * @var ConnectionAbstract $connection
-		 */
-		$connection = iloader()->singleton($connectionClass);
-
-		//未在协程中则不启用连接池
-		if (!isCo()) {
-			return $connection->connect($config);
-		}
-
 		if (empty($poolConfig) || empty($poolConfig['enable'])) {
-			return $connection->connect($config);
+			ilogger()->channel('cache')->debug($name . ' create connection without pool');
+			/**
+			 * @var HandlerAbstract $handlerClass
+			 */
+			$handlerClass = $this->checkHandler($config['driver']);
+			return $handlerClass::getHandler($config);
 		}
 
-		/**
-		 * @var Pool $pool
-		 */
-		$pool = iloader()->withClass(Pool::class)
-					->withSingle()->withAlias($name)
-					->withParams(['name' => $name])
-					->get();
-		$pool->setConfig($config);
-		$pool->setMaxCount($poolConfig['max']);
-		$pool->setCreator($connection);
-
-		return $pool->getConnection();
+		return $this->getPool($name)->getConnection();
 	}
 
-	private function checkDriverSupport($driver) {
-		$className = sprintf("\\W7\\Core\\Cache\\Connection\\%sConnection", ucfirst($driver));
-		if (!class_exists($className)) {
-			throw new \RuntimeException('This cache driver is not supported');
+	public function release($connection) {
+		if (empty($connection->poolName)) {
+			return true;
 		}
+		list($poolType, $poolName) = explode(':', $connection->poolName);
+
+		return $this->getPool($poolName)->releaseConnection($connection);
+	}
+
+	/**
+	 * @param $name
+	 * @return mixed
+	 */
+	private function getPool($name) : Pool {
+		if (!empty($this->pool[$name])) {
+			return $this->pool[$name];
+		}
+
+		$config = $this->config['connection'][$name];
+		$poolConfig = $this->config['pool'][$name];
+
+		$pool = new Pool($name);
+		$pool->setConfig($config);
+		$pool->setCreator($this->checkHandler($config['driver']));
+		$pool->setMaxCount($poolConfig['max'] ?? 1);
+
+		$this->pool[$name] = $pool;
+		return $this->pool[$name];
+	}
+
+	private function checkHandler($handler) {
+		$className = sprintf('\\W7\\Core\\Cache\\Handler\\%sHandler', ucfirst($handler));
+		if (!class_exists($className)) {
+			//处理自定义的handler
+			$className = sprintf('\\W7\\App\\Handler\\Cache\\%sHandler', ucfirst($handler));
+		}
+		if (!class_exists($className)) {
+			throw new \RuntimeException('cache handler ' . $handler . ' is not supported');
+		}
+
+		$reflectClass = new \ReflectionClass($className);
+		if (!in_array(CacheInterface::class, array_keys($reflectClass->getInterfaces()))) {
+			throw new \RuntimeException('please implements Psr\SimpleCache\CacheInterface');
+		}
+
 		return $className;
 	}
 }

@@ -13,9 +13,9 @@
 namespace W7\Tcp\Server;
 
 use Swoole\Server as TcpServer;
-use W7\Core\Config\Event;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
+use W7\Core\Server\SwooleEvent;
 
 class Server extends ServerAbstract {
 	public function getType() {
@@ -26,9 +26,10 @@ class Server extends ServerAbstract {
 		$this->server = $this->getServer();
 		$this->server->set($this->setting);
 
-		ievent(Event::ON_USER_BEFORE_START, [$this->server]);
 		//执行一些公共操作，注册事件等
 		$this->registerService();
+
+		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
 
 		$this->server->start();
 	}
@@ -52,7 +53,7 @@ class Server extends ServerAbstract {
 			'open_http_protocol' => false,
 			'open_websocket_protocol' => false,
 		]);
-		$event = \iconfig()->getEvent()[parent::TYPE_TCP];
+		$event = (new SwooleEvent())->getDefaultEvent()[parent::TYPE_TCP];
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;

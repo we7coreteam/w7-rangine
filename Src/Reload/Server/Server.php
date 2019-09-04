@@ -17,7 +17,7 @@ use W7\Core\Server\ServerEnum;
 use W7\Reload\Process\ReloadProcess;
 
 class Server extends ProcessServerAbstract {
-	public $canAddSubServer =  false;
+	public static $canAddSubServer =  false;
 
 	public function getType() {
 		return ServerEnum::TYPE_RELOAD;

@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Crontab\Process;
 
 use W7\Crontab\Task\TaskManager;
@@ -10,7 +20,7 @@ class CrontabDispatcher extends ProcessAbstract {
 	 * @var TaskManager
 	 */
 	private $taskManager;
-	static private $tasks = [];
+	private static $tasks = [];
 
 	protected function init() {
 		$this->taskManager = new TaskManager(static::getTasks());
@@ -20,12 +30,12 @@ class CrontabDispatcher extends ProcessAbstract {
 		if (!static::$tasks) {
 			$tasks = \iconfig()->getUserConfig('crontab');
 			foreach ($tasks as $name => $task) {
-				if (!empty($task['enable'])) {
-					static::$tasks[$name] = $task;
+				if (isset($task['enable']) && $task['enable'] === false) {
+					continue;
 				}
+				static::$tasks[$name] = $task;
 			}
 		}
-
 		return static::$tasks;
 	}
 

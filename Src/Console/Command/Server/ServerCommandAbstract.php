@@ -32,10 +32,9 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$allServer = ServerEnum::ALL_SERVER;
 		foreach ($allServer as $key => $server) {
 			/**
-			 * @var ServerAbstract $serverObj
+			 * @var ServerAbstract $server
 			 */
-			$serverObj = new $server();
-			if ($serverObj->canAddSubServer) {
+			if ($server::$canAddSubServer) {
 				$servers[$key] = $server;
 			}
 		}
@@ -95,10 +94,10 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 		$this->registerProcessServer();
 
-		foreach (iconfig()->getAllServer() as $key => $handle) {
+		foreach (ServerEnum::ALL_SERVER as $key => $handle) {
 			if (in_array($key, $this->servers)) {
 				unset($this->servers[array_search($key, $this->servers)]);
-				return new $handle['handle']();
+				return new $handle();
 			}
 		}
 
@@ -107,9 +106,9 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	private function addSubServer($server) {
 		$lines = [];
-		foreach (iconfig()->getAllServer() as $key => $handle) {
+		foreach (ServerEnum::ALL_SERVER as $key => $handle) {
 			if (in_array($key, $this->servers)) {
-				$subServer = new $handle['handle']();
+				$subServer = new $handle();
 				$subServer->listener($server->getServer());
 
 				$statusInfo = '';

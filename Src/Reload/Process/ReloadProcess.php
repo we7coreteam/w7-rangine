@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-25 下午3:03
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Reload\Process;
@@ -10,15 +16,18 @@ use W7\App;
 use W7\Core\Process\ProcessAbstract;
 
 class ReloadProcess extends ProcessAbstract {
-
 	/**
 	 * 监听文件变化的路径
 	 *
 	 * @var string
 	 */
-	private $watchDir = [
+	private static $watchDir = [
 		APP_PATH,
 		BASE_PATH. DIRECTORY_SEPARATOR. 'config'
+	];
+
+	private static $fileTypes = [
+		'php'
 	];
 
 	/**
@@ -33,40 +42,42 @@ class ReloadProcess extends ProcessAbstract {
 	 *
 	 * @var int
 	 */
-	protected $interval = 5;
+	protected $interval = 1;
 
-	private $debug = false;
-
-	protected function init() {
+	/**
+	 * 初始化方法
+	 */
+	public function __construct() {
 		$reloadConfig = \iconfig()->getUserAppConfig('reload');
-		$this->interval = !empty($reloadConfig['interval']) ? $reloadConfig['interval'] : $this->interval;
-		$this->debug = (bool)$reloadConfig['debug'];
-		$this->watchDir = array_merge($this->watchDir, $reloadConfig['path'] ?? []);
+		self::$watchDir = array_merge(self::$watchDir, $reloadConfig['path'] ?? []);
+		self::$fileTypes = array_merge(self::$fileTypes, $reloadConfig['type'] ?? []);
 
 		$this->md5File = $this->getWatchDirMd5();
 	}
 
+	public static function addDir($dir) {
+		self::$watchDir[] = $dir;
+	}
+
+	public static function addType($type) {
+		self::$fileTypes[] = trim($type, '.');
+	}
+
 	protected function beforeStart() {
-		if ($this->debug) {
-			ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
-		}
+		ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
 	}
 
 	public function run() {
-		if ($this->debug) {
-			$startReload = true;
-		} else {
-			$md5File = $this->getWatchDirMd5();
-			$startReload = (strcmp($this->md5File, $md5File) !== 0);
-			$this->md5File = $md5File;
-		}
-		if ($startReload) {
-			App::$server->isRun();
-			App::$server->getServer()->reload();
+		$server = App::$server;
+		$md5File = $this->getWatchDirMd5();
+		$startReload = (strcmp($this->md5File, $md5File) !== 0);
+		$this->md5File = $md5File;
 
-			if (!$this->debug) {
-				ioutputer()->writeln("Reloaded in " . date('m-d H:i:s') . "...");
-			}
+		if ($startReload) {
+			$server->isRun();
+			$server->getServer()->reload();
+
+			ioutputer()->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
 		}
 	}
 
@@ -83,12 +94,14 @@ class ReloadProcess extends ProcessAbstract {
 		}
 
 		$md5File = array();
-		$d	   = dir($dir);
+		$d = dir($dir);
 		while (false !== ($entry = $d->read())) {
 			if ($entry !== '.' && $entry !== '..') {
 				if (is_dir($dir . '/' . $entry)) {
 					$md5File[] = $this->md5File($dir . '/' . $entry);
-				} elseif (substr($entry, -4) === '.php') {
+				}
+				$extension = pathinfo($entry, PATHINFO_EXTENSION);
+				if (in_array($extension, self::$fileTypes)) {
 					$md5File[] = md5_file($dir . '/' . $entry);
 				}
 				$md5File[] = $entry;
@@ -101,7 +114,7 @@ class ReloadProcess extends ProcessAbstract {
 
 	private function getWatchDirMd5() {
 		$md5 = [];
-		foreach ($this->watchDir as $dir) {
+		foreach (self::$watchDir as $dir) {
 			$md5[] = $this->md5File($dir);
 		}
 		return md5(implode('', $md5));

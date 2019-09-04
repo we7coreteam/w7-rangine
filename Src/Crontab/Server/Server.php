@@ -18,7 +18,7 @@ use W7\Crontab\Process\CrontabDispatcher;
 use W7\Crontab\Process\CrontabExecutor;
 
 class Server extends ProcessServerAbstract {
-	public $canAddSubServer =  false;
+	public static $canAddSubServer =  false;
 
 	public function getType() {
 		return ServerEnum::TYPE_CRONTAB;

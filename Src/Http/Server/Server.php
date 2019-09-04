@@ -14,7 +14,7 @@ namespace W7\Http\Server;
 
 use Swoole\Http\Server as HttpServer;
 use W7\Core\Server\ServerAbstract;
-use W7\Core\Config\Event;
+use W7\Core\Server\SwooleEvent;
 use W7\Core\Server\ServerEnum;
 
 class Server extends ServerAbstract {
@@ -27,11 +27,13 @@ class Server extends ServerAbstract {
 			$this->connection['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
 		$this->server = $this->getServer();
+		$this->setting['http_parse_post'] = true;
 		$this->server->set($this->setting);
 
-		ievent(Event::ON_USER_BEFORE_START, [$this->server]);
 		//执行一些公共操作，注册事件等
 		$this->registerService();
+
+		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
 
 		$this->server->start();
 	}
