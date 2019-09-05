@@ -41,7 +41,7 @@ class HandshakeListener extends ListenerAbstract {
 			}
 
 			$psr7Request = Psr7Request::loadFromSwooleRequest($request);
-			if (ievent(SwooleEvent::ON_USER_BEFORE_HAND_SHAKE, [$psr7Request]) === false) {
+			if (ievent(SwooleEvent::ON_USER_BEFORE_HAND_SHAKE, [$psr7Request], true) === false) {
 				return false;
 			}
 
