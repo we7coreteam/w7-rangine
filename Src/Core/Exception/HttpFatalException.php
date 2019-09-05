@@ -20,7 +20,7 @@ use Whoops\Run;
 class HttpFatalException extends FatalExceptionAbstract {
 	protected function development(): ResponseInterface {
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$content = 'message: ' . $this->getMessage() . '<br/>file: ' . $this->getFile() . '<br/>line: ' . $this->getLine();
+			$content = 'message: ' . $this->getMessage() . '<br/>file: ' . $this->getPrevious()->getFile() . '<br/>line: ' . $this->getPrevious()->getLine();
 		} else {
 			ob_start();
 			$render = new PrettyPageHandler();
