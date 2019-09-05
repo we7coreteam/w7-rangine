@@ -26,6 +26,7 @@ class Server extends ServerAbstract {
 			throw new \RuntimeException('not support the dispatch mode, please reset config/server.php/common/dispatch_mode');
 		}
 		$this->server = $this->getServer();
+		$this->setting['open_websocket_close_frame'] = false;
 		$this->server->set($this->setting);
 
 		//执行一些公共操作，注册事件等
