@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -16,10 +16,10 @@ use Psr\Http\Message\ResponseInterface;
 
 class TcpFatalException extends FatalExceptionAbstract {
 	protected function development(): ResponseInterface {
-		return $this->response->withData(['error' => $this->getMessage()], $this->getCode());
+		return $this->response->withStatus(500)->withData(['error' => $this->getMessage()]);
 	}
 
 	protected function release(): ResponseInterface {
-		return $this->response->withData(['error' => '系统内部错误'], 500);
+		return $this->response->withStatus(500)->withData(['error' => '系统内部错误']);
 	}
 }
