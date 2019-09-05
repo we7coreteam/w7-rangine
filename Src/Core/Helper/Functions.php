@@ -71,15 +71,15 @@ if (!function_exists('ievent')) {
 	 * 派发一个事件
 	 * @param $eventName
 	 * @param array $args
-	 * @return bool
-	 * @throws Exception
+	 * @param bool $halt
+	 * @return array|null
 	 */
-	function ievent($eventName, $args = []) {
+	function ievent($eventName, $args = [], $halt = false) {
 		/**
 		 * @var EventDispatcher $dispatcher
 		 */
 		$dispatcher = iloader()->singleton(EventDispatcher::class);
-		return $dispatcher->dispatch($eventName, $args);
+		return $dispatcher->dispatch($eventName, $args, $halt);
 	}
 }
 if (!function_exists('itask')) {
