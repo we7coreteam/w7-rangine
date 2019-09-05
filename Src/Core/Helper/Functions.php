@@ -362,3 +362,12 @@ if (!function_exists('itrans')) {
 		return iloader()->singleton(Translator::class)->trans($id, $replace, $locale);
 	}
 }
+if (!function_exists('igo')) {
+	function igo(Closure $callback) {
+		$coId = icontext()->getCoroutineId();
+		go(function () use ($callback, $coId) {
+			icontext()->fork($coId);
+			$callback();
+		});
+	}
+}
