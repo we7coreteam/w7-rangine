@@ -13,10 +13,25 @@
 namespace W7\Core\Exception;
 
 use Psr\Http\Message\ResponseInterface;
+use Whoops\Exception\Inspector;
+use Whoops\Handler\PlainTextHandler;
+use Whoops\Run;
 
 class TcpFatalException extends FatalExceptionAbstract {
 	protected function development(): ResponseInterface {
-		return $this->response->withStatus(500)->withData(['error' => $this->getMessage()]);
+		if ((ENV & BACKTRACE) !== BACKTRACE) {
+			$content = 'message: ' . $this->getMessage() . ';    file: ' . $this->getFile() . ';    line: ' . $this->getLine();
+		} else {
+			ob_start();
+			$render = new PlainTextHandler();
+			$render->setException($this->getPrevious());
+			$render->setInspector(new Inspector($this->getPrevious()));
+			$render->setRun(new Run());
+			$render->handle();
+			$content = ob_get_clean();
+		}
+
+		return $this->response->withStatus(500)->withData($content);
 	}
 
 	protected function release(): ResponseInterface {
