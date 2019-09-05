@@ -28,6 +28,7 @@ class TwigHandler extends HandlerAbstract {
 		foreach (self::$providerTemplatePath as $namespace => $path) {
 			$loader->setPaths($path, $namespace);
 		}
+		self::$defaultCachePath && $this->config['cache'] = self::$defaultCachePath;
 		$this->twig = new Environment($loader, $this->config);
 		if ($this->config['debug']) {
 			$this->twig->addExtension(new DebugExtension());
