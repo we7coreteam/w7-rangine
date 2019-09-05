@@ -12,10 +12,5 @@
 
 namespace W7\Core\Exception;
 
-use Psr\Http\Message\ResponseInterface;
-
-class RouteNotAllowException extends ResponseExceptionAbstract {
-	public function render(): ResponseInterface {
-		return $this->response->withStatus($this->getCode())->withData(['error' => $this->getMessage()]);
-	}
+class WebSocketFatalException extends TcpFatalException {
 }

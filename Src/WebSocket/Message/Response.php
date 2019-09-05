@@ -50,7 +50,9 @@ class Response extends Psr7Response {
 	}
 
 	public function send() {
-		$body = $this->getBody()->getContents();
-		App::$server->sendTo($this->getFd(), new Message($this->getFrame()->getMessage()->getCmd(), $body, $this->getStatusCode()));
+		if (!$this->data) {
+			$this->data = $this->getBody()->getContents();
+		}
+		App::$server->sendTo($this->getFd(), new Message($this->getFrame()->getMessage()->getCmd(), $this->data, $this->getStatusCode()));
 	}
 }
