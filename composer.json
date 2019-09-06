@@ -11,7 +11,7 @@
 	],
 	"require": {
 		"ext-swoole": ">=4.3.0",
-		"w7/rangine-http-message": "dev-master",
+		"w7/rangine-http-message": "~2.0",
 		"w7/rangine-cache-model": "~1.0",
 		"w7/rangine-command": "*",
 		"illuminate/database": "~5.8",
