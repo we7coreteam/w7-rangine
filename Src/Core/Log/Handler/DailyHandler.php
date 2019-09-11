@@ -36,4 +36,8 @@ class DailyHandler extends RotatingFileHandler implements HandlerInterface {
 			@parent::streamWrite($stream, $record);
 		}
 	}
+
+	public function preProcess($record) : array {
+		return $record;
+	}
 }

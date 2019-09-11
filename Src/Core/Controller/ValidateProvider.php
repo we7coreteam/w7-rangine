@@ -19,9 +19,6 @@ use W7\Core\Provider\ProviderAbstract;
 
 class ValidateProvider extends ProviderAbstract {
 	public function register() {
-		/**
-		 * @var Factory $validate
-		 */
 		iloader()->set(Factory::class, function () {
 			/**
 			 * @var Translator $translator

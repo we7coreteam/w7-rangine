@@ -19,6 +19,7 @@ abstract class HandlerAbstract {
 	protected $config = [];
 	protected static $providerTemplatePath = [];
 	protected static $defaultTemplatePath;
+	protected static $defaultCachePath;
 	const DEFAULT_NAMESPACE = '__MAIN__';
 	const __STATIC__ = '__STATIC__';
 	const __CSS__ = '__CSS__';
@@ -30,6 +31,7 @@ abstract class HandlerAbstract {
 		$this->config = $config;
 
 		$this->initTemplatePath();
+		$this->initCachePath();
 		$this->init();
 		$this->registerSystemFunction();
 		$this->registerSystemConst();
@@ -41,6 +43,20 @@ abstract class HandlerAbstract {
 			//通过provider注册时把provider的path加进来
 			static::$providerTemplatePath = (array)($this->config['provider_template_path'] ?? []);
 			static::$defaultTemplatePath = BASE_PATH . '/view';
+		}
+	}
+
+	protected function initCachePath() {
+		if (empty($this->config['cache'])) {
+			return false;
+		}
+
+		if (!static::$defaultCachePath) {
+			if ($this->config['cache'] === true) {
+				static::$defaultCachePath = static::$defaultTemplatePath . '/cache';
+			} else {
+				static::$defaultCachePath = $this->config['cache'];
+			}
 		}
 	}
 

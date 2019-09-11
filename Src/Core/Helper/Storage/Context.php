@@ -133,6 +133,10 @@ class Context {
 		return $default;
 	}
 
+	public function fork($parentCoId) {
+		self::$context[self::getCoroutineId()] = self::$context[$parentCoId];
+	}
+
 	/**
 	 * Destroy all current coroutine context data
 	 */
@@ -167,7 +171,7 @@ class Context {
 	 *
 	 * @return int|null Return null when in non-coroutine context
 	 */
-	private function getCoroutineId() {
+	public function getCoroutineId() {
 		$cid = Coroutine::getuid();
 		if ($cid > 0 && empty($this->recoverCallback[$cid])) {
 			$this->recoverCallback[$cid] = true;
@@ -176,6 +180,6 @@ class Context {
 				unset($this->recoverCallback[Coroutine::getuid()]);
 			});
 		}
-		return Coroutine::getuid();
+		return $cid;
 	}
 }

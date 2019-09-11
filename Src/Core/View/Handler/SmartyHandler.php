@@ -21,8 +21,8 @@ class SmartyHandler extends HandlerAbstract {
 	protected function init() {
 		$this->smarty = new \Smarty();
 		$this->smarty->setTemplateDir(self::$defaultTemplatePath);
-		$this->smarty->setCacheDir($this->config['cache_path'] ?? self::$defaultTemplatePath . '/cache');
 		$this->smarty->setCompileDir($this->config['compiler_path'] ?? self::$defaultTemplatePath . '/compiler');
+		self::$defaultCachePath && $this->smarty->setCacheDir(self::$defaultCachePath);
 		$this->smarty->debugging = $this->config['debug'];
 		if (!empty($this->config['cache'])) {
 			$this->smarty->caching = 1;

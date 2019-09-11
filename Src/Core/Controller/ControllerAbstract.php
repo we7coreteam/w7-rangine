@@ -13,8 +13,6 @@
 namespace W7\Core\Controller;
 
 use W7\App;
-use Illuminate\Validation\Factory;
-use Illuminate\Validation\ValidationException;
 use W7\Core\Exception\ValidatorException;
 use W7\Core\View\View;
 use W7\Http\Message\Server\Request;
@@ -65,21 +63,6 @@ abstract class ControllerAbstract {
 			throw new ValidatorException('Request object not found');
 		}
 		$requestData = array_merge([], $request->getQueryParams(), $request->post());
-		try {
-			/**
-			 * @var Factory $validate
-			 */
-			$validate = iloader()->get(Factory::class);
-			$result = $validate->make($requestData, $rules, $messages, $customAttributes)
-				->validate();
-		} catch (ValidationException $e) {
-			$errorMessage = [];
-			$errors = $e->errors();
-			foreach ($errors as $field => $message) {
-				$errorMessage[] = $field . ' : ' . $message[0];
-			}
-			throw new ValidatorException(implode('; ', $errorMessage));
-		}
-		return $result;
+		return ivalidate($requestData, $rules, $messages, $customAttributes);
 	}
 }

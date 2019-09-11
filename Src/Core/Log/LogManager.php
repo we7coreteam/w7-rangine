@@ -12,8 +12,8 @@
 
 namespace W7\Core\Log;
 
-use Monolog\Handler\BufferHandler;
 use Monolog\Logger as MonoLogger;
+use W7\Core\Log\Handler\BufferHandler;
 use W7\Core\Log\Handler\HandlerAbstract;
 use W7\Core\Log\Handler\HandlerInterface;
 use W7\Core\Log\Processor\SwooleProcessor;

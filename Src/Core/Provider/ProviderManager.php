@@ -56,8 +56,8 @@ class ProviderManager {
 
 	private function findProviders() {
 		$systemProviders = $this->autoFindProviders(dirname(__DIR__, 2), 'W7');
-		$appProvider = $this->autoFindProviders(BASE_PATH . '/app', 'W7/App');
 		$vendorProviders = $this->findVendorProviders();
+		$appProvider = $this->autoFindProviders(BASE_PATH . '/app', 'W7/App');
 
 		return array_merge($systemProviders, $appProvider, $vendorProviders);
 	}

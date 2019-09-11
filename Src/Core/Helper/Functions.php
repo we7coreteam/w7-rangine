@@ -10,12 +10,15 @@
  * visited https://www.rangine.com/ for more details
  */
 
+use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationException;
 use Swoole\Coroutine;
 use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
+use W7\Core\Exception\ValidatorException;
 use W7\Core\Lang\Translator;
 use W7\Console\Io\Output;
 use W7\Core\Dispatcher\ProcessDispatcher;
@@ -71,10 +74,10 @@ if (!function_exists('ievent')) {
 	 * 派发一个事件
 	 * @param $eventName
 	 * @param array $args
-	 * @return bool
-	 * @throws Exception
+	 * @param bool $halt
+	 * @return array|null
 	 */
-	function ievent($eventName, $args = []) {
+	function ievent($eventName, $args = [], $halt = false) {
 		/**
 		 * @var EventDispatcher $dispatcher
 		 */
@@ -360,5 +363,35 @@ if (!function_exists('itrans')) {
 			return iloader()->get(Translator::class);
 		}
 		return iloader()->get(Translator::class)->trans($id, $replace, $locale);
+	}
+}
+if (!function_exists('igo')) {
+	function igo(Closure $callback) {
+		$coId = icontext()->getCoroutineId();
+		go(function () use ($callback, $coId) {
+			icontext()->fork($coId);
+			$callback();
+		});
+	}
+}
+if (!function_exists('ivalidate')) {
+	function ivalidate(array $data, array $rules, array $messages = [], array $customAttributes = []) {
+		try {
+			/**
+			 * @var Factory $validate
+			 */
+			$validate = iloader()->get(Factory::class);
+			$result = $validate->make($data, $rules, $messages, $customAttributes)
+				->validate();
+		} catch (ValidationException $e) {
+			$errorMessage = [];
+			$errors = $e->errors();
+			foreach ($errors as $field => $message) {
+				$errorMessage[] = $field . ' : ' . $message[0];
+			}
+			throw new ValidatorException(implode('; ', $errorMessage));
+		}
+
+		return $result;
 	}
 }

@@ -16,6 +16,6 @@ use Psr\Http\Message\ResponseInterface;
 
 class HttpException extends ResponseExceptionAbstract {
 	public function render(): ResponseInterface {
-		return $this->response->withData(['error' => $this->getMessage()], $this->getCode());
+		return $this->response->withStatus($this->getCode())->withData(['error' => $this->getMessage()]);
 	}
 }
