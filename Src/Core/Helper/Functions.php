@@ -10,12 +10,16 @@
  * visited https://www.rangine.com/ for more details
  */
 
+use Illuminate\Validation\DatabasePresenceVerifier;
+use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationException;
 use Swoole\Coroutine;
 use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
+use W7\Core\Exception\ValidatorException;
 use W7\Core\Lang\Translator;
 use W7\Console\Io\Output;
 use W7\Core\Dispatcher\ProcessDispatcher;
@@ -360,5 +364,52 @@ if (!function_exists('itrans')) {
 			return iloader()->singleton(Translator::class);
 		}
 		return iloader()->singleton(Translator::class)->trans($id, $replace, $locale);
+	}
+}
+if (!function_exists('igo')) {
+	function igo(Closure $callback) {
+		$coId = icontext()->getCoroutineId();
+		go(function () use ($callback, $coId) {
+			icontext()->fork($coId);
+			$callback();
+		});
+	}
+}
+if (!function_exists('ivalidater')) {
+	/**
+	 * @return Factory
+	 * @throws Exception
+	 */
+	function ivalidater() {
+		/**
+		 * @var Translator $translator
+		 */
+		$translator = iloader()->singleton(Translator::class);
+		/**
+		 * @var Factory $validater
+		 */
+		$validater = iloader()->withClass(Factory::class)->withSingle()->withParams([
+			'translator' => $translator,
+		])->get();
+		$validater->setPresenceVerifier(iloader()->withClass(DatabasePresenceVerifier::class)->withParams('db', idb())->withSingle()->get());
+
+		return $validater;
+	}
+}
+if (!function_exists('ivalidate')) {
+	function ivalidate(array $data, array $rules, array $messages = [], array $customAttributes = []) {
+		try {
+			$result = ivalidater()->make($data, $rules, $messages, $customAttributes)
+				->validate();
+		} catch (ValidationException $e) {
+			$errorMessage = [];
+			$errors = $e->errors();
+			foreach ($errors as $field => $message) {
+				$errorMessage[] = $field . ' : ' . $message[0];
+			}
+			throw new ValidatorException(implode('; ', $errorMessage));
+		}
+
+		return $result;
 	}
 }

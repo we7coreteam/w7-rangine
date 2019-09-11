@@ -11,7 +11,7 @@
 	],
 	"require": {
 		"ext-swoole": ">=4.3.0",
-		"w7/rangine-http-message": "dev-master",
+		"w7/rangine-http-message": "~2.0",
 		"w7/rangine-cache-model": "~1.0",
 		"w7/rangine-command": "*",
 		"illuminate/database": "~5.8",
@@ -21,7 +21,6 @@
 		"nikic/fast-route": "^1.3",
 		"guzzlehttp/guzzle": "~6.0",
 		"monolog/monolog": "^1.23",
-		"swiftmailer/swiftmailer": "^6.0",
 		"dragonmantank/cron-expression": "^2.2",
 		"psr/http-server-middleware": "^1.0",
 		"vlucas/phpdotenv": "^3.3",

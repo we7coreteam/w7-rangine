@@ -20,7 +20,7 @@ use Whoops\Run;
 class TcpFatalException extends FatalExceptionAbstract {
 	protected function development(): ResponseInterface {
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$content = 'message: ' . $this->getMessage() . ';    file: ' . $this->getFile() . ';    line: ' . $this->getLine();
+			$content = 'message: ' . $this->getMessage() . ';    file: ' . $this->getPrevious()->getFile() . ';    line: ' . $this->getPrevious()->getLine();
 		} else {
 			ob_start();
 			$render = new PlainTextHandler();
