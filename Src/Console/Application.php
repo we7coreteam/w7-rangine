@@ -85,6 +85,9 @@ class Application extends SymfontApplication {
 	}
 
 	public function autoRegisterCommands($path, $namespace, $group, $forceGroup = false) {
+		if (!file_exists($path)) {
+			return false;
+		}
 		$commands = $this->findCommands($path, $namespace, $group, $forceGroup);
 		foreach ($commands as $name => $class) {
 			$commandObj = new $class($name);
