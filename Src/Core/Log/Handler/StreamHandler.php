@@ -27,9 +27,6 @@ class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInt
 	}
 
 	public function handleBatch(array $records) {
-		foreach ($records as &$record) {
-			$record['formatted'] = $this->getFormatter()->format($record);
-		}
 		$this->write($records);
 	}
 
@@ -43,5 +40,10 @@ class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInt
 		} else {
 			@parent::streamWrite($stream, $record);
 		}
+	}
+
+	public function preProcess($record) : array {
+		$record['formatted'] = $this->getFormatter()->format($record);
+		return $record;
 	}
 }
