@@ -26,7 +26,7 @@ use Symfony\Component\Finder\SplFileInfo;
 class Application extends SymfontApplication {
 	public function __construct() {
 		$version = $this->version();
-		parent::__construct('w7swoole', $version);
+		parent::__construct('w7-rangine', $version);
 
 		$this->setAutoExit(false);
 		$this->registerCommands();

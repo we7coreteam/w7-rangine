@@ -1,7 +1,13 @@
 <?php
+
 /**
- * author: alex
- * date: 18-8-3 上午10:46
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Dispatcher;
@@ -10,14 +16,12 @@ use Swoole\Process;
 use W7\Core\Process\ProcessAbstract;
 
 class ProcessDispatcher extends DispatcherAbstract {
-
 	/**
 	 * @var array
 	 */
 	private static $processes = [];
 
 	public function register() {
-
 	}
 
 	public function dispatch(...$params) {
@@ -25,14 +29,14 @@ class ProcessDispatcher extends DispatcherAbstract {
 		$server = $params[1];
 
 		if (!class_exists($name)) {
-			ilogger()->warning(sprintf("Process is worng name is %s", $name));
+			ilogger()->warning(sprintf('Process is worng name is %s', $name));
 			return false;
 		}
 		/**
 		 * @var ProcessAbstract $process
 		 */
 		$process = new $name();
-		$checkInfo = call_user_func([$process, "check"]);
+		$checkInfo = call_user_func([$process, 'check']);
 		if (!$checkInfo) {
 			return false;
 		}
@@ -42,13 +46,13 @@ class ProcessDispatcher extends DispatcherAbstract {
 		 */
 		$swooleProcess = new Process(function (Process $worker) use ($process, $name) {
 			if (\stripos(PHP_OS, 'Darwin') === false) {
-				$worker->name('w7swoole ' . $name . '-' . $worker->pipe . ' process');
+				$worker->name('w7-rangine ' . $name . '-' . $worker->pipe . ' process');
 			}
 			$process->run($worker);
 			//如果进程包含read方法，自动添加事件侦听，获取主进程发送的消息
 			if (method_exists($process, 'read')) {
 				//增加事件循环，将消息接收到类中
-				swoole_event_add($worker->pipe, function($pipe) use ($worker, $process) {
+				swoole_event_add($worker->pipe, function ($pipe) use ($worker, $process) {
 					$recv = $worker->read();
 					if (!$process->read($worker, $recv)) {
 						swoole_event_del($worker->pipe);
@@ -56,7 +60,6 @@ class ProcessDispatcher extends DispatcherAbstract {
 					sleep($process->readInterval);
 				});
 			}
-
 		}, false, SOCK_DGRAM);
 
 		//可能相同的进程会注册多个
