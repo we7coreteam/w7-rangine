@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-8-9 下午4:06
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Middleware;
@@ -9,7 +15,7 @@ namespace W7\Core\Middleware;
 use W7\App;
 
 class MiddlewareMapping {
-	function __construct() {
+	public function __construct() {
 	}
 
 	/**
@@ -23,7 +29,7 @@ class MiddlewareMapping {
 		if (empty(App::$server->type)) {
 			return [];
 		}
-		$class = sprintf("\\W7\\%s\\Middleware\\ControllerMiddleware", ucfirst(App::$server->type));
+		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', ucfirst(App::$server->type));
 		if (class_exists($class)) {
 			return [[$class]];
 		} else {

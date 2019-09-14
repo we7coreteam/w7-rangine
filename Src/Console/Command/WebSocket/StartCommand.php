@@ -10,12 +10,12 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\Console\Command\WebSocket;
 
-use W7\Core\Log\LogManager;
+class StartCommand extends WebSocketCommandAbstract {
+	protected $description = 'start websocket service';
 
-class WorkerStopListener implements ListenerInterface {
-	public function run(...$params) {
-		iloader()->singleton(LogManager::class)->flushLog();
+	protected function handle($options) {
+		$this->start($options);
 	}
 }

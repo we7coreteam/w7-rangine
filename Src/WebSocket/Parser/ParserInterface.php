@@ -10,12 +10,11 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\WebSocket\Parser;
 
-use W7\Core\Log\LogManager;
+use W7\WebSocket\Message\Message;
 
-class WorkerStopListener implements ListenerInterface {
-	public function run(...$params) {
-		iloader()->singleton(LogManager::class)->flushLog();
-	}
+interface ParserInterface {
+	public function encode(Message $message) : string;
+	public function decode(string $message) : Message;
 }

@@ -10,12 +10,13 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\Http\Server;
 
-use W7\Core\Log\LogManager;
+use W7\Core\Dispatcher\RequestDispatcher;
+use W7\Core\Session\Middleware\SessionMiddleware;
 
-class WorkerStopListener implements ListenerInterface {
-	public function run(...$params) {
-		iloader()->singleton(LogManager::class)->flushLog();
-	}
+class Dispather extends RequestDispatcher {
+	public $beforeMiddleware = [
+		[SessionMiddleware::class]
+	];
 }
