@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -127,7 +127,7 @@ class SwooleEvent {
 		foreach ($eventTypes as $name) {
 			$events = $swooleEvents[$name] ?? [];
 			foreach ($events as $name => $event) {
-				iloader()->singleton(EventDispatcher::class)->listen($name, $event);
+				iloader()->get(EventDispatcher::class)->listen($name, $event);
 			}
 		}
 	}
@@ -135,13 +135,13 @@ class SwooleEvent {
 	private function registerUserEvent() {
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
-			iloader()->singleton(EventDispatcher::class)->listen($eventName, $listener);
+			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst(App::$server->type), ucfirst($eventName));
-			iloader()->singleton(EventDispatcher::class)->listen($eventName, $listener);
+			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
-			iloader()->singleton(EventDispatcher::class)->listen($eventName, $listener);
+			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 		}
 	}
 

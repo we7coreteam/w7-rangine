@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -40,7 +40,7 @@ class MessageListener extends ListenerAbstract {
 		$psr7Request = Request::loadFromWebSocketFrame($frame);
 		$psr7Response = Response::loadFromWebSocketFrame($frame);
 
-		$dispatcher = \iloader()->singleton(Dispatcher::class);
+		$dispatcher = \iloader()->get(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 

@@ -10,7 +10,6 @@
  * visited https://www.rangine.com/ for more details
  */
 
-use Illuminate\Validation\DatabasePresenceVerifier;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use Swoole\Coroutine;
@@ -39,7 +38,7 @@ if (!function_exists('iprocess')) {
 		/**
 		 * @var \W7\Core\Dispatcher\ProcessDispatcher $dispatcher
 		 */
-		$dispatcher = iloader()->singleton(ProcessDispatcher::class);
+		$dispatcher = iloader()->get(ProcessDispatcher::class);
 		return $dispatcher->dispatch($name, $server);
 	}
 
@@ -48,7 +47,7 @@ if (!function_exists('iprocess')) {
 	 * @return \W7\Core\Dispatcher\ProcessDispatcher
 	 */
 	function iprocessManager() {
-		$dispatcher = iloader()->singleton(ProcessDispatcher::class);
+		$dispatcher = iloader()->get(ProcessDispatcher::class);
 		return $dispatcher;
 	}
 
@@ -66,7 +65,7 @@ if (!function_exists('iprocess')) {
 	 * @return \W7\Core\Dispatcher\ProcessPoolDispatcher
 	 */
 	function iprocessPoolManager() {
-		$dispatcher = iloader()->singleton(ProcessPoolDispatcher::class);
+		$dispatcher = iloader()->get(ProcessPoolDispatcher::class);
 		return $dispatcher;
 	}
 }
@@ -82,8 +81,8 @@ if (!function_exists('ievent')) {
 		/**
 		 * @var EventDispatcher $dispatcher
 		 */
-		$dispatcher = iloader()->singleton(EventDispatcher::class);
-		return $dispatcher->dispatch($eventName, $args, $halt);
+		$dispatcher = iloader()->get(EventDispatcher::class);
+		return $dispatcher->dispatch($eventName, $args);
 	}
 }
 if (!function_exists('itask')) {
@@ -105,7 +104,7 @@ if (!function_exists('itask')) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
+		$dispatcherMaker = iloader()->get(TaskDispatcher::class);
 		return $dispatcherMaker->register($taskMessage);
 	}
 
@@ -119,7 +118,7 @@ if (!function_exists('itask')) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
+		$dispatcherMaker = iloader()->get(TaskDispatcher::class);
 		return $dispatcherMaker->registerCo($taskMessage);
 	}
 }
@@ -139,10 +138,10 @@ if (!function_exists('iuuid')) {
 if (!function_exists('iloader')) {
 	/**
 	 * 获取加载器
-	 * @return \W7\Core\Helper\Loader
+	 * @return \W7\Core\Container\Container
 	 */
 	function iloader() {
-		return App::getApp()->getLoader();
+		return App::getApp()->getContainer();
 	}
 }
 
@@ -152,7 +151,7 @@ if (!function_exists('ioutputer')) {
 	 * @return W7\Console\Io\Output
 	 */
 	function ioutputer() {
-		return iloader()->singleton(Output::class);
+		return iloader()->get(Output::class);
 	}
 }
 
@@ -210,7 +209,7 @@ if (!function_exists('irouter')) {
 	 * @return \W7\Core\Route\Route
 	 */
 	function irouter() {
-		return iloader()->singleton(Route::class);
+		return iloader()->get(Route::class);
 	}
 }
 
@@ -361,9 +360,9 @@ if (!function_exists('ienv')) {
 if (!function_exists('itrans')) {
 	function itrans($id = null, $replace = [], $locale = null) {
 		if (is_null($id)) {
-			return iloader()->singleton(Translator::class);
+			return iloader()->get(Translator::class);
 		}
-		return iloader()->singleton(Translator::class)->trans($id, $replace, $locale);
+		return iloader()->get(Translator::class)->trans($id, $replace, $locale);
 	}
 }
 if (!function_exists('igo')) {
@@ -375,31 +374,14 @@ if (!function_exists('igo')) {
 		});
 	}
 }
-if (!function_exists('ivalidater')) {
-	/**
-	 * @return Factory
-	 * @throws Exception
-	 */
-	function ivalidater() {
-		/**
-		 * @var Translator $translator
-		 */
-		$translator = iloader()->singleton(Translator::class);
-		/**
-		 * @var Factory $validater
-		 */
-		$validater = iloader()->withClass(Factory::class)->withSingle()->withParams([
-			'translator' => $translator,
-		])->get();
-		$validater->setPresenceVerifier(iloader()->withClass(DatabasePresenceVerifier::class)->withParams('db', idb())->withSingle()->get());
-
-		return $validater;
-	}
-}
 if (!function_exists('ivalidate')) {
 	function ivalidate(array $data, array $rules, array $messages = [], array $customAttributes = []) {
 		try {
-			$result = ivalidater()->make($data, $rules, $messages, $customAttributes)
+			/**
+			 * @var Factory $validate
+			 */
+			$validate = iloader()->get(Factory::class);
+			$result = $validate->make($data, $rules, $messages, $customAttributes)
 				->validate();
 		} catch (ValidationException $e) {
 			$errorMessage = [];

@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -181,9 +181,9 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerSwooleEventListener() {
-		iloader()->singleton(SwooleEvent::class)->register();
+		iloader()->get(SwooleEvent::class)->register();
 
-		$swooleEvents = iloader()->singleton(SwooleEvent::class)->getDefaultEvent();
+		$swooleEvents = iloader()->get(SwooleEvent::class)->getDefaultEvent();
 		$eventTypes = [$this->type, 'task', 'manage'];
 		foreach ($eventTypes as $name) {
 			$event = $swooleEvents[$name];
@@ -204,11 +204,11 @@ abstract class ServerAbstract implements ServerInterface {
 			if ($eventName == SwooleEvent::ON_REQUEST) {
 				$server = \W7\App::$server->server;
 				$this->server->on(SwooleEvent::ON_REQUEST, function ($request, $response) use ($server) {
-					iloader()->singleton(EventDispatcher::class)->dispatch(SwooleEvent::ON_REQUEST, [$server, $request, $response]);
+					iloader()->get(EventDispatcher::class)->dispatch(SwooleEvent::ON_REQUEST, [$server, $request, $response]);
 				});
 			} else {
 				$this->server->on($eventName, function () use ($eventName) {
-					iloader()->singleton(EventDispatcher::class)->dispatch($eventName, func_get_args());
+					iloader()->get(EventDispatcher::class)->dispatch($eventName, func_get_args());
 				});
 			}
 		}

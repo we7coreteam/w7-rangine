@@ -22,7 +22,7 @@ class BeforeStartListener extends ListenerAbstract {
 		/**
 		 * @var Dispatcher $requestDispatcher
 		 */
-		$requestDispatcher = iloader()->singleton(Dispatcher::class);
+		$requestDispatcher = iloader()->get(Dispatcher::class);
 		$requestDispatcher->setRouter($this->getRoute());
 		return true;
 	}
@@ -31,7 +31,7 @@ class BeforeStartListener extends ListenerAbstract {
 	 * @return GroupCountBased
 	 */
 	private function getRoute() {
-		$routeInfo = iloader()->singleton(RouteMapping::class)->getMapping();
+		$routeInfo = iloader()->get(RouteMapping::class)->getMapping();
 		return new GroupCountBased($routeInfo);
 	}
 }

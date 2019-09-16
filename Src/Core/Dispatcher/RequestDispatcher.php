@@ -53,7 +53,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			$middlewareHandler = new MiddlewareHandler($middleWares);
 			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
-			$response = iloader()->singleton(HandlerExceptions::class)->handle($throwable);
+			$response = iloader()->get(HandlerExceptions::class)->handle($throwable);
 		} finally {
 			return $response;
 		}
@@ -105,7 +105,7 @@ class RequestDispatcher extends DispatcherAbstract {
 		/**
 		 * @var MiddlewareMapping $middlewareMap
 		 */
-		$middlewareMap = iloader()->singleton(MiddlewareMapping::class);
+		$middlewareMap = iloader()->get(MiddlewareMapping::class);
 		$controllerMiddleware = $middlewareMap->getControllerMiddleware();
 		$lastMiddleware = $middlewareMap->getLastMiddleware();
 

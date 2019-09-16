@@ -17,7 +17,7 @@ use W7\Core\Provider\ProviderAbstract;
 
 class ViewProvider extends ProviderAbstract {
 	public function register() {
-		ReloadProcess::addType(iloader()->singleton(View::class)->getSuffix());
+		ReloadProcess::addType(iloader()->get(View::class)->getSuffix());
 		//该目录必须存在,provider是在注册了open base dir后才执行的, 所以这里不能对目录进行检测和重建
 		ReloadProcess::addDir(BASE_PATH . '/view');
 	}

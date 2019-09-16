@@ -55,7 +55,7 @@ abstract class ControllerAbstract {
 	}
 
 	protected function render($name, $context = []) {
-		return $this->responseHtml(iloader()->singleton(View::class)->render($name, $context));
+		return $this->responseHtml(iloader()->get(View::class)->render($name, $context));
 	}
 
 	public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = []) {

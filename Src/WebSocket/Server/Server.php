@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -53,7 +53,7 @@ class Server extends ServerAbstract {
 			if (empty($class)) {
 				continue;
 			}
-			$object = \iloader()->singleton($class);
+			$object = \iloader()->get($class);
 			$tcpServer->on($eventName, [$object, 'run']);
 		}
 	}

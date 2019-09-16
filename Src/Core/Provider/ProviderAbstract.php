@@ -53,7 +53,7 @@ abstract class ProviderAbstract {
 		$this->config = iconfig();
 		$this->router = irouter();
 		$this->logger = ilogger();
-		$this->view = iloader()->singleton(View::class);
+		$this->view = iloader()->get(View::class);
 	}
 
 	/**
@@ -114,14 +114,14 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerProvider($provider) {
-		iloader()->singleton(ProviderManager::class)->registerProvider($provider);
+		iloader()->get(ProviderManager::class)->registerProvider($provider);
 	}
 
 	protected function registerCommand($group = null, $forceGroup = false) {
 		/**
 		 * @var  Application $application
 		 */
-		$application = iloader()->singleton(Application::class);
+		$application = iloader()->get(Application::class);
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $group ?? $this->name, $forceGroup);
 	}
 
@@ -161,7 +161,7 @@ abstract class ProviderAbstract {
 			/**
 			 * @var RouteMapping $routeMapping
 			 */
-			$routeMapping = iloader()->singleton(RouteMapping::class);
+			$routeMapping = iloader()->get(RouteMapping::class);
 			$routeConfig = $routeMapping->getRouteConfig();
 			$routeConfig[] = $config;
 			$routeMapping->setRouteConfig($routeConfig);

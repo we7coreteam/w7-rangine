@@ -55,7 +55,7 @@ class DatabaseProvider extends ProviderAbstract {
 		/**
 		 * @var EventDispatcher $dbDispatch
 		 */
-		$dbDispatch = iloader()->singleton(EventDispatcher::class);
+		$dbDispatch = iloader()->get(EventDispatcher::class);
 		$dbDispatch->setContainer($container);
 
 		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {

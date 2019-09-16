@@ -48,7 +48,7 @@ class Server extends ServerAbstract {
 			if (empty($class)) {
 				continue;
 			}
-			$object = \iloader()->singleton($class);
+			$object = \iloader()->get($class);
 			$tcpServer->on($eventName, [$object, 'run']);
 		}
 	}
