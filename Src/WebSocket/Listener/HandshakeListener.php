@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -69,6 +69,7 @@ class HandshakeListener extends ListenerAbstract {
 				ievent(SwooleEvent::ON_OPEN, [App::$server->getServer(), $request]);
 			});
 		} catch (\Throwable $e) {
+			ilogger()->error('websocket handshake fail with error ' . $e->getMessage());
 		} finally {
 			$response->end();
 		}
