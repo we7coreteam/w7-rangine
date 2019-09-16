@@ -10,12 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\Core\Exception;
 
-use W7\App;
-
-class StartListener implements ListenerInterface {
-	public function run(...$params) {
-		\isetProcessTitle('w7-rangine ' . App::$server->type . ' master process');
-	}
+class WebSocketFatalException extends TcpFatalException {
 }

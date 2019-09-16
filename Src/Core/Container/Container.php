@@ -31,9 +31,6 @@ class Container {
 	 * @return bool
 	 */
 	public function set($name, $handle, ...$params) {
-		if ($this->has($name)) {
-			return false;
-		}
 		if (is_string($handle)) {
 			$handle = function () use ($handle, $params) {
 				return new $handle(...$params);

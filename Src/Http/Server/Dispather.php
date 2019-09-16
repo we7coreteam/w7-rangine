@@ -10,12 +10,13 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\Http\Server;
 
-use W7\App;
+use W7\Core\Dispatcher\RequestDispatcher;
+use W7\Core\Session\Middleware\SessionMiddleware;
 
-class StartListener implements ListenerInterface {
-	public function run(...$params) {
-		\isetProcessTitle('w7-rangine ' . App::$server->type . ' master process');
-	}
+class Dispather extends RequestDispatcher {
+	public $beforeMiddleware = [
+		[SessionMiddleware::class]
+	];
 }

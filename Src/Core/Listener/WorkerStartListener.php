@@ -20,6 +20,6 @@ class WorkerStartListener implements ListenerInterface {
 			opcache_reset();
 		}
 
-		\isetProcessTitle('w7swoole ' . App::$server->type . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
+		\isetProcessTitle('w7-rangine ' . App::$server->type . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
 	}
 }

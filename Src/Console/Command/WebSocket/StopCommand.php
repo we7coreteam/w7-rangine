@@ -10,12 +10,12 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\Console\Command\WebSocket;
 
-use W7\App;
+class StopCommand extends WebSocketCommandAbstract {
+	protected $description = 'stop websocket service';
 
-class StartListener implements ListenerInterface {
-	public function run(...$params) {
-		\isetProcessTitle('w7-rangine ' . App::$server->type . ' master process');
+	protected function handle($options) {
+		$this->stop();
 	}
 }

@@ -24,7 +24,7 @@ abstract class ServerAbstract implements ServerInterface {
 	const TYPE_HTTP = 'http';
 	const TYPE_RPC = 'rpc';
 	const TYPE_TCP = 'tcp';
-	const TYPE_WEBSOCKET = 'websocket';
+	const TYPE_WEBSOCKET = 'webSocket';
 
 	/**
 	 * @var \Swoole\Http\Server

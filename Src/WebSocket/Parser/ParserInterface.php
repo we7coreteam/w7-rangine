@@ -10,12 +10,11 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\WebSocket\Parser;
 
-use W7\App;
+use W7\WebSocket\Message\Message;
 
-class StartListener implements ListenerInterface {
-	public function run(...$params) {
-		\isetProcessTitle('w7-rangine ' . App::$server->type . ' master process');
-	}
+interface ParserInterface {
+	public function encode(Message $message) : string;
+	public function decode(string $message) : Message;
 }
