@@ -15,6 +15,9 @@ namespace W7\Core\Container;
 use Pimple\Container as PimpleContainer;
 use Pimple\Psr11\Container as PsrContainer;
 
+/**
+ * ＠@mixin PimpleContainer
+ */
 class Container {
 	private $container;
 	private $psrContainer;
