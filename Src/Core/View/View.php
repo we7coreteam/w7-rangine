@@ -51,12 +51,9 @@ class View {
 		return $this->config['suffix'];
 	}
 
-	public function addProviderTemplatePath($namespace, $path) {
+	public function addProviderTemplatePath(string $namespace, string $path) {
 		$this->config['provider_template_path'] = (array)($this->config['provider_template_path'] ?? []);
-		if (!empty($this->config['provider_template_path'][$namespace])) {
-			throw new \RuntimeException('the namespace ' . $namespace . ' is exist');
-		}
-		$this->config['provider_template_path'][$namespace] = $path;
+		$this->config['provider_template_path'][$namespace][] = $path;
 	}
 
 	public function registerFunction($name, $callback) {

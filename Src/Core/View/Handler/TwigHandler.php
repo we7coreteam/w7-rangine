@@ -25,8 +25,10 @@ class TwigHandler extends HandlerAbstract {
 
 	protected function init() {
 		$loader = new FilesystemLoader([self::$defaultTemplatePath], self::$defaultTemplatePath);
-		foreach (self::$providerTemplatePath as $namespace => $path) {
-			$loader->setPaths($path, $namespace);
+		foreach (self::$providerTemplatePath as $namespace => $paths) {
+			foreach ($paths as $path) {
+				$loader->addPath($path, $namespace);
+			}
 		}
 		self::$defaultCachePath && $this->config['cache'] = self::$defaultCachePath;
 		$this->twig = new Environment($loader, $this->config);
