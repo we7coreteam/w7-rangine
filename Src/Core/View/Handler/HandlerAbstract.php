@@ -28,7 +28,6 @@ abstract class HandlerAbstract {
 	const __IMAGES__ = '__IMAGES__';
 
 	public function __construct(array $config) {
-		$config['debug'] = (ENV & DEBUG) === DEBUG;
 		$this->config = $config;
 
 		$this->initTemplatePath();
@@ -42,14 +41,7 @@ abstract class HandlerAbstract {
 	protected function initTemplatePath() {
 		if (!static::$defaultTemplatePath) {
 			//通过provider注册时把provider的path加进来
-			static::$providerTemplatePath = (array)($this->config['provider_template_path'] ?? []);
-			$userTemplatePath = (array)($this->config['template_path'] ?? []);
-			foreach ($userTemplatePath as $namespace => $paths) {
-				$paths = (array)$paths;
-				$namespace = is_numeric($namespace) ? static::DEFAULT_NAMESPACE : $namespace;
-				static::$providerTemplatePath[$namespace] = static::$providerTemplatePath[$namespace] ?? [];
-				static::$providerTemplatePath[$namespace] = array_merge(static::$providerTemplatePath[$namespace], $paths);
-			}
+			static::$providerTemplatePath = $this->config['provider_template_path'];
 			static::$defaultTemplatePath = BASE_PATH . '/view';
 		}
 	}

@@ -23,7 +23,10 @@ class ViewProvider extends ProviderAbstract {
 		//用户自定义目录
 		$userTemplatePath = iconfig()->getUserAppConfig('view')['template_path'] ?? [];
 		foreach ($userTemplatePath as $path) {
-			ReloadProcess::addDir($path);
+			$path = (array)$path;
+			foreach ($path as $item) {
+				ReloadProcess::addDir($item);
+			}
 		}
 	}
 }
