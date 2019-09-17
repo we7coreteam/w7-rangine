@@ -65,7 +65,7 @@ class ReloadProcess implements ProcessInterface {
 		return false;
 	}
 
-	public static function addDir($dir) {
+	public static function addDir(string $dir) {
 		self::$watchDir[] = $dir;
 	}
 
