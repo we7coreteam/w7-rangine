@@ -24,6 +24,7 @@ class ProviderManager {
 	 */
 	public function register() {
 		$providerMap = $this->findProviders();
+		$this->checkRepeat($providerMap);
 		foreach ($providerMap as $name => $providers) {
 			$providers = (array) $providers;
 			foreach ($providers as $provider) {
@@ -56,8 +57,8 @@ class ProviderManager {
 
 	private function findProviders() {
 		$systemProviders = $this->autoFindProviders(dirname(__DIR__, 2), 'W7');
-		$appProvider = $this->autoFindProviders(BASE_PATH . '/app', 'W7/App');
 		$vendorProviders = $this->findVendorProviders();
+		$appProvider = $this->autoFindProviders(BASE_PATH . '/app', 'W7/App');
 
 		return array_merge($systemProviders, $appProvider, $vendorProviders);
 	}
@@ -113,5 +114,18 @@ class ProviderManager {
 
 		ReloadProcess::addDir($path . 'src');
 		ReloadProcess::addDir($path . 'view');
+	}
+
+	private function checkRepeat($providerMap) {
+		$map = [];
+		foreach ($providerMap as $key => $providers) {
+			$providers = (array)$providers;
+			foreach ($providers as $provider) {
+				if (!empty($map[$provider])) {
+					throw new \RuntimeException('provider ' . $key . ' and ' . $map[$provider] . ' class is repeat');
+				}
+				$map[$provider] = $key;
+			}
+		}
 	}
 }
