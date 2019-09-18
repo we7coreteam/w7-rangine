@@ -65,6 +65,7 @@ abstract class ServerAbstract implements ServerInterface {
 		$this->setting = array_merge([], $setting['common']);
 		$this->enableCoroutine();
 		$this->connection = $setting[$this->type];
+		$this->connection['mode'] = $this->connection['mode'] ?? SWOOLE_PROCESS;
 	}
 
 	/**

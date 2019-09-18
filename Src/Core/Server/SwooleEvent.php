@@ -110,6 +110,7 @@ class SwooleEvent {
 	public function getUserEvent() {
 		return [
 			self::ON_USER_BEFORE_START,
+			self::ON_USER_AFTER_START,
 			self::ON_USER_BEFORE_REQUEST,
 			self::ON_USER_AFTER_REQUEST,
 			self::ON_USER_TASK_FINISH,

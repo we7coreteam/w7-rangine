@@ -13,10 +13,12 @@
 namespace W7\Core\Listener;
 
 use W7\App;
+use W7\Core\Server\SwooleEvent;
 
 class ManagerStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		$this->setServerTitle($params[0]);
+		ievent(SwooleEvent::ON_USER_AFTER_START);
 	}
 
 	private function setServerTitle($server) {
