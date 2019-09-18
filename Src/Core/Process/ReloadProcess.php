@@ -74,7 +74,7 @@ class ReloadProcess implements ProcessInterface {
 	}
 
 	public function run(Process $process) {
-		ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
+		ioutputer()->info('>> server hot reload start');
 
 		$server = App::$server;
 		while (true) {
