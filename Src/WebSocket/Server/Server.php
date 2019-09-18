@@ -16,7 +16,7 @@ use Swoole\WebSocket\Server as WebSocketServer;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\SwooleEvent;
 use W7\WebSocket\Message\Message;
-use W7\WebSocket\Parser\JsonParser;
+use W7\WebSocket\Parser\ParserInterface;
 
 class Server extends ServerAbstract {
 	public $type = parent::TYPE_WEBSOCKET;
@@ -70,7 +70,7 @@ class Server extends ServerAbstract {
 			return false;
 		}
 		//parse 待定
-		$this->server->push($fd, (new JsonParser())->encode($message));
+		$this->server->push($fd, iloader()->get(ParserInterface::class)->encode($message));
 	}
 
 	public function sendToSome(array $fds, Message $message) {

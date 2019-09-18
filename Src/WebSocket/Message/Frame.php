@@ -12,7 +12,7 @@
 
 namespace W7\WebSocket\Message;
 
-use W7\WebSocket\Parser\JsonParser;
+use W7\WebSocket\Parser\ParserInterface;
 
 class Frame implements IFrame {
 	/**
@@ -29,7 +29,7 @@ class Frame implements IFrame {
 
 	public function __construct(\Swoole\Websocket\Frame $frame) {
 		$this->frame = $frame;
-		$this->message = (new JsonParser())->decode($frame->data);
+		$this->message = iloader()->get(ParserInterface::class)->decode($frame->data);
 	}
 
 	/**
