@@ -26,6 +26,11 @@ abstract class ServerAbstract implements ServerInterface {
 	const TYPE_TCP = 'tcp';
 	const TYPE_WEBSOCKET = 'webSocket';
 
+	const MODE_LIST = [
+		SWOOLE_BASE => 'Base',
+		SWOOLE_PROCESS => 'Process',
+	];
+
 	/**
 	 * @var \Swoole\Http\Server
 	 */
@@ -86,7 +91,7 @@ abstract class ServerAbstract implements ServerInterface {
 			'host' => $this->connection['host'],
 			'port' => $this->connection['port'],
 			'type' => $this->connection['sock_type'],
-			'mode' => $this->connection['mode'],
+			'mode' => self::MODE_LIST[$this->connection['mode']] ?? 'Unknown',
 			'workerNum' => $this->setting['worker_num'],
 			'masterPid' => !empty($pids[0]) ? $pids[0] : 0,
 			'managerPid' => !empty($pids[1]) ? $pids[1] : 0,
