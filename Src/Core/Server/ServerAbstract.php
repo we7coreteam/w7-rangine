@@ -31,6 +31,15 @@ abstract class ServerAbstract implements ServerInterface {
 		SWOOLE_PROCESS => 'Process',
 	];
 
+	const SOCK_LIST = [
+		SWOOLE_SOCK_TCP => 'tcp',
+		SWOOLE_SOCK_TCP6 => 'tcp6',
+		SWOOLE_SOCK_UDP => 'udp',
+		SWOOLE_SOCK_UDP6 => 'udp6',
+		SWOOLE_SOCK_UNIX_DGRAM => 'dgram',
+		SWOOLE_SOCK_UNIX_STREAM => 'stream'
+	];
+
 	/**
 	 * @var \Swoole\Http\Server
 	 */
@@ -90,7 +99,7 @@ abstract class ServerAbstract implements ServerInterface {
 		return [
 			'host' => $this->connection['host'],
 			'port' => $this->connection['port'],
-			'type' => $this->connection['sock_type'],
+			'type' => self::SOCK_LIST[$this->connection['sock_type']] ?? 'Unknown',
 			'mode' => self::MODE_LIST[$this->connection['mode']] ?? 'Unknown',
 			'workerNum' => $this->setting['worker_num'],
 			'masterPid' => !empty($pids[0]) ? $pids[0] : 0,
