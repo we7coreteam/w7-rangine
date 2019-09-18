@@ -52,23 +52,6 @@ class HandlerExceptions {
 		throw new \ErrorException($message, 0, $type, $file, $line);
 	}
 
-	public function log(\Throwable $throwable) {
-		$errorMessage = sprintf(
-			'Uncaught Exception %s: "%s" at %s line %s',
-			get_class($throwable),
-			$throwable->getMessage(),
-			$throwable->getFile(),
-			$throwable->getLine()
-		);
-
-		$context = [];
-		if ((ENV & BACKTRACE) === BACKTRACE) {
-			$context = array('exception' => $throwable);
-		}
-
-		ilogger()->error($errorMessage, $context);
-	}
-
 	/**
 	 * @param \Throwable $throwable
 	 */
@@ -77,14 +60,9 @@ class HandlerExceptions {
 	}
 
 	public function handle(\Throwable $throwable) : ResponseInterface {
-		$previous = $throwable;
 		if (!($throwable instanceof ResponseExceptionAbstract)) {
 			$class = 'W7\Core\Exception\\' . ucfirst(App::$server->type) . 'FatalException';
 			$throwable = new $class($throwable->getMessage(), $throwable->getCode(), $throwable);
-		}
-
-		if ($throwable->isLoggable) {
-			$this->log($previous);
 		}
 
 		return $this->getHandler()->handle($throwable);
