@@ -175,7 +175,7 @@ class Context {
 		$cid = Coroutine::getuid();
 		if ($cid > 0 && empty($this->recoverCallback[$cid])) {
 			$this->recoverCallback[$cid] = true;
-			defer(function () {
+			Coroutine::defer(function () {
 				$this->destroy();
 				unset($this->recoverCallback[Coroutine::getuid()]);
 			});

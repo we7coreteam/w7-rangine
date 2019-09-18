@@ -368,7 +368,7 @@ if (!function_exists('itrans')) {
 if (!function_exists('igo')) {
 	function igo(Closure $callback) {
 		$coId = icontext()->getCoroutineId();
-		go(function () use ($callback, $coId) {
+		Coroutine::create(function () use ($callback, $coId) {
 			icontext()->fork($coId);
 			$callback();
 		});

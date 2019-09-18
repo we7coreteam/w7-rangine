@@ -154,7 +154,7 @@ class Session implements SessionInterface {
 		$condition = $this->getGcCondition();
 		if ($requestNum > $condition) {
 			$requestNum = 0;
-			go(function () {
+			igo(function () {
 				self::$handler->gc(self::$handler->getExpires());
 			});
 		}
