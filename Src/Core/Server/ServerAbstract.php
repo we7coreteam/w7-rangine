@@ -27,8 +27,8 @@ abstract class ServerAbstract implements ServerInterface {
 	const TYPE_WEBSOCKET = 'webSocket';
 
 	const MODE_LIST = [
-		SWOOLE_BASE => 'Base',
-		SWOOLE_PROCESS => 'Process',
+		SWOOLE_BASE => 'base',
+		SWOOLE_PROCESS => 'process',
 	];
 
 	const SOCK_LIST = [
