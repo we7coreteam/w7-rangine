@@ -65,6 +65,7 @@ class Output extends SymfonyStyle {
 
 	public function info($content) {
 		$this->write('<info>'.$content.'</info>');
+		$this->newLine();
 	}
 
 	/**
