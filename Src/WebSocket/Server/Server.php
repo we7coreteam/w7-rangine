@@ -65,23 +65,23 @@ class Server extends ServerAbstract {
 		return $this->server;
 	}
 
-	public function sendTo($fd, Message $message) {
+	public function sendTo($fd, Message $message, $opcode = WEBSOCKET_OPCODE_TEXT) {
 		if (!$this->server->isEstablished($fd)) {
 			return false;
 		}
 		//parse 待定
-		$this->server->push($fd, iloader()->get(ParserInterface::class)->encode($message));
+		$this->server->push($fd, iloader()->get(ParserInterface::class)->encode($message), $opcode);
 	}
 
-	public function sendToSome(array $fds, Message $message) {
+	public function sendToSome(array $fds, Message $message, $opcode = WEBSOCKET_OPCODE_TEXT) {
 		foreach ($fds as $fd) {
-			$this->sendTo($fd, $message);
+			$this->sendTo($fd, $message, $opcode);
 		}
 	}
 
-	public function sendToAll(Message $message) {
-		$this->pageEach(function ($fd) use ($message) {
-			$this->sendTo($fd, $message);
+	public function sendToAll(Message $message, $opcode = WEBSOCKET_OPCODE_TEXT) {
+		$this->pageEach(function ($fd) use ($message, $opcode) {
+			$this->sendTo($fd, $message, $opcode);
 		});
 	}
 

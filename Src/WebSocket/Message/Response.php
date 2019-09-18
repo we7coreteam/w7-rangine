@@ -53,6 +53,6 @@ class Response extends Psr7Response {
 		if (!$this->data) {
 			$this->data = $this->getBody()->getContents();
 		}
-		App::$server->sendTo($this->getFd(), new Message($this->getFrame()->getMessage()->getCmd(), $this->data, $this->getStatusCode()));
+		App::$server->sendTo($this->getFd(), new Message($this->getFrame()->getMessage()->getCmd(), $this->data, $this->getStatusCode()), $this->getOpcode());
 	}
 }

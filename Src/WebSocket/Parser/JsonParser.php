@@ -15,11 +15,11 @@ namespace  W7\WebSocket\Parser;
 use W7\WebSocket\Message\Message;
 
 class JsonParser implements ParserInterface {
-	public function encode(Message $message): string {
+	public function encode(Message $message) {
 		return json_encode($message->getPackage());
 	}
 
-	public function decode(string $data): Message {
+	public function decode($data): Message {
 		$cmd = '';
 		$map = json_decode($data, true);
 
