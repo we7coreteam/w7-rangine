@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-21 上午11:18
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Listener;
@@ -17,14 +23,14 @@ class TaskListener implements ListenerInterface {
 		return $this->dispatchTask($server, $task);
 	}
 
-	private function dispatchTask(Server $server,  Task $task) {
+	private function dispatchTask(Server $server, Task $task) {
 		/**
 		 * @var TaskDispatcher $taskDispatcher
 		 */
 		$taskDispatcher = iloader()->get(TaskDispatcher::class);
 		try {
 			$result = $taskDispatcher->dispatch($server, $task->id, $task->worker_id, $task->data);
-		} catch (\Exception $exception) {
+		} catch (\Throwable $exception) {
 			$task->finish($exception->getMessage());
 			return;
 		}

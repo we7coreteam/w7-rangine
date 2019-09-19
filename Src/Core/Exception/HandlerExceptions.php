@@ -24,38 +24,57 @@ class HandlerExceptions {
 	 */
 	private $handler;
 
+	private $canThrowException = true;
+
+	private $errorLevel;
+
 	/**
 	 * Register system error handle
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function registerErrorHandle(): void {
-		set_error_handler([$this, 'handleError'], error_reporting());
+	public function registerErrorHandle() {
+		$this->errorLevel = error_reporting();
+		set_error_handler([$this, 'handleError']);
 		set_exception_handler([$this, 'handleException']);
 		register_shutdown_function(function () {
 			if (!$e = error_get_last()) {
 				return;
 			}
 
+			$this->canThrowException = false;
 			$this->handleError($e['type'], $e['message'], $e['file'], $e['line']);
 		});
 	}
 
 	/**
-	 * @param int $num
-	 * @param string $str
+	 * @param int $type
+	 * @param string $message
 	 * @param string $file
 	 * @param int $line
+	 * @return bool
 	 * @throws \ErrorException
 	 */
-	public function handleError(int $type, string $message, string $file, int $line): void {
-		throw new \ErrorException($message, 0, $type, $file, $line);
+	public function handleError(int $type, string $message, string $file, int $line) {
+		//这里不用error_reporting直接获取的原因是，当使用@触发异常时，取到的值是0
+		if ($type === ($type & $this->errorLevel)) {
+			$throwable = new \ErrorException($message, 0, $type, $file, $line);
+			if ($this->canThrowException) {
+				throw $throwable;
+			} else {
+				$this->canThrowException = true;
+				$this->handleException($throwable);
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
 	 * @param \Throwable $throwable
 	 */
-	public function handleException(\Throwable $throwable): void {
+	public function handleException(\Throwable $throwable) {
 		$this->handle($throwable);
 	}
 
@@ -81,7 +100,7 @@ class HandlerExceptions {
 	/**
 	 * @param HandlerAbstract $handler
 	 */
-	public function setHandler(HandlerAbstract $handler): void {
+	public function setHandler(HandlerAbstract $handler) {
 		$this->handler = $handler;
 	}
 }
