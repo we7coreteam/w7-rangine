@@ -77,9 +77,11 @@ abstract class ServerAbstract implements ServerInterface {
 			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
 		}
 		$this->setting = array_merge([], $setting['common']);
-		$this->enableCoroutine();
 		$this->connection = $setting[$this->type];
-		$this->connection['mode'] = $this->connection['mode'] ?? SWOOLE_PROCESS;
+
+		$this->checkConfig();
+		$this->resetPidFile();
+		$this->enableCoroutine();
 	}
 
 	/**
@@ -107,10 +109,6 @@ abstract class ServerAbstract implements ServerInterface {
 		];
 	}
 
-	public function getServer() {
-		return $this->server;
-	}
-
 	public function isRun() {
 		$status = $this->getStatus();
 		if (!empty($status['masterPid'])) {
@@ -118,13 +116,6 @@ abstract class ServerAbstract implements ServerInterface {
 		} else {
 			return false;
 		}
-	}
-
-	protected function enableCoroutine() {
-		$this->setting['enable_coroutine'] = true;
-		$this->setting['task_enable_coroutine'] = true;
-		$this->setting['task_ipc_mode'] = 1;
-		$this->setting['message_queue_key'] = '';
 	}
 
 	public function stop() {
@@ -153,6 +144,51 @@ abstract class ServerAbstract implements ServerInterface {
 			unlink($this->setting['pid_file']);
 		}
 		return $result;
+	}
+
+	protected function checkConfig() {
+		if (empty($this->setting['pid_file'])) {
+			throw new \RuntimeException('server pid_file error');
+		}
+		if (empty($this->connection['host'])) {
+			throw new \RuntimeException('server host error');
+		}
+		if (empty($this->connection['port'])) {
+			throw new \RuntimeException('server port error');
+		}
+
+		$this->connection['mode'] = (int)($this->connection['mode'] ?? SWOOLE_PROCESS);
+		$this->connection['sock_type'] = (int)($this->connection['sock_type'] ?? SWOOLE_SOCK_TCP);
+		$this->setting['worker_num'] = (int)($this->setting['worker_num'] ?? swoole_cpu_num());
+
+		if ($this->connection['mode'] <= 0) {
+			throw new \RuntimeException('server mode error');
+		}
+		if ($this->connection['sock_type'] <= 0) {
+			throw new \RuntimeException('server sock_type error');
+		}
+		if ($this->setting['worker_num'] <= 0) {
+			throw new \RuntimeException('server worker_num error');
+		}
+	}
+
+	protected function resetPidFile() {
+		$pathInfo = pathinfo($this->setting['pid_file']);
+		$pathInfo['basename'] = $this->connection['port'] . '_' . $pathInfo['basename'];
+		$pidFile = rtrim($pathInfo['dirname'], '/') . '/' . $pathInfo['basename'];
+
+		$this->setting['pid_file'] = $pidFile;
+	}
+
+	protected function enableCoroutine() {
+		$this->setting['enable_coroutine'] = true;
+		$this->setting['task_enable_coroutine'] = true;
+		$this->setting['task_ipc_mode'] = 1;
+		$this->setting['message_queue_key'] = '';
+	}
+
+	public function getServer() {
+		return $this->server;
 	}
 
 	public function registerService() {
