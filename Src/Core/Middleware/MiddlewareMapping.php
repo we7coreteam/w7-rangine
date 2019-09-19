@@ -15,6 +15,8 @@ namespace W7\Core\Middleware;
 use W7\App;
 
 class MiddlewareMapping {
+	private $controllerMiddleware;
+
 	public function __construct() {
 	}
 
@@ -29,11 +31,17 @@ class MiddlewareMapping {
 		if (empty(App::$server->type)) {
 			return [];
 		}
+		if ($this->controllerMiddleware) {
+			return $this->controllerMiddleware;
+		}
+
 		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', ucfirst(App::$server->type));
 		if (class_exists($class)) {
-			return [[$class]];
+			$this->controllerMiddleware = [[$class]];
 		} else {
-			return [[ControllerMiddleware::class]];
+			$this->controllerMiddleware = [[ControllerMiddleware::class]];
 		}
+
+		return $this->controllerMiddleware;
 	}
 }
