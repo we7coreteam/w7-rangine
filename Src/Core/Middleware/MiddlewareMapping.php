@@ -15,33 +15,53 @@ namespace W7\Core\Middleware;
 use W7\App;
 
 class MiddlewareMapping {
-	private $controllerMiddleware;
+	/**
+	 * 前置的中间件，用于定义一些系统的操作
+	 */
+	public $beforeMiddleware = [];
+	/**
+	 * 后置的中间件，用于定义一些系统的操作
+	 */
+	public $afterMiddleware = [];
 
 	public function __construct() {
+	}
+
+	public function addBeforeMiddleware(string $middleware) {
+		$this->beforeMiddleware[] = [$middleware];
+	}
+
+	public function addAfterMiddleware(string $middleware) {
+		$this->afterMiddleware[] = [$middleware];
 	}
 
 	/**
 	 * 获取系统最后的中间件
 	 */
-	public function getLastMiddleware() {
+	private function getLastMiddleware() {
 		return [[LastMiddleware::class]];
 	}
 
-	public function getControllerMiddleware() {
+	private function getControllerMiddleware() {
 		if (empty(App::$server->type)) {
 			return [];
-		}
-		if ($this->controllerMiddleware) {
-			return $this->controllerMiddleware;
 		}
 
 		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', ucfirst(App::$server->type));
 		if (class_exists($class)) {
-			$this->controllerMiddleware = [[$class]];
+			return [[$class]];
 		} else {
-			$this->controllerMiddleware = [[ControllerMiddleware::class]];
+			return [[ControllerMiddleware::class]];
 		}
+	}
 
-		return $this->controllerMiddleware;
+	public function getRouteMiddleWares($route) {
+		return array_merge(
+			$this->beforeMiddleware,
+			$route['middleware'],
+			$this->getControllerMiddleware(),
+			$this->afterMiddleware,
+			$this->getLastMiddleware()
+		);
 	}
 }

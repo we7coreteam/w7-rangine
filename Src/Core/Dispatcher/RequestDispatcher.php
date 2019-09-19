@@ -49,7 +49,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			$psr7Request = $psr7Request->withAttribute('route', $route);
 			$contextObj->setRequest($psr7Request);
 
-			$middleWares = $this->getMiddleware($route);
+			$middleWares = iloader()->get(MiddlewareMapping::class)->getRouteMiddleWares($route);
 			$middlewareHandler = new MiddlewareHandler($middleWares);
 			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
@@ -98,17 +98,5 @@ class RequestDispatcher extends DispatcherAbstract {
 			'args' => $route[2],
 			'middleware' => $route[1]['middleware']['before'],
 		];
-	}
-
-	private function getMiddleware($route) {
-		$routeMiddleware = $route['middleware'];
-		/**
-		 * @var MiddlewareMapping $middlewareMap
-		 */
-		$middlewareMap = iloader()->get(MiddlewareMapping::class);
-		$controllerMiddleware = $middlewareMap->getControllerMiddleware();
-		$lastMiddleware = $middlewareMap->getLastMiddleware();
-
-		return array_merge($this->beforeMiddleware, $routeMiddleware, $controllerMiddleware, $this->afterMiddleware, $lastMiddleware);
 	}
 }

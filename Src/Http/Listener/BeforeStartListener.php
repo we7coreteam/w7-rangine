@@ -13,8 +13,10 @@
 namespace W7\Http\Listener;
 
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\RouteMapping;
 use FastRoute\Dispatcher\GroupCountBased;
+use W7\Core\Session\Middleware\SessionMiddleware;
 use W7\Http\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
@@ -24,6 +26,9 @@ class BeforeStartListener extends ListenerAbstract {
 		 */
 		$requestDispatcher = iloader()->get(Dispatcher::class);
 		$requestDispatcher->setRouter($this->getRoute());
+
+		//不管是否需要都会开启session 需要优化
+		iloader()->get(MiddlewareMapping::class)->addBeforeMiddleware(SessionMiddleware::class);
 		return true;
 	}
 
