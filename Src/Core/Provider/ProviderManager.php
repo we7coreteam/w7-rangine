@@ -25,13 +25,17 @@ class ProviderManager {
 	public function register() {
 		$providerMap = $this->findProviders();
 		$this->checkRepeat($providerMap);
+		$this->registerProviders($providerMap);
+		return $this;
+	}
+
+	public function registerProviders(array $providerMap) {
 		foreach ($providerMap as $name => $providers) {
 			$providers = (array) $providers;
 			foreach ($providers as $provider) {
 				$this->registerProvider($provider, $name);
 			}
 		}
-		return $this;
 	}
 
 	public function registerProvider($provider, $name = null) {

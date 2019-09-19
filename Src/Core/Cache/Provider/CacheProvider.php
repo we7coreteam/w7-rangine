@@ -10,8 +10,9 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Cache;
+namespace W7\Core\Cache\Provider;
 
+use W7\Core\Cache\Cache;
 use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {

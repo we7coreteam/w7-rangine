@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Database;
+namespace W7\Core\Database\Provider;
 
 use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
@@ -24,6 +24,8 @@ use Illuminate\Support\Fluent;
 use W7\App;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
+use W7\Core\Database\ConnectorManager;
+use W7\Core\Database\DatabaseManager;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Provider\ProviderAbstract;
 

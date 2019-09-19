@@ -10,9 +10,10 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Exception;
+namespace W7\Core\Exception\Provider;
 
 use W7\Core\Exception\Handler\ExceptionHandler;
+use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Provider\ProviderAbstract;
 
 class ExceptionProvider extends ProviderAbstract {

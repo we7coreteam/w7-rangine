@@ -10,10 +10,11 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\View;
+namespace W7\Core\View\Provider;
 
 use W7\Core\Process\ReloadProcess;
 use W7\Core\Provider\ProviderAbstract;
+use W7\Core\View\View;
 
 class ViewProvider extends ProviderAbstract {
 	public function register() {
