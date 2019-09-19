@@ -36,10 +36,11 @@ class ExceptionHandler extends HandlerAbstract {
 
 	public function handle(ResponseExceptionAbstract $e) : ResponseInterface {
 		if ($e->isLoggable) {
+			$previous = $e;
 			if ($e instanceof FatalExceptionAbstract) {
-				$e = $e->getPrevious();
+				$previous = $e->getPrevious();
 			}
-			$this->log($e);
+			$this->log($previous);
 		}
 		return $e->render();
 	}
