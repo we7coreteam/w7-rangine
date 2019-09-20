@@ -45,7 +45,7 @@ class Server extends ServerAbstract {
 	 * @var \Swoole\Server $server
 	 * 通过侦听端口的方法创建服务
 	 */
-	public function listener(\Swoole\Server $server) {
+	public function listener($server) {
 		$tcpServer = $server->addListener($this->connection['host'], $this->connection['port'], $this->connection['sock_type']);
 		//tcp需要强制关闭其它协议支持，否则继续父服务
 		$tcpServer->set([
@@ -53,12 +53,12 @@ class Server extends ServerAbstract {
 			'open_http_protocol' => false,
 			'open_websocket_protocol' => false,
 		]);
-		$event = (new SwooleEvent())->getDefaultEvent()[parent::TYPE_TCP];
+		$event = (new SwooleEvent())->getDefaultEvent()[$this->getType()];
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;
 			}
-			$object = \iloader()->singleton($class);
+			$object = \iloader()->get($class);
 			$tcpServer->on($eventName, [$object, 'run']);
 		}
 	}

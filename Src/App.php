@@ -16,7 +16,7 @@ use W7\Console\Application;
 use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
 use W7\Core\Exception\HandlerExceptions;
-use W7\Core\Helper\Loader;
+use W7\Core\Container\Container;
 use W7\Core\Log\Logger;
 use W7\Core\Log\LogManager;
 use W7\Core\Helper\Storage\Context;
@@ -32,9 +32,9 @@ class App {
 	 */
 	public static $server;
 	/**
-	 * @var Loader
+	 * @var Container
 	 */
-	private $loader;
+	private $container;
 
 	public function __construct() {
 		self::$self = $this;
@@ -90,11 +90,11 @@ class App {
 		/**
 		 * 设置错误信息接管
 		 */
-		$this->getLoader()->singleton(HandlerExceptions::class)->registerErrorHandle();
+		$this->getContainer()->get(HandlerExceptions::class)->registerErrorHandle();
 	}
 
 	private function registerProvider() {
-		$this->getLoader()->singleton(ProviderManager::class)->register()->boot();
+		$this->getContainer()->get(ProviderManager::class)->register()->boot();
 	}
 
 	public static function getApp() {
@@ -106,17 +106,17 @@ class App {
 
 	public function runConsole() {
 		try {
-			$this->getLoader()->singleton(Application::class)->run();
+			$this->getContainer()->get(Application::class)->run();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
 		}
 	}
 
-	public function getLoader() {
-		if (empty($this->loader)) {
-			$this->loader = new Loader();
+	public function getContainer() {
+		if (empty($this->container)) {
+			$this->container = new Container();
 		}
-		return $this->loader;
+		return $this->container;
 	}
 
 	/**
@@ -126,7 +126,7 @@ class App {
 		/**
 		 * @var LogManager $logManager
 		 */
-		$logManager = $this->getLoader()->singleton(LogManager::class);
+		$logManager = $this->getContainer()->get(LogManager::class);
 		return $logManager->getDefaultChannel();
 	}
 
@@ -134,11 +134,11 @@ class App {
 	 * @return Context
 	 */
 	public function getContext() {
-		return $this->getLoader()->singleton(Context::class);
+		return $this->getContainer()->get(Context::class);
 	}
 
 	public function getConfigger() {
-		return $this->getLoader()->singleton(Config::class);
+		return $this->getContainer()->get(Config::class);
 	}
 
 	/**
@@ -148,7 +148,7 @@ class App {
 		/**
 		 * @var Cache $cache;
 		 */
-		$cache = $this->getLoader()->singleton(Cache::class);
+		$cache = $this->getContainer()->get(Cache::class);
 		return $cache;
 	}
 }

@@ -5,7 +5,7 @@
  * @author donknap
  * @date 18-7-18 下午6:35
  */
-require_once dirname(__DIR__, 3) . '/config/define.php';
+require_once dirname(__DIR__, 4) . '/config/define.php';
 $loader = require_once BASE_PATH . '/vendor/autoload.php';
 
 $_SERVER['argv'] = array_merge([

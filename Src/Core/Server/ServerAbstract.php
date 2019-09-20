@@ -42,16 +42,15 @@ abstract class ServerAbstract implements ServerInterface {
 	public function __construct() {
 		!App::$server && App::$server = $this;
 		$setting = \iconfig()->getServer();
-		$this->checkSetting($setting);
-		$this->setting = array_merge([], $setting['common']);
-		$this->enableCoroutine();
-		$this->connection = $setting[$this->getType()];
-	}
-
-	protected function checkSetting($setting) {
 		if (empty($setting[$this->getType()])) {
-			throw new CommandException(sprintf('缺少服务配置 %s', $this->getType()));
+			throw new \RuntimeException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
+		$this->setting = array_merge([], $setting['common']);
+		$this->connection = $setting[$this->getType()];
+
+		$this->checkSetting();
+		$this->resetPidFile();
+		$this->enableCoroutine();
 	}
 
 	/**
@@ -71,8 +70,8 @@ abstract class ServerAbstract implements ServerInterface {
 		return [
 			'host' => $this->connection['host'],
 			'port' => $this->connection['port'],
-			'type' => $this->connection['sock_type'],
-			'mode' => $this->connection['mode'],
+			'type' => ServerEnum::SOCK_LIST[$this->connection['sock_type']] ?? 'Unknown',
+			'mode' => ServerEnum::MODE_LIST[$this->connection['mode']] ?? 'Unknown',
 			'workerNum' => $this->setting['worker_num'],
 			'masterPid' => !empty($pids[0]) ? $pids[0] : 0,
 			'managerPid' => !empty($pids[1]) ? $pids[1] : 0,
@@ -132,14 +131,48 @@ abstract class ServerAbstract implements ServerInterface {
 		return $result;
 	}
 
+	protected function checkSetting() {
+		if (empty($this->setting['pid_file'])) {
+			throw new \RuntimeException('server pid_file error');
+		}
+		if (empty($this->connection['host'])) {
+			throw new \RuntimeException('server host error');
+		}
+		if (empty($this->connection['port'])) {
+			throw new \RuntimeException('server port error');
+		}
+
+		$this->connection['mode'] = (int)($this->connection['mode'] ?? SWOOLE_PROCESS);
+		$this->connection['sock_type'] = (int)($this->connection['sock_type'] ?? SWOOLE_SOCK_TCP);
+		$this->setting['worker_num'] = (int)($this->setting['worker_num'] ?? swoole_cpu_num());
+
+		if ($this->connection['mode'] <= 0) {
+			throw new \RuntimeException('server mode error');
+		}
+		if ($this->connection['sock_type'] <= 0) {
+			throw new \RuntimeException('server sock_type error');
+		}
+		if ($this->setting['worker_num'] <= 0) {
+			throw new \RuntimeException('server worker_num error');
+		}
+	}
+
+	protected function resetPidFile() {
+		$pathInfo = pathinfo($this->setting['pid_file']);
+		$pathInfo['basename'] = $this->connection['port'] . '_' . $pathInfo['basename'];
+		$pidFile = rtrim($pathInfo['dirname'], '/') . '/' . $pathInfo['basename'];
+
+		$this->setting['pid_file'] = $pidFile;
+	}
+
 	public function registerService() {
 		$this->registerSwooleEventListener();
 	}
 
 	protected function registerSwooleEventListener() {
-		iloader()->singleton(SwooleEvent::class)->register();
+		iloader()->get(SwooleEvent::class)->register();
 
-		$swooleEvents = iloader()->singleton(SwooleEvent::class)->getDefaultEvent();
+		$swooleEvents = iloader()->get(SwooleEvent::class)->getDefaultEvent();
 		$eventTypes = [$this->getType(), 'task', 'manage'];
 		foreach ($eventTypes as $name) {
 			$event = $swooleEvents[$name];
@@ -160,11 +193,11 @@ abstract class ServerAbstract implements ServerInterface {
 			if ($eventName == SwooleEvent::ON_REQUEST) {
 				$server = \W7\App::$server->server;
 				$this->server->on(SwooleEvent::ON_REQUEST, function ($request, $response) use ($server) {
-					iloader()->singleton(EventDispatcher::class)->dispatch(SwooleEvent::ON_REQUEST, [$server, $request, $response]);
+					iloader()->get(EventDispatcher::class)->dispatch(SwooleEvent::ON_REQUEST, [$server, $request, $response]);
 				});
 			} else {
 				$this->server->on($eventName, function () use ($eventName) {
-					iloader()->singleton(EventDispatcher::class)->dispatch($eventName, func_get_args());
+					iloader()->get(EventDispatcher::class)->dispatch($eventName, func_get_args());
 				});
 			}
 		}

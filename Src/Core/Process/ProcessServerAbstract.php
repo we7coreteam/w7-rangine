@@ -23,6 +23,13 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	 */
 	protected $pool;
 
+	protected function register() {
+	}
+
+	protected function checkSetting() {
+		return true;
+	}
+
 	protected function getSetting() {
 		$setting = array_merge($this->setting, $this->connection);
 		return [
@@ -31,13 +38,6 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 			'message_queue_key' => $setting['message_queue_key'],
 			'daemonize' => $setting['daemonize']
 		];
-	}
-
-	protected function checkSetting($setting) {
-		return true;
-	}
-
-	protected function register() {
 	}
 
 	public function getStatus() {

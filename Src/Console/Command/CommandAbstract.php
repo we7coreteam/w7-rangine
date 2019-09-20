@@ -60,8 +60,7 @@ abstract class CommandAbstract extends Command {
 					}
 
 					$key = array_shift($option);
-					putenv($key . '=' . $value);
-					$childConfig[$key] = ienv($key);
+					$childConfig[$key] = $value;
 
 					iconfig()->setUserConfig($name, $config);
 				}

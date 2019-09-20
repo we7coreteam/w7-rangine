@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Exception;
 
 use Psr\Http\Message\ResponseInterface;
@@ -10,7 +20,7 @@ use Whoops\Run;
 class HttpFatalException extends FatalExceptionAbstract {
 	protected function development(): ResponseInterface {
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$content = 'message: ' . $this->getMessage() . '<br/>file: ' . $this->getFile() . '<br/>line: ' . $this->getLine();
+			$content = 'message: ' . $this->getMessage() . '<br/>file: ' . $this->getPrevious()->getFile() . '<br/>line: ' . $this->getPrevious()->getLine();
 		} else {
 			ob_start();
 			$render = new PrettyPageHandler();
@@ -22,10 +32,10 @@ class HttpFatalException extends FatalExceptionAbstract {
 			$content = ob_get_clean();
 		}
 
-		return $this->response->html($content);
+		return $this->response->withStatus(500)->html($content);
 	}
 
 	protected function release(): ResponseInterface {
-		return $this->response->withData(['error' => '系统内部错误'], 500);
+		return $this->response->withStatus(500)->withData(['error' => '系统内部错误']);
 	}
 }

@@ -20,14 +20,34 @@ class View {
 	private $customFunctions = [];
 	private $customConsts = [];
 	private $customObjs = [];
+	private $isTransform;
 
 	public function __construct() {
 		$this->config = iconfig()->getUserAppConfig('view');
 		$this->config['suffix'] = empty($this->config['suffix']) ? 'html' : $this->config['suffix'];
 	}
 
+	private function transformConfig() {
+		if ($this->isTransform) {
+			return false;
+		}
+
+		$this->config['debug'] = (ENV & DEBUG) === DEBUG;
+
+		$this->config['provider_template_path'] = (array)($this->config['provider_template_path'] ?? []);
+		$userTemplatePath = (array)($this->config['template_path'] ?? []);
+		foreach ($userTemplatePath as $namespace => $paths) {
+			$paths = (array)$paths;
+			$namespace = is_numeric($namespace) ? HandlerAbstract::DEFAULT_NAMESPACE : $namespace;
+			$this->config['provider_template_path'][$namespace] = $this->config['provider_template_path'][$namespace] ?? [];
+			$this->config['provider_template_path'][$namespace] = array_merge($this->config['provider_template_path'][$namespace], $paths);
+		}
+		$this->isTransform = true;
+	}
+
 	private function getHandler() : HandlerAbstract {
 		$class = $this->getHandlerClass();
+		$this->transformConfig();
 		return new $class($this->config);
 	}
 
@@ -51,12 +71,9 @@ class View {
 		return $this->config['suffix'];
 	}
 
-	public function addProviderTemplatePath($namespace, $path) {
+	public function addProviderTemplatePath(string $namespace, string $path) {
 		$this->config['provider_template_path'] = (array)($this->config['provider_template_path'] ?? []);
-		if (!empty($this->config['provider_template_path'][$namespace])) {
-			throw new \RuntimeException('the namespace ' . $namespace . ' is exist');
-		}
-		$this->config['provider_template_path'][$namespace] = $path;
+		$this->config['provider_template_path'][$namespace][] = $path;
 	}
 
 	public function registerFunction($name, $callback) {

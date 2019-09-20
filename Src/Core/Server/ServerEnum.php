@@ -34,4 +34,18 @@ class ServerEnum {
 		self::TYPE_CRONTAB => CrontabServer::class,
 		self::TYPE_RELOAD => ReloadServer::class
 	];
+
+	const MODE_LIST = [
+		SWOOLE_BASE => 'base',
+		SWOOLE_PROCESS => 'process',
+	];
+
+	const SOCK_LIST = [
+		SWOOLE_SOCK_TCP => 'tcp',
+		SWOOLE_SOCK_TCP6 => 'tcp6',
+		SWOOLE_SOCK_UDP => 'udp',
+		SWOOLE_SOCK_UDP6 => 'udp6',
+		SWOOLE_SOCK_UNIX_DGRAM => 'dgram',
+		SWOOLE_SOCK_UNIX_STREAM => 'stream'
+	];
 }

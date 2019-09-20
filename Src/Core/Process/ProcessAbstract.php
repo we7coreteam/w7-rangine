@@ -8,6 +8,7 @@ namespace W7\Core\Process;
 
 use Swoole\Process;
 use Swoole\Timer;
+use W7\Core\Log\LogManager;
 
 abstract class ProcessAbstract {
 	protected $name = 'process';
@@ -156,6 +157,6 @@ abstract class ProcessAbstract {
 
 	public function onStop() {
 		ilogger()->info('process ' . $this->getProcessName() . ' exit');
-		ilogger()->flushLog();
+		iloader()->get(LogManager::class)->flushLog();
 	}
 }

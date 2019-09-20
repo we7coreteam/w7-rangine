@@ -10,12 +10,15 @@
  * visited https://www.rangine.com/ for more details
  */
 
+use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationException;
 use Swoole\Coroutine;
 use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
+use W7\Core\Exception\ValidatorException;
 use W7\Core\Lang\Translator;
 use W7\Console\Io\Output;
 use W7\Core\Message\TaskMessage;
@@ -27,14 +30,14 @@ if (!function_exists('ievent')) {
 	 * 派发一个事件
 	 * @param $eventName
 	 * @param array $args
-	 * @return bool
-	 * @throws Exception
+	 * @param bool $halt
+	 * @return array|null
 	 */
-	function ievent($eventName, $args = []) {
+	function ievent($eventName, $args = [], $halt = false) {
 		/**
 		 * @var EventDispatcher $dispatcher
 		 */
-		$dispatcher = iloader()->singleton(EventDispatcher::class);
+		$dispatcher = iloader()->get(EventDispatcher::class);
 		return $dispatcher->dispatch($eventName, $args);
 	}
 }
@@ -57,7 +60,7 @@ if (!function_exists('itask')) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
+		$dispatcherMaker = iloader()->get(TaskDispatcher::class);
 		return $dispatcherMaker->register($taskMessage);
 	}
 
@@ -71,7 +74,7 @@ if (!function_exists('itask')) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = iloader()->singleton(TaskDispatcher::class);
+		$dispatcherMaker = iloader()->get(TaskDispatcher::class);
 		return $dispatcherMaker->registerCo($taskMessage);
 	}
 }
@@ -91,10 +94,10 @@ if (!function_exists('iuuid')) {
 if (!function_exists('iloader')) {
 	/**
 	 * 获取加载器
-	 * @return \W7\Core\Helper\Loader
+	 * @return \W7\Core\Container\Container
 	 */
 	function iloader() {
-		return App::getApp()->getLoader();
+		return App::getApp()->getContainer();
 	}
 }
 
@@ -104,7 +107,7 @@ if (!function_exists('ioutputer')) {
 	 * @return W7\Console\Io\Output
 	 */
 	function ioutputer() {
-		return iloader()->singleton(Output::class);
+		return iloader()->get(Output::class);
 	}
 }
 
@@ -162,7 +165,7 @@ if (!function_exists('irouter')) {
 	 * @return \W7\Core\Route\Route
 	 */
 	function irouter() {
-		return iloader()->singleton(Route::class);
+		return iloader()->get(Route::class);
 	}
 }
 
@@ -313,8 +316,38 @@ if (!function_exists('ienv')) {
 if (!function_exists('itrans')) {
 	function itrans($id = null, $replace = [], $locale = null) {
 		if (is_null($id)) {
-			return iloader()->singleton(Translator::class);
+			return iloader()->get(Translator::class);
 		}
-		return iloader()->singleton(Translator::class)->trans($id, $replace, $locale);
+		return iloader()->get(Translator::class)->trans($id, $replace, $locale);
+	}
+}
+if (!function_exists('igo')) {
+	function igo(Closure $callback) {
+		$coId = icontext()->getCoroutineId();
+		Coroutine::create(function () use ($callback, $coId) {
+			icontext()->fork($coId);
+			$callback();
+		});
+	}
+}
+if (!function_exists('ivalidate')) {
+	function ivalidate(array $data, array $rules, array $messages = [], array $customAttributes = []) {
+		try {
+			/**
+			 * @var Factory $validate
+			 */
+			$validate = iloader()->get(Factory::class);
+			$result = $validate->make($data, $rules, $messages, $customAttributes)
+				->validate();
+		} catch (ValidationException $e) {
+			$errorMessage = [];
+			$errors = $e->errors();
+			foreach ($errors as $field => $message) {
+				$errorMessage[] = $field . ' : ' . $message[0];
+			}
+			throw new ValidatorException(implode('; ', $errorMessage));
+		}
+
+		return $result;
 	}
 }

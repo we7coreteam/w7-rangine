@@ -16,6 +16,6 @@ use W7\Core\Log\LogManager;
 
 class WorkerStopListener implements ListenerInterface {
 	public function run(...$params) {
-		iloader()->singleton(LogManager::class)->flushLog();
+		iloader()->get(LogManager::class)->flushLog();
 	}
 }

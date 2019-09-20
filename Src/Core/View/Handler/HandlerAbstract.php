@@ -12,6 +12,7 @@
 
 namespace W7\Core\View\Handler;
 
+use Twig\Loader\FilesystemLoader;
 use W7\App;
 use W7\Core\Exception\DumpException;
 
@@ -20,14 +21,13 @@ abstract class HandlerAbstract {
 	protected static $providerTemplatePath = [];
 	protected static $defaultTemplatePath;
 	protected static $defaultCachePath;
-	const DEFAULT_NAMESPACE = '__MAIN__';
+	const DEFAULT_NAMESPACE = FilesystemLoader::MAIN_NAMESPACE;
 	const __STATIC__ = '__STATIC__';
 	const __CSS__ = '__CSS__';
 	const __JS__ = '__JS__';
 	const __IMAGES__ = '__IMAGES__';
 
 	public function __construct(array $config) {
-		$config['debug'] = (ENV & DEBUG) === DEBUG;
 		$this->config = $config;
 
 		$this->initTemplatePath();
@@ -41,7 +41,7 @@ abstract class HandlerAbstract {
 	protected function initTemplatePath() {
 		if (!static::$defaultTemplatePath) {
 			//通过provider注册时把provider的path加进来
-			static::$providerTemplatePath = (array)($this->config['provider_template_path'] ?? []);
+			static::$providerTemplatePath = $this->config['provider_template_path'];
 			static::$defaultTemplatePath = BASE_PATH . '/view';
 		}
 	}

@@ -15,25 +15,53 @@ namespace W7\Core\Middleware;
 use W7\App;
 
 class MiddlewareMapping {
+	/**
+	 * 前置的中间件，用于定义一些系统的操作
+	 */
+	public $beforeMiddleware = [];
+	/**
+	 * 后置的中间件，用于定义一些系统的操作
+	 */
+	public $afterMiddleware = [];
+
 	public function __construct() {
+	}
+
+	public function addBeforeMiddleware(string $middleware) {
+		$this->beforeMiddleware[] = [$middleware];
+	}
+
+	public function addAfterMiddleware(string $middleware) {
+		$this->afterMiddleware[] = [$middleware];
 	}
 
 	/**
 	 * 获取系统最后的中间件
 	 */
-	public function getLastMiddleware() {
+	private function getLastMiddleware() {
 		return [[LastMiddleware::class]];
 	}
 
-	public function getControllerMiddleware() {
+	private function getControllerMiddleware() {
 		if (empty(App::$server->getType())) {
 			return [];
 		}
+
 		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', ucfirst(App::$server->getType()));
 		if (class_exists($class)) {
 			return [[$class]];
 		} else {
 			return [[ControllerMiddleware::class]];
 		}
+	}
+
+	public function getRouteMiddleWares($route) {
+		return array_merge(
+			$this->beforeMiddleware,
+			$route['middleware'],
+			$this->getControllerMiddleware(),
+			$this->afterMiddleware,
+			$this->getLastMiddleware()
+		);
 	}
 }

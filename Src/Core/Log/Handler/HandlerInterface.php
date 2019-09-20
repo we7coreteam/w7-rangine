@@ -16,5 +16,6 @@ use Monolog\Handler\HandlerInterface as MonologInterface;
 
 interface HandlerInterface {
 	public static function getHandler($config) : MonologInterface;
+	public function preProcess($record) : array;
 	public function handleBatch(array $records);
 }

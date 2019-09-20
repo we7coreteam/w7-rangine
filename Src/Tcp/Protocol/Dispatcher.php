@@ -28,6 +28,6 @@ class Dispatcher {
 			$protocol = 'json';
 		}
 
-		return \iloader()->singleton(self::$protocolMap[$protocol]);
+		return \iloader()->get(self::$protocolMap[$protocol]);
 	}
 }

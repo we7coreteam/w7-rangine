@@ -29,6 +29,10 @@ use W7\Tcp\Listener\ReceiveListener;
 use W7\Core\Listener\ProcessMessageListener;
 use W7\Core\Listener\ProcessStartListener;
 use W7\Core\Listener\ProcessStopListener;
+use W7\WebSocket\Listener\CloseListener as WebSocketCloseListener;
+use W7\WebSocket\Listener\HandshakeListener;
+use W7\WebSocket\Listener\MessageListener;
+use W7\WebSocket\Listener\OpenListener;
 
 class SwooleEvent {
 	/**
@@ -59,6 +63,10 @@ class SwooleEvent {
 
 	const ON_REQUEST = 'request';
 
+	const ON_HAND_SHAKE = 'handshake';
+	const ON_OPEN = 'open';
+	const ON_MESSAGE = 'message';
+
 	const ON_PROCESS_MESSAGE = 'message';
 
 	/**
@@ -69,6 +77,9 @@ class SwooleEvent {
 	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
 	const ON_USER_AFTER_REQUEST = 'afterRequest';
 	const ON_USER_TASK_FINISH = 'afterTaskFinish';
+	const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandshake';
+	const ON_USER_BEFORE_OPEN = 'beforeOpen';
+	const ON_USER_BEFORE_CLOSE = 'beforeClose';
 
 	public function getDefaultEvent() {
 		return [
@@ -83,6 +94,12 @@ class SwooleEvent {
 				self::ON_RECEIVE => ReceiveListener::class,
 				self::ON_CONNECT => ConnectListener::class,
 				self::ON_CLOSE => CloseListener::class,
+			],
+			'webSocket' => [
+				self::ON_HAND_SHAKE => HandshakeListener::class,
+				self::ON_CLOSE => WebSocketCloseListener::class,
+				self::ON_MESSAGE => MessageListener::class,
+				self::ON_OPEN => OpenListener::class
 			],
 			'manage' => [
 				self::ON_START => StartListener::class,
@@ -103,10 +120,14 @@ class SwooleEvent {
 	public function getUserEvent() {
 		return [
 			self::ON_USER_BEFORE_START,
+			self::ON_USER_AFTER_START,
 			self::ON_USER_BEFORE_REQUEST,
 			self::ON_USER_AFTER_REQUEST,
 			self::ON_USER_TASK_FINISH,
-			self::ON_USER_AFTER_REQUEST
+			self::ON_USER_AFTER_REQUEST,
+			self::ON_USER_BEFORE_HAND_SHAKE,
+			self::ON_USER_BEFORE_OPEN,
+			self::ON_USER_BEFORE_CLOSE
 		];
 	}
 
@@ -117,7 +138,7 @@ class SwooleEvent {
 		foreach ($eventTypes as $name) {
 			$events = $swooleEvents[$name] ?? [];
 			foreach ($events as $name => $event) {
-				iloader()->singleton(EventDispatcher::class)->listen($name, $event);
+				iloader()->get(EventDispatcher::class)->listen($name, $event);
 			}
 		}
 	}
@@ -125,13 +146,13 @@ class SwooleEvent {
 	private function registerUserEvent() {
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
-			iloader()->singleton(EventDispatcher::class)->listen($eventName, $listener);
+			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst(App::$server->getType()), ucfirst($eventName));
-			iloader()->singleton(EventDispatcher::class)->listen($eventName, $listener);
+			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
-			iloader()->singleton(EventDispatcher::class)->listen($eventName, $listener);
+			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 		}
 	}
 

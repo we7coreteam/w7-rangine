@@ -12,8 +12,8 @@
 
 namespace W7\Core\Log;
 
-use Monolog\Handler\BufferHandler;
 use Monolog\Logger as MonoLogger;
+use W7\Core\Log\Handler\BufferHandler;
 use W7\Core\Log\Handler\HandlerAbstract;
 use W7\Core\Log\Handler\HandlerInterface;
 use W7\Core\Log\Processor\SwooleProcessor;
@@ -139,7 +139,10 @@ class LogManager {
 	}
 
 	private function initCommonProcessor() {
-		$swooleProcessor = iloader()->singleton(SwooleProcessor::class);
+		$swooleProcessor = iloader()->get(SwooleProcessor::class);
+		//不记录产生日志的文件和行号
+		//异常中会带，普通日志函数又是一样的
+		//$introProcessor = iloader()->singleton(IntrospectionProcessor::class);
 		return [
 			//用户自定义processor?
 			$swooleProcessor

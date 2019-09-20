@@ -34,7 +34,7 @@ class EventDispatcher extends Dispatcher {
 				if (class_exists($listener)) {
 					return (new $listener)->run(...func_get_args());
 				}
-				return true;
+				return null;
 			};
 		}
 		parent::listen($events, $listener);

@@ -13,7 +13,7 @@ class CrontabExecutor extends ProcessAbstract {
 				 * @var TaskDispatcher $taskDispatcher
 				 */
 				ilogger()->info('pop crontab task ' .$data . ' at ' . $this->process->pid);
-				$taskDispatcher = iloader()->singleton(TaskDispatcher::class);
+				$taskDispatcher = iloader()->get(TaskDispatcher::class);
 				try{
 					$result = $taskDispatcher->dispatch($this->process, -1 , $this->process->pid, $data);
 					if ($result === false) {

@@ -29,7 +29,7 @@ class DispatcherHandle implements DispatcherIf {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = \iloader()->singleton(Dispatcher::class);
+		$dispatcher = \iloader()->get(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
 		return $psr7Response->getBody()->getContents();

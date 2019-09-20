@@ -62,7 +62,7 @@ class IndependentPool extends PoolAbstract {
 			unset($listens['message']);
 		}
 		foreach ($listens as $name => $class) {
-			$object = \iloader()->singleton($class);
+			$object = \iloader()->get($class);
 			$manager->on($name, function (PoolManager $pool, $data) use ($object) {
 				$object->run($pool->getProcess(), $data, $this->processFactory, $this->mqKey);
 			});

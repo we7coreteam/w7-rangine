@@ -31,7 +31,7 @@ class Dispatcher implements DispatcherInterface {
 		/**
 		 * @var RequestDispatcher $dispatcher
 		 */
-		$dispatcher = \iloader()->singleton(RequestDispatcher::class);
+		$dispatcher = \iloader()->get(RequestDispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
 		$content = $psr7Response->getBody()->getContents();

@@ -26,7 +26,7 @@ use Symfony\Component\Finder\SplFileInfo;
 class Application extends SymfontApplication {
 	public function __construct() {
 		$version = $this->version();
-		parent::__construct('w7swoole', $version);
+		parent::__construct('w7-rangine', $version);
 
 		$this->setAutoExit(false);
 		$this->registerCommands();
@@ -80,19 +80,22 @@ class Application extends SymfontApplication {
 	}
 
 	private function registerCommands() {
-		$this->autoRegisterCommands(RANGINE_FRAMEWORK_PATH  . '/Console/Command', '\\W7\\Console', 'rangine');
-		$this->autoRegisterCommands(APP_PATH  . '/Command', '\\W7\\App', 'app');
+		$this->autoRegisterCommands(RANGINE_FRAMEWORK_PATH  . '/Console/Command', '\\W7\\Console');
+		$this->autoRegisterCommands(APP_PATH  . '/Command', '\\W7\\App');
 	}
 
-	public function autoRegisterCommands($path, $namespace, $group, $forceGroup = false) {
-		$commands = $this->findCommands($path, $namespace, $group, $forceGroup);
+	public function autoRegisterCommands($path, $classNamespace, $commandNamespace = null) {
+		if (!file_exists($path)) {
+			return false;
+		}
+		$commands = $this->findCommands($path, $classNamespace, $commandNamespace);
 		foreach ($commands as $name => $class) {
 			$commandObj = new $class($name);
 			$this->add($commandObj);
 		}
 	}
 
-	private function findCommands($path, $namespace, $defaultGroup, $forceGroup = false) {
+	private function findCommands($path, $classNamespace, $commandNamespace) {
 		$commands = [];
 
 		$files = Finder::create()
@@ -100,18 +103,20 @@ class Application extends SymfontApplication {
 			->files()
 			->ignoreDotFiles(true)
 			->name('/^[\w\W\d]+Command.php$/');
-		$prefix = $forceGroup ? $defaultGroup . ':' : '';
 
 		/**
 		 * @var SplFileInfo $file
 		 */
 		foreach ($files as $file) {
 			$dir = trim(str_replace([$path, '/'], ['', '\\'], $file->getPath()), '\\');
+			if (!$dir) {
+				continue;
+			}
 			//如果command没有组,默认属于$defaultGroup下
-			$parent = str_replace('\\', ':', $dir == '' ? $defaultGroup : $prefix . $dir);
+			$parent = str_replace('\\', ':', $commandNamespace ? $commandNamespace . ':' . $dir  :  $dir);
 			$name = strtolower($parent . ':' . $file->getBasename('Command.php'));
 
-			$commands[$name] = $namespace . '\\Command\\' . ($dir !== '' ? $dir . '\\' : '') . $file->getBasename('.php');
+			$commands[$name] = $classNamespace . '\\Command\\' . ($dir !== '' ? $dir . '\\' : '') . $file->getBasename('.php');
 		}
 
 		return $commands;

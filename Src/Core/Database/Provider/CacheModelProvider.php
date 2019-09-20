@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Database;
+namespace W7\Core\Database\Provider;
 
 use W7\Core\Provider\ProviderAbstract;
 use W7\Laravel\CacheModel\Caches\Cache;

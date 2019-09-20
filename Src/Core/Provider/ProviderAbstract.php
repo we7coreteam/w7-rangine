@@ -53,7 +53,7 @@ abstract class ProviderAbstract {
 		$this->config = iconfig();
 		$this->router = irouter();
 		$this->logger = ilogger();
-		$this->view = iloader()->singleton(View::class);
+		$this->view = iloader()->get(View::class);
 	}
 
 	/**
@@ -114,26 +114,26 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerProvider($provider) {
-		iloader()->singleton(ProviderManager::class)->registerProvider($provider);
+		iloader()->get(ProviderManager::class)->registerProvider($provider);
 	}
 
-	protected function registerCommand($group = null, $forceGroup = false) {
+	protected function registerCommand($namespace = '') {
 		/**
 		 * @var  Application $application
 		 */
-		$application = iloader()->singleton(Application::class);
-		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $group ?? $this->name, $forceGroup);
+		$application = iloader()->get(Application::class);
+		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $namespace);
 	}
 
-	protected function registerProcess($name, $class, $number = 1) {
-		$processConfig = $this->config->getUserConfig('process');
-		$processConfig['process'][$name] = [
-			'enable' => true,
+	protected function registerProcess($name, $class) {
+		$appCofig = $this->config->getUserConfig('app');
+		$appCofig['process'][$name] = [
+			'enable' => ienv('PROCESS_' . strtoupper($name) . '_ENABLE', false),
 			'class' => $class,
-			'number' => $number
+			'number' => ienv('PROCESS_' . strtoupper($name) . '_NUMBER', 1)
 		];
 
-		$this->config->setUserConfig('process', $processConfig);
+		$this->config->setUserConfig('app', $appCofig);
 	}
 
 	protected function setRootPath($path) {
@@ -161,7 +161,7 @@ abstract class ProviderAbstract {
 			/**
 			 * @var RouteMapping $routeMapping
 			 */
-			$routeMapping = iloader()->singleton(RouteMapping::class);
+			$routeMapping = iloader()->get(RouteMapping::class);
 			$routeConfig = $routeMapping->getRouteConfig();
 			$routeConfig[] = $config;
 			$routeMapping->setRouteConfig($routeConfig);

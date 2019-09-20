@@ -15,7 +15,9 @@ namespace W7\Core\Exception;
 use Psr\Http\Message\ResponseInterface;
 
 class FaviconException extends ResponseExceptionAbstract {
+	public $isLoggable = false;
+
 	public function render(): ResponseInterface {
-		return $this->response->withData(['error' => $this->getMessage()], $this->getCode());
+		return $this->response->withStatus($this->getCode())->withData(['error' => $this->getMessage()]);
 	}
 }
