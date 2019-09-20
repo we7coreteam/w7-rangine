@@ -91,6 +91,7 @@ class SwooleEvent {
 				self::ON_CLOSE => CloseListener::class,
 			],
 			'webSocket' => [
+				self::ON_REQUEST => RequestListener::class,
 				self::ON_HAND_SHAKE => HandshakeListener::class,
 				self::ON_CLOSE => WebSocketCloseListener::class,
 				self::ON_MESSAGE => MessageListener::class,
