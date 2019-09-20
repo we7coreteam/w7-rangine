@@ -20,25 +20,24 @@ use W7\Http\Message\Contract\Session as SessionInterface;
 
 class Session implements SessionInterface {
 	private $config;
+	private $sessionId;
 	private $prefix;
 	private static $gcCondition;
+	private $channelClass;
 	/**
 	 * @var ChannelAbstract
 	 */
 	private $channel;
-	private static $channelClass;
 	/**
 	 * @var HandlerAbstract
 	 */
 	private static $handler;
 	private $cache;
 
-	public function __construct(Request $request) {
+	public function __construct() {
 		$this->config = iconfig()->getUserAppConfig('session');
 
 		$this->initPrefix();
-		$this->initChannel($request);
-		$this->initHandler();
 	}
 
 	private function initPrefix() {
@@ -58,14 +57,6 @@ class Session implements SessionInterface {
 		self::$handler = $handler;
 	}
 
-	private function initChannel(Request $request) {
-		$channel = $this->getChannelClass();
-		$this->channel = new $channel($this->config, $request);
-		if (!($this->channel instanceof ChannelAbstract)) {
-			throw new \RuntimeException('session channel must instance of ChannelAbstract');
-		}
-	}
-
 	private function getHandlerClass() {
 		$handler = $this->config['handler'] ?? 'file';
 		$class = sprintf('\\W7\\Core\\Session\\Handler\\%sHandler', ucfirst($handler));
@@ -79,20 +70,34 @@ class Session implements SessionInterface {
 		return $class;
 	}
 
+	public function setChannel(string $channelClass) {
+		$this->channelClass = $channelClass;
+	}
+
+	private function initChannel(Request $request) {
+		$channel = $this->getChannelClass();
+		$this->channel = new $channel($this->config, $request);
+		if (!($this->channel instanceof ChannelAbstract)) {
+			throw new \RuntimeException('session channel must instance of ChannelAbstract');
+		}
+	}
+
 	private function getChannelClass() {
-		if (!self::$channelClass) {
+		if (!$this->channelClass) {
 			$channel = $this->config['channel'] ?? 'cookie';
 			$class = sprintf('\\W7\\Core\\Session\\Channel\\%sChannel', ucfirst($channel));
 			if (!class_exists($class)) {
 				$class = sprintf('\\W7\\App\\Channel\\Session\\%sChannel', ucfirst($channel));
 			}
-			if (!class_exists($class)) {
-				throw new \RuntimeException('session not support this channel');
-			}
-			self::$channelClass = $class;
+		} else {
+			$class = $this->channelClass;
 		}
 
-		return self::$channelClass;
+		if (!class_exists($class)) {
+			throw new \RuntimeException('session not support this channel');
+		}
+
+		return $class;
 	}
 
 	private function getGcCondition() {
@@ -109,7 +114,10 @@ class Session implements SessionInterface {
 	}
 
 	public function getId() {
-		return $this->channel->getSessionId();
+		if (!$this->sessionId) {
+			$this->sessionId = $this->channel->getSessionId();
+		}
+		return $this->sessionId;
 	}
 
 	private function readSession() {
@@ -127,6 +135,11 @@ class Session implements SessionInterface {
 		$this->cache = $data;
 
 		return $data;
+	}
+
+	public function start(Request $request) {
+		$this->initChannel($request);
+		$this->initHandler();
 	}
 
 	public function set($key, $value) {

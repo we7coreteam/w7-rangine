@@ -16,11 +16,7 @@ use W7\Http\Message\Server\Response;
 
 class CookieChannel extends ChannelAbstract {
 	public function getSessionId() {
-		if (!$this->sessionId) {
-			$this->sessionId = $this->request->cookie($this->getSessionName(), $this->generateId());
-		}
-
-		return $this->sessionId;
+		return $this->request->cookie($this->getSessionName(), $this->generateId());
 	}
 
 	public function replenishResponse(Response $response) : Response {
