@@ -19,6 +19,7 @@ use W7\Core\Exception\FaviconException;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Exception\RouteNotAllowException;
 use W7\Core\Exception\RouteNotFoundException;
+use W7\Core\Helper\Storage\Context;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Http\Message\Server\Request;
@@ -26,10 +27,6 @@ use W7\Http\Message\Server\Response;
 use FastRoute\Dispatcher\GroupCountBased;
 
 class RequestDispatcher extends DispatcherAbstract {
-	/**
-	 * @var GroupCountBased
-	 */
-	protected $router;
 
 	public function dispatch(...$params) {
 		/**
@@ -59,10 +56,6 @@ class RequestDispatcher extends DispatcherAbstract {
 		}
 	}
 
-	public function setRouter(GroupCountBased $router) {
-		$this->router = $router;
-	}
-
 	private function getRoute(ServerRequestInterface $request) {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
@@ -70,7 +63,11 @@ class RequestDispatcher extends DispatcherAbstract {
 			throw new FaviconException('Route Ignore', 404);
 		}
 
-		$route = $this->router->dispatch($httpMethod, $url);
+		/**
+		 * @var GroupCountBased $router
+		 */
+		$router = iloader()->get(Context::ROUTE_KEY);
+		$route = $router->dispatch($httpMethod, $url);
 
 		$controller = $method = '';
 		switch ($route[0]) {

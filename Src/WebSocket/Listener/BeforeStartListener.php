@@ -12,26 +12,17 @@
 
 namespace W7\WebSocket\Listener;
 
+use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Route\RouteMapping;
 use FastRoute\Dispatcher\GroupCountBased;
 use W7\WebSocket\Parser\JsonParser;
 use W7\WebSocket\Parser\ParserInterface;
-use W7\WebSocket\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		$this->setRouter();
+		iloader()->set(Context::ROUTE_KEY, $this->getRoute());
 		$this->setMessageParse();
-		return true;
-	}
-
-	private function setRouter() {
-		/**
-		 * @var Dispatcher $requestDispatcher
-		 */
-		$requestDispatcher = iloader()->get(Dispatcher::class);
-		$requestDispatcher->setRouter($this->getRoute());
 	}
 
 	/**
