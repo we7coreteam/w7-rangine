@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Session\Middleware;
+namespace W7\Http\Session\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,7 +21,8 @@ use W7\Core\Session\Session;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		$request->session = new Session($request);
+		$request->session = new Session();
+		$request->session->start($request);
 		$request->session->gc();
 
 		App::getApp()->getContext()->setResponse($request->session->replenishResponse(App::getApp()->getContext()->getResponse()));
