@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.rangine.com>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -14,14 +14,12 @@ namespace W7\WebSocket\Session;
 
 use W7\Core\Session\Session;
 use W7\WebSocket\Collector\CollectorAbstract;
-use W7\WebSocket\Session\Channel\WebSocketChannel;
 
 class SessionCollector extends CollectorAbstract {
 	protected static $name = 'session';
 
 	public function set($fd, $request) {
 		$session = new Session();
-		$session->setChannel(WebSocketChannel::class);
 		$session->start($request);
 
 		parent::set($fd, $session);

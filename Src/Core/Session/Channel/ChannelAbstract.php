@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.rangine.com>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -41,7 +41,13 @@ abstract class ChannelAbstract {
 		return \session_create_id();
 	}
 
-	abstract public function getSessionId();
+	final public function getSessionId() {
+		if (!$this->sessionId) {
+			$this->sessionId = $this->generateId();
+		}
+
+		return $this->sessionId;
+	}
 
 	abstract public function replenishResponse(Response $response) : Response;
 }
