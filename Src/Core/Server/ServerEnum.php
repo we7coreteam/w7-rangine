@@ -17,12 +17,13 @@ use W7\Http\Server\Server as HttpServer;
 use W7\Process\Server\Server as ProcessServer;
 use W7\Reload\Server\Server as ReloadServer;
 use W7\Tcp\Server\Server as TcpServer;
+use W7\WebSocket\Server\Server as WebSocketServer;
 
 class ServerEnum {
 	const TYPE_HTTP = 'http';
 	const TYPE_RPC = 'rpc';
 	const TYPE_TCP = 'tcp';
-	const TYPE_WEBSOCKET = 'websocket';
+	const TYPE_WEBSOCKET = 'webSocket';
 	const TYPE_PROCESS = 'process';
 	const TYPE_CRONTAB = 'crontab';
 	const TYPE_RELOAD = 'reload';
@@ -30,6 +31,7 @@ class ServerEnum {
 	const ALL_SERVER = [
 		self::TYPE_HTTP => HttpServer::class,
 		self::TYPE_TCP => TcpServer::class,
+		self::TYPE_WEBSOCKET => WebSocketServer::class,
 		self::TYPE_PROCESS => ProcessServer::class,
 		self::TYPE_CRONTAB => CrontabServer::class,
 		self::TYPE_RELOAD => ReloadServer::class
