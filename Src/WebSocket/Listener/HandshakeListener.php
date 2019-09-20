@@ -65,8 +65,8 @@ class HandshakeListener extends ListenerAbstract {
 
 			$response->status(101);
 
-			App::$server->getServer()->defer(function () use ($request) {
-				ievent(SwooleEvent::ON_OPEN, [App::$server->getServer(), $request]);
+			App::$server->getServer()->defer(function () use ($request, $psr7Request) {
+				ievent(SwooleEvent::ON_OPEN, [App::$server->getServer(), $request, $psr7Request]);
 			});
 		} catch (\Throwable $e) {
 			ilogger()->error('websocket handshake fail with error ' . $e->getMessage());
