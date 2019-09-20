@@ -17,7 +17,7 @@ use W7\Http\Message\Server\Response;
 
 class WebSocketChannel extends ChannelAbstract {
 	public function getSessionId() {
-		return $this->generateId();
+		return $this->request->cookie($this->getSessionName(), $this->generateId());
 	}
 
 	public function replenishResponse(Response $response): Response {
