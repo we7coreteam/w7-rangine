@@ -45,21 +45,7 @@ class Server extends ServerAbstract {
 	 * 通过侦听端口的方法创建服务
 	 */
 	public function listener($server) {
-		$tcpServer = $server->addListener($this->connection['host'], $this->connection['port'], $this->connection['sock_type']);
-		//tcp需要强制关闭其它协议支持，否则继续父服务
-		$tcpServer->set([
-			'open_http2_protocol' => false,
-			'open_http_protocol' => false,
-			'open_websocket_protocol' => true
-		]);
-		$event = (new SwooleEvent())->getDefaultEvent()[$this->getType()];
-		foreach ($event as $eventName => $class) {
-			if (empty($class)) {
-				continue;
-			}
-			$object = \iloader()->get($class);
-			$tcpServer->on($eventName, [$object, 'run']);
-		}
+		throw new \RuntimeException('websocket server not support create by listener');
 	}
 
 	public function getServer() {
