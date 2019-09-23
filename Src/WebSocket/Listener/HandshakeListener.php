@@ -69,7 +69,7 @@ class HandshakeListener extends ListenerAbstract {
 				$response->header($key, $val);
 			}
 			foreach (App::getApp()->getContext()->getResponse()->getHeaders() as $key => $val) {
-				$response->header($key, $val);
+				$response->header($key, implode(';', $val));
 			}
 
 			$response->status(101);

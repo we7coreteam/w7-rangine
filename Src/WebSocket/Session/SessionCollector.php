@@ -12,7 +12,6 @@
 
 namespace W7\WebSocket\Session;
 
-use W7\App;
 use W7\Core\Session\Session;
 use W7\WebSocket\Collector\CollectorAbstract;
 
@@ -23,7 +22,6 @@ class SessionCollector extends CollectorAbstract {
 		$session = new Session();
 		$session->start($request);
 
-		App::getApp()->getContext()->setResponse($session->replenishResponse(App::getApp()->getContext()->getResponse()));
 		parent::set($fd, $session);
 	}
 
