@@ -336,7 +336,8 @@ if (!function_exists('ienv')) {
 				return;
 		}
 
-		if (strpos($value, '|') !== false || strpos($value, '^') !== false) {
+		//约定如要env中要写常量名称的话必须要大写
+		if (preg_match('/^[A-Z\|\^]+$/', $value) && (strpos($value, '|') !== false || strpos($value, '^') !== false)) {
 			//常量解析
 			$exec = 'return ' . $value . ';';
 			try {
@@ -347,7 +348,8 @@ if (!function_exists('ienv')) {
 			} catch (Throwable $e) {
 				//
 			}
-		} elseif (defined($value)) {
+		}
+		if (defined($value)) {
 			$value = constant($value);
 		}
 
