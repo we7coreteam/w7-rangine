@@ -26,6 +26,7 @@ use W7\Core\Dispatcher\ProcessPoolDispatcher;
 use W7\Core\Message\TaskMessage;
 use Illuminate\Database\Eloquent\Model;
 use W7\Core\Route\Route;
+use W7\Core\Exception\Handler\ExceptionHandler;
 
 if (!function_exists('iprocess')) {
 	/**
@@ -370,7 +371,11 @@ if (!function_exists('igo')) {
 		$coId = icontext()->getCoroutineId();
 		Coroutine::create(function () use ($callback, $coId) {
 			icontext()->fork($coId);
-			$callback();
+			try {
+				$callback();
+			} catch (Throwable $throwable) {
+				iloader()->get(ExceptionHandler::class)->log($throwable);
+			}
 		});
 	}
 }
