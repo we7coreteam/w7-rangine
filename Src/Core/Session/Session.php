@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -22,7 +22,7 @@ class Session implements SessionInterface {
 	private $config;
 	private $prefix;
 	private static $gcCondition;
-	private $channelClass;
+	private static $channelClass;
 	/**
 	 * @var ChannelAbstract
 	 */
@@ -69,10 +69,6 @@ class Session implements SessionInterface {
 		return $class;
 	}
 
-	public function setChannel(string $channelClass) {
-		$this->channelClass = $channelClass;
-	}
-
 	private function initChannel(Request $request) {
 		$channel = $this->getChannelClass();
 		$this->channel = new $channel($this->config, $request);
@@ -82,21 +78,19 @@ class Session implements SessionInterface {
 	}
 
 	private function getChannelClass() {
-		if (!$this->channelClass) {
+		if (!self::$channelClass) {
 			$channel = $this->config['channel'] ?? 'cookie';
 			$class = sprintf('\\W7\\Core\\Session\\Channel\\%sChannel', ucfirst($channel));
 			if (!class_exists($class)) {
 				$class = sprintf('\\W7\\App\\Channel\\Session\\%sChannel', ucfirst($channel));
 			}
-		} else {
-			$class = $this->channelClass;
+			if (!class_exists($class)) {
+				throw new \RuntimeException('session not support this channel');
+			}
+			self::$channelClass = $class;
 		}
 
-		if (!class_exists($class)) {
-			throw new \RuntimeException('session not support this channel');
-		}
-
-		return $class;
+		return self::$channelClass;
 	}
 
 	private function getGcCondition() {
