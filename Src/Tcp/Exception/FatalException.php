@@ -10,14 +10,15 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Exception;
+namespace W7\Tcp\Exception;
 
 use Psr\Http\Message\ResponseInterface;
+use W7\Core\Exception\FatalExceptionAbstract;
 use Whoops\Exception\Inspector;
 use Whoops\Handler\PlainTextHandler;
 use Whoops\Run;
 
-class TcpFatalException extends FatalExceptionAbstract {
+class FatalException extends FatalExceptionAbstract {
 	protected function development(): ResponseInterface {
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
 			$content = 'message: ' . $this->getMessage() . ';    file: ' . $this->getPrevious()->getFile() . ';    line: ' . $this->getPrevious()->getLine();
