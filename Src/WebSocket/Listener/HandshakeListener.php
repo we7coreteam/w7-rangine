@@ -18,6 +18,7 @@ use W7\App;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
+use W7\Http\Message\Server\Response as Psr7Response;
 
 class HandshakeListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -41,9 +42,14 @@ class HandshakeListener extends ListenerAbstract {
 			}
 
 			$psr7Request = Psr7Request::loadFromSwooleRequest($request);
+			$psr7Response = Psr7Response::loadFromSwooleResponse($response);
+			App::getApp()->getContext()->setRequest($psr7Request);
+			App::getApp()->getContext()->setResponse($psr7Response);
+
 			if (ievent(SwooleEvent::ON_USER_BEFORE_HAND_SHAKE, [$psr7Request], true) === false) {
 				return false;
 			}
+			ievent(SwooleEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
 
 			$key = base64_encode(sha1(
 				$request->header['sec-websocket-key'] . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
@@ -62,12 +68,11 @@ class HandshakeListener extends ListenerAbstract {
 			foreach ($headers as $key => $val) {
 				$response->header($key, $val);
 			}
+			foreach (App::getApp()->getContext()->getResponse()->getHeaders() as $key => $val) {
+				$response->header($key, $val);
+			}
 
 			$response->status(101);
-
-			App::$server->getServer()->defer(function () use ($request, $psr7Request) {
-				ievent(SwooleEvent::ON_OPEN, [App::$server->getServer(), $request, $psr7Request]);
-			});
 		} catch (\Throwable $e) {
 			ilogger()->error('websocket handshake fail with error ' . $e->getMessage());
 		} finally {

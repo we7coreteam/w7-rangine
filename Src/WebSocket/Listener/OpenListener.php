@@ -21,8 +21,8 @@ use W7\Http\Message\Server\Request as Psr7Request;
 
 class OpenListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($server, $request, $psr7Request) = $params;
-		$this->onOpen($server, $request, $psr7Request);
+		list($server, $psr7Request) = $params;
+		$this->onOpen($server, $psr7Request);
 	}
 
 	/**
@@ -30,9 +30,9 @@ class OpenListener extends ListenerAbstract {
 	 * @param Request $request
 	 * @param Psr7Request $psr7Request
 	 */
-	private function onOpen(Server $server, Request $request, Psr7Request $psr7Request): void {
+	private function onOpen(Server $server, Psr7Request $psr7Request): void {
 		//做数据绑定和记录
-		iloader()->get(CollectorManager::class)->set($request->fd, $psr7Request);
-		ievent(SwooleEvent::ON_USER_BEFORE_OPEN, [$server, $request]);
+		iloader()->get(CollectorManager::class)->set($psr7Request->getSwooleRequest()->fd, $psr7Request);
+		ievent(SwooleEvent::ON_USER_BEFORE_OPEN, [$server, $psr7Request->getSwooleRequest()]);
 	}
 }
