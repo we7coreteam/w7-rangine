@@ -185,7 +185,6 @@ namespace W7\Core\Cache;
  */
 class Cache extends CacheAbstract {
 	public function set($key, $value, $ttl = null) {
-		$ttl = $this->getTtl($ttl);
 		$value = $this->serialize($value);
 		$params = ($ttl <= 0) ? [$key, $value] : [$key, $value, $ttl];
 		return $this->call('set', $params);
@@ -209,7 +208,7 @@ class Cache extends CacheAbstract {
 		foreach ($values as $key => &$value) {
 			$value = $this->serialize($value);
 		}
-		$result = $this->call('setMultiple', [$values]);
+		$result = $this->call('setMultiple', [$values], $ttl);
 
 		return $result;
 	}
@@ -250,9 +249,5 @@ class Cache extends CacheAbstract {
 		$this->manager->release($connection);
 
 		return $result;
-	}
-
-	private function getTtl($ttl): int {
-		return ($ttl === null) ? 0 : (int)$ttl;
 	}
 }
