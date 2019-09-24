@@ -55,7 +55,7 @@ class ReloadProcess extends ProcessAbstract {
 		$this->md5File = $this->getWatchDirMd5();
 	}
 
-	public static function addDir($dir) {
+	public static function addDir(string $dir) {
 		self::$watchDir[] = $dir;
 	}
 
@@ -64,7 +64,7 @@ class ReloadProcess extends ProcessAbstract {
 	}
 
 	protected function beforeStart() {
-		ioutputer()->writeln("Start automatic reloading every {$this->interval} seconds ...");
+		ioutputer()->info('>> server hot reload start');
 	}
 
 	public function run() {

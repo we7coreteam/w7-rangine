@@ -93,6 +93,9 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 				'class' => 'W7\App\Process\\' . ucfirst($item) . 'Process',
 				'number' => $item['number'] ?? 1
 			];
+			if (!class_exists('W7\App\Process\\' . ucfirst($item) . 'Process')) {
+				throw new CommandException('process server ' . $item . ' not support as app/Process');
+			}
 		}
 
 		if ($process) {
