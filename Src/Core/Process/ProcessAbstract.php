@@ -49,7 +49,7 @@ abstract class ProcessAbstract {
 	}
 
 	private function getProcessName() {
-		$name = 'w7swoole ' . $this->name;
+		$name = 'w7-rangine ' . $this->name;
 		if ($this->num > 1) {
 			$name .= '-' . ($this->process->id % $this->num);
 		}

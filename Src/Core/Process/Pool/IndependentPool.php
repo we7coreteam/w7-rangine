@@ -39,7 +39,7 @@ class IndependentPool extends PoolAbstract {
 	}
 
 	private function setProcessName() {
-		isetProcessTitle('w7swoole_pool_master');
+		isetProcessTitle('w7rangine_pool_master');
 	}
 
 	public function start() {
