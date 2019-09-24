@@ -126,7 +126,7 @@ class ProviderManager {
 			$providers = (array)$providers;
 			foreach ($providers as $provider) {
 				if (!empty($map[$provider])) {
-					throw new \RuntimeException('provider ' . $key . ' and ' . $map[$provider] . ' class is repeat');
+					throw new \RuntimeException('provider ' . $key . ' and ' . $map[$provider] . ' provider is repeat');
 				}
 				$map[$provider] = $key;
 			}
