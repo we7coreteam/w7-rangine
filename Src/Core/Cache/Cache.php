@@ -1,11 +1,16 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-12-30 下午5:38
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Cache;
-
 
 /**
  * @method connect( $host, $port = 6379, $timeout = 0.0, $reserved = null, $retry_interval = 0 ) {}
@@ -180,7 +185,6 @@ namespace W7\Core\Cache;
  */
 class Cache extends CacheAbstract {
 	public function set($key, $value, $ttl = null) {
-		$ttl = $this->getTtl($ttl);
 		$value = $this->serialize($value);
 		$params = ($ttl <= 0) ? [$key, $value] : [$key, $value, $ttl];
 		return $this->call('set', $params);
@@ -204,7 +208,7 @@ class Cache extends CacheAbstract {
 		foreach ($values as $key => &$value) {
 			$value = $this->serialize($value);
 		}
-		$result = $this->call('setMultiple', [$values]);
+		$result = $this->call('setMultiple', [$values], $ttl);
 
 		return $result;
 	}
@@ -245,9 +249,5 @@ class Cache extends CacheAbstract {
 		$this->manager->release($connection);
 
 		return $result;
-	}
-
-	private function getTtl($ttl): int {
-		return ($ttl === null) ? 0 : (int)$ttl;
 	}
 }
