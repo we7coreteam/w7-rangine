@@ -21,6 +21,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	private $masterServers = [];
 	private $aloneServers = [];
 	private $followServers = [];
+	private $processServers = [];
 
 	protected function configure() {
 		$this->addOption('--config-app-setting-server', '-s', InputOption::VALUE_REQUIRED, 'server type');
@@ -28,6 +29,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	protected function handle($options) {
 		$this->parseServer();
+		$this->registerServer();
 	}
 
 	private function parseServer() {
@@ -62,7 +64,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		}
 
 		if ($servers) {
-			$this->registerProcessServer($servers);
+			$this->processServers = $servers;
 		}
 
 		if (count($masterServers) > 1) {
@@ -81,13 +83,16 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$this->masterServers = $masterServers;
 		$this->aloneServers = $aloneServers;
 		$this->followServers = $followServers;
+	}
 
+	private function registerServer() {
+		$this->registerProcessServer();
 		$this->registerReloadServer();
 	}
 
-	private function registerProcessServer($servers) {
+	private function registerProcessServer() {
 		$process = [];
-		foreach ($servers as $key => $item) {
+		foreach ($this->processServers as $key => $item) {
 			$process[] = [
 				'name' => $item,
 				'class' => 'W7\App\Process\\' . ucfirst($item) . 'Process',
