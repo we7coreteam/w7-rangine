@@ -134,7 +134,7 @@ class Context {
 	}
 
 	public function fork($parentCoId) {
-		self::$context[self::getCoroutineId()] = self::$context[$parentCoId];
+		self::$context[self::getCoroutineId()] = self::$context[$parentCoId] ?? [];
 	}
 
 	/**

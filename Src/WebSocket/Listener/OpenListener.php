@@ -16,20 +16,23 @@ use Swoole\Http\Request;
 use Swoole\WebSocket\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\SwooleEvent;
+use W7\WebSocket\Collector\CollectorManager;
+use W7\Http\Message\Server\Request as Psr7Request;
 
 class OpenListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($server, $request) = $params;
-		$this->onOpen($server, $request);
+		list($server, $psr7Request) = $params;
+		$this->onOpen($server, $psr7Request);
 	}
 
 	/**
 	 * @param Server $server
 	 * @param Request $request
-	 * @throws \Exception
+	 * @param Psr7Request $psr7Request
 	 */
-	private function onOpen(Server $server, Request $request): void {
+	private function onOpen(Server $server, Psr7Request $psr7Request): void {
 		//做数据绑定和记录
-		ievent(SwooleEvent::ON_USER_BEFORE_OPEN, [$server, $request]);
+		iloader()->get(CollectorManager::class)->set($psr7Request->getSwooleRequest()->fd, $psr7Request);
+		ievent(SwooleEvent::ON_USER_BEFORE_OPEN, [$server, $psr7Request->getSwooleRequest()]);
 	}
 }

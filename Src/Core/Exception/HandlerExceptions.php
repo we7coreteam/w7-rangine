@@ -13,7 +13,6 @@
 namespace W7\Core\Exception;
 
 use InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
 use W7\App;
 use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Exception\Handler\HandlerAbstract;
@@ -78,9 +77,9 @@ class HandlerExceptions {
 		$this->handle($throwable);
 	}
 
-	public function handle(\Throwable $throwable) : ResponseInterface {
-		if (!($throwable instanceof ResponseExceptionAbstract)) {
-			$class = 'W7\Core\Exception\\' . ucfirst(App::$server->getType()) . 'FatalException';
+	public function handle(\Throwable $throwable) {
+		if (!($throwable instanceof ExceptionAbstract)) {
+			$class = 'W7\\' . ucfirst(App::$server->type) . '\Exception\FatalException';
 			$throwable = new $class($throwable->getMessage(), $throwable->getCode(), $throwable);
 		}
 

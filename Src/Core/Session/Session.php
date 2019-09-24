@@ -22,23 +22,21 @@ class Session implements SessionInterface {
 	private $config;
 	private $prefix;
 	private static $gcCondition;
+	private static $channelClass;
 	/**
 	 * @var ChannelAbstract
 	 */
 	private $channel;
-	private static $channelClass;
 	/**
 	 * @var HandlerAbstract
 	 */
 	private static $handler;
 	private $cache;
 
-	public function __construct(Request $request) {
+	public function __construct() {
 		$this->config = iconfig()->getUserAppConfig('session');
 
 		$this->initPrefix();
-		$this->initChannel($request);
-		$this->initHandler();
 	}
 
 	private function initPrefix() {
@@ -58,14 +56,6 @@ class Session implements SessionInterface {
 		self::$handler = $handler;
 	}
 
-	private function initChannel(Request $request) {
-		$channel = $this->getChannelClass();
-		$this->channel = new $channel($this->config, $request);
-		if (!($this->channel instanceof ChannelAbstract)) {
-			throw new \RuntimeException('session channel must instance of ChannelAbstract');
-		}
-	}
-
 	private function getHandlerClass() {
 		$handler = $this->config['handler'] ?? 'file';
 		$class = sprintf('\\W7\\Core\\Session\\Handler\\%sHandler', ucfirst($handler));
@@ -77,6 +67,14 @@ class Session implements SessionInterface {
 		}
 
 		return $class;
+	}
+
+	private function initChannel(Request $request) {
+		$channel = $this->getChannelClass();
+		$this->channel = new $channel($this->config, $request);
+		if (!($this->channel instanceof ChannelAbstract)) {
+			throw new \RuntimeException('session channel must instance of ChannelAbstract');
+		}
 	}
 
 	private function getChannelClass() {
@@ -127,6 +125,11 @@ class Session implements SessionInterface {
 		$this->cache = $data;
 
 		return $data;
+	}
+
+	public function start(Request $request) {
+		$this->initChannel($request);
+		$this->initHandler();
 	}
 
 	public function set($key, $value) {

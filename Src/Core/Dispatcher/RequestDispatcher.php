@@ -27,6 +27,19 @@ use W7\Http\Message\Server\Response;
 use FastRoute\Dispatcher\GroupCountBased;
 
 class RequestDispatcher extends DispatcherAbstract {
+	/**
+	 * @var MiddlewareMapping
+	 */
+	protected $middlewareMapping;
+
+	public function __construct() {
+		//当不同类型的server一起启动时，需要区分middleware
+		$this->middlewareMapping = new MiddlewareMapping();
+	}
+
+	public function getMiddlewareMapping() {
+		return $this->middlewareMapping;
+	}
 
 	public function dispatch(...$params) {
 		/**
@@ -46,7 +59,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			$psr7Request = $psr7Request->withAttribute('route', $route);
 			$contextObj->setRequest($psr7Request);
 
-			$middleWares = iloader()->get(MiddlewareMapping::class)->getRouteMiddleWares($route);
+			$middleWares = $this->middlewareMapping->getRouteMiddleWares($route);
 			$middlewareHandler = new MiddlewareHandler($middleWares);
 			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {

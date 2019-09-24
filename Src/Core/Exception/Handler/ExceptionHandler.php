@@ -12,9 +12,8 @@
 
 namespace W7\Core\Exception\Handler;
 
-use Psr\Http\Message\ResponseInterface;
+use W7\Core\Exception\ExceptionAbstract;
 use W7\Core\Exception\FatalExceptionAbstract;
-use W7\Core\Exception\ResponseExceptionAbstract;
 
 class ExceptionHandler extends HandlerAbstract {
 	public function log(\Throwable $throwable) {
@@ -34,7 +33,7 @@ class ExceptionHandler extends HandlerAbstract {
 		ilogger()->error($errorMessage, $context);
 	}
 
-	public function handle(ResponseExceptionAbstract $e) : ResponseInterface {
+	public function handle(ExceptionAbstract $e) {
 		if ($e->isLoggable) {
 			$previous = $e;
 			if ($e instanceof FatalExceptionAbstract) {

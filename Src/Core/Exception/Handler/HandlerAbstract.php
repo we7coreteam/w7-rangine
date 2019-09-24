@@ -12,9 +12,8 @@
 
 namespace W7\Core\Exception\Handler;
 
-use Psr\Http\Message\ResponseInterface;
-use W7\Core\Exception\ResponseExceptionAbstract;
+use W7\Core\Exception\ExceptionAbstract;
 
 abstract class HandlerAbstract {
-	abstract public function handle(ResponseExceptionAbstract $e) : ResponseInterface;
+	abstract public function handle(ExceptionAbstract $e);
 }
