@@ -33,7 +33,9 @@ abstract class ServerAbstract implements ServerInterface {
 	 */
 	public $connection;
 
-	public static $canAddSubServer = true;
+	public static $mainServer = true;
+	public static $aloneServer = true;
+	public static $followServer = true;
 
 	/**
 	 * ServerAbstract constructor.
@@ -159,7 +161,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	protected function resetPidFile() {
 		$pathInfo = pathinfo($this->setting['pid_file']);
-		$pathInfo['basename'] = $this->connection['port'] . '_' . $pathInfo['basename'];
+		$pathInfo['basename'] = $this->getType() . '_' .  ($this->connection['port'] ?? '') . '_' . $pathInfo['basename'];
 		$pidFile = rtrim($pathInfo['dirname'], '/') . '/' . $pathInfo['basename'];
 
 		$this->setting['pid_file'] = $pidFile;

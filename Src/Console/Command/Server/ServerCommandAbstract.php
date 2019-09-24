@@ -14,116 +14,130 @@ namespace W7\Console\Command\Server;
 
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
-use W7\Core\Server\ServerAbstract;
+use W7\Core\Exception\CommandException;
 use W7\Core\Server\ServerEnum;
-use W7\Core\Server\ServerInterface;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
-	private $servers;
+	private $masterServers = [];
+	private $aloneServers = [];
+	private $followServers = [];
 
 	protected function configure() {
 		$this->addOption('--config-app-setting-server', '-s', InputOption::VALUE_REQUIRED, 'server type');
 	}
 
-	private function registerProcessServer() {
-		//如果启动的server中含有http,tcp,ws的时候,对用户自定义服务的类型个数不做限制
-		//如果启动的server中不包含http,tcp,ws的时候,只能启动一个用户自定义服务
-		$servers = [];
-		$allServer = ServerEnum::ALL_SERVER;
-		foreach ($allServer as $key => $server) {
-			/**
-			 * @var ServerAbstract $server
-			 */
-			if ($server::$canAddSubServer) {
-				$servers[$key] = $server;
-			}
-		}
+	protected function handle($options) {
+		$this->parseServer();
+	}
 
-		$alone = true;
-		if (array_intersect($this->servers, array_keys($servers))) {
-//			在非单独启动自定义服务的情况下注册reload
-			$this->registerReloadServer();
-			$alone = false;
-		}
-		//不允许单独启动多个自定义服务
-		if ($alone && count($this->servers) > 1) {
-			throw new \Exception('only a single service can be started');
-		}
+	private function parseServer() {
+		$servers = trim(iconfig()->getUserAppConfig('setting')['server']);
+		$servers = explode('|', $servers);
 
-		//注册自定义服务
-		$process = [];
-		$supportServers = iconfig()->getServer();
-		foreach ($this->servers as $key => $item) {
-			if (empty($supportServers[$item])) {
-				throw new \Exception('not support this server');
-			}
-			if (!empty($allServer[$item])) {
+		$aloneServers = [];
+		$followServers = [];
+		$masterServers = [];
+
+		if(count(array_intersect(array_keys(ServerEnum::ALL_SERVER), $servers)) !== count($servers)) {
+			$servers[] = ServerEnum::TYPE_PROCESS;
+		}
+		foreach (ServerEnum::ALL_SERVER as $key => $server) {
+			if (!in_array($key, $servers)) {
 				continue;
 			}
+
+			unset($servers[array_search($key, $servers)]);
+
+			if ($masterServers && $server::$followServer) {
+				$followServers[$key] = $server;
+			} elseif ($masterServers && $server::$aloneServer) {
+				$aloneServers[$key] = $server;
+			} elseif ($server::$mainServer) {
+				$masterServers[$key] = $server;
+			} elseif ($server::$aloneServer) {
+				$aloneServers[$key] = $server;
+			} elseif ($server::$followServer) {
+				$followServers[$key] = $server;
+			}
+		}
+
+		if ($servers) {
+			$this->registerProcessServer($servers);
+		}
+
+		if (count($masterServers) > 1) {
+			throw new CommandException('server ' . implode(' , ', array_keys($masterServers)) . ' only one can be started');
+		}
+		if ($masterServers && $aloneServers) {
+			throw new CommandException('server ' . implode(' , ', array_keys($aloneServers)) . ' cannot follow start');
+		}
+		if (!$masterServers && count($aloneServers) > 1) {
+			throw new CommandException('server ' . implode(' , ', array_keys($aloneServers)) . ' only one can be started');
+		}
+		if (!$masterServers && $followServers) {
+			throw new CommandException('server ' . implode(' , ', array_keys($followServers)) . ' must start with the master server');
+		}
+
+		$this->masterServers = $masterServers;
+		$this->aloneServers = $aloneServers;
+		$this->followServers = $followServers;
+
+		$this->registerReloadServer();
+	}
+
+	private function registerProcessServer($servers) {
+		$process = [];
+		foreach ($servers as $key => $item) {
 			$process[] = [
 				'name' => $item,
 				'class' => 'W7\App\Process\\' . ucfirst($item) . 'Process',
-				'number' => $supportServers[$item]['worker_num']
+				'number' => $item['number'] ?? 1
 			];
-			$supportServers['process'] = $supportServers[$item];
-			unset($this->servers[$key]);
 		}
 
 		if ($process) {
-			iconfig()->setUserConfig('process', $process);
-			iconfig()->setUserConfig('server', $supportServers);
-			$this->servers[] = 'process';
+			$processConfig = iconfig()->getUserConfig('process');
+			$processConfig['process'] = $process;
+			iconfig()->setUserConfig('process', $processConfig);
 		}
 	}
 
 	private function registerReloadServer() {
-		if ((ENV & DEBUG) !== DEBUG) {
+		if ((ENV & DEBUG) !== DEBUG || !$this->masterServers) {
 			return false;
 		}
-		$this->servers[] = 'reload';
-		$config = iconfig()->getServer();
-		$config['reload'] = [
-			'worker_num' => 1
-		];
-		iconfig()->setUserConfig('server', $config);
+
+		$this->followServers[ServerEnum::TYPE_RELOAD] = ServerEnum::ALL_SERVER[ServerEnum::TYPE_RELOAD];
 	}
 
-	private function getServer() : ServerInterface {
-		$this->servers = trim(iconfig()->getUserAppConfig('setting')['server']);
-		$this->servers = explode('|', $this->servers);
-
-		$this->registerProcessServer();
-
-		foreach (ServerEnum::ALL_SERVER as $key => $handle) {
-			if (in_array($key, $this->servers)) {
-				unset($this->servers[array_search($key, $this->servers)]);
-				return new $handle();
-			}
+	private function getMasterServer() {
+		if ($this->masterServers) {
+			$server = array_values($this->masterServers)[0];
+		} else {
+			$server = array_values($this->aloneServers)[0];
 		}
 
-		throw new \Exception('server type error');
+		return new $server();
 	}
 
 	private function addSubServer($server) {
 		$lines = [];
-		foreach (ServerEnum::ALL_SERVER as $key => $handle) {
-			if (in_array($key, $this->servers)) {
-				$subServer = new $handle();
-				$subServer->listener($server->getServer());
+		foreach ($this->followServers as $key => $handle) {
+			$subServer = new $handle();
+			$subServer->listener($server->getServer());
 
-				$statusInfo = '';
-				foreach ($subServer->getStatus() as $key => $value) {
-					$statusInfo .= " $key: $value, ";
-				}
-				$lines[] = "* {$subServer->getType()}  | " . rtrim($statusInfo, ', ');
+			$statusInfo = '';
+			foreach ($subServer->getStatus() as $key => $value) {
+				$statusInfo .= " $key: $value, ";
 			}
+			$lines[] = "* {$subServer->getType()}  | " . rtrim($statusInfo, ', ');
 		}
 
 		return $lines;
 	}
 
 	protected function start() {
-		$server = $this->getServer();
+		$server = $this->getMasterServer();
 		$status = $server->getStatus();
 
 		if ($server->isRun()) {
@@ -152,7 +166,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	protected function stop() {
-		$server = $this->getServer();
+		$server = $this->getMasterServer();
 		// 是否已启动
 		if (!$server->isRun()) {
 			$this->output->warning('The server is not running!', true, true);

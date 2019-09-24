@@ -16,7 +16,14 @@ use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Server\ServerEnum;
 
 class Server extends ProcessServerAbstract {
-	public static $canAddSubServer =  false;
+	public function __construct() {
+		$processConfig = iconfig()->getUserConfig($this->getType());
+		$supportServers = iconfig()->getServer();
+		$supportServers[$this->getType()] = $processConfig['setting'] ?? [];
+		iconfig()->setUserConfig('server', $supportServers);
+
+		parent::__construct();
+	}
 
 	public function getType() {
 		return ServerEnum::TYPE_PROCESS;
@@ -25,7 +32,7 @@ class Server extends ProcessServerAbstract {
 	protected function register() {
 		//虚拟配置
 		$allProcess = iconfig()->getUserConfig('process');
-		foreach ($allProcess as $process) {
+		foreach ($allProcess['process'] as $process) {
 			$this->pool->registerProcess($process['name'], $process['class'], $process['number']);
 		}
 	}

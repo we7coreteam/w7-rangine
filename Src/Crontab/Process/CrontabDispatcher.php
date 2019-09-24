@@ -28,7 +28,7 @@ class CrontabDispatcher extends ProcessAbstract {
 
 	public static function getTasks() {
 		if (!static::$tasks) {
-			$tasks = \iconfig()->getUserConfig('crontab');
+			$tasks = \iconfig()->getUserConfig('crontab')['task'] ?? [];
 			foreach ($tasks as $name => $task) {
 				if (isset($task['enable']) && $task['enable'] === false) {
 					continue;

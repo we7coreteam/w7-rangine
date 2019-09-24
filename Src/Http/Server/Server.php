@@ -18,6 +18,8 @@ use W7\Core\Server\SwooleEvent;
 use W7\Core\Server\ServerEnum;
 
 class Server extends ServerAbstract {
+	public static $followServer = false;
+
 	public function getType() {
 		return ServerEnum::TYPE_HTTP;
 	}

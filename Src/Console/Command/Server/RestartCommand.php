@@ -6,7 +6,7 @@ class RestartCommand extends ServerCommandAbstract {
 	protected $description = 'restart server';
 
 	protected function handle($options) {
-		// TODO: Implement handle() method.
+		parent::handle($options);
 		$this->restart();
 	}
 }

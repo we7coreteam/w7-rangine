@@ -17,7 +17,18 @@ use W7\Core\Server\ServerEnum;
 use W7\Reload\Process\ReloadProcess;
 
 class Server extends ProcessServerAbstract {
-	public static $canAddSubServer =  false;
+	public static $aloneServer = false;
+	public static $followServer = true;
+
+	public function __construct() {
+		$config = iconfig()->getServer();
+		$config[$this->getType()] = [
+			'worker_num' => 1
+		];
+		iconfig()->setUserConfig('server', $config);
+
+		parent::__construct();
+	}
 
 	public function getType() {
 		return ServerEnum::TYPE_RELOAD;

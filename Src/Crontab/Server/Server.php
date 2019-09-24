@@ -18,7 +18,14 @@ use W7\Crontab\Process\CrontabDispatcher;
 use W7\Crontab\Process\CrontabExecutor;
 
 class Server extends ProcessServerAbstract {
-	public static $canAddSubServer =  false;
+	public function __construct() {
+		$crontabConfig = iconfig()->getUserConfig($this->getType());
+		$supportServers = iconfig()->getServer();
+		$supportServers[$this->getType()] = $crontabConfig['setting'] ?? [];
+		iconfig()->setUserConfig('server', $supportServers);
+
+		parent::__construct();
+	}
 
 	public function getType() {
 		return ServerEnum::TYPE_CRONTAB;

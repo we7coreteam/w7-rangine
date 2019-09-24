@@ -18,6 +18,9 @@ use W7\Core\Process\Pool\PoolAbstract;
 use W7\Core\Server\ServerAbstract;
 
 abstract class ProcessServerAbstract extends ServerAbstract {
+	public static $mainServer = false;
+	public static $aloneServer = true;
+	public static $followServer = true;
 	/**
 	 * @var PoolAbstract
 	 */
@@ -34,9 +37,9 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 		$setting = array_merge($this->setting, $this->connection);
 		return [
 			'pid_file' => $setting['pid_file'],
-			'worker_num' => $setting['worker_num'],
-			'message_queue_key' => $setting['message_queue_key'],
-			'daemonize' => $setting['daemonize']
+			'worker_num' => $setting['worker_num'] ?? 1,
+			'message_queue_key' => $setting['message_queue_key'] ?? null,
+			'daemonize' => $setting['daemonize'] ?? false
 		];
 	}
 
