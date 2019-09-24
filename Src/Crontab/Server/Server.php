@@ -34,6 +34,8 @@ class Server extends ProcessServerAbstract {
 	protected function getSetting() {
 		$setting = parent::getSetting();
 		$setting['ipc_type'] = SWOOLE_IPC_MSGQUEUE;
+		$setting['message_queue_key'] =(int)($setting['message_queue_key'] ?? 0);
+		$setting['message_queue_key'] = $setting['message_queue_key'] > 0 ? $setting['message_queue_key'] : irandom(6, true);
 		return $setting;
 	}
 
