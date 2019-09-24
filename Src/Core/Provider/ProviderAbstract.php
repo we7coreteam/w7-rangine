@@ -125,17 +125,6 @@ abstract class ProviderAbstract {
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $namespace);
 	}
 
-	protected function registerProcess($name, $class) {
-		$appCofig = $this->config->getUserConfig('app');
-		$appCofig['process'][$name] = [
-			'enable' => ienv('PROCESS_' . strtoupper($name) . '_ENABLE', false),
-			'class' => $class,
-			'number' => ienv('PROCESS_' . strtoupper($name) . '_NUMBER', 1)
-		];
-
-		$this->config->setUserConfig('app', $appCofig);
-	}
-
 	protected function setRootPath($path) {
 		$this->rootPath = $path;
 	}
