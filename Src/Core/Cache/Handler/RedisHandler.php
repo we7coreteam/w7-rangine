@@ -59,11 +59,11 @@ class RedisHandler extends HandlerAbstract {
 	}
 
 	public function delete($key) {
-		return $this->redis->delete($key);
+		return $this->redis->del($key);
 	}
 
 	public function deleteMultiple($keys) {
-		return $this->redis->delete($keys);
+		return $this->redis->del(...$keys);
 	}
 
 	public function clear() {
