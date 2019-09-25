@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Core\Cache\Handler;
 
 class RedisHandler extends HandlerAbstract {
@@ -7,7 +17,6 @@ class RedisHandler extends HandlerAbstract {
 	 * @var \Redis
 	 */
 	private $redis;
-
 
 	public static function getHandler($config) : HandlerAbstract {
 		$redis  = new \Redis();
@@ -50,11 +59,11 @@ class RedisHandler extends HandlerAbstract {
 	}
 
 	public function delete($key) {
-		return $this->redis->delete($key);
+		return $this->redis->del($key);
 	}
 
 	public function deleteMultiple($keys) {
-		return $this->redis->delete($keys);
+		return $this->redis->del(...$keys);
 	}
 
 	public function clear() {

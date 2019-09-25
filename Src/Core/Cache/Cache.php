@@ -228,6 +228,7 @@ class Cache extends CacheAbstract {
 	}
 
 	public function deleteMultiple($keys): bool {
+		$keys = (array)$keys;
 		return (bool)$this->call('deleteMultiple', [$keys]);
 	}
 
