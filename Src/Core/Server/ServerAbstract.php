@@ -33,7 +33,7 @@ abstract class ServerAbstract implements ServerInterface {
 	 */
 	public $connection;
 
-	public static $mainServer = true;
+	public static $masterServer = true;
 	public static $aloneServer = true;
 	public static $followServer = true;
 

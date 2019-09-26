@@ -14,6 +14,10 @@ use W7\Core\Listener\ProcessStartListener;
  */
 class DependentPool extends PoolAbstract {
 	public function start(){
+		if ($this->processFactory->count() == 0) {
+			return false;
+		}
+
 		for ($i = 0; $i < $this->processFactory->count(); $i++) {
 			$swooleProcess = new Process(function (Process $worker) use ($i) {
 				//这里不能通过event触发

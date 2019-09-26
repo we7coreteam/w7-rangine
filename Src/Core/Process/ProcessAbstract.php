@@ -68,6 +68,10 @@ abstract class ProcessAbstract {
 		$this->process->useQueue($key, $mode);
 	}
 
+	public function check() {
+		return true;
+	}
+
 	protected function beforeStart() {}
 
 	public function onStart() {

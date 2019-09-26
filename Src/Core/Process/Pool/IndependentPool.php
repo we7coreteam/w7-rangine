@@ -43,12 +43,12 @@ class IndependentPool extends PoolAbstract {
 	}
 
 	public function start() {
+		if ($this->processFactory->count() == 0) {
+			return false;
+		}
+
 		$this->setDaemon();
 		$this->setProcessName();
-
-		if ($this->processFactory->count() == 0) {
-			throw new \Exception('process num not be zero');
-		}
 
 		if (swoole_version() >= '4.4.0') {
 			$this->ipcType = SWOOLE_IPC_UNIXSOCK;

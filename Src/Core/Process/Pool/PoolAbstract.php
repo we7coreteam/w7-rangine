@@ -13,6 +13,7 @@
 namespace W7\Core\Process\Pool;
 
 use Swoole\Process;
+use W7\Core\Process\ProcessAbstract;
 use W7\Core\Process\ProcessFactory;
 
 abstract class PoolAbstract {
@@ -40,8 +41,17 @@ abstract class PoolAbstract {
 	 * @param $name
 	 * @param $handle
 	 * @param $num
+	 * @return bool
 	 */
 	public function registerProcess($name, $handle, $num) {
+		/**
+		 * @var ProcessAbstract $handleObj
+		 */
+		$handleObj = new $handle($name, $num);
+		if (!$handleObj->check()) {
+			return false;
+		}
+
 		$this->processFactory->add($name, $handle, $num);
 	}
 

@@ -15,6 +15,7 @@ namespace W7\Console\Command\Server;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
+use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
@@ -40,6 +41,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$followServers = [];
 		$masterServers = [];
 
+		// 当指定的server中包含自定义process的时候，补充process
 		if(count(array_intersect(array_keys(ServerEnum::ALL_SERVER), $servers)) !== count($servers)) {
 			$servers[] = ServerEnum::TYPE_PROCESS;
 		}
@@ -54,7 +56,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 				$followServers[$key] = $server;
 			} elseif ($masterServers && $server::$aloneServer) {
 				$aloneServers[$key] = $server;
-			} elseif ($server::$mainServer) {
+			} elseif ($server::$masterServer) {
 				$masterServers[$key] = $server;
 			} elseif ($server::$aloneServer) {
 				$aloneServers[$key] = $server;
@@ -63,6 +65,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			}
 		}
 
+		//如果包括用户自定义的进程的话，单独保存
 		if ($servers) {
 			$this->processServers = $servers;
 		}
@@ -111,7 +114,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	private function registerReloadServer() {
-		if ((ENV & DEBUG) !== DEBUG || !$this->masterServers) {
+		if (!$this->masterServers) {
 			return false;
 		}
 
@@ -128,11 +131,16 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		return new $server();
 	}
 
-	private function addSubServer($server) {
+	private function addSubServer(ServerAbstract $server) {
 		$lines = [];
 		foreach ($this->followServers as $key => $handle) {
+			/**
+			 * @var ServerAbstract $subServer
+			 */
 			$subServer = new $handle();
-			$subServer->listener($server->getServer());
+			if ($subServer->listener($server->getServer()) === false) {
+				continue;
+			}
 
 			$statusInfo = '';
 			foreach ($subServer->getStatus() as $key => $value) {

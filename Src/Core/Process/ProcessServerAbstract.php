@@ -18,7 +18,7 @@ use W7\Core\Process\Pool\PoolAbstract;
 use W7\Core\Server\ServerAbstract;
 
 abstract class ProcessServerAbstract extends ServerAbstract {
-	public static $mainServer = false;
+	public static $masterServer = false;
 	public static $aloneServer = true;
 	public static $followServer = true;
 	/**
@@ -60,13 +60,13 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	public function start() {
 		$this->pool = new IndependentPool($this->getSetting());
 		$this->register();
-		$this->pool->start();
+		return $this->pool->start();
 	}
 
 	public function listener($server = null) {
 		$this->pool = new DependentPool($this->getSetting());
 		$this->register();
-		$this->pool->start();
+		return $this->pool->start();
 	}
 
 	public function getPool() : PoolAbstract {
