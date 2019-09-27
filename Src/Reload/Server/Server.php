@@ -17,8 +17,7 @@ use W7\Core\Server\ServerEnum;
 use W7\Reload\Process\ReloadProcess;
 
 class Server extends ProcessServerAbstract {
-	public static $aloneServer = false;
-	public static $followServer = true;
+	public static $onlyFollowMasterServer = true;
 
 	public function __construct() {
 		$config = iconfig()->getServer();

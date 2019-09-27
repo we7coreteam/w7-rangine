@@ -30,10 +30,14 @@ class Server extends ProcessServerAbstract {
 	}
 
 	protected function register() {
-		//虚拟配置
-		$allProcess = iconfig()->getUserConfig('process');
-		foreach ($allProcess['process'] as $process) {
-			$this->pool->registerProcess($process['name'], $process['class'], $process['number']);
+		$config = iconfig()->getUserConfig('process');
+		$process = $config['ready_start_process'] ?? [];
+		$configProcess = $config['process'] ?? [];
+		foreach ($process as $key => $name) {
+			if (empty($configProcess[$name])) {
+				throw new \RuntimeException('process server ' . $name . ' not found as app/Process');
+			}
+			$this->pool->registerProcess($name, $configProcess[$name]['class'], $configProcess[$name]['number'] ?? 1);
 		}
 	}
 }

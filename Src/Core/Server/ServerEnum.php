@@ -29,9 +29,9 @@ class ServerEnum {
 	const TYPE_RELOAD = 'reload';
 
 	const ALL_SERVER = [
+		self::TYPE_WEBSOCKET => WebSocketServer::class,
 		self::TYPE_HTTP => HttpServer::class,
 		self::TYPE_TCP => TcpServer::class,
-		self::TYPE_WEBSOCKET => WebSocketServer::class,
 		self::TYPE_PROCESS => ProcessServer::class,
 		self::TYPE_CRONTAB => CrontabServer::class,
 		self::TYPE_RELOAD => ReloadServer::class

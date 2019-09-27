@@ -19,8 +19,7 @@ use W7\Core\Server\ServerAbstract;
 
 abstract class ProcessServerAbstract extends ServerAbstract {
 	public static $masterServer = false;
-	public static $aloneServer = true;
-	public static $followServer = true;
+	public static $onlyFollowMasterServer = false;
 	/**
 	 * @var PoolAbstract
 	 */

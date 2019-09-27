@@ -20,8 +20,6 @@ use W7\WebSocket\Message\Message;
 use W7\WebSocket\Parser\ParserInterface;
 
 class Server extends ServerAbstract {
-	public static $followServer = false;
-
 	public function getType() {
 		return ServerEnum::TYPE_WEBSOCKET;
 	}

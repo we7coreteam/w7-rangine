@@ -13,13 +13,13 @@
 namespace W7\Http\Server;
 
 use Swoole\Http\Server as HttpServer;
+use W7\WebSocket\Server\Server as WebSocketServer;
+use W7\App;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\SwooleEvent;
 use W7\Core\Server\ServerEnum;
 
 class Server extends ServerAbstract {
-	public static $followServer = false;
-
 	public function getType() {
 		return ServerEnum::TYPE_HTTP;
 	}
@@ -45,5 +45,15 @@ class Server extends ServerAbstract {
 			$this->server = new HttpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
 		}
 		return $this->server;
+	}
+
+	/**
+	 * @var \Swoole\Server $server
+	 * 通过侦听端口的方法创建服务
+	 */
+	public function listener($server) {
+		if (App::$server instanceof WebSocketServer) {
+			(new SwooleEvent())->websocketSupportHttp();
+		}
 	}
 }

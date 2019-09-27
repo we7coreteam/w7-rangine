@@ -22,7 +22,6 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	private $masterServers = [];
 	private $aloneServers = [];
 	private $followServers = [];
-	private $processServers = [];
 
 	protected function configure() {
 		$this->addOption('--config-app-setting-server', '-s', InputOption::VALUE_REQUIRED, 'server type');
@@ -30,7 +29,6 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	protected function handle($options) {
 		$this->parseServer();
-		$this->registerServer();
 	}
 
 	private function parseServer() {
@@ -52,31 +50,38 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 			unset($servers[array_search($key, $servers)]);
 
-			if ($masterServers && $server::$followServer) {
-				$followServers[$key] = $server;
-			} elseif ($masterServers && $server::$aloneServer) {
-				$aloneServers[$key] = $server;
-			} elseif ($server::$masterServer) {
+			if (!$masterServers && $server::$masterServer) {
 				$masterServers[$key] = $server;
-			} elseif ($server::$aloneServer) {
-				$aloneServers[$key] = $server;
-			} elseif ($server::$followServer) {
+			} else if ($masterServers || $server::$onlyFollowMasterServer) {
 				$followServers[$key] = $server;
+			} else {
+				$aloneServers[$key] = $server;
 			}
 		}
 
-		//如果包括用户自定义的进程的话，单独保存
-		if ($servers) {
-			$this->processServers = $servers;
+		//添加框架内置的跟随服务
+		if ($masterServers) {
+			foreach (ServerEnum::ALL_SERVER as $key => $server) {
+				if ($server::$onlyFollowMasterServer) {
+					$followServers[$key] = $server;
+				}
+			}
 		}
 
-		if (count($masterServers) > 1) {
-			throw new CommandException('server ' . implode(' , ', array_keys($masterServers)) . ' only one can be started');
+		//剩余的为process类型
+		if ($servers) {
+			$config = iconfig()->getUserConfig('process');
+			$config['ready_start_process']= $servers;
+			iconfig()->setUserConfig('process', $config);
 		}
-		if ($masterServers && $aloneServers) {
-			throw new CommandException('server ' . implode(' , ', array_keys($aloneServers)) . ' cannot follow start');
-		}
-		if (!$masterServers && count($aloneServers) > 1) {
+
+		//非主服务，只能单独启动一个
+		if (count($aloneServers) > 1) {
+			//替换提示
+			if (!empty($aloneServers[ServerEnum::TYPE_PROCESS])) {
+				unset($aloneServers[ServerEnum::TYPE_PROCESS]);
+				$aloneServers[implode(',', $servers)] = ServerEnum::TYPE_PROCESS;
+			}
 			throw new CommandException('server ' . implode(' , ', array_keys($aloneServers)) . ' only one can be started');
 		}
 		if (!$masterServers && $followServers) {
@@ -86,39 +91,6 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$this->masterServers = $masterServers;
 		$this->aloneServers = $aloneServers;
 		$this->followServers = $followServers;
-	}
-
-	private function registerServer() {
-		$this->registerProcessServer();
-		$this->registerReloadServer();
-	}
-
-	private function registerProcessServer() {
-		$process = [];
-		foreach ($this->processServers as $key => $item) {
-			$process[] = [
-				'name' => $item,
-				'class' => 'W7\App\Process\\' . ucfirst($item) . 'Process',
-				'number' => $item['number'] ?? 1
-			];
-			if (!class_exists('W7\App\Process\\' . ucfirst($item) . 'Process')) {
-				throw new CommandException('process server ' . $item . ' not support as app/Process');
-			}
-		}
-
-		if ($process) {
-			$processConfig = iconfig()->getUserConfig('process');
-			$processConfig['process'] = $process;
-			iconfig()->setUserConfig('process', $processConfig);
-		}
-	}
-
-	private function registerReloadServer() {
-		if (!$this->masterServers) {
-			return false;
-		}
-
-		$this->followServers[ServerEnum::TYPE_RELOAD] = ServerEnum::ALL_SERVER[ServerEnum::TYPE_RELOAD];
 	}
 
 	private function getMasterServer() {
