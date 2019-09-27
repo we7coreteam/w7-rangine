@@ -12,7 +12,6 @@
 
 namespace W7\Core\Server;
 
-use W7\Crontab\Server\Server as CrontabServer;
 use W7\Http\Server\Server as HttpServer;
 use W7\Process\Server\Server as ProcessServer;
 use W7\Reload\Server\Server as ReloadServer;
@@ -33,7 +32,6 @@ class ServerEnum {
 		self::TYPE_HTTP => HttpServer::class,
 		self::TYPE_TCP => TcpServer::class,
 		self::TYPE_PROCESS => ProcessServer::class,
-		self::TYPE_CRONTAB => CrontabServer::class,
 		self::TYPE_RELOAD => ReloadServer::class
 	];
 

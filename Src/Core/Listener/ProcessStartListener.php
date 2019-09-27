@@ -13,16 +13,21 @@
 namespace W7\Core\Listener;
 
 use W7\App;
+use W7\Core\Process\ProcessAbstract;
 
 class ProcessStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		list($process, $workerId, $processFactory, $mqKey) = $params;
 
+		/**
+		 * @var ProcessAbstract $userProcess
+		 */
 		$userProcess = $processFactory->make($workerId);
 		$userProcess->setProcess($process);
-		if (isset($mqKey)) {
-			$userProcess->setMq($mqKey);
-		}
+		$name = $userProcess->getName();
+
+		$mqKey = iconfig()->getUserConfig('process')['process'][$name]['message_queue_key'] ?? $mqKey;
+		$userProcess->setMq($mqKey);
 
 		//用临时变量保存该进程中的用户进程对象
 		App::getApp()->userProcess = $userProcess;

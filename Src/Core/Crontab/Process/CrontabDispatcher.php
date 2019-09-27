@@ -10,9 +10,9 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Crontab\Process;
+namespace W7\Core\Crontab\Process;
 
-use W7\Crontab\Task\TaskManager;
+use W7\Core\Crontab\Task\TaskManager;
 use W7\Core\Process\ProcessAbstract;
 
 class CrontabDispatcher extends ProcessAbstract {

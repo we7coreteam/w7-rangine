@@ -40,6 +40,10 @@ abstract class ProcessAbstract {
 
 	}
 
+	public function getName() {
+		return $this->name;
+	}
+
 	public function setProcess(Process $process) {
 		$this->process = $process;
 	}

@@ -22,11 +22,11 @@ abstract class PoolAbstract {
 	 */
 	protected $processFactory;
 	protected $config;
+	//该值为进程间通信的消息队列key, 暂不设置
 	protected $mqKey = 0;
 
 	public function __construct($config) {
 		$this->config = $config;
-		$this->mqKey = (int)(empty($this->config['message_queue_key']) ? 0 : $this->config['message_queue_key']);
 		$this->processFactory = new ProcessFactory();
 
 		$this->init();
@@ -48,6 +48,7 @@ abstract class PoolAbstract {
 		 * @var ProcessAbstract $handleObj
 		 */
 		$handleObj = new $handle($name, $num);
+		//检测是否要启动该进程
 		if (!$handleObj->check()) {
 			return false;
 		}

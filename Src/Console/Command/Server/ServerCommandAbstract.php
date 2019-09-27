@@ -68,22 +68,6 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			}
 		}
 
-		//剩余的为process类型
-		if ($servers) {
-			$config = iconfig()->getUserConfig('process');
-			$config['ready_start_process']= $servers;
-			iconfig()->setUserConfig('process', $config);
-		}
-
-		//非主服务，只能单独启动一个
-		if (count($aloneServers) > 1) {
-			//替换提示
-			if (!empty($aloneServers[ServerEnum::TYPE_PROCESS])) {
-				unset($aloneServers[ServerEnum::TYPE_PROCESS]);
-				$aloneServers[implode(',', $servers)] = ServerEnum::TYPE_PROCESS;
-			}
-			throw new CommandException('server ' . implode(' , ', array_keys($aloneServers)) . ' only one can be started');
-		}
 		if (!$masterServers && $followServers) {
 			throw new CommandException('server ' . implode(' , ', array_keys($followServers)) . ' must start with the master server');
 		}

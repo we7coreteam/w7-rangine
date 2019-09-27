@@ -22,12 +22,11 @@ use W7\Core\Server\SwooleEvent;
  * @package W7\Core\Process\Pool
  */
 class IndependentPool extends PoolAbstract {
-	private $ipcType = 0;
+	private $ipcType = SWOOLE_IPC_NONE;
 	private $pidFile;
 	private $daemon;
 
 	protected function init() {
-		$this->ipcType = $this->config['ipc_type'] ?? 0;
 		$this->pidFile = $this->config['pid_file'];
 		$this->daemon = $this->config['daemonize'] ?? false;
 	}
@@ -50,12 +49,7 @@ class IndependentPool extends PoolAbstract {
 		$this->setDaemon();
 		$this->setProcessName();
 
-		if (swoole_version() >= '4.4.0') {
-			$this->ipcType = SWOOLE_IPC_UNIXSOCK;
-			$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey, true);
-		} else {
-			$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey);
-		}
+		$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey, true);
 
 		$listens = (new SwooleEvent())->getDefaultEvent()['process'];
 		if ($this->ipcType == 0 || swoole_version() >= '4.4.0') {
