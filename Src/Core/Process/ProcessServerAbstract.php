@@ -47,11 +47,12 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 		if (file_exists($this->setting['pid_file'])) {
 			$pid = file_get_contents($this->setting['pid_file']);
 		}
+		$setting = $this->getSetting();
 		return [
 			'host' => $this->connection['host'] ?? '',
 			'port' => $this->connection['port'] ?? '',
 			'type' => $this->connection['sock_type'] ?? '',
-			'workerNum' => $this->setting['worker_num'],
+			'workerNum' => $setting['worker_num'],
 			'masterPid' => $pid
 		];
 	}
