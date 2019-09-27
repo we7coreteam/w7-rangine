@@ -12,12 +12,14 @@
 
 namespace W7\Process\Server;
 
-use W7\Core\Crontab\Process\CrontabDispatcher;
-use W7\Core\Crontab\Process\CrontabExecutor;
+use W7\Core\Crontab\Register;
 use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Server\ServerEnum;
 
 class Server extends ProcessServerAbstract {
+	private $notSupportProcess = [
+		ServerEnum::TYPE_CRONTAB => Register::class
+	];
 	private $processMap = [];
 
 	public function __construct() {
@@ -36,40 +38,28 @@ class Server extends ProcessServerAbstract {
 
 	protected function checkSetting() {
 		//获取要启动的process
+		$supportProcess = iconfig()->getUserConfig('process')['process'] ?? [];
 		$servers = trim(iconfig()->getUserAppConfig('setting')['server']);
 		$servers = explode('|', $servers);
+
+		//获取需要启动的process
 		$this->processMap = array_diff($servers, array_intersect(array_keys(ServerEnum::ALL_SERVER), $servers));
-		if (($index = array_search(ServerEnum::TYPE_CRONTAB, $this->processMap)) !== false) {
+		//获取不在process配置列表中的process
+		$notConfigProcess = array_diff($servers, array_intersect(array_keys($supportProcess), $servers));
+		foreach ($notConfigProcess as $index => $name) {
 			unset($this->processMap[$index]);
-			$this->addCrontabProcess();
+			if (!empty($this->notSupportProcess[$name])) {
+				//注册该类型的process到process的配置中
+				$class = $this->notSupportProcess[$name];
+				$register = new $class();
+				$this->processMap = array_merge($this->processMap, $register());
+			} else {
+				throw new \RuntimeException('not support ' . $name . ' process');
+			}
 		}
 
 		$this->setting['worker_num'] = $this->getWorkerNum();
 		return parent::checkSetting();
-	}
-
-	private function addCrontabProcess() {
-		//追加crontab 的process 到process 的配置中
-		$crontabSetting = iconfig()->getUserConfig('crontab')['setting'] ?? [];
-		$processConfig = iconfig()->getUserConfig('process');
-		$crontabSetting['message_queue_key'] =(int)($crontabSetting['message_queue_key'] ?? 0);
-		$crontabSetting['message_queue_key'] = $crontabSetting['message_queue_key'] > 0 ? $crontabSetting['message_queue_key'] : irandom(6, true);
-
-		$processConfig['process']['crontab_dispatch'] = [
-			'class' => CrontabDispatcher::class,
-			'message_queue_key' => $crontabSetting['message_queue_key'],
-			'number' => 1
-		];
-		$processConfig['process']['crontab_executor'] = [
-			'class' => CrontabExecutor::class,
-			'message_queue_key' => $crontabSetting['message_queue_key'],
-			'number' => $crontabSetting['worker_num'] ?? 1
-		];
-		iconfig()->setUserConfig('process', $processConfig);
-
-		//追加进程到要启动的进程列表中
-		$this->processMap[] = 'crontab_dispatch';
-		$this->processMap[] = 'crontab_executor';
 	}
 
 	private function getWorkerNum() {
