@@ -45,7 +45,7 @@ class Server extends ProcessServerAbstract {
 		//获取需要启动的process
 		$this->processMap = array_diff($servers, array_intersect(array_keys(ServerEnum::ALL_SERVER), $servers));
 		//获取不在process配置列表中的process
-		$notSupportProcess = array_diff($servers, array_intersect(array_keys($supportProcess), $servers));
+		$notSupportProcess = array_diff($this->processMap, array_intersect(array_keys($supportProcess), $this->processMap));
 		foreach ($notSupportProcess as $index => $name) {
 			unset($this->processMap[$index]);
 			if (!empty($this->notSupportProcess[$name])) {
