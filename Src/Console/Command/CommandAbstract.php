@@ -17,6 +17,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use W7\Console\Io\Output;
+use W7\Core\Config\Env;
 
 abstract class CommandAbstract extends Command {
 	protected $description;
@@ -60,7 +61,7 @@ abstract class CommandAbstract extends Command {
 					}
 
 					$key = array_shift($option);
-					putenv($key . '=' . $value);
+					putenv($key . '=' . Env::parseValue($value));
 					$childConfig[$key] = ienv($key);
 
 					iconfig()->setUserConfig($name, $config);

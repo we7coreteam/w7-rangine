@@ -191,7 +191,7 @@ class Cache extends CacheAbstract {
 	}
 
 	public function get($key, $default = null) {
-		$result = $this->call('get', [$key]);
+		$result = $this->call('get', [$key, $default]);
 		if ($result === false || $result === null) {
 			return $default;
 		}
@@ -215,7 +215,7 @@ class Cache extends CacheAbstract {
 
 	public function getMultiple($keys, $default = null) {
 		$keys = (array)$keys;
-		$mgetResult = $this->call('getMultiple', [$keys]);
+		$mgetResult = $this->call('getMultiple', [$keys, $default]);
 		if ($mgetResult === false) {
 			return $default;
 		}
@@ -228,6 +228,7 @@ class Cache extends CacheAbstract {
 	}
 
 	public function deleteMultiple($keys): bool {
+		$keys = (array)$keys;
 		return (bool)$this->call('deleteMultiple', [$keys]);
 	}
 
