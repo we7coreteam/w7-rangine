@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-11-22 下午8:27
+ * WeEngine Api System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Core\Process;
@@ -37,7 +43,6 @@ abstract class ProcessAbstract {
 	}
 
 	protected function init() {
-
 	}
 
 	public function getName() {
@@ -76,7 +81,8 @@ abstract class ProcessAbstract {
 		return true;
 	}
 
-	protected function beforeStart() {}
+	protected function beforeStart() {
+	}
 
 	public function onStart() {
 		if (\stripos(PHP_OS, 'Darwin') === false) {
@@ -131,7 +137,7 @@ abstract class ProcessAbstract {
 
 	private function doRun(\Closure $callback) {
 		$this->complete = false;
-		try{
+		try {
 			$callback();
 		} catch (\Throwable $e) {
 			ilogger()->error('run process fail with error ' . $e->getMessage());
@@ -144,7 +150,8 @@ abstract class ProcessAbstract {
 		}
 	}
 
-	protected function run() {}
+	protected function run() {
+	}
 
 	public function stop() {
 		--$this->exitStatus;
@@ -161,6 +168,15 @@ abstract class ProcessAbstract {
 		}
 
 		$this->process->kill($this->process->pid);
+	}
+
+	public function sendMsg($msg) {
+		//swoole 版本不兼容, 不能用push
+		return msg_send(msg_get_queue($this->mqKey), 1, $msg, false);
+	}
+
+	public function getMsg($size = null) {
+		return $this->getProcess()->pop($size);
 	}
 
 	public function onStop() {

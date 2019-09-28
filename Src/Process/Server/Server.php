@@ -1,13 +1,13 @@
 <?php
 
 /**
- * This file is part of Rangine
+ * WeEngine Api System
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.w7.cc>
  *
- * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
- *
- * visited https://www.rangine.com/ for more details
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Process\Server;
@@ -17,7 +17,7 @@ use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Server\ServerEnum;
 
 class Server extends ProcessServerAbstract {
-	private $notSupportProcess = [
+	private $notSupportProcessRegister = [
 		ServerEnum::TYPE_CRONTAB => Register::class
 	];
 	private $processMap = [];
@@ -48,9 +48,9 @@ class Server extends ProcessServerAbstract {
 		$notSupportProcess = array_diff($this->processMap, array_intersect(array_keys($supportProcess), $this->processMap));
 		foreach ($notSupportProcess as $index => $name) {
 			unset($this->processMap[$index]);
-			if (!empty($this->notSupportProcess[$name])) {
+			if (!empty($this->notSupportProcessRegister[$name])) {
 				//注册该类型的process到process的配置中
-				$class = $this->notSupportProcess[$name];
+				$class = $this->notSupportProcessRegister[$name];
 				$register = new $class();
 				$this->processMap = array_merge($this->processMap, $register());
 			} else {

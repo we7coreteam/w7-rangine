@@ -1,13 +1,13 @@
 <?php
 
 /**
- * This file is part of Rangine
+ * WeEngine Api System
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.w7.cc>
  *
- * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
- *
- * visited https://www.rangine.com/ for more details
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Core\Crontab\Process;
@@ -47,7 +47,7 @@ class CrontabDispatcher extends ProcessAbstract {
 		$tasks = $this->taskManager->getRunTasks();
 		foreach ($tasks as $name => $task) {
 			ilogger()->info('push crontab task ' . $name . ' ' . $task);
-			msg_send(msg_get_queue($this->mqKey), 1, $task, false);
+			$this->sendMsg($task);
 		}
 	}
 }
