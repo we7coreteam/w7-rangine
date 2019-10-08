@@ -43,11 +43,11 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	public function getStatus() {
-		$pid = 0;
-		if (file_exists($this->setting['pid_file'])) {
-			$pid = file_get_contents($this->setting['pid_file']);
-		}
 		$setting = $this->getSetting();
+		$pid = 0;
+		if (file_exists($setting['pid_file'])) {
+			$pid = file_get_contents($setting['pid_file']);
+		}
 		return [
 			'host' => $this->connection['host'] ?? '',
 			'port' => $this->connection['port'] ?? '',
