@@ -29,16 +29,19 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	protected function checkSetting() {
+		$this->setting = array_merge($this->setting, $this->connection);
+		if (empty($this->setting['pid_file'])) {
+			throw new \RuntimeException('server pid_file error');
+		}
 		return true;
 	}
 
 	protected function getSetting() {
-		$setting = array_merge($this->setting, $this->connection);
 		return [
-			'pid_file' => $setting['pid_file'],
-			'worker_num' => $setting['worker_num'] ?? 1,
-			'message_queue_key' => $setting['message_queue_key'] ?? null,
-			'daemonize' => $setting['daemonize'] ?? false
+			'pid_file' => $this->setting['pid_file'],
+			'worker_num' => $this->setting['worker_num'] ?? 1,
+			'message_queue_key' => $this->setting['message_queue_key'] ?? null,
+			'daemonize' => $this->setting['daemonize'] ?? false
 		];
 	}
 
