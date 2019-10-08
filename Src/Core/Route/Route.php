@@ -14,6 +14,7 @@ namespace W7\Core\Route;
 
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
+use FastRoute\Dispatcher\GroupCountBased as RouteDispatcher;
 use W7\App;
 
 class Route {
@@ -258,7 +259,18 @@ class Route {
 		$this->currentMiddleware = [];
 		$this->name = '';
 
-		$this->router->addRoute($methods, $uri, $routeHandler);
+		try{
+			$this->router->addRoute($methods, $uri, $routeHandler);
+		} catch (\Throwable $e) {
+			$dispatcher = new RouteDispatcher($this->getData());
+			foreach ($methods as $method) {
+				$route = $dispatcher->dispatch($method, $uri);
+				if (!empty($route[1]['module'])) {
+					throw new \RuntimeException('route "' . $uri . '" for method "' . $method . '" exists in ' . $route[1]['module']);
+				}
+			}
+		}
+
 		return true;
 	}
 
