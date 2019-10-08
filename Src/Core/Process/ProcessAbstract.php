@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -94,7 +94,7 @@ abstract class ProcessAbstract {
 		 */
 		$this->exitStatus = 2;
 		$this->complete = true;
-		pcntl_signal(SIGTERM, function () {
+		Process::signal(SIGTERM, function () {
 			--$this->exitStatus;
 		});
 
@@ -106,8 +106,7 @@ abstract class ProcessAbstract {
 			$this->startByTimer();
 		}
 
-		$this->exitTimer = Timer::tick(1000, function ($timer) {
-			pcntl_signal_dispatch();
+		$this->exitTimer = Timer::tick(1000, function () {
 			/**
 			 * 得到退出信号,但是任务定时器正在等待下一个时间点的时候,强制clear time,退出当前进程
 			 */
@@ -118,7 +117,7 @@ abstract class ProcessAbstract {
 	}
 
 	private function startByTimer() {
-		$this->runTimer = Timer::tick($this->interval * 1000, function ($timer) {
+		$this->runTimer = Timer::tick($this->interval * 1000, function () {
 			$this->doRun(function () {
 				$this->run();
 			});
@@ -127,7 +126,7 @@ abstract class ProcessAbstract {
 
 	private function startByEvent() {
 		$pipe = $this->pipe ? $this->pipe : $this->process->pipe;
-		swoole_event_add($pipe, function ($fd) {
+		swoole_event_add($pipe, function () {
 			$this->doRun(function () {
 				$data = $this->pipe ? '' : $this->process->read();
 				$this->read($data);
