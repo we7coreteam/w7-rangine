@@ -24,10 +24,9 @@ class ServerEnum {
 	const TYPE_TCP = 'tcp';
 	const TYPE_WEBSOCKET = 'webSocket';
 	const TYPE_PROCESS = 'process';
-	const TYPE_CRONTAB = 'crontab';
 	const TYPE_RELOAD = 'reload';
 
-	const ALL_SERVER = [
+	public static $ALL_SERVER = [
 		self::TYPE_WEBSOCKET => WebSocketServer::class,
 		self::TYPE_HTTP => HttpServer::class,
 		self::TYPE_TCP => TcpServer::class,

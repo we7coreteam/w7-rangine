@@ -40,10 +40,10 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$masterServers = [];
 
 		// 当指定的server中包含自定义process的时候，补充process
-		if(count(array_intersect(array_keys(ServerEnum::ALL_SERVER), $servers)) !== count($servers)) {
+		if (count(array_intersect(array_keys(ServerEnum::$ALL_SERVER), $servers)) !== count($servers)) {
 			$servers[] = ServerEnum::TYPE_PROCESS;
 		}
-		foreach (ServerEnum::ALL_SERVER as $key => $server) {
+		foreach (ServerEnum::$ALL_SERVER as $key => $server) {
 			if (!in_array($key, $servers)) {
 				continue;
 			}
@@ -52,7 +52,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 			if (!$masterServers && $server::$masterServer) {
 				$masterServers[$key] = $server;
-			} else if ($masterServers || $server::$onlyFollowMasterServer) {
+			} elseif ($masterServers || $server::$onlyFollowMasterServer) {
 				$followServers[$key] = $server;
 			} else {
 				$aloneServers[$key] = $server;
@@ -61,7 +61,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 		//添加框架内置的跟随服务
 		if ($masterServers) {
-			foreach (ServerEnum::ALL_SERVER as $key => $server) {
+			foreach (ServerEnum::$ALL_SERVER as $key => $server) {
 				if ($server::$onlyFollowMasterServer) {
 					$followServers[$key] = $server;
 				}

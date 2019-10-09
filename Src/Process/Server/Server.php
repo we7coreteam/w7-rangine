@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -12,14 +12,10 @@
 
 namespace W7\Process\Server;
 
-use W7\Core\Crontab\Register;
 use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Server\ServerEnum;
 
 class Server extends ProcessServerAbstract {
-	private $notSupportProcessRegister = [
-		ServerEnum::TYPE_CRONTAB => Register::class
-	];
 	private $processMap = [];
 
 	public function __construct() {
@@ -46,16 +42,8 @@ class Server extends ProcessServerAbstract {
 		$this->processMap = array_diff($servers, array_intersect(array_keys(ServerEnum::ALL_SERVER), $servers));
 		//获取不在process配置列表中的process
 		$notSupportProcess = array_diff($this->processMap, array_intersect(array_keys($supportProcess), $this->processMap));
-		foreach ($notSupportProcess as $index => $name) {
-			unset($this->processMap[$index]);
-			if (!empty($this->notSupportProcessRegister[$name])) {
-				//注册该类型的process到process的配置中
-				$class = $this->notSupportProcessRegister[$name];
-				$register = new $class();
-				$this->processMap = array_merge($this->processMap, $register());
-			} else {
-				throw new \RuntimeException('not support ' . $name . ' process');
-			}
+		if ($notSupportProcess) {
+			throw new \RuntimeException('not support ' . implode(', ', $notSupportProcess) . ' process');
 		}
 
 		$this->setting['worker_num'] = $this->getWorkerNum();
