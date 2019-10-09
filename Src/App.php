@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.rangine.com>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -75,8 +75,7 @@ class App {
 			RUNTIME_PATH,
 			BASE_PATH . '/vendor',
 			$openBaseDirConfig,
-			session_save_path(),
-			BASE_PATH . '/view'
+			session_save_path()
 		];
 		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
