@@ -77,9 +77,7 @@ abstract class ProcessAbstract {
 		$this->process->useQueue($key, $mode);
 	}
 
-	public function check() {
-		return true;
-	}
+	abstract public function check();
 
 	protected function beforeStart() {
 	}
@@ -149,8 +147,7 @@ abstract class ProcessAbstract {
 		}
 	}
 
-	protected function run() {
-	}
+	abstract protected function run();
 
 	public function stop() {
 		--$this->exitStatus;

@@ -70,7 +70,11 @@ class ReloadProcess extends ProcessAbstract {
 		ioutputer()->info('>> server hot reload start');
 	}
 
-	public function run() {
+	public function check() {
+		return true;
+	}
+
+	protected function run() {
 		$server = App::$server;
 		$md5File = $this->getWatchDirMd5();
 		$startReload = (strcmp($this->md5File, $md5File) !== 0);
