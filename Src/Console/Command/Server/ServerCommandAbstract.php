@@ -33,6 +33,9 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	private function parseServer() {
 		$servers = trim(iconfig()->getUserAppConfig('setting')['server']);
+		if (!$servers) {
+			throw new CommandException('please set the server to start');
+		}
 		$servers = explode('|', $servers);
 
 		$aloneServers = [];
@@ -43,6 +46,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		if (count(array_intersect(array_keys(ServerEnum::$ALL_SERVER), $servers)) !== count($servers)) {
 			$servers[] = ServerEnum::TYPE_PROCESS;
 		}
+
 		foreach (ServerEnum::$ALL_SERVER as $key => $server) {
 			if (!in_array($key, $servers)) {
 				continue;

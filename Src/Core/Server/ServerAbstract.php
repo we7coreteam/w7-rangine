@@ -43,7 +43,7 @@ abstract class ServerAbstract implements ServerInterface {
 	public function __construct() {
 		!App::$server && App::$server = $this;
 		$setting = \iconfig()->getServer();
-		if (empty($setting[$this->getType()])) {
+		if (!isset($setting[$this->getType()])) {
 			throw new \RuntimeException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
 		$this->setting = array_merge([], $setting['common']);
