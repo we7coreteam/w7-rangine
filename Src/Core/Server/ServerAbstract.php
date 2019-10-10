@@ -35,6 +35,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	public static $masterServer = true;
 	public static $onlyFollowMasterServer = false;
+	public static $aloneServer = false;
 
 	/**
 	 * ServerAbstract constructor.

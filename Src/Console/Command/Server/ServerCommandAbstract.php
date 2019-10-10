@@ -75,6 +75,13 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		if (!$masterServers && $followServers) {
 			throw new CommandException('server ' . implode(' , ', array_keys($followServers)) . ' must start with the master server');
 		}
+		if (!$masterServers && count($aloneServers) > 1) {
+			foreach ($aloneServers as $name => $server) {
+				if ($server::$aloneServer) {
+					throw new CommandException('server ' . $name . ' can only be started independently');
+				}
+			}
+		}
 
 		$this->masterServers = $masterServers;
 		$this->aloneServers = $aloneServers;
