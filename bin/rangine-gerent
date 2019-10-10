@@ -6,7 +6,15 @@
  * @date 18-7-18 下午6:35
  */
 
-require_once dirname(__DIR__, 4) . '/config/define.php';
+$dir = dirname(__DIR__, 4);
+if (!file_exists($dir . '/config/define.php')) {
+	if (empty($argv[1]) || strpos($argv[1], '--app-path') === false) {
+		echo '请通过参数--app-path指定app目录';
+	}
+	$dir = explode('=', $argv[1], 2)[1];
+}
+
+require_once $dir . '/config/define.php';
 $loader = require_once BASE_PATH . '/vendor/autoload.php';
 
 $app = \W7\App::getApp();
