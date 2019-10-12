@@ -5,7 +5,20 @@
  * @author donknap
  * @date 18-7-18 下午6:35
  */
-require_once dirname(__DIR__, 4) . '/config/define.php';
+$dir = dirname(__DIR__, 4);
+if (!file_exists($dir . '/config/define.php')) {
+	$path = end($argv);
+	if (strpos($path, '--app-path') === false) {
+		echo '请通过参数--app-path指定app目录';
+		exit();
+	}
+	$dir = explode('=', $path, 2)[1];
+	reset($argv);
+	array_pop($argv);
+	$_SERVER['argv'] = $argv;
+}
+
+require_once $dir . '/config/define.php';
 $loader = require_once BASE_PATH . '/vendor/autoload.php';
 
 $_SERVER['argv'] = array_merge([

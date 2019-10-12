@@ -396,7 +396,7 @@ if (!function_exists('ivalidate')) {
 			foreach ($errors as $field => $message) {
 				$errorMessage[] = $field . ' : ' . $message[0];
 			}
-			throw new ValidatorException(implode('; ', $errorMessage));
+			throw new ValidatorException(implode('; ', $errorMessage), 403);
 		}
 
 		return $result;

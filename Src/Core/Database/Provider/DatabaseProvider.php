@@ -64,6 +64,7 @@ class DatabaseProvider extends ProviderAbstract {
 			/**
 			 *检测是否是事物里面的query
 			 */
+			$this->log($data);
 			if (App::getApp()->getContext()->getContextDataByKey('db-transaction')) {
 				return false;
 			}
@@ -71,16 +72,22 @@ class DatabaseProvider extends ProviderAbstract {
 		});
 		$dbDispatch->listen(TransactionBeginning::class, function ($data) {
 			$connection = $data->connection;
+			$data->sql = 'begin transaction';
+			$this->log($data);
 			App::getApp()->getContext()->setContextDataByKey('db-transaction', $connection);
 		});
 		$dbDispatch->listen(TransactionCommitted::class, function ($data) use ($container) {
 			if (idb()->transactionLevel() === 0) {
+				$data->sql = 'commit transaction';
+				$this->log($data);
 				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
 				return $this->releaseDb($data, $container);
 			}
 		});
 		$dbDispatch->listen(TransactionRolledBack::class, function ($data) use ($container) {
 			if (idb()->transactionLevel() === 0) {
+				$data->sql = 'rollback transaction';
+				$this->log($data);
 				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
 				return $this->releaseDb($data, $container);
 			}
@@ -101,9 +108,12 @@ class DatabaseProvider extends ProviderAbstract {
 		Model::setConnectionResolver($dbManager);
 	}
 
+	private function log($data) {
+		ilogger()->channel('database')->debug('connection ' . $data->connectionName . ', ' . ($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings)));
+	}
+
 	private function releaseDb($data, $container) {
 		$connection = $data->connection;
-		ilogger()->channel('database')->debug(($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings)));
 
 		$poolName = $connection->getPoolName();
 		if (empty($poolName)) {
