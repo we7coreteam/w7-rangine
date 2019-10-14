@@ -116,8 +116,7 @@ class ProviderManager {
 		}
 		$path .= '/';
 
-		ReloadProcess::addDir($path . 'src');
-		ReloadProcess::addDir($path . 'view');
+		ReloadProcess::addDir($path);
 	}
 
 	private function checkRepeat($providerMap) {
