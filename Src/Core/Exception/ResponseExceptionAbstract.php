@@ -23,5 +23,7 @@ abstract class ResponseExceptionAbstract extends ExceptionAbstract {
 		$this->response = App::getApp()->getContext()->getResponse();
 	}
 
-	abstract public function render() : ResponseInterface;
+	public function render() : ResponseInterface {
+		return $this->response;
+	}
 }
