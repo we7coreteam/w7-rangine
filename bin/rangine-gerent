@@ -15,9 +15,9 @@ if (!file_exists($dir . '/config/define.php')) {
 	}
 	$dir = explode('=', $path, 2)[1];
 	reset($argv);
-	array_pop($argv);
-	$_SERVER['argv'] = $argv;
 }
+array_pop($argv);
+$_SERVER['argv'] = $argv;
 
 require_once $dir . '/config/define.php';
 $loader = require_once BASE_PATH . '/vendor/autoload.php';
