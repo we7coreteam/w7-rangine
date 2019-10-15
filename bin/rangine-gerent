@@ -6,18 +6,23 @@
  * @date 18-7-18 下午6:35
  */
 
+$path = end($argv);
+reset($argv);
+$appPath = null;
+if (strpos($path, '--app-path') !== false) {
+	$appPath = $path;
+	array_pop($argv);
+	$_SERVER['argv'] = $argv;
+}
+
 $dir = dirname(__DIR__, 4);
 if (!file_exists($dir . '/config/define.php')) {
-	$path = end($argv);
-	if (strpos($path, '--app-path') === false) {
+	if (!$appPath) {
 		echo '请通过参数--app-path指定app目录';
 		exit();
 	}
-	$dir = explode('=', $path, 2)[1];
-	reset($argv);
+	$dir = explode('=', $appPath, 2)[1];
 }
-array_pop($argv);
-$_SERVER['argv'] = $argv;
 
 require_once $dir . '/config/define.php';
 $loader = require_once BASE_PATH . '/vendor/autoload.php';
