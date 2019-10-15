@@ -78,7 +78,7 @@ class HandlerExceptions {
 	}
 
 	public function handle(\Throwable $throwable) {
-		if (!($throwable instanceof ExceptionAbstract)) {
+		if (!($throwable instanceof ResponseExceptionAbstract)) {
 			$class = 'W7\\' . ucfirst(App::$server->type) . '\Exception\FatalException';
 			$throwable = new $class($throwable->getMessage(), $throwable->getCode(), $throwable);
 		}

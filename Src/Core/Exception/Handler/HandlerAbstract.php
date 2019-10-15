@@ -12,8 +12,8 @@
 
 namespace W7\Core\Exception\Handler;
 
-use W7\Core\Exception\ExceptionAbstract;
+use W7\Core\Exception\ResponseExceptionAbstract;
 
 abstract class HandlerAbstract {
-	abstract public function handle(ExceptionAbstract $e);
+	abstract public function handle(ResponseExceptionAbstract $e);
 }
