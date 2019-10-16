@@ -10,13 +10,13 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Console\Command\WebSocket;
+namespace W7\Console\Command\Server;
 
-class RestartCommand extends WebSocketCommandAbstract {
-	protected $description = 'restart websocket service';
+class RestartCommand extends ServerCommandAbstract {
+	protected $description = 'restart server';
 
 	protected function handle($options) {
-		// TODO: Implement handle() method.
+		parent::handle($options);
 		$this->restart();
 	}
 }

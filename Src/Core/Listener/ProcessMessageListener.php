@@ -10,12 +10,10 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Console\Command\WebSocket;
+namespace W7\Core\Listener;
 
-class StopCommand extends WebSocketCommandAbstract {
-	protected $description = 'stop websocket service';
-
-	protected function handle($options) {
-		$this->stop();
+class ProcessMessageListener extends ListenerAbstract {
+	public function run(...$params) {
+		// TODO: Implement run() method.
 	}
 }

@@ -26,10 +26,21 @@ if (!file_exists($dir . '/config/define.php')) {
 require_once $dir . '/config/define.php';
 $loader = require_once BASE_PATH . '/vendor/autoload.php';
 
-$_SERVER['argv'] = array_merge([
-		array_shift($argv),
-		array_shift($argv) . ':' . array_shift($argv)
-	], $argv);
+$script = array_shift($argv);
+$type = array_shift($argv);
+$operate = array_shift($argv);
+if (in_array($type, ['start', 'stop', 'restart'])) {
+	$operate = $type;
+	$type = null;
+}
+$_SERVER['argv'] = array_merge(
+	[
+		$script,
+		'server:' . $operate,
+		'--config-app-setting-server=' . $type
+	],
+	$argv
+);
 
 $app = new \W7\App();
 $app->runConsole();

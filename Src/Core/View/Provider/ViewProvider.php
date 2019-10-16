@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -12,7 +12,7 @@
 
 namespace W7\Core\View\Provider;
 
-use W7\Core\Process\ReloadProcess;
+use W7\Reload\Process\ReloadProcess;
 use W7\Core\Provider\ProviderAbstract;
 use W7\Core\View\View;
 

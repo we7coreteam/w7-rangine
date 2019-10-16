@@ -14,13 +14,16 @@ namespace W7\Tcp\Server;
 
 use Swoole\Server as TcpServer;
 use W7\Core\Server\ServerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleEvent;
 
 class Server extends ServerAbstract {
-	public $type = parent::TYPE_TCP;
+	public function getType() {
+		return ServerEnum::TYPE_TCP;
+	}
 
 	public function start() {
-		$this->server = new TcpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+		$this->server = $this->getServer();
 		$this->server->set($this->setting);
 
 		//执行一些公共操作，注册事件等
@@ -29,6 +32,13 @@ class Server extends ServerAbstract {
 		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
 
 		$this->server->start();
+	}
+
+	public function getServer() {
+		if (empty($this->server)) {
+			$this->server = new TcpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+		}
+		return $this->server;
 	}
 
 	/**
@@ -43,7 +53,7 @@ class Server extends ServerAbstract {
 			'open_http_protocol' => false,
 			'open_websocket_protocol' => false,
 		]);
-		$event = (new SwooleEvent())->getDefaultEvent()[parent::TYPE_TCP];
+		$event = (new SwooleEvent())->getDefaultEvent()[$this->getType()];
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;

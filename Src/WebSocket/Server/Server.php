@@ -14,10 +14,13 @@ namespace W7\WebSocket\Server;
 
 use Swoole\WebSocket\Server as WebSocketServer;
 use W7\Core\Server\ServerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleEvent;
 
 class Server extends ServerAbstract {
-	public $type = parent::TYPE_WEBSOCKET;
+	public function getType() {
+		return ServerEnum::TYPE_WEBSOCKET;
+	}
 
 	public function start() {
 		if ($this->setting['dispatch_mode'] == 1 || $this->setting['dispatch_mode'] == 3) {

@@ -16,6 +16,6 @@ use W7\App;
 
 class StartListener implements ListenerInterface {
 	public function run(...$params) {
-		\isetProcessTitle('w7-rangine ' . App::$server->type . ' master process');
+		\isetProcessTitle('w7-rangine ' . App::$server->getType() . ' master process');
 	}
 }

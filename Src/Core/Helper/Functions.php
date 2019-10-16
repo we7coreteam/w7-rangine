@@ -21,55 +21,11 @@ use W7\Core\Exception\DumpException;
 use W7\Core\Exception\ValidatorException;
 use W7\Core\Lang\Translator;
 use W7\Console\Io\Output;
-use W7\Core\Dispatcher\ProcessDispatcher;
-use W7\Core\Dispatcher\ProcessPoolDispatcher;
 use W7\Core\Message\TaskMessage;
 use Illuminate\Database\Eloquent\Model;
 use W7\Core\Route\Route;
 use W7\Core\Exception\Handler\ExceptionHandler;
 
-if (!function_exists('iprocess')) {
-	/**
-	 * 派发一个进程
-	 * @param $name
-	 * @param null $server
-	 * @return bool|\Swoole\Process|void
-	 */
-	function iprocess($name, $server = null) {
-		/**
-		 * @var \W7\Core\Dispatcher\ProcessDispatcher $dispatcher
-		 */
-		$dispatcher = iloader()->get(ProcessDispatcher::class);
-		return $dispatcher->dispatch($name, $server);
-	}
-
-	/**
-	 * 返回进程管理器
-	 * @return \W7\Core\Dispatcher\ProcessDispatcher
-	 */
-	function iprocessManager() {
-		$dispatcher = iloader()->get(ProcessDispatcher::class);
-		return $dispatcher;
-	}
-
-	/**
-	 * 派发一个进程池
-	 * @param $name
-	 * @param null $server
-	 * @return bool|\Swoole\Process|void
-	 */
-	function iprocessPool($name, $number) {
-	}
-
-	/**
-	 * 返回一个进程池管理
-	 * @return \W7\Core\Dispatcher\ProcessPoolDispatcher
-	 */
-	function iprocessPoolManager() {
-		$dispatcher = iloader()->get(ProcessPoolDispatcher::class);
-		return $dispatcher;
-	}
-}
 if (!function_exists('ievent')) {
 	/**
 	 * 派发一个事件

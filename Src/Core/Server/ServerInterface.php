@@ -37,6 +37,12 @@ interface ServerInterface {
 	public function getServer();
 
 	/**
+	 * 服务类型
+	 * @return mixed
+	 */
+	public function getType();
+
+	/**
 	 * 获取服务状态
 	 * @return mixed
 	 */

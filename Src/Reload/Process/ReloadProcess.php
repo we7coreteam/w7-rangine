@@ -10,12 +10,13 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Process;
+namespace W7\Reload\Process;
 
 use Swoole\Process;
 use W7\App;
+use W7\Core\Process\ProcessAbstract;
 
-class ReloadProcess implements ProcessInterface {
+class ReloadProcess extends ProcessAbstract {
 	/**
 	 * 监听文件变化的路径
 	 *
@@ -42,27 +43,19 @@ class ReloadProcess implements ProcessInterface {
 	 *
 	 * @var int
 	 */
-	private $interval = 1;
-
-	private $enabled = false;
+	protected $interval = 1;
 
 	/**
 	 * 初始化方法
 	 */
-	public function __construct() {
-		$this->enabled = ((ENV & DEBUG) === DEBUG);
+	public function __construct($name, $num = 1, Process $process = null) {
+		parent::__construct($name, $num, $process);
+
 		$reloadConfig = \iconfig()->getUserAppConfig('reload');
 		self::$watchDir = array_merge(self::$watchDir, $reloadConfig['path'] ?? []);
 		self::$fileTypes = array_merge(self::$fileTypes, $reloadConfig['type'] ?? []);
 
 		$this->md5File = $this->getWatchDirMd5();
-	}
-
-	public function check() {
-		if ($this->enabled) {
-			return true;
-		}
-		return false;
 	}
 
 	public static function addDir(string $dir) {
@@ -73,23 +66,25 @@ class ReloadProcess implements ProcessInterface {
 		self::$fileTypes[] = trim($type, '.');
 	}
 
-	public function run(Process $process) {
+	protected function beforeStart() {
 		ioutputer()->info('>> server hot reload start');
+	}
 
+	public function check() {
+		return true;
+	}
+
+	protected function run() {
 		$server = App::$server;
-		while (true) {
-			sleep($this->interval);
+		$md5File = $this->getWatchDirMd5();
+		$startReload = (strcmp($this->md5File, $md5File) !== 0);
+		$this->md5File = $md5File;
 
-			$md5File = $this->getWatchDirMd5();
-			$startReload = (strcmp($this->md5File, $md5File) !== 0);
-			$this->md5File = $md5File;
+		if ($startReload) {
+			$server->isRun();
+			$server->getServer()->reload();
 
-			if ($startReload) {
-				$server->isRun();
-				$server->getServer()->reload();
-
-				ioutputer()->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
-			}
+			ioutputer()->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
 		}
 	}
 

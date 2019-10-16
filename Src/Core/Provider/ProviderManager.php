@@ -14,7 +14,7 @@ namespace W7\Core\Provider;
 
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use W7\Core\Process\ReloadProcess;
+use W7\Reload\Process\ReloadProcess;
 
 class ProviderManager {
 	private static $providers = [];

@@ -10,12 +10,13 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Console\Command\WebSocket;
+namespace W7\Console\Command\Server;
 
-class StartCommand extends WebSocketCommandAbstract {
-	protected $description = 'start websocket service';
+class StopCommand extends ServerCommandAbstract {
+	protected $description = 'stop server';
 
 	protected function handle($options) {
-		$this->start($options);
+		parent::handle($options);
+		$this->stop();
 	}
 }

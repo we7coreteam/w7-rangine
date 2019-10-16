@@ -10,10 +10,13 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Message;
+namespace W7\Console\Command\Server;
 
-class Message {
-	use MessageTraiter;
+class StartCommand extends ServerCommandAbstract {
+	protected $description = 'start server';
 
-	const MESSAGE_TYPE_TASK = 'task';
+	protected function handle($options) {
+		parent::handle($options);
+		$this->start();
+	}
 }

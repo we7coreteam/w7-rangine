@@ -12,49 +12,16 @@
 
 namespace W7\Core\Server;
 
-use Illuminate\Support\Str;
 use Swoole\Process;
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Exception\CommandException;
-use W7\Core\Process\CrontabProcess;
-use W7\Core\Process\ReloadProcess;
 
 abstract class ServerAbstract implements ServerInterface {
-	const TYPE_HTTP = 'http';
-	const TYPE_RPC = 'rpc';
-	const TYPE_TCP = 'tcp';
-	const TYPE_WEBSOCKET = 'webSocket';
-
-	const MODE_LIST = [
-		SWOOLE_BASE => 'base',
-		SWOOLE_PROCESS => 'process',
-	];
-
-	const SOCK_LIST = [
-		SWOOLE_SOCK_TCP => 'tcp',
-		SWOOLE_SOCK_TCP6 => 'tcp6',
-		SWOOLE_SOCK_UDP => 'udp',
-		SWOOLE_SOCK_UDP6 => 'udp6',
-		SWOOLE_SOCK_UNIX_DGRAM => 'dgram',
-		SWOOLE_SOCK_UNIX_STREAM => 'stream'
-	];
-
 	/**
-	 * @var \Swoole\Http\Server
+	 * @var \Swoole\Server
 	 */
 	public $server;
-
-	protected $process = [
-		ReloadProcess::class,
-		CrontabProcess::class
-	];
-
-	/**
-	 * 服务类型
-	 * @var
-	 */
-	public $type;
 
 	/**
 	 * 配置
@@ -66,6 +33,10 @@ abstract class ServerAbstract implements ServerInterface {
 	 */
 	public $connection;
 
+	public static $masterServer = true;
+	public static $onlyFollowMasterServer = false;
+	public static $aloneServer = false;
+
 	/**
 	 * ServerAbstract constructor.
 	 * @throws CommandException
@@ -73,13 +44,13 @@ abstract class ServerAbstract implements ServerInterface {
 	public function __construct() {
 		!App::$server && App::$server = $this;
 		$setting = \iconfig()->getServer();
-		if (empty($setting[$this->type])) {
-			throw new CommandException(sprintf('缺少服务配置 %s', $this->type));
+		if (!isset($setting[$this->getType()])) {
+			throw new \RuntimeException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
 		$this->setting = array_merge([], $setting['common']);
-		$this->connection = $setting[$this->type];
+		$this->connection = $setting[$this->getType()];
 
-		$this->checkConfig();
+		$this->checkSetting();
 		$this->resetPidFile();
 		$this->enableCoroutine();
 	}
@@ -101,12 +72,19 @@ abstract class ServerAbstract implements ServerInterface {
 		return [
 			'host' => $this->connection['host'],
 			'port' => $this->connection['port'],
-			'type' => self::SOCK_LIST[$this->connection['sock_type']] ?? 'Unknown',
-			'mode' => self::MODE_LIST[$this->connection['mode']] ?? 'Unknown',
+			'type' => ServerEnum::SOCK_LIST[$this->connection['sock_type']] ?? 'Unknown',
+			'mode' => ServerEnum::MODE_LIST[$this->connection['mode']] ?? 'Unknown',
 			'workerNum' => $this->setting['worker_num'],
 			'masterPid' => !empty($pids[0]) ? $pids[0] : 0,
 			'managerPid' => !empty($pids[1]) ? $pids[1] : 0,
 		];
+	}
+
+	public function getServer() {
+		return $this->server;
+	}
+
+	public function listener(\Swoole\Server $server) {
 	}
 
 	public function isRun() {
@@ -116,6 +94,13 @@ abstract class ServerAbstract implements ServerInterface {
 		} else {
 			return false;
 		}
+	}
+
+	protected function enableCoroutine() {
+		$this->setting['enable_coroutine'] = true;
+		$this->setting['task_enable_coroutine'] = true;
+		$this->setting['task_ipc_mode'] = 1;
+		$this->setting['message_queue_key'] = '';
 	}
 
 	public function stop() {
@@ -139,14 +124,16 @@ abstract class ServerAbstract implements ServerInterface {
 		}
 
 		if (!file_exists($this->setting['pid_file'])) {
-			return true;
+			$result = true;
 		} else {
 			unlink($this->setting['pid_file']);
 		}
+
+		App::$server = null;
 		return $result;
 	}
 
-	protected function checkConfig() {
+	protected function checkSetting() {
 		if (empty($this->setting['pid_file'])) {
 			throw new \RuntimeException('server pid_file error');
 		}
@@ -174,68 +161,21 @@ abstract class ServerAbstract implements ServerInterface {
 
 	protected function resetPidFile() {
 		$pathInfo = pathinfo($this->setting['pid_file']);
-		$pathInfo['basename'] = $this->connection['port'] . '_' . $pathInfo['basename'];
+		$pathInfo['basename'] = $this->getType() . '_' .  ($this->connection['port'] ?? '') . '_' . $pathInfo['basename'];
 		$pidFile = rtrim($pathInfo['dirname'], '/') . '/' . $pathInfo['basename'];
 
 		$this->setting['pid_file'] = $pidFile;
 	}
 
-	protected function enableCoroutine() {
-		$this->setting['enable_coroutine'] = true;
-		$this->setting['task_enable_coroutine'] = true;
-		$this->setting['task_ipc_mode'] = 1;
-		$this->setting['message_queue_key'] = '';
-	}
-
-	public function getServer() {
-		return $this->server;
-	}
-
 	public function registerService() {
 		$this->registerSwooleEventListener();
-		$this->registerProcesser();
-	}
-
-	protected function registerProcesser() {
-		foreach ($this->process as $name) {
-			\iprocess($name, App::$server->server);
-		}
-
-		//启动用户配置的进程
-		$process = iconfig()->getUserAppConfig('process');
-		if (!empty($process)) {
-			foreach ($process as $name => $row) {
-				if (empty($row['enable'])) {
-					continue;
-				}
-
-				if (!class_exists($row['class'])) {
-					$row['class'] = sprintf('\\W7\\App\\Process\\%s', Str::studly($row['class']));
-				}
-
-				if (!class_exists($row['class'])) {
-					continue;
-				}
-
-				$row['number'] = intval($row['number']);
-				if (!isset($row['number']) || empty($row['number']) || $row['number'] <= 1) {
-					\iprocess($row['class'], App::$server->server);
-				} else {
-					//多个进程时，通过进程池管理
-
-					for ($i = 1; $i <= $row['number']; $i++) {
-						\iprocess($row['class'], App::$server->server);
-					}
-				}
-			}
-		}
 	}
 
 	protected function registerSwooleEventListener() {
 		iloader()->get(SwooleEvent::class)->register();
 
 		$swooleEvents = iloader()->get(SwooleEvent::class)->getDefaultEvent();
-		$eventTypes = [$this->type, 'task', 'manage'];
+		$eventTypes = [$this->getType(), 'task', 'manage'];
 		foreach ($eventTypes as $name) {
 			$event = $swooleEvents[$name];
 			if (!empty($event)) {

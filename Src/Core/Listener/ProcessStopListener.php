@@ -14,12 +14,17 @@ namespace W7\Core\Listener;
 
 use W7\App;
 
-class WorkerStartListener implements ListenerInterface {
+class ProcessStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {
-			opcache_reset();
+		$userProcess = App::getApp()->userProcess;
+		if (empty($userProcess)) {
+			return false;
 		}
 
-		\isetProcessTitle('w7-rangine ' . App::$server->getType() . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
+		try {
+			$userProcess->onStop();
+		} catch (\Throwable $e) {
+			ilogger()->error('stop process fail with error ' . $e->getMessage());
+		}
 	}
 }

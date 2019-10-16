@@ -43,11 +43,11 @@ class MiddlewareMapping {
 	}
 
 	private function getControllerMiddleware() {
-		if (empty(App::$server->type)) {
+		if (empty(App::$server->getType())) {
 			return [];
 		}
 
-		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', ucfirst(App::$server->type));
+		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', ucfirst(App::$server->getType()));
 		if (class_exists($class)) {
 			return [[$class]];
 		} else {
