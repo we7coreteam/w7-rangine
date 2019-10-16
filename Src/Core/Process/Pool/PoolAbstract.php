@@ -28,7 +28,7 @@ abstract class PoolAbstract {
 	public function __construct($config) {
 		$this->config = $config;
 		$this->processFactory = new ProcessFactory();
-		$this->mqKey = $config['message_queue_key'] ?? 0;
+		$this->mqKey = (int)($config['message_queue_key'] ?? 0);
 		$this->init();
 	}
 
