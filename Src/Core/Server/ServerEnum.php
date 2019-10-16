@@ -23,10 +23,13 @@ class ServerEnum {
 	const TYPE_RPC = 'rpc';
 	const TYPE_TCP = 'tcp';
 	const TYPE_WEBSOCKET = 'webSocket';
+	//处理用户输入的小写websocket找不到server的问题
+	const TYPE_LOWER_WEBSOCKET = 'websocket';
 	const TYPE_PROCESS = 'process';
 	const TYPE_RELOAD = 'reload';
 
 	public static $ALL_SERVER = [
+		self::TYPE_LOWER_WEBSOCKET => WebSocketServer::class,
 		self::TYPE_WEBSOCKET => WebSocketServer::class,
 		self::TYPE_HTTP => HttpServer::class,
 		self::TYPE_TCP => TcpServer::class,
