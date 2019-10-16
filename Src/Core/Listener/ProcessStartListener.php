@@ -27,6 +27,7 @@ class ProcessStartListener extends ListenerAbstract {
 		$name = $userProcess->getName();
 
 		$mqKey = iconfig()->getUserConfig('process')['process'][$name]['message_queue_key'] ?? $mqKey;
+		$mqKey = (int)$mqKey;
 		$userProcess->setMq($mqKey);
 
 		//用临时变量保存该进程中的用户进程对象
