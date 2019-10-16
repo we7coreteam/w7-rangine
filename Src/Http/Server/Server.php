@@ -51,7 +51,7 @@ class Server extends ServerAbstract {
 	 * @var \Swoole\Server $server
 	 * 通过侦听端口的方法创建服务
 	 */
-	public function listener($server) {
+	public function listener(\Swoole\Server $server) {
 		if (App::$server instanceof WebSocketServer) {
 			(new SwooleEvent())->websocketSupportHttp();
 		}

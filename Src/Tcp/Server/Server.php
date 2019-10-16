@@ -45,7 +45,7 @@ class Server extends ServerAbstract {
 	 * @var \Swoole\Server $server
 	 * 通过侦听端口的方法创建服务
 	 */
-	public function listener($server) {
+	public function listener(\Swoole\Server $server) {
 		$tcpServer = $server->addListener($this->connection['host'], $this->connection['port'], $this->connection['sock_type']);
 		//tcp需要强制关闭其它协议支持，否则继续父服务
 		$tcpServer->set([

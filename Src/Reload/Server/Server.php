@@ -41,7 +41,7 @@ class Server extends ProcessServerAbstract {
 		throw new \Exception('cannot start alone');
 	}
 
-	public function listener($server = null) {
+	public function listener(\Swoole\Server $server = null) {
 		if ((ENV & DEBUG) !== DEBUG) {
 			return false;
 		}
