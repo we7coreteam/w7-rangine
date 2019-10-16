@@ -137,7 +137,8 @@ abstract class ProcessAbstract {
 		try {
 			$callback();
 		} catch (\Throwable $e) {
-			ilogger()->error('run process fail with error ' . $e->getMessage());
+			//下一步做统一异常处理
+			ilogger()->error('run process ' . $this->getName() . ' fail with error ' . $e->getMessage());
 		}
 		$this->complete = true;
 
