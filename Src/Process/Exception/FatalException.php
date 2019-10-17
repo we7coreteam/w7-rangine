@@ -38,6 +38,6 @@ class FatalException extends FatalExceptionAbstract {
 	}
 
 	protected function release(): ResponseInterface {
-		return $this->development();
+		return new Response();
 	}
 }
