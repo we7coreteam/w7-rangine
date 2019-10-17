@@ -15,24 +15,10 @@ namespace W7\Process\Exception;
 use Psr\Http\Message\ResponseInterface;
 use W7\Core\Exception\FatalExceptionAbstract;
 use W7\Http\Message\Server\Response;
-use Whoops\Exception\Inspector;
-use Whoops\Handler\PlainTextHandler;
-use Whoops\Run;
 
 class FatalException extends FatalExceptionAbstract {
 	protected function development(): ResponseInterface {
-		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$content = 'message: ' . $this->getMessage() . '<br/>file: ' . $this->getPrevious()->getFile() . '<br/>line: ' . $this->getPrevious()->getLine();
-		} else {
-			ob_start();
-			$render = new PlainTextHandler();
-			$render->setException($this->getPrevious());
-			$render->setInspector(new Inspector($this->getPrevious()));
-			$render->setRun(new Run());
-			$render->handle();
-			$content = ob_get_clean();
-		}
-
+		$content = "exec process fail with \nmessage: " . $this->getMessage() . "\nfile: " . $this->getPrevious()->getFile() . "\nline: " . $this->getPrevious()->getLine();
 		ioutputer()->error($content);
 		return new Response();
 	}
