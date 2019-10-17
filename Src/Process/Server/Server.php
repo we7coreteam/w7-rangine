@@ -58,7 +58,7 @@ class Server extends ProcessServerAbstract {
 			if (empty($configProcess[$name])) {
 				continue;
 			}
-			$workerNum += $configProcess[$name]['number'] ?? 1;
+			$workerNum += $configProcess[$name]['worker_num'] ?? 1;
 		}
 
 		return $workerNum;
@@ -71,7 +71,7 @@ class Server extends ProcessServerAbstract {
 			if (empty($configProcess[$name])) {
 				throw new \RuntimeException('process server ' . $name . ' not found as app/Process');
 			}
-			$this->pool->registerProcess($name, $configProcess[$name]['class'], $configProcess[$name]['number'] ?? 1);
+			$this->pool->registerProcess($name, $configProcess[$name]['class'], $configProcess[$name]['worker_num'] ?? 1);
 		}
 	}
 }
