@@ -49,14 +49,14 @@ class IndependentPool extends PoolAbstract {
 		$this->setDaemon();
 		$this->setProcessName();
 
-		if (swoole_version() >= '4.4.0') {
+		if (SWOOLE_VERSION >= '4.4.0') {
 			$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey, true);
 		} else {
 			$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey);
 		}
 
 		$listens = (new SwooleEvent())->getDefaultEvent()['process'];
-		if ($this->ipcType == 0 || swoole_version() >= '4.4.0') {
+		if ($this->ipcType == 0 || SWOOLE_VERSION >= '4.4.0') {
 			unset($listens['message']);
 		}
 		foreach ($listens as $name => $class) {

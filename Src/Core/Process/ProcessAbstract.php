@@ -12,6 +12,7 @@
 
 namespace W7\Core\Process;
 
+use Swoole\Event;
 use Swoole\Process;
 use Swoole\Timer;
 use W7\Core\Log\LogManager;
@@ -124,7 +125,7 @@ abstract class ProcessAbstract {
 
 	private function startByEvent() {
 		$pipe = $this->pipe ? $this->pipe : $this->process->pipe;
-		swoole_event_add($pipe, function () {
+		Event::add($pipe, function () {
 			$this->doRun(function () {
 				$data = $this->pipe ? '' : $this->process->read();
 				$this->read($data);
@@ -161,7 +162,7 @@ abstract class ProcessAbstract {
 			$this->exitTimer = null;
 		}
 		if (method_exists($this, 'read')) {
-			swoole_event_del($this->pipe ? $this->pipe : $this->process->pipe);
+			Event::del($this->pipe ? $this->pipe : $this->process->pipe);
 		}
 
 		$this->process->kill($this->process->pid);
