@@ -61,8 +61,8 @@ class IndependentPool extends PoolAbstract {
 		}
 		foreach ($listens as $name => $class) {
 			$object = \iloader()->get($class);
-			$manager->on($name, function (PoolManager $pool, $data) use ($object) {
-				$object->run($pool->getProcess(), $data, $this->processFactory, $this->mqKey);
+			$manager->on($name, function (PoolManager $pool, $workerId) use ($object) {
+				$object->run($this->serverType, $pool->getProcess(), $workerId, $this->processFactory, $this->mqKey);
 			});
 		}
 

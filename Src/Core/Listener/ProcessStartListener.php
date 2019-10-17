@@ -17,13 +17,14 @@ use W7\Core\Process\ProcessAbstract;
 
 class ProcessStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($process, $workerId, $processFactory, $mqKey) = $params;
+		list($serverType, $process, $workerId, $processFactory, $mqKey) = $params;
 
 		/**
 		 * @var ProcessAbstract $userProcess
 		 */
 		$userProcess = $processFactory->make($workerId);
 		$userProcess->setProcess($process);
+		$userProcess->setServerType($serverType);
 		$name = $userProcess->getName();
 
 		$mqKey = iconfig()->getUserConfig('process')['process'][$name]['message_queue_key'] ?? $mqKey;

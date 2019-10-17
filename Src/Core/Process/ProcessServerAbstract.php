@@ -61,13 +61,13 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	public function start() {
-		$this->pool = new IndependentPool($this->getSetting());
+		$this->pool = new IndependentPool($this->getType(), $this->getSetting());
 		$this->register();
 		return $this->pool->start();
 	}
 
 	public function listener(\Swoole\Server $server = null) {
-		$this->pool = new DependentPool($this->getSetting());
+		$this->pool = new DependentPool($this->getType(), $this->getSetting());
 		$this->register();
 		return $this->pool->start();
 	}

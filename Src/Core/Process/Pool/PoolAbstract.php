@@ -17,6 +17,7 @@ use W7\Core\Process\ProcessAbstract;
 use W7\Core\Process\ProcessFactory;
 
 abstract class PoolAbstract {
+	protected $serverType;
 	/**
 	 * @var ProcessFactory
 	 */
@@ -25,7 +26,8 @@ abstract class PoolAbstract {
 	//该值为进程间通信的消息队列key, 暂不设置
 	protected $mqKey = 0;
 
-	public function __construct($config) {
+	public function __construct($serverType, $config) {
+		$this->serverType = $serverType;
 		$this->config = $config;
 		$this->processFactory = new ProcessFactory();
 		$this->mqKey = (int)($config['message_queue_key'] ?? 0);

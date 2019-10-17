@@ -15,12 +15,14 @@ namespace W7\Core\Process;
 use Swoole\Event;
 use Swoole\Process;
 use Swoole\Timer;
+use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Log\LogManager;
 
 abstract class ProcessAbstract {
 	protected $name = 'process';
 	protected $num = 1;
 	protected $mqKey;
+	protected $serverType;
 	/**
 	 * @var Process
 	 */
@@ -56,6 +58,14 @@ abstract class ProcessAbstract {
 
 	public function getProcess() {
 		return $this->process;
+	}
+
+	public function setServerType($serverType) {
+		$this->serverType = $serverType;
+	}
+
+	public function getServerType() {
+		return $this->serverType;
 	}
 
 	private function getProcessName() {
@@ -134,13 +144,12 @@ abstract class ProcessAbstract {
 	}
 
 	private function doRun(\Closure $callback) {
-		$this->complete = false;
 		try {
 			$callback();
-		} catch (\Throwable $e) {
-			//下一步做统一异常处理
-			ilogger()->error('run process ' . $this->getName() . ' fail with error ' . $e->getMessage());
+		} catch (\Throwable $throwable) {
+			iloader()->get(HandlerExceptions::class)->handle($throwable, $this->serverType);
 		}
+
 		$this->complete = true;
 
 		//如果在执行完成后就得到退出信息,则马上退出
@@ -178,7 +187,7 @@ abstract class ProcessAbstract {
 	}
 
 	public function onStop() {
-		ilogger()->info('process ' . $this->getProcessName() . ' exit');
+		ilogger()->debug('process ' . $this->getProcessName() . ' exit');
 		iloader()->get(LogManager::class)->flushLog();
 	}
 }
