@@ -144,6 +144,8 @@ abstract class ProcessAbstract {
 	}
 
 	private function doRun(\Closure $callback) {
+		$this->complete = false;
+
 		try {
 			$callback();
 		} catch (\Throwable $throwable) {
