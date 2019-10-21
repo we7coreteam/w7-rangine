@@ -46,7 +46,7 @@ class Env {
 		if (!empty($envFileName) && file_exists($this->envPath . '/' . $envFileName)) {
 			putenv('ENV_NAME=' . $envFileName);
 			$_ENV['ENV_NAME'] = $envFileName;
-			$path = $this->preProcess($envFileName);
+			$path = $this->preProcess($this->envPath . '/' . $envFileName);
 			$dotEnv = Dotenv::create($this->envPath, $path ? $path : $envFileName);
 			$dotEnv->overload();
 			if ($path) {
