@@ -74,7 +74,7 @@ class HandshakeListener extends ListenerAbstract {
 
 			$response->status(101);
 		} catch (\Throwable $e) {
-			ilogger()->error('websocket handshake fail with error ' . $e->getMessage());
+			ilogger()->debug('websocket handshake fail with error ' . $e->getMessage());
 		} finally {
 			$response->end();
 		}

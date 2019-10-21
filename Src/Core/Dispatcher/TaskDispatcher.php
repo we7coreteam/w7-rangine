@@ -1,7 +1,13 @@
 <?php
+
 /**
- * author: alex
- * date: 18-8-3 上午9:38
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Dispatcher;
@@ -17,7 +23,6 @@ use W7\Core\Message\TaskMessage;
  * @package W7\Core\Helper\Dispather
  */
 class TaskDispatcher extends DispatcherAbstract {
-
 	/**
 	 * 注册一个异步任务
 	 * @param string $taskName
@@ -73,7 +78,6 @@ class TaskDispatcher extends DispatcherAbstract {
 		return App::$server->getServer()->taskCo($message->pack());
 	}
 
-
 	/**
 	 * 在OnTask事件中执行具体任务
 	 * @param mixed ...$params
@@ -89,11 +93,11 @@ class TaskDispatcher extends DispatcherAbstract {
 		$context->setContextDataByKey('coid', $taskId);
 
 		if (!class_exists($message->task)) {
-			$message->task = "W7\\App\\Task\\". ucfirst($message->task);
+			$message->task = 'W7\\App\\Task\\'. ucfirst($message->task);
 		}
 
 		if (!class_exists($message->task)) {
-			ilogger()->warning("task name is wrong name is " . $message->task);
+			ilogger()->debug('task name is wrong name is ' . $message->task);
 			return false;
 		}
 

@@ -31,7 +31,7 @@ class ExceptionHandler extends HandlerAbstract {
 			$context = array('exception' => $throwable);
 		}
 
-		ilogger()->error($errorMessage, $context);
+		ilogger()->debug($errorMessage, $context);
 	}
 
 	public function handle(ResponseExceptionAbstract $e) : ResponseInterface {
