@@ -14,7 +14,6 @@ namespace W7\Core\Process;
 
 use Swoole\Event;
 use Swoole\Process;
-use Swoole\Timer;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Log\LogManager;
 
@@ -29,13 +28,6 @@ abstract class ProcessAbstract {
 	protected $process;
 	// event 模式下支持用户自定义pipe
 	protected $pipe;
-
-	//定时器模式下
-	protected $runTimer;
-	protected $interval = 1;
-	private $exitTimer;
-	private $complete;
-	private $exitStatus;
 
 	public function __construct($name, $num = 1, Process $process = null) {
 		$this->name = $name;
@@ -94,18 +86,7 @@ abstract class ProcessAbstract {
 	}
 
 	public function onStart() {
-		if (\stripos(PHP_OS, 'Darwin') === false) {
-			$this->process->name($this->getProcessName());
-		}
-
-		/**
-		 * 注册退出信号量,等本次业务执行完成后退出,在执行stop后需要等待sleep结束后再结束
-		 */
-		$this->exitStatus = 2;
-		$this->complete = true;
-		Process::signal(SIGTERM, function () {
-			--$this->exitStatus;
-		});
+		isetProcessTitle($this->getProcessName());
 
 		$this->beforeStart();
 
@@ -114,22 +95,11 @@ abstract class ProcessAbstract {
 		} else {
 			$this->startByTimer();
 		}
-
-		$this->exitTimer = Timer::tick(1000, function () {
-			/**
-			 * 得到退出信号,但是任务定时器正在等待下一个时间点的时候,强制clear time,退出当前进程
-			 */
-			if ($this->exitStatus === 1 && $this->complete) {
-				$this->stop();
-			}
-		});
 	}
 
 	private function startByTimer() {
-		$this->runTimer = Timer::tick($this->interval * 1000, function () {
-			$this->doRun(function () {
-				$this->run();
-			});
+		$this->doRun(function () {
+			$this->run();
 		});
 	}
 
@@ -138,46 +108,22 @@ abstract class ProcessAbstract {
 		Event::add($pipe, function () {
 			$this->doRun(function () {
 				$data = $this->pipe ? '' : $this->process->read();
-				$this->read($data);
+				if (!$this->read($data)) {
+					Event::del($this->pipe ? $this->pipe : $this->process->pipe);
+				}
 			});
 		});
 	}
 
 	private function doRun(\Closure $callback) {
-		$this->complete = false;
-
 		try {
 			$callback();
 		} catch (\Throwable $throwable) {
 			iloader()->get(HandlerExceptions::class)->handle($throwable, $this->serverType);
 		}
-
-		$this->complete = true;
-
-		//如果在执行完成后就得到退出信息,则马上退出
-		if ($this->exitStatus === 1) {
-			$this->stop();
-		}
 	}
 
 	abstract protected function run();
-
-	public function stop() {
-		--$this->exitStatus;
-		if ($this->runTimer) {
-			Timer::clear($this->runTimer);
-			$this->runTimer = null;
-		}
-		if ($this->exitTimer) {
-			Timer::clear($this->exitTimer);
-			$this->exitTimer = null;
-		}
-		if (method_exists($this, 'read')) {
-			Event::del($this->pipe ? $this->pipe : $this->process->pipe);
-		}
-
-		$this->process->kill($this->process->pid);
-	}
 
 	public function sendMsg($msg) {
 		//swoole 版本不兼容, 不能用push

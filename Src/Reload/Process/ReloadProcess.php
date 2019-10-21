@@ -13,6 +13,7 @@
 namespace W7\Reload\Process;
 
 use Swoole\Process;
+use Swoole\Timer;
 use W7\App;
 use W7\Core\Process\ProcessAbstract;
 
@@ -37,13 +38,6 @@ class ReloadProcess extends ProcessAbstract {
 	 * @var string
 	 */
 	private $md5File = '';
-
-	/**
-	 * the interval of scan
-	 *
-	 * @var int
-	 */
-	protected $interval = 1;
 
 	/**
 	 * 初始化方法
@@ -76,16 +70,18 @@ class ReloadProcess extends ProcessAbstract {
 
 	protected function run() {
 		$server = App::$server;
-		$md5File = $this->getWatchDirMd5();
-		$startReload = (strcmp($this->md5File, $md5File) !== 0);
-		$this->md5File = $md5File;
+		Timer::tick(1000, function () use ($server) {
+			$md5File = $this->getWatchDirMd5();
+			$startReload = (strcmp($this->md5File, $md5File) !== 0);
+			$this->md5File = $md5File;
 
-		if ($startReload) {
-			$server->isRun();
-			$server->getServer()->reload();
+			if ($startReload) {
+				$server->isRun();
+				$server->getServer()->reload();
 
-			ioutputer()->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
-		}
+				ioutputer()->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
+			}
+		});
 	}
 
 	/**
