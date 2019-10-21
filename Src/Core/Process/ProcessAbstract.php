@@ -130,7 +130,7 @@ abstract class ProcessAbstract {
 		return msg_send(msg_get_queue($this->mqKey), 1, $msg, false);
 	}
 
-	public function getMsg($size = null) {
+	public function readMsg($size = null) {
 		return $this->getProcess()->pop($size);
 	}
 
