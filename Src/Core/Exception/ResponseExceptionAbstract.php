@@ -14,6 +14,7 @@ namespace W7\Core\Exception;
 
 use W7\App;
 use Psr\Http\Message\ResponseInterface;
+use W7\Http\Message\Server\Response;
 
 abstract class ResponseExceptionAbstract extends \LogicException {
 	/**
@@ -25,7 +26,11 @@ abstract class ResponseExceptionAbstract extends \LogicException {
 
 	public function __construct($message = '', $code = 0, \Throwable $previous = null) {
 		parent::__construct($message, (int)$code, $previous);
-		$this->response = App::getApp()->getContext()->getResponse();
+		if (App::getApp()->getContext()->getResponse()) {
+			$this->response = App::getApp()->getContext()->getResponse();
+		} else {
+			$this->response = new Response();
+		}
 	}
 
 	abstract public function render() : ResponseInterface;
