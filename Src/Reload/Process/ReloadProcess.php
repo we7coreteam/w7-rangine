@@ -68,7 +68,7 @@ class ReloadProcess extends ProcessAbstract {
 		return true;
 	}
 
-	protected function run() {
+	protected function run(Process $process) {
 		$server = App::$server;
 		Timer::tick(1000, function () use ($server) {
 			$md5File = $this->getWatchDirMd5();

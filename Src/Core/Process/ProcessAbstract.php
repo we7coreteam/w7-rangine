@@ -99,7 +99,7 @@ abstract class ProcessAbstract {
 
 	private function startByTimer() {
 		$this->doRun(function () {
-			$this->run();
+			$this->run($this->process);
 		});
 	}
 
@@ -123,7 +123,7 @@ abstract class ProcessAbstract {
 		}
 	}
 
-	abstract protected function run();
+	abstract protected function run(Process $process);
 
 	public function sendMsg($msg) {
 		//swoole 版本不兼容, 不能用push
