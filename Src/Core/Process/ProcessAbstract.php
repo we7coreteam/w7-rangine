@@ -110,7 +110,7 @@ abstract class ProcessAbstract {
 			$callback();
 		} catch (\Throwable $e) {
 			//下一步做统一异常处理
-			ilogger()->error('run process ' . $this->getName() . ' fail with error ' . $e->getMessage());
+			ilogger()->debug('run process ' . $this->getName() . ' fail with error ' . $e->getMessage());
 		}
 	}
 
@@ -126,7 +126,7 @@ abstract class ProcessAbstract {
 	}
 
 	public function onStop() {
-		ilogger()->info('process ' . $this->getProcessName() . ' exit');
+		ilogger()->debug('process ' . $this->getProcessName() . ' exit');
 		iloader()->get(LogManager::class)->flushLog();
 	}
 }
