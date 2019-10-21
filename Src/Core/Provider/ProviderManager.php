@@ -89,7 +89,7 @@ class ProviderManager {
 
 	private function findVendorProviders() {
 		ob_start();
-		require_once BASE_PATH . '/vendor/composer/installed.json';
+		require BASE_PATH . '/vendor/composer/installed.json';
 		$content = ob_get_clean();
 		$content = json_decode($content, true);
 
