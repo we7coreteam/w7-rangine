@@ -22,7 +22,7 @@ class ViewProvider extends ProviderAbstract {
 		//该目录必须存在,provider是在注册了open base dir后才执行的, 所以这里不能对目录进行检测和重建
 		ReloadProcess::addDir(APP_PATH . '/View');
 		//用户自定义目录
-		$userTemplatePath = iconfig()->getUserAppConfig('view')['template_path'] ?? [];
+		$userTemplatePath = (array)(iconfig()->getUserAppConfig('view')['template_path'] ?? []);
 		foreach ($userTemplatePath as $path) {
 			$path = (array)$path;
 			foreach ($path as $item) {
