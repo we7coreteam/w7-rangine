@@ -12,10 +12,21 @@
 
 namespace W7\Core\Listener;
 
+use Swoole\Process;
 use W7\App;
 
 class StartListener implements ListenerInterface {
 	public function run(...$params) {
 		\isetProcessTitle('w7-rangine ' . App::$server->getType() . ' master process');
+
+		if (\stripos(PHP_OS, 'Darwin') !== false) {
+			return true;
+		}
+
+		Process::signal(2, function () {
+			if (App::$server->stop()) {
+				ioutputer()->success('Stop server by CTRL+C');
+			}
+		});
 	}
 }
