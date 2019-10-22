@@ -40,7 +40,9 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	protected function enableCoroutine() {
-		return true;
+		$mqKey = $this->setting['message_queue_key'];
+		parent::enableCoroutine();
+		$this->setting['message_queue_key'] = $mqKey;
 	}
 
 	public function getStatus() {
