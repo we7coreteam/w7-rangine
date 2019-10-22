@@ -36,7 +36,7 @@ class Server extends ServerAbstract {
 
 	public function getServer() {
 		if (empty($this->server)) {
-			$this->server = new TcpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+			$this->server = new TcpServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
 		}
 		return $this->server;
 	}
@@ -46,7 +46,7 @@ class Server extends ServerAbstract {
 	 * 通过侦听端口的方法创建服务
 	 */
 	public function listener(\Swoole\Server $server) {
-		$tcpServer = $server->addListener($this->connection['host'], $this->connection['port'], $this->connection['sock_type']);
+		$tcpServer = $server->addListener($this->setting['host'], $this->setting['port'], $this->setting['sock_type']);
 		//tcp需要强制关闭其它协议支持，否则继续父服务
 		$tcpServer->set([
 			'open_http2_protocol' => false,

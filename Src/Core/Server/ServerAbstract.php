@@ -28,10 +28,6 @@ abstract class ServerAbstract implements ServerInterface {
 	 * @var
 	 */
 	public $setting;
-	/**
-	 * @var 连接配置
-	 */
-	public $connection;
 
 	public static $masterServer = true;
 	public static $onlyFollowMasterServer = false;
@@ -47,8 +43,10 @@ abstract class ServerAbstract implements ServerInterface {
 		if (!isset($setting[$this->getType()])) {
 			throw new \RuntimeException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
-		$this->setting = array_merge([], $setting['common']);
-		$this->connection = $setting[$this->getType()];
+		$this->setting = array_merge($this->getDefaultSetting(), $setting['common'], $setting[$this->getType()]);
+		$this->setting['worker_num'] = (int)($this->setting['worker_num']);
+		$this->setting['mode'] = (int)($this->setting['mode']);
+		$this->setting['sock_type'] = (int)($this->setting['sock_type']);
 
 		$this->checkSetting();
 		$this->resetPidFile();
@@ -70,21 +68,14 @@ abstract class ServerAbstract implements ServerInterface {
 			$pids = explode(',', file_get_contents($pidFile));
 		}
 		return [
-			'host' => $this->connection['host'],
-			'port' => $this->connection['port'],
-			'type' => ServerEnum::SOCK_LIST[$this->connection['sock_type']] ?? 'Unknown',
-			'mode' => ServerEnum::MODE_LIST[$this->connection['mode']] ?? 'Unknown',
+			'host' => $this->setting['host'],
+			'port' => $this->setting['port'],
+			'type' => ServerEnum::SOCK_LIST[$this->setting['sock_type']] ?? 'Unknown',
+			'mode' => ServerEnum::MODE_LIST[$this->setting['mode']] ?? 'Unknown',
 			'workerNum' => $this->setting['worker_num'],
 			'masterPid' => !empty($pids[0]) ? $pids[0] : 0,
 			'managerPid' => !empty($pids[1]) ? $pids[1] : 0,
 		];
-	}
-
-	public function getServer() {
-		return $this->server;
-	}
-
-	public function listener(\Swoole\Server $server) {
 	}
 
 	public function isRun() {
@@ -94,13 +85,6 @@ abstract class ServerAbstract implements ServerInterface {
 		} else {
 			return false;
 		}
-	}
-
-	protected function enableCoroutine() {
-		$this->setting['enable_coroutine'] = true;
-		$this->setting['task_enable_coroutine'] = true;
-		$this->setting['task_ipc_mode'] = 1;
-		$this->setting['message_queue_key'] = '';
 	}
 
 	public function stop() {
@@ -137,34 +121,43 @@ abstract class ServerAbstract implements ServerInterface {
 		if (empty($this->setting['pid_file'])) {
 			throw new \RuntimeException('server pid_file error');
 		}
-		if (empty($this->connection['host'])) {
+		if (empty($this->setting['host'])) {
 			throw new \RuntimeException('server host error');
 		}
-		if (empty($this->connection['port'])) {
+		if (empty($this->setting['port'])) {
 			throw new \RuntimeException('server port error');
-		}
-
-		$this->connection['mode'] = (int)($this->connection['mode'] ?? SWOOLE_PROCESS);
-		$this->connection['sock_type'] = (int)($this->connection['sock_type'] ?? SWOOLE_SOCK_TCP);
-		$this->setting['worker_num'] = (int)($this->setting['worker_num'] ?? swoole_cpu_num());
-
-		if ($this->connection['mode'] <= 0) {
-			throw new \RuntimeException('server mode error');
-		}
-		if ($this->connection['sock_type'] <= 0) {
-			throw new \RuntimeException('server sock_type error');
 		}
 		if ($this->setting['worker_num'] <= 0) {
 			throw new \RuntimeException('server worker_num error');
+		}
+		if ($this->setting['mode'] <= 0) {
+			throw new \RuntimeException('server mode error');
+		}
+		if ($this->setting['sock_type'] <= 0) {
+			throw new \RuntimeException('server sock_type error');
 		}
 	}
 
 	protected function resetPidFile() {
 		$pathInfo = pathinfo($this->setting['pid_file']);
-		$pathInfo['basename'] = $this->getType() . '_' .  ($this->connection['port'] ?? '') . '_' . $pathInfo['basename'];
+		$pathInfo['basename'] = $this->getType() . '_' .  ($this->setting['port'] ?? '') . '_' . $pathInfo['basename'];
 		$pidFile = rtrim($pathInfo['dirname'], '/') . '/' . $pathInfo['basename'];
 
 		$this->setting['pid_file'] = $pidFile;
+	}
+
+	public function getServer() {
+		return $this->server;
+	}
+
+	public function listener(\Swoole\Server $server) {
+	}
+
+	protected function enableCoroutine() {
+		$this->setting['enable_coroutine'] = true;
+		$this->setting['task_enable_coroutine'] = true;
+		$this->setting['task_ipc_mode'] = 1;
+		$this->setting['message_queue_key'] = '';
 	}
 
 	public function registerService() {
@@ -203,5 +196,24 @@ abstract class ServerAbstract implements ServerInterface {
 				});
 			}
 		}
+	}
+
+	protected function getDefaultSetting() : array {
+		return [
+			'dispatch_mode' => 3,
+			'worker_num' => swoole_cpu_num(),
+			'log_file' => BASE_PATH . '/runtime/logs/run.log',
+			'log_level' => 0,
+			'request_slowlog_timeout' => 2,
+			'request_slowlog_file' => BASE_PATH . '/runtime/logs/slow.log',
+			'trace_event_worker' => true,
+			'upload_tmp_dir' => BASE_PATH . '/runtime/upload',
+			'document_root' => BASE_PATH . '/public',
+			'enable_static_handler' => true,
+			'task_tmpdir' => BASE_PATH . '/runtime/task',
+			'open_http2_protocol' => false,
+			'mode' => SWOOLE_PROCESS,
+			'sock_type' => SWOOLE_SOCK_TCP
+		];
 	}
 }

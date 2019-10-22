@@ -29,7 +29,6 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	protected function checkSetting() {
-		$this->setting = array_merge($this->setting, $this->connection);
 		if (empty($this->setting['pid_file'])) {
 			throw new \RuntimeException('server pid_file error');
 		}
@@ -52,9 +51,9 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 			$pid = file_get_contents($setting['pid_file']);
 		}
 		return [
-			'host' => $this->connection['host'] ?? '',
-			'port' => $this->connection['port'] ?? '',
-			'type' => $this->connection['sock_type'] ?? '',
+			'host' => $this->setting['host'] ?? '',
+			'port' => $this->setting['port'] ?? '',
+			'type' => $this->setting['sock_type'] ?? '',
 			'workerNum' => $setting['worker_num'],
 			'masterPid' => $pid
 		];

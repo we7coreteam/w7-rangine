@@ -26,7 +26,7 @@ class Server extends ServerAbstract {
 
 	public function start() {
 		if (!empty($this->setting['open_http2_protocol'])) {
-			$this->connection['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
+			$this->setting['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
 		$this->server = $this->getServer();
 		$this->setting['http_parse_post'] = true;
@@ -42,7 +42,7 @@ class Server extends ServerAbstract {
 
 	public function getServer() {
 		if (empty($this->server)) {
-			$this->server = new HttpServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+			$this->server = new HttpServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
 		}
 		return $this->server;
 	}

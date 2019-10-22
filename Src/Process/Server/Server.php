@@ -47,6 +47,7 @@ class Server extends ProcessServerAbstract {
 		}
 
 		$this->setting['worker_num'] = $this->getWorkerNum();
+
 		return parent::checkSetting();
 	}
 

@@ -48,8 +48,15 @@ class Server extends ServerAbstract {
 
 	public function getServer() {
 		if (empty($this->server)) {
-			$this->server = new WebSocketServer($this->connection['host'], $this->connection['port'], $this->connection['mode'], $this->connection['sock_type']);
+			$this->server = new WebSocketServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
 		}
 		return $this->server;
+	}
+
+	protected function getDefaultSetting(): array {
+		$setting = parent::getDefaultSetting();
+		$setting['dispatch_mode'] = 2;
+
+		return $setting;
 	}
 }
