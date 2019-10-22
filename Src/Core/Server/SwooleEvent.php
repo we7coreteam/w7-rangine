@@ -82,31 +82,41 @@ class SwooleEvent {
 	const ON_USER_BEFORE_CLOSE = 'beforeClose';
 
 	private static $event = [
-		'task' => [
-			self::ON_TASK => TaskListener::class,
-			self::ON_FINISH => FinishListener::class,
-		],
 		ServerEnum::TYPE_HTTP => [
-			self::ON_REQUEST => RequestListener::class,
-		],
-		ServerEnum::TYPE_TCP => [
-			self::ON_RECEIVE => ReceiveListener::class,
-			self::ON_CONNECT => ConnectListener::class,
-			self::ON_CLOSE => CloseListener::class,
-		],
-		ServerEnum::TYPE_WEBSOCKET => [
-			self::ON_HAND_SHAKE => HandshakeListener::class,
-			self::ON_CLOSE => WebSocketCloseListener::class,
-			self::ON_MESSAGE => MessageListener::class,
-			self::ON_OPEN => OpenListener::class
-		],
-		'manage' => [
-			self::ON_START => StartListener::class,
-			self::ON_MANAGER_START => ManagerStartListener::class,
 			self::ON_WORKER_START => WorkerStartListener::class,
 			self::ON_WORKER_STOP => WorkerStopListener::class,
 			self::ON_WORKER_ERROR => WorkerErrorListener::class,
 			self::ON_PIPE_MESSAGE => PipeMessageListener::class,
+			self::ON_TASK => TaskListener::class,
+			self::ON_FINISH => FinishListener::class,
+			self::ON_REQUEST => RequestListener::class
+		],
+		ServerEnum::TYPE_TCP => [
+			self::ON_WORKER_START => WorkerStartListener::class,
+			self::ON_WORKER_STOP => WorkerStopListener::class,
+			self::ON_WORKER_ERROR => WorkerErrorListener::class,
+			self::ON_PIPE_MESSAGE => PipeMessageListener::class,
+			self::ON_TASK => TaskListener::class,
+			self::ON_FINISH => FinishListener::class,
+			self::ON_RECEIVE => ReceiveListener::class,
+			self::ON_CONNECT => ConnectListener::class,
+			self::ON_CLOSE => CloseListener::class
+		],
+		ServerEnum::TYPE_WEBSOCKET => [
+			self::ON_WORKER_START => WorkerStartListener::class,
+			self::ON_WORKER_STOP => WorkerStopListener::class,
+			self::ON_WORKER_ERROR => WorkerErrorListener::class,
+			self::ON_PIPE_MESSAGE => PipeMessageListener::class,
+			self::ON_TASK => TaskListener::class,
+			self::ON_FINISH => FinishListener::class,
+			self::ON_HAND_SHAKE => HandshakeListener::class,
+			self::ON_OPEN => OpenListener::class,
+			self::ON_CLOSE => WebSocketCloseListener::class,
+			self::ON_MESSAGE => MessageListener::class
+		],
+		'manage' => [
+			self::ON_START => StartListener::class,
+			self::ON_MANAGER_START => ManagerStartListener::class
 		],
 		ServerEnum::TYPE_PROCESS => [
 			self::ON_WORKER_START => ProcessStartListener::class,
@@ -134,7 +144,7 @@ class SwooleEvent {
 	}
 
 	private function registerSystemEvent() {
-		$eventTypes = [App::$server->getType(), 'task', 'manage'];
+		$eventTypes = [App::$server->getType(), 'manage'];
 
 		$swooleEvents = $this->getDefaultEvent();
 		foreach ($eventTypes as $name) {
@@ -156,6 +166,10 @@ class SwooleEvent {
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
 			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 		}
+	}
+
+	public function addServerEvents($server, $events) {
+		static::$event[$server] = $events;
 	}
 
 	public function websocketSupportHttp() {
