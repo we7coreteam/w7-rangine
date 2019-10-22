@@ -54,6 +54,12 @@ class Container {
 		return $this->psrContainer->has($name);
 	}
 
+	public function delete($name) {
+		if ($this->has($name)) {
+			unset($this->container[$name]);
+		}
+	}
+
 	/**
 	 * @deprecated
 	 * @param $name
