@@ -209,6 +209,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	protected function getDefaultSetting() : array {
 		return [
+			'daemonize' => 0,
 			'dispatch_mode' => 3,
 			'worker_num' => swoole_cpu_num(),
 			'log_file' => RUNTIME_PATH . '/logs/run.log',

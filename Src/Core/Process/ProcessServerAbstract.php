@@ -34,36 +34,31 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	protected function checkSetting() {
 		$this->setting['host'] = $this->setting['host'] ?? '0.0.0.0';
 		$this->setting['port'] = $this->setting['port'] ?? 'none';
+		$this->setting['message_queue_key'] = $this->setting['message_queue_key'] ?? null;
 
 		return parent::checkSetting();
 	}
 
-	protected function getSetting() {
-		return [
-			'pid_file' => $this->setting['pid_file'],
-			'worker_num' => $this->setting['worker_num'] ?? 1,
-			'message_queue_key' => $this->setting['message_queue_key'] ?? null,
-			'daemonize' => $this->setting['daemonize'] ?? false
-		];
+	protected function enableCoroutine() {
+		return true;
 	}
 
 	public function getStatus() {
-		$setting = $this->getSetting();
 		$pid = 0;
-		if (file_exists($setting['pid_file'])) {
-			$pid = file_get_contents($setting['pid_file']);
+		if (file_exists($this->setting['pid_file'])) {
+			$pid = file_get_contents($this->setting['pid_file']);
 		}
 		return [
-			'host' => $this->setting['host'] ?? '',
-			'port' => $this->setting['port'] ?? '',
-			'type' => $this->setting['sock_type'] ?? '',
-			'workerNum' => $setting['worker_num'],
+			'host' => $this->setting['host'],
+			'port' => $this->setting['port'],
+			'type' => $this->setting['sock_type'],
+			'workerNum' => $this->setting['worker_num'],
 			'masterPid' => $pid
 		];
 	}
 
 	public function start() {
-		$this->pool = new IndependentPool($this->getType(), $this->getSetting());
+		$this->pool = new IndependentPool($this->getType(), $this->setting);
 		$this->register();
 
 		$this->registerService();
@@ -74,13 +69,9 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	public function listener(\Swoole\Server $server = null) {
-		$this->pool = new DependentPool($this->getType(), $this->getSetting());
+		$this->pool = new DependentPool($this->getType(), $this->setting);
 		$this->register();
 		return $this->pool->start();
-	}
-
-	public function getPool() : PoolAbstract {
-		return $this->pool;
 	}
 
 	protected function registerEvent($event) {

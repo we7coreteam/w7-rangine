@@ -146,6 +146,7 @@ class RouteMapping {
 		}
 	}
 
+	//如果用户自定义了系统路由，则按照用户的路由走
 	public function registerSystemRoute() {
 		try {
 			irouter()->get('/favicon.ico', function () {
