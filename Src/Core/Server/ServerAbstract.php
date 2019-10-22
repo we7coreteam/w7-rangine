@@ -136,13 +136,13 @@ abstract class ServerAbstract implements ServerInterface {
 		if ($this->setting['sock_type'] <= 0) {
 			throw new \RuntimeException('server sock_type error');
 		}
-		if (!empty($this->setting['log_file']) && !file_exists($this->setting['log_file'])) {
+		if (!empty($this->setting['log_file']) && !is_dir(dirname($this->setting['log_file']))) {
 			mkdir(dirname($this->setting['log_file']), 0777, true);
 		}
 		if (!empty($this->setting['log_file']) && !is_writeable(dirname($this->setting['log_file']))) {
 			throw new \RuntimeException('path ' . dirname($this->setting['log_file']) . ' no write permission');
 		}
-		if (!empty($this->setting['request_slowlog_file']) && !file_exists($this->setting['request_slowlog_file'])) {
+		if (!empty($this->setting['request_slowlog_file']) && !is_dir(dirname($this->setting['request_slowlog_file']))) {
 			mkdir(dirname($this->setting['request_slowlog_file']), 0777, true);
 		}
 		if (!empty($this->setting['request_slowlog_file']) && !is_writeable(dirname($this->setting['request_slowlog_file']))) {
