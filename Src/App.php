@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -54,6 +54,16 @@ class App {
 
 	private function registerRuntimeEnv() {
 		date_default_timezone_set('Asia/Shanghai');
+
+		if (!is_dir(RUNTIME_PATH)) {
+			mkdir(RUNTIME_PATH);
+		}
+		if (!is_readable(RUNTIME_PATH)) {
+			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no read permission');
+		}
+		if (!is_writeable(RUNTIME_PATH)) {
+			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no write permission');
+		}
 	}
 
 	private function registerSecurityDir() {
