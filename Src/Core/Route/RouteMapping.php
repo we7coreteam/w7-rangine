@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-8-9 下午3:22
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Route;
@@ -9,7 +15,6 @@ namespace W7\Core\Route;
 use W7\Core\Middleware\MiddlewareMapping;
 
 class RouteMapping {
-
 	private $routeConfig;
 
 	/**
@@ -17,7 +22,7 @@ class RouteMapping {
 	 */
 	private $middlewareMapping;
 
-	function __construct() {
+	public function __construct() {
 		$this->middlewareMapping = iloader()->get(MiddlewareMapping::class);
 		$this->routeConfig = \iconfig()->getRouteConfig();
 		/**
@@ -42,6 +47,8 @@ class RouteMapping {
 				$this->initRouteByConfig($routeConfig);
 			}
 		}
+		$this->registerSystemRoute();
+
 		return irouter()->getData();
 	}
 
@@ -103,7 +110,7 @@ class RouteMapping {
 					$namespace = array_slice($namespace, 0, -1);
 
 					$namespace = array_map('ucfirst', $namespace);
-					$routeItem['handler'] = sprintf('%sController@%s', implode("\\", $namespace), $section);
+					$routeItem['handler'] = sprintf('%sController@%s', implode('\\', $namespace), $section);
 				}
 
 				if (empty($routeItem['method'])) {
@@ -136,6 +143,16 @@ class RouteMapping {
 					irouter()->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler'], $routeItem['name']);
 				});
 			}
+		}
+	}
+
+	public function registerSystemRoute() {
+		try {
+			irouter()->get('/favicon.ico', function () {
+				return icontext()->getResponse()->withContent('');
+			});
+		} catch (\Throwable $e) {
+			null;
 		}
 	}
 }

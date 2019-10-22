@@ -15,7 +15,6 @@ namespace W7\Core\Dispatcher;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
-use W7\Core\Exception\FaviconException;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Exception\RouteNotAllowException;
 use W7\Core\Exception\RouteNotFoundException;
@@ -72,9 +71,6 @@ class RequestDispatcher extends DispatcherAbstract {
 	private function getRoute(ServerRequestInterface $request) {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
-		if ($url === '/favicon.ico') {
-			throw new FaviconException('Route Ignore', 404);
-		}
 
 		/**
 		 * @var GroupCountBased $router
