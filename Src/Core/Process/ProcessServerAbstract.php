@@ -16,6 +16,7 @@ use W7\Core\Process\Pool\DependentPool;
 use W7\Core\Process\Pool\IndependentPool;
 use W7\Core\Process\Pool\PoolAbstract;
 use W7\Core\Server\ServerAbstract;
+use W7\Core\Server\SwooleEvent;
 
 abstract class ProcessServerAbstract extends ServerAbstract {
 	public static $masterServer = false;
@@ -60,8 +61,13 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	public function start() {
+		iloader()->get(SwooleEvent::class)->register();
+
 		$this->pool = new IndependentPool($this->getType(), $this->getSetting());
 		$this->register();
+
+		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->pool]);
+
 		return $this->pool->start();
 	}
 

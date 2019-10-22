@@ -14,6 +14,7 @@ namespace W7\Core\Process\Pool;
 
 use Swoole\Process;
 use Swoole\Process\Pool as PoolManager;
+use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Server\SwooleEvent;
 
 /**
@@ -37,36 +38,52 @@ class IndependentPool extends PoolAbstract {
 		}
 	}
 
-	private function setProcessName() {
-		isetProcessTitle('w7rangine_pool_master');
-	}
-
 	public function start() {
 		if ($this->processFactory->count() == 0) {
 			return false;
 		}
 
 		$this->setDaemon();
-		$this->setProcessName();
 
 		if (SWOOLE_VERSION >= '4.4.0') {
-			$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey, true);
+			$server = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey, true);
 		} else {
-			$manager = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey);
+			$server = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey);
 		}
 
-		$listens = (new SwooleEvent())->getDefaultEvent()['process'];
-		if ($this->ipcType == 0 || SWOOLE_VERSION >= '4.4.0') {
-			unset($listens['message']);
-		}
-		foreach ($listens as $name => $class) {
-			$object = \iloader()->get($class);
-			$manager->on($name, function (PoolManager $pool, $workerId) use ($object) {
-				$object->run($this->serverType, $pool->getProcess(), $workerId, $this->processFactory, $this->mqKey);
-			});
+		$swooleEvents = iloader()->get(SwooleEvent::class)->getDefaultEvent();
+		$eventTypes = [$this->serverType, 'manage'];
+		foreach ($eventTypes as $name) {
+			$event = $swooleEvents[$name];
+			if ($name ==$this->serverType) {
+				if ($this->ipcType == 0 || SWOOLE_VERSION >= '4.4.0') {
+					unset($event['message']);
+				}
+			}
+			if (!empty($event)) {
+				$this->registerEvent($server, $event);
+			}
 		}
 
 		file_put_contents($this->pidFile, getmypid());
-		$manager->start();
+
+		$server->start();
+	}
+
+	protected function registerEvent($server, array $event) {
+		foreach ($event as $eventName => $class) {
+			if (empty($class)) {
+				continue;
+			}
+			if ($eventName == SwooleEvent::ON_START || $eventName == SwooleEvent::ON_MANAGER_START) {
+				$server->on($eventName, function () use ($eventName) {
+					iloader()->get(EventDispatcher::class)->dispatch($eventName, func_get_args());
+				});
+			} else {
+				$server->on($eventName, function (PoolManager $pool, $workerId) use ($eventName) {
+					iloader()->get(EventDispatcher::class)->dispatch($eventName, [$this->serverType, $pool->getProcess(), $workerId, $this->processFactory, $this->mqKey]);
+				});
+			}
+		}
 	}
 }
