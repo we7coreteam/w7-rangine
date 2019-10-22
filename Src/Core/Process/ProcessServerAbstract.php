@@ -29,10 +29,10 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	protected function checkSetting() {
-		if (empty($this->setting['pid_file'])) {
-			throw new \RuntimeException('server pid_file error');
-		}
-		return true;
+		$this->setting['host'] = $this->setting['host'] ?? '0.0.0.0';
+		$this->setting['port'] = $this->setting['port'] ?? 'none';
+
+		return parent::checkSetting();
 	}
 
 	protected function getSetting() {

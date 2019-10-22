@@ -136,6 +136,18 @@ abstract class ServerAbstract implements ServerInterface {
 		if ($this->setting['sock_type'] <= 0) {
 			throw new \RuntimeException('server sock_type error');
 		}
+		if (!empty($this->setting['log_file']) && !file_exists($this->setting['log_file'])) {
+			mkdir(dirname($this->setting['log_file']), 0777, true);
+		}
+		if (!empty($this->setting['log_file']) && !is_writeable(dirname($this->setting['log_file']))) {
+			throw new \RuntimeException('path ' . dirname($this->setting['log_file']) . ' no write permission');
+		}
+		if (!empty($this->setting['request_slowlog_file']) && !file_exists($this->setting['request_slowlog_file'])) {
+			mkdir(dirname($this->setting['request_slowlog_file']), 0777, true);
+		}
+		if (!empty($this->setting['request_slowlog_file']) && !is_writeable(dirname($this->setting['request_slowlog_file']))) {
+			throw new \RuntimeException('path ' . dirname($this->setting['request_slowlog_file']) . ' no write permission');
+		}
 	}
 
 	protected function resetPidFile() {
@@ -202,15 +214,15 @@ abstract class ServerAbstract implements ServerInterface {
 		return [
 			'dispatch_mode' => 3,
 			'worker_num' => swoole_cpu_num(),
-			'log_file' => BASE_PATH . '/runtime/logs/run.log',
+			'log_file' => RUNTIME_PATH . '/logs/run.log',
 			'log_level' => 0,
 			'request_slowlog_timeout' => 2,
-			'request_slowlog_file' => BASE_PATH . '/runtime/logs/slow.log',
+			'request_slowlog_file' => RUNTIME_PATH . '/logs/slow.log',
 			'trace_event_worker' => true,
-			'upload_tmp_dir' => BASE_PATH . '/runtime/upload',
+			'upload_tmp_dir' => RUNTIME_PATH . '/upload',
 			'document_root' => BASE_PATH . '/public',
 			'enable_static_handler' => true,
-			'task_tmpdir' => BASE_PATH . '/runtime/task',
+			'task_tmpdir' => RUNTIME_PATH . '/task',
 			'open_http2_protocol' => false,
 			'mode' => SWOOLE_PROCESS,
 			'sock_type' => SWOOLE_SOCK_TCP
