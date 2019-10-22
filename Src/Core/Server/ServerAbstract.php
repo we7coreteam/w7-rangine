@@ -190,9 +190,6 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerEvent($event) {
-		if (empty($event)) {
-			return true;
-		}
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;

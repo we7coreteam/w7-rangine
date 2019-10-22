@@ -58,16 +58,20 @@ abstract class PoolAbstract {
 		$this->processFactory->add($name, $handle, $num);
 	}
 
-	public function getProcessFactory() {
-		return $this->processFactory;
-	}
-
-	abstract public function start();
-
 	public function get($name, $index = 0) : Process {
 		$process = $this->processFactory->getByName($name, $index);
 		return $process->getProcess();
 	}
+
+	public function getProcessFactory() {
+		return $this->processFactory;
+	}
+
+	public function getMqKey() {
+		return $this->mqKey;
+	}
+
+	abstract public function start();
 
 	public function stop() {
 		return true;

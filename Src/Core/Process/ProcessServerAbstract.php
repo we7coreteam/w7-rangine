@@ -12,6 +12,8 @@
 
 namespace W7\Core\Process;
 
+use Swoole\Process\Pool as PoolManager;
+use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Process\Pool\DependentPool;
 use W7\Core\Process\Pool\IndependentPool;
 use W7\Core\Process\Pool\PoolAbstract;
@@ -61,10 +63,10 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	public function start() {
-		iloader()->get(SwooleEvent::class)->register();
-
 		$this->pool = new IndependentPool($this->getType(), $this->getSetting());
 		$this->register();
+
+		$this->registerService();
 
 		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->pool]);
 
@@ -79,5 +81,22 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 
 	public function getPool() : PoolAbstract {
 		return $this->pool;
+	}
+
+	protected function registerEvent($event) {
+		foreach ($event as $eventName => $class) {
+			if (empty($class)) {
+				continue;
+			}
+			if ($eventName == SwooleEvent::ON_START || $eventName == SwooleEvent::ON_MANAGER_START) {
+				$this->pool->on($eventName, function () use ($eventName) {
+					iloader()->get(EventDispatcher::class)->dispatch($eventName, func_get_args());
+				});
+			} else {
+				$this->pool->on($eventName, function (PoolManager $pool, $workerId) use ($eventName) {
+					iloader()->get(EventDispatcher::class)->dispatch($eventName, [$this->getType(), $pool->getProcess(), $workerId, $this->pool->getProcessFactory(), $this->pool->getMqKey()]);
+				});
+			}
+		}
 	}
 }
