@@ -1,11 +1,18 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-7-30 下午3:30
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Database;
 
+use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Builder;
 use W7\Laravel\CacheModel\Model;
 
@@ -67,6 +74,8 @@ use W7\Laravel\CacheModel\Model;
  * @method getMacro($name)
  */
 abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
+	use Cachable;
+	protected $isCachable = false;
 
 	protected function insertAndSetId(Builder $query, $attributes) {
 		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
@@ -94,7 +103,7 @@ abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 		return parent::hasManyThrough($related, $through, $firstKey, $secondKey, $localKey, $secondLocalKey);
 	}
 
-	static public function instance(){
+	public static function instance() {
 		return iloader()->get(static::class);
 	}
 
@@ -102,7 +111,7 @@ abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	 * 增加当前表的字段表前缀
 	 * @param array $columns
 	 */
-	static public function qualifyColumns($columns = []) {
+	public static function qualifyColumns($columns = []) {
 		if (empty($columns)) {
 			return [];
 		}
