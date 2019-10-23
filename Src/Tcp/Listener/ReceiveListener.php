@@ -38,8 +38,6 @@ class ReceiveListener extends ListenerAbstract {
 	 * @throws \Exception
 	 */
 	private function dispatch(Server $server, $reactorId, $fd, $data) {
-		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST);
-
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('reactorid', $reactorId);
 		$context->setContextDataByKey('workid', $server->worker_id);

@@ -13,6 +13,7 @@
 namespace W7\Tcp\Protocol\Json;
 
 use Swoole\Server;
+use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 use W7\Tcp\Protocol\DispatcherInterface;
@@ -28,6 +29,7 @@ class Dispatcher implements DispatcherInterface {
 		$psr7Request = $psr7Request->withParsedBody($params['data']);
 		$psr7Response = new Response();
 
+		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 		/**
 		 * @var RequestDispatcher $dispatcher
 		 */

@@ -37,8 +37,6 @@ class RequestListener extends ListenerAbstract {
 	 * @throws \Exception
 	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
-		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST);
-
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());
@@ -47,6 +45,7 @@ class RequestListener extends ListenerAbstract {
 		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
 		$psr7Response->setFormatter(iloader()->get(ResponseFormatterInterface::class));
 
+		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 		/**
 		 * @var Dispatcher $dispatcher
 		 */

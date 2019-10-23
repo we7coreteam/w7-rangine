@@ -30,8 +30,6 @@ class MessageListener extends ListenerAbstract {
 	}
 
 	private function onMessage(Server $server, SwooleFrame $frame): void {
-		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST);
-
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());
@@ -39,6 +37,8 @@ class MessageListener extends ListenerAbstract {
 		$frame = new Frame($frame);
 		$psr7Request = Request::loadFromWebSocketFrame($frame);
 		$psr7Response = Response::loadFromWebSocketFrame($frame);
+
+		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 
 		$dispatcher = \iloader()->get(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
