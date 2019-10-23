@@ -14,7 +14,6 @@ namespace W7\Core\Database;
 
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Builder;
-use W7\Laravel\CacheModel\Model;
 
 /**
  * Class ModelAbstract
