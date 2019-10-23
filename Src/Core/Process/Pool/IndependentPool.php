@@ -14,6 +14,7 @@ namespace W7\Core\Process\Pool;
 
 use Swoole\Process;
 use Swoole\Process\Pool as PoolManager;
+use W7\Core\Server\SwooleEvent;
 
 /**
  * 该进程池由独立的process manager管理
@@ -51,6 +52,9 @@ class IndependentPool extends PoolAbstract {
 		}
 
 		foreach ($this->events as $event => $handler) {
+			if ($event == SwooleEvent::ON_MESSAGE && ($this->ipcType == 0 || SWOOLE_VERSION >= '4.4.0')) {
+				continue;
+			}
 			$server->on($event, $handler);
 		}
 

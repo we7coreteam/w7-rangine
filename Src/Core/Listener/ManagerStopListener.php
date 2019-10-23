@@ -12,13 +12,10 @@
 
 namespace W7\Core\Listener;
 
-use W7\Core\Log\LogManager;
 use W7\Core\Server\SwooleEvent;
 
-class WorkerStopListener implements ListenerInterface {
+class ManagerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		iloader()->get(LogManager::class)->flushLog();
-
-		ievent(SwooleEvent::ON_USER_AFTER_WORKER_STOP);
+		ievent(SwooleEvent::ON_USER_AFTER_MANAGER_STOP);
 	}
 }

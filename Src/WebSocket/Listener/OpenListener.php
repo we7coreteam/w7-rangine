@@ -33,6 +33,7 @@ class OpenListener extends ListenerAbstract {
 	private function onOpen(Server $server, Psr7Request $psr7Request): void {
 		//做数据绑定和记录
 		iloader()->get(CollectorManager::class)->set($psr7Request->getSwooleRequest()->fd, $psr7Request);
-		ievent(SwooleEvent::ON_USER_BEFORE_OPEN, [$server, $psr7Request->getSwooleRequest()]);
+
+		ievent(SwooleEvent::ON_USER_AFTER_OPEN, [$server, $psr7Request->getSwooleRequest()]);
 	}
 }

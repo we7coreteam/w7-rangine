@@ -16,7 +16,9 @@ use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
+use W7\Core\Listener\ManagerStopListener;
 use W7\Core\Listener\PipeMessageListener;
+use W7\Core\Listener\ShutDownListener;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
@@ -54,9 +56,6 @@ class SwooleEvent {
 	const ON_PACKET = 'packet';
 	const ON_CLOSE = 'close';
 
-	const ON_BUFFER_FULL = 'bufferFull';
-	const ON_BUFFER_EMPTY = 'bufferEmpty';
-
 	const ON_TASK = 'task';
 	const ON_FINISH = 'finish';
 	const ON_PIPE_MESSAGE = 'pipeMessage';
@@ -67,19 +66,22 @@ class SwooleEvent {
 	const ON_OPEN = 'open';
 	const ON_MESSAGE = 'message';
 
-	const ON_PROCESS_MESSAGE = 'message';
-
 	/**
 	 * 自定义事件
 	 */
 	const ON_USER_BEFORE_START = 'beforeStart';
 	const ON_USER_AFTER_START = 'afterStart';
+	const ON_USER_AFTER_STOP = 'afterStop';
+	const ON_USER_AFTER_MANAGER_START = 'afterManagerStart';
+	const ON_USER_AFTER_MANAGER_STOP = 'afterManagerStop';
+	const ON_USER_AFTER_WORKER_START = 'afterWorkerStart';
+	const ON_USER_AFTER_WORKER_STOP = 'afterWorkerStop';
 	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
 	const ON_USER_AFTER_REQUEST = 'afterRequest';
 	const ON_USER_TASK_FINISH = 'afterTaskFinish';
 	const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandshake';
-	const ON_USER_BEFORE_OPEN = 'beforeOpen';
-	const ON_USER_BEFORE_CLOSE = 'beforeClose';
+	const ON_USER_AFTER_OPEN = 'afterOpen';
+	const ON_USER_AFTER_CLOSE = 'afterClose';
 
 	private static $event = [
 		ServerEnum::TYPE_HTTP => [
@@ -116,12 +118,14 @@ class SwooleEvent {
 		],
 		'manage' => [
 			self::ON_START => StartListener::class,
-			self::ON_MANAGER_START => ManagerStartListener::class
+			self::ON_MANAGER_START => ManagerStartListener::class,
+			self::ON_MANAGER_STOP => ManagerStopListener::class,
+			self::ON_SHUTDOWN => ShutDownListener::class
 		],
 		ServerEnum::TYPE_PROCESS => [
 			self::ON_WORKER_START => ProcessStartListener::class,
 			self::ON_WORKER_STOP => ProcessStopListener::class,
-			self::ON_PROCESS_MESSAGE => ProcessMessageListener::class
+			self::ON_MESSAGE => ProcessMessageListener::class
 		]
 	];
 
@@ -133,13 +137,17 @@ class SwooleEvent {
 		return [
 			self::ON_USER_BEFORE_START,
 			self::ON_USER_AFTER_START,
+			self::ON_USER_AFTER_STOP,
+			self::ON_USER_AFTER_MANAGER_START,
+			self::ON_USER_AFTER_MANAGER_STOP,
+			self::ON_USER_AFTER_WORKER_START,
+			self::ON_USER_AFTER_WORKER_STOP,
 			self::ON_USER_BEFORE_REQUEST,
 			self::ON_USER_AFTER_REQUEST,
 			self::ON_USER_TASK_FINISH,
-			self::ON_USER_AFTER_REQUEST,
 			self::ON_USER_BEFORE_HAND_SHAKE,
-			self::ON_USER_BEFORE_OPEN,
-			self::ON_USER_BEFORE_CLOSE
+			self::ON_USER_AFTER_OPEN,
+			self::ON_USER_AFTER_CLOSE
 		];
 	}
 

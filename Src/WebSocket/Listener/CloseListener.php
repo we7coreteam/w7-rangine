@@ -26,6 +26,7 @@ class CloseListener extends ListenerAbstract {
 	private function onClose(Server $server, int $fd, int $reactorId): void {
 		//删除数据绑定记录
 		iloader()->get(CollectorManager::class)->del($fd);
-		ievent(SwooleEvent::ON_USER_BEFORE_CLOSE, [$server, $fd, $reactorId]);
+
+		ievent(SwooleEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId]);
 	}
 }

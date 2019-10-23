@@ -80,13 +80,13 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 			if (empty($class)) {
 				continue;
 			}
-			if ($eventName == SwooleEvent::ON_START || $eventName == SwooleEvent::ON_MANAGER_START) {
-				$this->pool->on($eventName, function () use ($eventName) {
-					iloader()->get(EventDispatcher::class)->dispatch($eventName, func_get_args());
-				});
-			} else {
+			if (in_array($eventName, [SwooleEvent::ON_WORKER_START, SwooleEvent::ON_WORKER_STOP, SwooleEvent::ON_MESSAGE])) {
 				$this->pool->on($eventName, function (PoolManager $pool, $workerId) use ($eventName) {
 					iloader()->get(EventDispatcher::class)->dispatch($eventName, [$this->getType(), $pool->getProcess(), $workerId, $this->pool->getProcessFactory(), $this->pool->getMqKey()]);
+				});
+			} else {
+				$this->pool->on($eventName, function () use ($eventName) {
+					iloader()->get(EventDispatcher::class)->dispatch($eventName, func_get_args());
 				});
 			}
 		}

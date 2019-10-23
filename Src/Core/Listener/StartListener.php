@@ -14,6 +14,7 @@ namespace W7\Core\Listener;
 
 use Swoole\Process;
 use W7\App;
+use W7\Core\Server\SwooleEvent;
 
 class StartListener implements ListenerInterface {
 	public function run(...$params) {
@@ -28,5 +29,7 @@ class StartListener implements ListenerInterface {
 				ioutputer()->success('Stop server by CTRL+C');
 			}
 		});
+
+		ievent(SwooleEvent::ON_USER_AFTER_START);
 	}
 }
