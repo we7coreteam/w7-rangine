@@ -176,7 +176,7 @@ class SwooleEvent {
 		}
 	}
 
-	public function addServerEvents($server, $events) {
+	public function addServerEvents($server, array $events) {
 		static::$event[$server] = $events;
 	}
 

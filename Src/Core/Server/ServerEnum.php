@@ -51,7 +51,7 @@ class ServerEnum {
 		SWOOLE_SOCK_UNIX_STREAM => 'stream'
 	];
 
-	public static function registerServer($type, $class) {
+	public static function registerServer($type, string $class) {
 		static::$ALL_SERVER[$type] = $class;
 	}
 }
