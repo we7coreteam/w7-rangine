@@ -15,4 +15,3 @@
 !defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
 !defined('BACKTRACE') && define('BACKTRACE', 4);
 !defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
-!defined('RANGINE_FRAMEWORK_PATH') && define('RANGINE_FRAMEWORK_PATH', dirname(__FILE__, 3));

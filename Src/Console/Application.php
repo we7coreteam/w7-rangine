@@ -80,7 +80,7 @@ class Application extends SymfontApplication {
 	}
 
 	private function registerCommands() {
-		$this->autoRegisterCommands(RANGINE_FRAMEWORK_PATH  . '/Console/Command', '\\W7\\Console');
+		$this->autoRegisterCommands(__DIR__. '/Command', '\\W7\\Console');
 		$this->autoRegisterCommands(APP_PATH  . '/Command', '\\W7\\App');
 	}
 
