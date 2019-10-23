@@ -74,7 +74,12 @@ use Illuminate\Database\Eloquent\Builder;
  */
 abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	use Cachable;
-	protected $isCachable = false;
+
+	protected $cacheEnable = false;
+
+	public function isCachable(): bool {
+		return $this->cacheEnable;
+	}
 
 	protected function insertAndSetId(Builder $query, $attributes) {
 		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
