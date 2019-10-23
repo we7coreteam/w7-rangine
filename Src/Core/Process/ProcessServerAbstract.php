@@ -28,8 +28,7 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	 */
 	protected $pool;
 
-	protected function register() {
-	}
+	abstract protected function register();
 
 	protected function checkSetting() {
 		$this->setting['host'] = $this->setting['host'] ?? '0.0.0.0';
