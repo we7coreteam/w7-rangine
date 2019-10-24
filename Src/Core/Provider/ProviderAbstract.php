@@ -29,10 +29,6 @@ abstract class ProviderAbstract {
 	 */
 	protected $router;
 	/**
-	 * @var \W7\Core\Log\Logger
-	 */
-	protected $logger;
-	/**
 	 * @var View
 	 */
 	protected $view;
@@ -52,7 +48,6 @@ abstract class ProviderAbstract {
 
 		$this->config = iconfig();
 		$this->router = irouter();
-		$this->logger = ilogger();
 		$this->view = iloader()->get(View::class);
 	}
 
