@@ -12,7 +12,6 @@
 
 namespace W7\Core\Listener;
 
-use Swoole\Process;
 use W7\App;
 use W7\Core\Log\LogManager;
 use W7\Core\Server\SwooleEvent;
@@ -22,16 +21,6 @@ class StartListener implements ListenerInterface {
 		\isetProcessTitle('w7-rangine ' . App::$server->getType() . ' master process');
 
 		iloader()->get(LogManager::class)->cleanLogFile();
-
-		if (\stripos(PHP_OS, 'Darwin') !== false) {
-			return true;
-		}
-
-		Process::signal(2, function () {
-			if (App::$server->stop()) {
-				ioutputer()->success('Stop server by CTRL+C');
-			}
-		});
 
 		ievent(SwooleEvent::ON_USER_AFTER_START);
 	}
