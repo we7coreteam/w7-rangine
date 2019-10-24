@@ -26,9 +26,6 @@ class LogManager {
 	public function __construct() {
 		$this->config = $this->getConfig();
 
-		if ((ENV & CLEAR_LOG) === CLEAR_LOG) {
-			$this->cleanLogFile();
-		}
 		if (empty($this->config['channel'])) {
 			throw new \RuntimeException('Invalid log config');
 		}
@@ -179,7 +176,10 @@ class LogManager {
 		return array_column($this->channel, 'logger');
 	}
 
-	private function cleanLogFile() {
+	public function cleanLogFile() {
+		if ((ENV & CLEAR_LOG) !== CLEAR_LOG) {
+			return false;
+		}
 		$logPath = RUNTIME_PATH . DS. 'logs/*';
 		$tree = glob($logPath);
 		if (!empty($tree)) {
