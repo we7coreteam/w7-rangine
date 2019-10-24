@@ -27,10 +27,12 @@ use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Dispatcher\EventDispatcher;
+use W7\Core\Log\LogManager;
 use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
 	public function register() {
+		$this->registerLog();
 		$this->registerDb();
 	}
 
@@ -134,5 +136,19 @@ class DatabaseProvider extends ProviderAbstract {
 			return true;
 		}
 		$pool->releaseConnection($activePdo);
+	}
+
+	private function registerLog() {
+		if (!empty($this->config->getUserConfig('log')['channel']['database'])) {
+			return false;
+		}
+		/**
+		 * @var LogManager $logManager
+		 */
+		$logManager = iloader()->get(LogManager::class);
+		$logManager->addChannel('database', 'stream', [
+			'path' => RUNTIME_PATH . '/logs/db.log',
+			'level' => ienv('LOG_CHANNEL_DATABASE_LEVEL', 'debug')
+		]);
 	}
 }
