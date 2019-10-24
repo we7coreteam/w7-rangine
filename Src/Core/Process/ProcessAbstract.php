@@ -60,7 +60,7 @@ abstract class ProcessAbstract {
 		return $this->serverType;
 	}
 
-	private function getProcessName() {
+	public function getProcessName() {
 		$name = App::$server->getPname() . $this->name;
 		if ($this->num > 1) {
 			$name .= '-' . ($this->process->id % $this->num);
@@ -86,8 +86,6 @@ abstract class ProcessAbstract {
 	}
 
 	public function onStart() {
-		isetProcessTitle($this->getProcessName());
-
 		$this->beforeStart();
 
 		if (method_exists($this, 'read')) {

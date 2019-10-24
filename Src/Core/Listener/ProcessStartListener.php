@@ -31,6 +31,8 @@ class ProcessStartListener extends ListenerAbstract {
 		$mqKey = (int)$mqKey;
 		$userProcess->setMq($mqKey);
 
+		isetProcessTitle($userProcess->getProcessName());
+
 		//用临时变量保存该进程中的用户进程对象
 		App::getApp()->userProcess = $userProcess;
 
