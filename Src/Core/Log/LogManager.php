@@ -22,11 +22,9 @@ class LogManager {
 	private $channel = [];
 	private $config;
 	private $commonProcessor = [];
-	private $commonSetting;
 
 	public function __construct() {
 		$this->config = $this->getConfig();
-		$this->commonSetting = iconfig()->getUserAppConfig('setting');
 
 		if ((ENV & CLEAR_LOG) === CLEAR_LOG) {
 			$this->cleanLogFile();
@@ -40,28 +38,38 @@ class LogManager {
 		$this->initChannel();
 	}
 
-	public function getDefaultChannel() {
-		if (empty($this->config['default'])) {
-			throw new \RuntimeException('It is not set default logger');
+	public function getConfig() {
+		if ($this->config) {
+			return $this->config;
 		}
-		return $this->getChannel($this->config['default']);
+
+		$config = iconfig()->getUserConfig('log');
+		if (!empty($this->config['channel'])) {
+			foreach ($this->config['channel'] as $name => &$setting) {
+				if (!empty($setting['level'])) {
+					$setting['level'] = MonoLogger::toMonologLevel($setting['level']);
+				}
+			}
+		}
+		return $config;
 	}
 
-	public function getChannel($name) {
-		if (isset($this->channel[$name]) && $this->channel[$name]['logger'] instanceof MonoLogger) {
-			return $this->channel[$name]['logger'];
-		} else {
-			//不存在指定的日志通道时，返回默认
-			return $this->getDefaultChannel();
+	private function checkHandler($handler) {
+		$handlerClass = sprintf('\\W7\\Core\\Log\\Handler\\%sHandler', ucfirst($handler));
+		if (!class_exists($handlerClass)) {
+			//用户自定义的handler
+			$handlerClass = sprintf('\\W7\\App\\Handler\\Log\\%sHandler', ucfirst($handler));
 		}
-	}
-
-	public function getLoggers($channel = null) {
-		if ($channel) {
-			return [$this->channel[$channel]['logger']];
+		if (!class_exists($handlerClass)) {
+			throw new \RuntimeException('log handler ' . $handler . ' is not supported');
 		}
 
-		return array_column($this->channel, 'logger');
+		$reflectClass = new \ReflectionClass($handlerClass);
+		if (!in_array(HandlerInterface::class, array_keys($reflectClass->getInterfaces()))) {
+			throw new \RuntimeException('please implements ' . HandlerInterface::class);
+		}
+
+		return $handlerClass;
 	}
 
 	/**
@@ -79,21 +87,7 @@ class LogManager {
 			if ($channel['driver'] == 'stack') {
 				$stack[$name] = $channel;
 			} else {
-				/**
-				 * @var HandlerAbstract $handlerClass
-				 */
-				$handlerClass = $this->checkHandler($channel['driver']);
-
-				$bufferLimit = $channel['buffer_limit'] ?? 1;
-				$handler = new BufferHandler($handlerClass::getHandler($channel), $bufferLimit, $channel['level'], true, true);
-
-				if (!is_null($handler)) {
-					$logger = $this->getLogger($name);
-					$logger->pushHandler($handler);
-				}
-
-				$this->channel[$name]['handler'] = $handler;
-				$this->channel[$name]['logger'] = $logger;
+				$this->addChannel($name, $channel['driver'], $channel);
 			}
 		}
 
@@ -120,24 +114,6 @@ class LogManager {
 		return true;
 	}
 
-	private function checkHandler($handler) {
-		$handlerClass = sprintf('\\W7\\Core\\Log\\Handler\\%sHandler', ucfirst($handler));
-		if (!class_exists($handlerClass)) {
-			//用户自定义的handler
-			$handlerClass = sprintf('\\W7\\App\\Handler\\Log\\%sHandler', ucfirst($handler));
-		}
-		if (!class_exists($handlerClass)) {
-			throw new \RuntimeException('log handler ' . $handler . ' is not supported');
-		}
-
-		$reflectClass = new \ReflectionClass($handlerClass);
-		if (!in_array(HandlerInterface::class, array_keys($reflectClass->getInterfaces()))) {
-			throw new \RuntimeException('please implements ' . HandlerInterface::class);
-		}
-
-		return $handlerClass;
-	}
-
 	private function initCommonProcessor() {
 		$swooleProcessor = iloader()->get(SwooleProcessor::class);
 		//不记录产生日志的文件和行号
@@ -149,16 +125,40 @@ class LogManager {
 		];
 	}
 
-	private function getConfig() {
-		$config = iconfig()->getUserConfig('log');
-		if (!empty($this->config['channel'])) {
-			foreach ($this->config['channel'] as $name => &$setting) {
-				if (!empty($setting['level'])) {
-					$setting['level'] = MonoLogger::toMonologLevel($setting['level']);
-				}
-			}
+	public function addChannel($name, $driver, $options = []) {
+		$this->config['channel'][$name] = array_merge($options, ['driver' => $driver]);
+		/**
+		 * @var HandlerAbstract $handlerClass
+		 */
+		$handlerClass = $this->checkHandler($driver);
+
+		$bufferLimit = $options['buffer_limit'] ?? 1;
+		$handler = new BufferHandler($handlerClass::getHandler($options), $bufferLimit, $options['level'], true, true);
+
+		$logger = null;
+		if (!is_null($handler)) {
+			$logger = $this->getLogger($name);
+			$logger->pushHandler($handler);
 		}
-		return $config;
+
+		$this->channel[$name]['handler'] = $handler;
+		$this->channel[$name]['logger'] = $logger;
+	}
+
+	public function getDefaultChannel() {
+		if (empty($this->config['default'])) {
+			throw new \RuntimeException('It is not set default logger');
+		}
+		return $this->getChannel($this->config['default']);
+	}
+
+	public function getChannel($name) {
+		if (isset($this->channel[$name]) && $this->channel[$name]['logger'] instanceof MonoLogger) {
+			return $this->channel[$name]['logger'];
+		} else {
+			//不存在指定的日志通道时，返回默认
+			return $this->getDefaultChannel();
+		}
 	}
 
 	private function getLogger($name) {
@@ -169,6 +169,14 @@ class LogManager {
 			$logger->pushProcessor($processor);
 		}
 		return $logger;
+	}
+
+	public function getLoggers($channel = null) {
+		if ($channel) {
+			return [$this->channel[$channel]['logger']];
+		}
+
+		return array_column($this->channel, 'logger');
 	}
 
 	private function cleanLogFile() {
