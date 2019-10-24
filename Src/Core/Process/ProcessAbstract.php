@@ -14,6 +14,7 @@ namespace W7\Core\Process;
 
 use Swoole\Event;
 use Swoole\Process;
+use W7\App;
 use W7\Core\Exception\HandlerExceptions;
 
 abstract class ProcessAbstract {
@@ -60,7 +61,7 @@ abstract class ProcessAbstract {
 	}
 
 	private function getProcessName() {
-		$name = 'w7-rangine ' . $this->name;
+		$name = App::$server->getPname() . $this->name;
 		if ($this->num > 1) {
 			$name .= '-' . ($this->process->id % $this->num);
 		}

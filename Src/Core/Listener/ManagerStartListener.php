@@ -17,7 +17,7 @@ use W7\Core\Server\SwooleEvent;
 
 class ManagerStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		\isetProcessTitle('w7-rangine ' . App::$server->getType() . ' manager process');
+		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' manager process');
 
 		ievent(SwooleEvent::ON_USER_AFTER_MANAGER_START);
 	}

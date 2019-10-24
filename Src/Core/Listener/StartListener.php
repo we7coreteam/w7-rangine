@@ -18,7 +18,7 @@ use W7\Core\Server\SwooleEvent;
 
 class StartListener implements ListenerInterface {
 	public function run(...$params) {
-		\isetProcessTitle('w7-rangine ' . App::$server->getType() . ' master process');
+		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' master process');
 
 		iloader()->get(LogManager::class)->cleanLogFile();
 

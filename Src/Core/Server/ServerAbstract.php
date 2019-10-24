@@ -59,7 +59,7 @@ abstract class ServerAbstract implements ServerInterface {
 	 * @return string
 	 */
 	public function getPname() {
-		return $this->setting['pname'];
+		return $this->setting['pname'] . ' ';
 	}
 
 	public function getStatus() {
@@ -120,6 +120,9 @@ abstract class ServerAbstract implements ServerInterface {
 	protected function checkSetting() {
 		if (empty($this->setting['pid_file'])) {
 			throw new \RuntimeException('server pid_file error');
+		}
+		if (empty($this->setting['pname'])) {
+			throw new \RuntimeException('server pname error');
 		}
 		if (empty($this->setting['host'])) {
 			throw new \RuntimeException('server host error');
@@ -209,6 +212,7 @@ abstract class ServerAbstract implements ServerInterface {
 
 	protected function getDefaultSetting() : array {
 		return [
+			'pname' => 'w7-rangine',
 			'daemonize' => 0,
 			'dispatch_mode' => 3,
 			'worker_num' => swoole_cpu_num(),
