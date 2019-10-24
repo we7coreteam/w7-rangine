@@ -191,17 +191,4 @@ class LogManager {
 		}
 		return true;
 	}
-
-	public function flushLog($channel = null) {
-		$loggers = $this->getLoggers($channel);
-
-		foreach ($loggers as $logger) {
-			/**
-			 * @var BufferHandler $handle
-			 */
-			foreach ($logger->getHandlers() as $handle) {
-				$handle->flush();
-			}
-		}
-	}
 }

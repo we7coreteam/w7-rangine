@@ -69,6 +69,12 @@ class Container {
 		return $this->get($name);
 	}
 
+	public function clear() {
+		foreach ($this->container->keys() as $key) {
+			$this->delete($key);
+		}
+	}
+
 	public function __call($name, $arguments) {
 		return $this->container->$name(...$arguments);
 	}

@@ -15,7 +15,6 @@ namespace W7\Core\Process;
 use Swoole\Event;
 use Swoole\Process;
 use W7\Core\Exception\HandlerExceptions;
-use W7\Core\Log\LogManager;
 
 abstract class ProcessAbstract {
 	protected $name = 'process';
@@ -136,6 +135,5 @@ abstract class ProcessAbstract {
 
 	public function onStop() {
 		ilogger()->debug('process ' . $this->getProcessName() . ' exit');
-		iloader()->get(LogManager::class)->flushLog();
 	}
 }
