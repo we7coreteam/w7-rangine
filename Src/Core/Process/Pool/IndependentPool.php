@@ -55,7 +55,11 @@ class IndependentPool extends PoolAbstract {
 			if ($event == SwooleEvent::ON_MESSAGE && ($this->ipcType == 0 || SWOOLE_VERSION >= '4.4.0')) {
 				continue;
 			}
-			$server->on($event, $handler);
+			try {
+				$server->on($event, $handler);
+			} catch (\Throwable $e) {
+				null;
+			}
 		}
 
 		file_put_contents($this->pidFile, getmypid());
