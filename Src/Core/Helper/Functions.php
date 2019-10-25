@@ -343,7 +343,7 @@ if (!function_exists('ivalidate')) {
 			/**
 			 * @var Factory $validate
 			 */
-			$validate = iloader()->get(Factory::class);
+			$validate = ivalidator();
 			$result = $validate->make($data, $rules, $messages, $customAttributes)
 				->validate();
 		} catch (ValidationException $e) {
@@ -356,5 +356,11 @@ if (!function_exists('ivalidate')) {
 		}
 
 		return $result;
+	}
+}
+if (!function_exists('ivalidator')) {
+	function ivalidator() : Factory {
+		$validator = iloader()->get(Factory::class);
+		return $validator;
 	}
 }
