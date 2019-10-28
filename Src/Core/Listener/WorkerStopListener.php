@@ -12,12 +12,13 @@
 
 namespace W7\Core\Listener;
 
+use W7\App;
 use W7\Core\Server\SwooleEvent;
 
 class WorkerStopListener implements ListenerInterface {
 	public function run(...$params) {
 		ievent(SwooleEvent::ON_USER_AFTER_WORKER_STOP);
 
-		iloader()->clear();
+		App::getApp()->exit();
 	}
 }

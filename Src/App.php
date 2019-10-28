@@ -160,4 +160,8 @@ class App {
 		$cache = $this->getContainer()->get(Cache::class);
 		return $cache;
 	}
+
+	public function exit() {
+		$this->container->clear();
+	}
 }
