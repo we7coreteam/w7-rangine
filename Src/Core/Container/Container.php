@@ -56,6 +56,11 @@ class Container {
 
 	public function delete($name) {
 		if ($this->has($name)) {
+			if (is_object($this->container[$name])) {
+				if (method_exists($this->container[$name], '__destruct')) {
+					$this->container[$name]->__destruct();
+				}
+			}
 			unset($this->container[$name]);
 		}
 	}
