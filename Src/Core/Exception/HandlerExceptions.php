@@ -76,7 +76,14 @@ class HandlerExceptions {
 			$throwable = new $class($throwable->getMessage(), $throwable->getCode(), $throwable);
 		}
 
-		return $this->getHandler()->handle($throwable);
+		$handler = $this->getHandler();
+		try{
+			$handler->report($throwable);
+		} catch (\Throwable $e) {
+			null;
+		}
+
+		return $handler->handle($throwable);
 	}
 
 	/**
