@@ -22,6 +22,7 @@ use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Support\Fluent;
 use W7\App;
+use W7\Console\Application;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\Core\Database\ConnectorManager;
@@ -34,6 +35,9 @@ class DatabaseProvider extends ProviderAbstract {
 	public function register() {
 		$this->registerLog();
 		$this->registerDb();
+
+		$application = iloader()->get(Application::class);
+		$application->autoRegisterCommands($this->rootPath . '/Command', 'W7\Core\Database');
 	}
 
 	/**
