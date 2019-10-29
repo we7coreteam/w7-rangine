@@ -67,7 +67,7 @@ class RefreshCommand extends CommandAbstract {
 		// The refresh command is essentially just a brief aggregate of a few other of
 		// the migration commands and just provides a convenient wrapper to execute
 		// them in succession. We'll also see if we need to re-seed the database.
-		$this->call('migrate', array_filter([
+		$this->call('migrate:migrate', array_filter([
 			'--database' => $database,
 			'--path' => $path,
 			'--realpath' => $this->input->getOption('realpath'),

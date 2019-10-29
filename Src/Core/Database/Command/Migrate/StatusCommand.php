@@ -54,21 +54,23 @@ class StatusCommand extends MigrateCommandAbstract {
 	 * @return void
 	 */
 	protected function handle($options) {
-		$this->migrator->setConnection($this->option('database'));
+		go(function () {
+			$this->migrator->setConnection($this->option('database'));
 
-		if (! $this->migrator->repositoryExists()) {
-			return $this->output->error('Migration table not found.');
-		}
+			if (! $this->migrator->repositoryExists()) {
+				return $this->output->error('Migration table not found.');
+			}
 
-		$ran = $this->migrator->getRepository()->getRan();
+			$ran = $this->migrator->getRepository()->getRan();
 
-		$batches = $this->migrator->getRepository()->getMigrationBatches();
+			$batches = $this->migrator->getRepository()->getMigrationBatches();
 
-		if (count($migrations = $this->getStatusFor($ran, $batches)) > 0) {
-			$this->output->table(['Ran?', 'Migration', 'Batch'], $migrations);
-		} else {
-			$this->output->error('No migrations found');
-		}
+			if (count($migrations = $this->getStatusFor($ran, $batches)) > 0) {
+				$this->output->table(['Ran?', 'Migration', 'Batch'], $migrations->toArray());
+			} else {
+				$this->output->error('No migrations found');
+			}
+		});
 	}
 
 	/**
