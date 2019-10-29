@@ -151,6 +151,9 @@ abstract class ServerAbstract implements ServerInterface {
 		if (!empty($this->setting['request_slowlog_file']) && !is_writeable(dirname($this->setting['request_slowlog_file']))) {
 			throw new \RuntimeException('path ' . dirname($this->setting['request_slowlog_file']) . ' no write permission');
 		}
+		if (!empty($this->setting['enable_static_handler']) && (empty($this->setting['document_root']) || !is_dir($this->setting['document_root']))) {
+			throw new \RuntimeException('document_root path not exists');
+		}
 	}
 
 	protected function resetPidFile() {
