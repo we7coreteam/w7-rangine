@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use W7\Core\Database\Migrate\Migration;
 
 class DummyClass extends Migration {
@@ -9,7 +10,7 @@ class DummyClass extends Migration {
 	 * @return void
 	 */
 	public function up() {
-		 Schema::create('DummyTable', function (Blueprint $table) {
+		 $this->schema->create('DummyTable', function (Blueprint $table) {
 			$table->bigIncrements('id');
 			$table->timestamps();
 		});
@@ -21,6 +22,6 @@ class DummyClass extends Migration {
 	 * @return void
 	 */
 	public function down() {
-		 Schema::dropIfExists('DummyTable');
+		 $this->schema->dropIfExists('DummyTable');
 	}
 }

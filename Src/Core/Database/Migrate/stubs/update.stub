@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use W7\Core\Database\Migrate\Migration;
 
 class DummyClass extends Migration {
@@ -9,7 +10,7 @@ class DummyClass extends Migration {
 	 * @return void
 	 */
 	public function up() {
-		Schema::table('DummyTable', function (Blueprint $table) {
+		$this->schema->table('DummyTable', function (Blueprint $table) {
 			//
 		});
 	}
@@ -20,7 +21,7 @@ class DummyClass extends Migration {
 	 * @return void
 	 */
 	public function down() {
-		Schema::table('DummyTable', function (Blueprint $table) {
+		$this->schema->table('DummyTable', function (Blueprint $table) {
 			//
 		});
 	}
