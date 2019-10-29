@@ -20,18 +20,21 @@ class RefreshCommand extends CommandAbstract {
 	use ConfirmTrait;
 
 	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'migrate:refresh';
-
-	/**
 	 * The console command description.
 	 *
 	 * @var string
 	 */
 	protected $description = 'Reset and re-run all migrations';
+
+	protected function configure() {
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
+		$this->addOption('--force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production');
+		$this->addOption('--path', null, InputOption::VALUE_OPTIONAL, 'The path to the migrations files to be executed');
+		$this->addOption('--realpath', null, InputOption::VALUE_NONE, 'Indicate any provided migration file paths are pre-resolved absolute paths');
+		$this->addOption('--seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run');
+		$this->addOption('--seeder', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder');
+		$this->addOption('--step', null, InputOption::VALUE_NONE, 'Force the migrations to be run so they can be rolled back individually');
+	}
 
 	/**
 	 * Execute the console command.
@@ -131,28 +134,5 @@ class RefreshCommand extends CommandAbstract {
 			'--class' => $this->option('seeder') ?: 'DatabaseSeeder',
 			'--force' => true,
 		]));
-	}
-
-	/**
-	 * Get the console command options.
-	 *
-	 * @return array
-	 */
-	protected function getOptions() {
-		return [
-			['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use'],
-
-			['force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production'],
-
-			['path', null, InputOption::VALUE_OPTIONAL, 'The path to the migrations files to be executed'],
-
-			['realpath', null, InputOption::VALUE_NONE, 'Indicate any provided migration file paths are pre-resolved absolute paths'],
-
-			['seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run'],
-
-			['seeder', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder'],
-
-			['step', null, InputOption::VALUE_OPTIONAL, 'The number of migrations to be reverted & re-run'],
-		];
 	}
 }

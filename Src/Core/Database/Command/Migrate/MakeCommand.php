@@ -17,6 +17,7 @@ use Symfony\Component\Console\Input\InputOption;
 use W7\Core\Database\Migrate\MigrationCreator;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Composer;
+use W7\Core\Exception\CommandException;
 use W7\Core\Helper\StringHelper;
 
 class MakeCommand extends MigrateCommandAbstract {
@@ -63,11 +64,13 @@ class MakeCommand extends MigrateCommandAbstract {
 	}
 
 	/**
-	 * Execute the console command.
-	 *
-	 * @return void
+	 * @param $options
+	 * @throws \Exception
 	 */
 	protected function handle($options) {
+		if (!$this->input->getArgument('name')) {
+			throw new CommandException('argument name error');
+		}
 		// It's possible for the developer to specify the tables to modify in this
 		// schema operation. The developer may also specify if this table needs
 		// to be freshly created so we can create the appropriate migrations.
@@ -102,12 +105,10 @@ class MakeCommand extends MigrateCommandAbstract {
 	}
 
 	/**
-	 * Write the migration file to disk.
-	 *
-	 * @param  string  $name
-	 * @param  string  $table
-	 * @param  bool    $create
-	 * @return string
+	 * @param $name
+	 * @param $table
+	 * @param $create
+	 * @throws \Exception
 	 */
 	protected function writeMigration($name, $table, $create) {
 		$file = $this->creator->create(

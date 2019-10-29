@@ -18,13 +18,6 @@ use W7\Core\Database\Migrate\DatabaseMigrationRepository;
 
 class InstallCommand extends CommandAbstract {
 	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'migrate:install';
-
-	/**
 	 * The console command description.
 	 *
 	 * @var string
@@ -34,24 +27,22 @@ class InstallCommand extends CommandAbstract {
 	/**
 	 * The repository instance.
 	 *
-	 * @var \Illuminate\Database\Migrations\MigrationRepositoryInterface
+	 * @var DatabaseMigrationRepository
 	 */
 	protected $repository;
 
 	/**
 	 * Create a new migration install command instance.
-	 *
-	 * @param  \Illuminate\Database\Migrations\MigrationRepositoryInterface  $repository
 	 * @return void
 	 */
 	public function __construct($name) {
 		parent::__construct($name);
 
-		$this->repository = new DatabaseMigrationRepository(idb(), 'migration');
+		$this->repository = new DatabaseMigrationRepository(idb(), MigrateCommandAbstract::MIGRATE_TABLE_NAME);
 	}
 
 	protected function configure() {
-		$this->addOption('--database', null, InputOption::VALUE_REQUIRED);
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
 	}
 
 	/**
@@ -65,16 +56,5 @@ class InstallCommand extends CommandAbstract {
 		$this->repository->createRepository();
 
 		$this->output->info('Migration table created successfully.');
-	}
-
-	/**
-	 * Get the console command options.
-	 *
-	 * @return array
-	 */
-	protected function getOptions() {
-		return [
-			['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use'],
-		];
 	}
 }

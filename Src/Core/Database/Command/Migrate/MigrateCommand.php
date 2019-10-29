@@ -22,19 +22,6 @@ class MigrateCommand extends MigrateCommandAbstract {
 	use ConfirmTrait;
 
 	/**
-	 * The name and signature of the console command.
-	 *
-	 * @var string
-	 */
-	protected $signature = 'migrate {--database= : The database connection to use}
-                {--force : Force the operation to run when in production}
-                {--path=* : The path(s) to the migrations files to be executed}
-                {--realpath : Indicate any provided migration file paths are pre-resolved absolute paths}
-                {--pretend : Dump the SQL queries that would be run}
-                {--seed : Indicates if the seed task should be re-run}
-                {--step : Force the migrations to be run so they can be rolled back individually}';
-
-	/**
 	 * The console command description.
 	 *
 	 * @var string
@@ -50,22 +37,18 @@ class MigrateCommand extends MigrateCommandAbstract {
 
 	/**
 	 * Create a new migration command instance.
-	 *
-	 * @param  \Illuminate\Database\Migrations\Migrator  $migrator
 	 * @return void
 	 */
 	public function __construct(string $name = null) {
 		parent::__construct($name);
-		$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), 'migration'), idb(), new Filesystem());
+		$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), MigrateCommandAbstract::MIGRATE_TABLE_NAME), idb(), new Filesystem());
 	}
 
 	protected function configure() {
-		$this->addOption('--database', null, InputOption::VALUE_REQUIRED);
-		$this->addOption('--path', null, InputOption::VALUE_REQUIRED);
-		$this->addOption('--realpath', null, InputOption::VALUE_REQUIRED);
-		$this->addOption('--pretend', null, InputOption::VALUE_REQUIRED);
-		$this->addOption('--seed', null, InputOption::VALUE_REQUIRED);
-		$this->addOption('--step', null, InputOption::VALUE_REQUIRED);
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
+		$this->addOption('--pretend', null, InputOption::VALUE_NONE, 'Dump the SQL queries that would be run');
+		$this->addOption('--seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run');
+		$this->addOption('--step', null, InputOption::VALUE_NONE, 'Force the migrations to be run so they can be rolled back individually');
 	}
 
 	/**

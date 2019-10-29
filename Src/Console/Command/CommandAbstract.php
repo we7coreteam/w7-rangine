@@ -40,7 +40,7 @@ abstract class CommandAbstract extends Command {
 	 */
 	private function overwriteConfigByOptions() {
 		foreach ($this->input->getOptions() as $option => $value) {
-			if (is_null($value) || trim($value) === '') {
+			if (is_null($value) || is_array($value) || trim($value) === '') {
 				continue;
 			}
 			if (strpos($option, 'config') !== false) {

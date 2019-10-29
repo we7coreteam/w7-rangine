@@ -386,11 +386,11 @@ class Migrator {
 
 		$callback = function () use ($migration, $method) {
 			if (method_exists($migration, $method)) {
-				$this->fireMigrationEvent(new MigrationStarted($migration, $method));
+//				$this->fireMigrationEvent(new MigrationStarted($migration, $method));
 
 				$migration->{$method}();
 
-				$this->fireMigrationEvent(new MigrationEnded($migration, $method));
+//				$this->fireMigrationEvent(new MigrationEnded($migration, $method));
 			}
 		};
 

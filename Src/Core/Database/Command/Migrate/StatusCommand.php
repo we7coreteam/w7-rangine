@@ -20,13 +20,6 @@ use W7\Core\Database\Migrate\Migrator;
 
 class StatusCommand extends MigrateCommandAbstract {
 	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'migrate:status';
-
-	/**
 	 * The console command description.
 	 *
 	 * @var string
@@ -36,19 +29,23 @@ class StatusCommand extends MigrateCommandAbstract {
 	/**
 	 * The migrator instance.
 	 *
-	 * @var \Illuminate\Database\Migrations\Migrator
+	 * @var Migrator
 	 */
 	protected $migrator;
 
 	/**
 	 * Create a new migration rollback command instance.
-	 *
-	 * @param  \Illuminate\Database\Migrations\Migrator $migrator
 	 * @return void
 	 */
 	public function __construct(string $name = null) {
 		parent::__construct($name);
-		$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), 'migration'), idb(), new Filesystem());
+		$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), MigrateCommandAbstract::MIGRATE_TABLE_NAME), idb(), new Filesystem());
+	}
+
+	protected function configure() {
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
+		$this->addOption('--path', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'The path to the migrations files to be executed');
+		$this->addOption('--realpath', null, InputOption::VALUE_NONE, 'Indicate any provided migration file paths are pre-resolved absolute paths');
 	}
 
 	/**
@@ -99,20 +96,5 @@ class StatusCommand extends MigrateCommandAbstract {
 	 */
 	protected function getAllMigrationFiles() {
 		return $this->migrator->getMigrationFiles($this->getMigrationPaths());
-	}
-
-	/**
-	 * Get the console command options.
-	 *
-	 * @return array
-	 */
-	protected function getOptions() {
-		return [
-			['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use'],
-
-			['path', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'The path(s) to the migrations files to use'],
-
-			['realpath', null, InputOption::VALUE_NONE, 'Indicate any provided migration file paths are pre-resolved absolute paths'],
-		];
 	}
 }

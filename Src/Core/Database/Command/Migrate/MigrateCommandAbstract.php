@@ -15,6 +15,7 @@ namespace W7\Core\Database\Command\Migrate;
 use W7\Console\Command\CommandAbstract;
 
 abstract class MigrateCommandAbstract extends CommandAbstract {
+	const MIGRATE_TABLE_NAME = 'migration';
 	protected $migrator;
 
 	/**
