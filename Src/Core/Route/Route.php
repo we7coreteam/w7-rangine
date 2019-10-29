@@ -104,8 +104,9 @@ class Route {
 
 	/**
 	 * 注册一个允许所有协议的路由
-	 * @param $route
+	 * @param $uri
 	 * @param $handler
+	 * @return bool
 	 */
 	public function any($uri, $handler) {
 		return $this->add(self::METHOD_ALL, $uri, $handler);
@@ -160,7 +161,9 @@ class Route {
 	 * @param int $status
 	 */
 	public function redirect($uri, $destination, $status = 301) {
-		throw new \InvalidArgumentException('还未实现');
+		$this->any($uri, function () use ($destination, $status) {
+			return App::getApp()->getContext()->getResponse()->redirect($destination, $status);
+		});
 	}
 
 	/**
@@ -259,7 +262,7 @@ class Route {
 		$this->currentMiddleware = [];
 		$this->name = '';
 
-		try{
+		try {
 			$this->router->addRoute($methods, $uri, $routeHandler);
 		} catch (\Throwable $e) {
 			$dispatcher = new RouteDispatcher($this->getData());
@@ -305,6 +308,7 @@ class Route {
 	/**
 	 * 指定该路由的名字，用于验权之类的操作
 	 * @param $name
+	 * @return $this
 	 */
 	public function name($name) {
 		$this->name = $name;
