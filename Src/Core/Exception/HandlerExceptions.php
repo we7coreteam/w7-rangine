@@ -39,9 +39,8 @@ class HandlerExceptions {
 				return;
 			}
 
-			$throwable = new \ErrorException($e['message'], 0, $e['type'], $e['file'], $e['line']);
-			$throwable = new ShutDownException($throwable->getMessage(), $throwable->getCode(), $throwable);
-			(new ExceptionHandler())->handle($throwable);
+			$throwable = new ShutDownException($e['message'], 0, $e['type'], $e['file'], $e['line']);
+			$this->handleException($throwable);
 		});
 	}
 
@@ -57,8 +56,7 @@ class HandlerExceptions {
 		//这里不用error_reporting直接获取的原因是，当使用@触发异常时，取到的值是0
 		if ($type === ($type & $this->errorLevel)) {
 			$throwable = new \ErrorException($message, 0, $type, $file, $line);
-			$this->handleException($throwable);
-			return true;
+			throw $throwable;
 		}
 
 		return false;
@@ -78,7 +76,14 @@ class HandlerExceptions {
 			$throwable = new $class($throwable->getMessage(), $throwable->getCode(), $throwable);
 		}
 
-		return $this->getHandler()->handle($throwable);
+		$handler = $this->getHandler();
+		try {
+			$handler->report($throwable);
+		} catch (\Throwable $e) {
+			null;
+		}
+
+		return $handler->handle($throwable);
 	}
 
 	/**
