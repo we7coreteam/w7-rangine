@@ -39,7 +39,7 @@ trait ConfirmTrait {
 			$confirmed = $this->output->confirm('Do you really wish to run this command?');
 
 			if (! $confirmed) {
-				$this->output->comment('Command Cancelled!');
+				$this->output->info('Command Cancelled!');
 
 				return false;
 			}
