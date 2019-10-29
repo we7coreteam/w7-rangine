@@ -82,6 +82,14 @@ abstract class CommandAbstract extends Command {
 
 	abstract protected function handle($options);
 
+	public function option($key = null) {
+		if (is_null($key)) {
+			return $this->input->getOptions();
+		}
+
+		return $this->input->getOption($key);
+	}
+
 	protected function call($command, $arguments = []) {
 		$arguments['command'] = $command;
 		$input = new ArrayInput($arguments);
