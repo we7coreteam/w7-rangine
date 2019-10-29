@@ -24,10 +24,14 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 	protected $filesystem;
 	protected $name;
 
+	public function __construct(string $name = null) {
+		parent::__construct($name);
+		$this->filesystem = new Filesystem();
+	}
+
 	protected function configure() {
 		$this->addOption('--name', null, InputOption::VALUE_REQUIRED, 'the generate file name');
 		$this->addOption('--force', '-f', null, 'force overwrite file');
-		$this->filesystem = new Filesystem();
 	}
 
 	protected function handle($options) {
