@@ -115,7 +115,7 @@ abstract class GeneratorCommandAbstract extends CommandAbstract {
 	 * @param  string  $path
 	 * @return void
 	 */
-	protected function replace($search, $replace, $path) {
+	protected function replace($search, $replace, $path = null) {
 		$path = $this->rootPath() . ($path ? $path : $this->name . '.stub');
 		file_put_contents($path, str_replace($search, $replace, file_get_contents($path)));
 	}
