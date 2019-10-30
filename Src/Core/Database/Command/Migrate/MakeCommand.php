@@ -42,18 +42,6 @@ class MakeCommand extends MigrateCommandAbstract {
 	 */
 	protected $composer;
 
-	/**
-	 * MakeCommand constructor.
-	 * @param $name
-	 */
-	public function __construct($name) {
-		parent::__construct($name);
-
-		$filesystem = new Filesystem();
-		$this->creator = new MigrationCreator($filesystem);
-		$this->composer = new Composer($filesystem, __DIR__);
-	}
-
 	protected function configure() {
 		$this->addArgument('name', InputOption::VALUE_REQUIRED, 'The name of the migration');
 		$this->addOption('--create', null, InputOption::VALUE_REQUIRED, 'The table to be created');
@@ -99,6 +87,10 @@ class MakeCommand extends MigrateCommandAbstract {
 		// Now we are ready to write the migration out to disk. Once we've written
 		// the migration out, we will dump-autoload for the entire framework to
 		// make sure that the migrations are registered by the class loaders.
+		$filesystem = new Filesystem();
+		$this->creator = new MigrationCreator($filesystem);
+		$this->composer = new Composer($filesystem, __DIR__);
+
 		$this->writeMigration($name, $table, $create);
 
 		$this->composer->dumpAutoloads();

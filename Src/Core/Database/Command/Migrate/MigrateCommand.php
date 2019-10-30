@@ -35,15 +35,6 @@ class MigrateCommand extends MigrateCommandAbstract {
 	 */
 	protected $migrator;
 
-	/**
-	 * Create a new migration command instance.
-	 * @return void
-	 */
-	public function __construct(string $name = null) {
-		parent::__construct($name);
-		$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), MigrateCommandAbstract::MIGRATE_TABLE_NAME), idb(), new Filesystem());
-	}
-
 	protected function configure() {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
 		$this->addOption('--pretend', null, InputOption::VALUE_NONE, 'Dump the SQL queries that would be run');
@@ -62,7 +53,10 @@ class MigrateCommand extends MigrateCommandAbstract {
 			return;
 		}
 
-		go(function () {
+		igo(function () {
+			$database = $this->getConnection();
+			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem());
+
 			$this->prepareDatabase();
 
 			// Next, we will check to see if a path option has been defined. If it has

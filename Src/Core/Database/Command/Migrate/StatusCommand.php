@@ -33,15 +33,6 @@ class StatusCommand extends MigrateCommandAbstract {
 	 */
 	protected $migrator;
 
-	/**
-	 * Create a new migration rollback command instance.
-	 * @return void
-	 */
-	public function __construct(string $name = null) {
-		parent::__construct($name);
-		$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), MigrateCommandAbstract::MIGRATE_TABLE_NAME), idb(), new Filesystem());
-	}
-
 	protected function configure() {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
 		$this->addOption('--path', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'The path to the migrations files to be executed');
@@ -54,7 +45,9 @@ class StatusCommand extends MigrateCommandAbstract {
 	 * @return void
 	 */
 	protected function handle($options) {
-		go(function () {
+		igo(function () {
+			$database = $this->getConnection();
+			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem());
 			$this->migrator->setConnection($this->option('database'));
 
 			if (! $this->migrator->repositoryExists()) {

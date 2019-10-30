@@ -13,33 +13,15 @@
 namespace W7\Core\Database\Command\Migrate;
 
 use Symfony\Component\Console\Input\InputOption;
-use W7\Console\Command\CommandAbstract;
 use W7\Core\Database\Migrate\DatabaseMigrationRepository;
 
-class InstallCommand extends CommandAbstract {
+class InstallCommand extends MigrateCommandAbstract {
 	/**
 	 * The console command description.
 	 *
 	 * @var string
 	 */
 	protected $description = 'Create the migration repository';
-
-	/**
-	 * The repository instance.
-	 *
-	 * @var DatabaseMigrationRepository
-	 */
-	protected $repository;
-
-	/**
-	 * Create a new migration install command instance.
-	 * @return void
-	 */
-	public function __construct($name) {
-		parent::__construct($name);
-
-		$this->repository = new DatabaseMigrationRepository(idb(), MigrateCommandAbstract::MIGRATE_TABLE_NAME);
-	}
 
 	protected function configure() {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
@@ -51,10 +33,14 @@ class InstallCommand extends CommandAbstract {
 	 * @return void
 	 */
 	protected function handle($options) {
-		$this->repository->setSource($this->input->getOption('database'));
+		igo(function () {
+			$database = $this->getConnection();
+			$repository = new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME);
+			$repository->setSource($this->input->getOption('database'));
 
-		$this->repository->createRepository();
+			$repository->createRepository();
 
-		$this->output->info('Migration table created successfully.');
+			$this->output->info('Migration table created successfully.');
+		});
 	}
 }

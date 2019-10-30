@@ -28,22 +28,6 @@ class ResetCommand extends MigrateCommandAbstract {
 	 */
 	protected $description = 'Rollback all database migrations';
 
-	/**
-	 * The migrator instance.
-	 *
-	 * @var Migrator
-	 */
-	protected $migrator;
-
-	/**
-	 * Create a new migration rollback command instance.
-	 * @return void
-	 */
-	public function __construct(string $name = null) {
-		parent::__construct($name);
-		$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), 'migration'), idb(), new Filesystem());
-	}
-
 	protected function configure() {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
 		$this->addOption('--force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production');
@@ -62,13 +46,15 @@ class ResetCommand extends MigrateCommandAbstract {
 			return;
 		}
 
-		go(function () {
+		igo(function () {
+			$database = $this->getConnection();
+			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, 'migration'), $database, new Filesystem());
 			$this->migrator->setConnection($this->option('database'));
 
 			// First, we'll make sure that the migration table actually exists before we
 			// start trying to rollback and re-run all of the migrations. If it's not
 			// present we'll just bail out with an info message for the developers.
-			if (! $this->migrator->repositoryExists()) {
+			if (!$this->migrator->repositoryExists()) {
 				return $this->output->comment('Migration table not found.');
 			}
 

@@ -28,22 +28,6 @@ class RollbackCommand extends MigrateCommandAbstract {
 	 */
 	protected $description = 'Rollback the last database migration';
 
-	/**
-	 * The migrator instance.
-	 *
-	 * @var Migrator
-	 */
-	protected $migrator;
-
-	/**
-	 * Create a new migration rollback command instance.
-	 * @return void
-	 */
-	public function __construct(string $name = null) {
-		parent::__construct($name);
-		$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), MigrateCommandAbstract::MIGRATE_TABLE_NAME), idb(), new Filesystem());
-	}
-
 	protected function configure() {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
 		$this->addOption('--force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production');
@@ -63,7 +47,9 @@ class RollbackCommand extends MigrateCommandAbstract {
 			return;
 		}
 
-		go(function () {
+		igo(function () {
+			$database = $this->getConnection();
+			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem());
 			$this->migrator->setConnection($this->option('database'));
 
 			$this->migrator->setOutput($this->output)->rollback(
