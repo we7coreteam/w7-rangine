@@ -24,7 +24,6 @@ use W7\Console\Io\Output;
 use W7\Core\Message\TaskMessage;
 use Illuminate\Database\Eloquent\Model;
 use W7\Core\Route\Route;
-use W7\Core\Exception\Handler\ExceptionHandler;
 
 if (!function_exists('ievent')) {
 	/**
@@ -332,7 +331,7 @@ if (!function_exists('igo')) {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
-				iloader()->get(ExceptionHandler::class)->log($throwable);
+				ilogger()->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 		});
 	}
