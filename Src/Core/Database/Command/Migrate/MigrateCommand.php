@@ -17,6 +17,7 @@ use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\ConfirmTrait;
 use W7\Core\Database\Migrate\Migrator;
+use W7\Core\Dispatcher\EventDispatcher;
 
 class MigrateCommand extends MigrateCommandAbstract {
 	use ConfirmTrait;
@@ -55,7 +56,7 @@ class MigrateCommand extends MigrateCommandAbstract {
 
 		igo(function () {
 			$database = $this->getConnection();
-			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem());
+			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
 
 			$this->prepareDatabase();
 

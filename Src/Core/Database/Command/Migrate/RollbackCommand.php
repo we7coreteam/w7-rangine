@@ -17,6 +17,7 @@ use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\ConfirmTrait;
 use W7\Core\Database\Migrate\Migrator;
+use W7\Core\Dispatcher\EventDispatcher;
 
 class RollbackCommand extends MigrateCommandAbstract {
 	use ConfirmTrait;
@@ -49,7 +50,7 @@ class RollbackCommand extends MigrateCommandAbstract {
 
 		igo(function () {
 			$database = $this->getConnection();
-			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem());
+			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
 			$this->migrator->setConnection($this->option('database'));
 
 			$this->migrator->setOutput($this->output)->rollback(

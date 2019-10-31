@@ -17,6 +17,7 @@ use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Support\Collection;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Core\Database\Migrate\Migrator;
+use W7\Core\Dispatcher\EventDispatcher;
 
 class StatusCommand extends MigrateCommandAbstract {
 	/**
@@ -47,7 +48,7 @@ class StatusCommand extends MigrateCommandAbstract {
 	protected function handle($options) {
 		igo(function () {
 			$database = $this->getConnection();
-			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem());
+			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
 			$this->migrator->setConnection($this->option('database'));
 
 			if (! $this->migrator->repositoryExists()) {
