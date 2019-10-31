@@ -124,8 +124,15 @@ abstract class ProcessAbstract {
 	abstract protected function run(Process $process);
 
 	public function sendMsg($msg) {
-		//swoole 版本不兼容, 不能用push
-		return msg_send(msg_get_queue($this->mqKey), 1, $msg, false);
+		if (version_compare(SWOOLE_VERSION, '4.4.5', '>=')) {
+			$result = $this->process->push($msg);
+		} else {
+			if (!extension_loaded('sysvmsg')) {
+				throw new \RuntimeException('extension sysvmsg is deletion');
+			}
+			$result = msg_send(msg_get_queue($this->mqKey), 1, $msg, false);
+		}
+		return $result;
 	}
 
 	public function readMsg($size = null) {
