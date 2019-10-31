@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Database\Command\Seeds;
+namespace W7\Core\Database\Command\Seed;
 
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,7 +29,7 @@ class SeedCommand extends CommandAbstract {
 	protected $description = 'Seed the database with records';
 
 	protected function configure() {
-		$this->addOption('--class', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder');
+		$this->addOption('--class', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder', 'DatabaseSeeder');
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to seed');
 		$this->addOption('--force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production');
 	}

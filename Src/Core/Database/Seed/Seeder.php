@@ -14,4 +14,13 @@ namespace W7\Core\Database\Seed;
 
 abstract class Seeder {
 	abstract public function run();
+
+	public function call($classes) {
+		$classes = (array)$classes;
+
+		foreach ($classes as $class) {
+			$class = new $class();
+			$class->run();
+		}
+	}
 }
