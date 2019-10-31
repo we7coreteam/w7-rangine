@@ -12,22 +12,16 @@
 
 namespace W7\Core\Database\Migrate;
 
+use Illuminate\Database\Migrations\Migration as MigrationAbstract;
 use Illuminate\Database\Schema\MySqlBuilder;
 
-abstract class Migration {
+abstract class Migration extends MigrationAbstract {
 	/**
 	 * The name of the database connection to use.
 	 *
 	 * @var string|null
 	 */
 	protected $connection = 'default';
-
-	/**
-	 * Enables, if supported, wrapping the migration within a transaction.
-	 *
-	 * @var bool
-	 */
-	public $withinTransaction = true;
 	/**
 	 * @var MySqlBuilder
 	 */
@@ -35,14 +29,5 @@ abstract class Migration {
 
 	public function __construct() {
 		$this->schema = idb()->connection($this->getConnection())->getSchemaBuilder();
-	}
-
-	/**
-	 * Get the migration connection name.
-	 *
-	 * @return string|null
-	 */
-	public function getConnection() {
-		return $this->connection;
 	}
 }

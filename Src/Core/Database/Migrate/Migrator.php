@@ -13,8 +13,10 @@
 namespace W7\Core\Database\Migrate;
 
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
+use Illuminate\Database\Events\MigrationEnded;
 use Illuminate\Database\Events\MigrationsEnded;
 use Illuminate\Database\Events\MigrationsStarted;
+use Illuminate\Database\Events\MigrationStarted;
 use Illuminate\Database\Migrations\MigrationRepositoryInterface;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
@@ -384,11 +386,11 @@ class Migrator {
 
 		$callback = function () use ($migration, $method) {
 			if (method_exists($migration, $method)) {
-//				$this->fireMigrationEvent(new MigrationStarted($migration, $method));
+				$this->fireMigrationEvent(new MigrationStarted($migration, $method));
 
 				$migration->{$method}();
 
-//				$this->fireMigrationEvent(new MigrationEnded($migration, $method));
+				$this->fireMigrationEvent(new MigrationEnded($migration, $method));
 			}
 		};
 
