@@ -39,7 +39,7 @@ class MigrateCommand extends MigrateCommandAbstract {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
 		$this->addOption('--pretend', null, InputOption::VALUE_NONE, 'Dump the SQL queries that would be run');
 		$this->addOption('--seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run');
-		$this->addOption('--step', null, InputOption::VALUE_NONE, 'Force the migrations to be run so they can be rolled back individually');
+		$this->addOption('--step', null, InputOption::VALUE_OPTIONAL, 'Force the migrations to be run so they can be rolled back individually');
 		$this->addOption('--force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production');
 	}
 
