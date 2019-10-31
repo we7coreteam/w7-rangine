@@ -59,6 +59,6 @@ class RollbackCommand extends MigrateCommandAbstract {
 					'step' => (int)$this->option('step'),
 				]
 			);
-		});
+		}, true);
 	}
 }

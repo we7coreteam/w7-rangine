@@ -41,6 +41,6 @@ class InstallCommand extends MigrateCommandAbstract {
 			$repository->createRepository();
 
 			$this->output->info('Migration table created successfully.');
-		});
+		}, true);
 	}
 }

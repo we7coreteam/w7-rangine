@@ -62,6 +62,6 @@ class ResetCommand extends MigrateCommandAbstract {
 				$this->getMigrationPaths(),
 				$this->option('pretend')
 			);
-		});
+		}, true);
 	}
 }

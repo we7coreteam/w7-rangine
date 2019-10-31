@@ -63,7 +63,7 @@ class StatusCommand extends MigrateCommandAbstract {
 			} else {
 				$this->output->error('No migrations found');
 			}
-		});
+		}, true);
 	}
 
 	/**

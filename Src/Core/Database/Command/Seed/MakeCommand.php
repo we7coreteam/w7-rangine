@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Database\Command\Seeds;
+namespace W7\Core\Database\Command\Seed;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Composer;

@@ -129,7 +129,7 @@ class RefreshCommand extends CommandAbstract {
 	 * @return void
 	 */
 	protected function runSeeder($database) {
-		$this->call('db:seed', array_filter([
+		$this->call('seed:seed', array_filter([
 			'--database' => $database,
 			'--class' => $this->option('seeder') ?: 'DatabaseSeeder',
 			'--force' => true,
