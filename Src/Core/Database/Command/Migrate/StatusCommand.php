@@ -13,7 +13,7 @@
 namespace W7\Core\Database\Command\Migrate;
 
 use Illuminate\Filesystem\Filesystem;
-use W7\Core\Database\Migrate\DatabaseMigrationRepository;
+use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Support\Collection;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Core\Database\Migrate\Migrator;

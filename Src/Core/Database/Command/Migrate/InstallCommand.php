@@ -12,8 +12,8 @@
 
 namespace W7\Core\Database\Command\Migrate;
 
+use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Symfony\Component\Console\Input\InputOption;
-use W7\Core\Database\Migrate\DatabaseMigrationRepository;
 
 class InstallCommand extends MigrateCommandAbstract {
 	/**

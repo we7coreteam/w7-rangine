@@ -12,7 +12,7 @@
 
 namespace W7\Core\Database\Command\Migrate;
 
-use W7\Core\Database\Migrate\DatabaseMigrationRepository;
+use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\ConfirmTrait;

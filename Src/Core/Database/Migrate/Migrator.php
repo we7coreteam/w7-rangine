@@ -12,12 +12,10 @@
 
 namespace W7\Core\Database\Migrate;
 
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
-use Illuminate\Database\Events\MigrationEnded;
 use Illuminate\Database\Events\MigrationsEnded;
 use Illuminate\Database\Events\MigrationsStarted;
-use Illuminate\Database\Events\MigrationStarted;
+use Illuminate\Database\Migrations\MigrationRepositoryInterface;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -88,7 +86,7 @@ class Migrator {
 		MigrationRepositoryInterface $repository,
 		Resolver $resolver,
 		Filesystem $files,
-		Dispatcher $dispatcher = null
+		EventDispatcher $dispatcher = null
 	) {
 		$this->files = $files;
 		$this->events = $dispatcher;
