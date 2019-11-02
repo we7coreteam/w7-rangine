@@ -17,7 +17,9 @@ use Swoole\Coroutine;
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\SwooleEvent;
-use W7\Tcp\Protocol\Dispatcher;
+use W7\Http\Message\Server\Request;
+use W7\Http\Message\Server\Response;
+use W7\Tcp\Server\Dispatcher as RequestDispatcher;
 
 class ReceiveListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -43,10 +45,23 @@ class ReceiveListener extends ListenerAbstract {
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 
-		$serverConf = iconfig()->getServer();
-		$serverConf = $serverConf[App::$server->getType()];
-		$protocol = $serverConf['protocol'] ?? '';
-		Dispatcher::dispatch($protocol, $server, $fd, $data);
+		$params = json_decode($data, true);
+		$params['url'] = $params['url'] ?? '';
+		$params['data'] = $params['data'] ?? [];
+
+		$psr7Request = new Request('POST', $params['url'], [], null);
+		$psr7Request = $psr7Request->withParsedBody($params['data']);
+		$psr7Response = new Response();
+
+		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+		/**
+		 * @var RequestDispatcher $dispatcher
+		 */
+		$dispatcher = \iloader()->get(RequestDispatcher::class);
+		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
+
+		$content = $psr7Response->getBody()->getContents();
+		$server->send($fd, $content);
 
 		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 	}
