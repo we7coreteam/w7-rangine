@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use W7\App;
 use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Exception\Handler\HandlerAbstract;
+use W7\Core\Helper\StringHelper;
 
 class HandlerExceptions {
 	/**
@@ -72,7 +73,7 @@ class HandlerExceptions {
 	public function handle(\Throwable $throwable, $serverType = null) {
 		if (!($throwable instanceof ResponseExceptionAbstract)) {
 			$serverType = $serverType ? $serverType : App::$server->getType();
-			$class = 'W7\\' . ucfirst($serverType) . '\Exception\FatalException';
+			$class = 'W7\\' . StringHelper::studly($serverType) . '\Exception\FatalException';
 			$throwable = new $class($throwable->getMessage(), $throwable->getCode(), $throwable);
 		}
 
