@@ -43,9 +43,9 @@ class App {
 			//初始化配置
 			iconfig();
 			$this->registerRuntimeEnv();
-			$this->registerSecurityDir();
 			$this->registerErrorHandler();
 			$this->registerProvider();
+			$this->registerSecurityDir();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());
 			exit();
