@@ -324,16 +324,13 @@ if (!function_exists('itrans')) {
 	}
 }
 if (!function_exists('igo')) {
-	function igo(Closure $callback, $throw = false) {
+	function igo(Closure $callback) {
 		$coId = icontext()->getCoroutineId();
-		Coroutine::create(function () use ($callback, $coId, $throw) {
+		Coroutine::create(function () use ($callback, $coId) {
 			icontext()->fork($coId);
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
-				if ($throw) {
-					throw $throwable;
-				}
 				ilogger()->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 		});

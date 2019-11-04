@@ -49,17 +49,21 @@ class RollbackCommand extends MigrateCommandAbstract {
 		}
 
 		igo(function () {
-			$database = $this->getConnection();
-			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
-			$this->migrator->setConnection($this->option('database'));
+			try {
+				$database = $this->getConnection();
+				$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
+				$this->migrator->setConnection($this->option('database'));
 
-			$this->migrator->setOutput($this->output)->rollback(
-				$this->getMigrationPaths(),
-				[
-					'pretend' => $this->option('pretend'),
-					'step' => (int)$this->option('step'),
-				]
-			);
-		}, true);
+				$this->migrator->setOutput($this->output)->rollback(
+					$this->getMigrationPaths(),
+					[
+						'pretend' => $this->option('pretend'),
+						'step' => (int)$this->option('step'),
+					]
+				);
+			} catch (\Throwable $e) {
+				$this->output->error($e->getMessage());
+			}
+		});
 	}
 }

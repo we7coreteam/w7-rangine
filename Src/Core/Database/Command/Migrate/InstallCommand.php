@@ -34,13 +34,17 @@ class InstallCommand extends MigrateCommandAbstract {
 	 */
 	protected function handle($options) {
 		igo(function () {
-			$database = $this->getConnection();
-			$repository = new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME);
-			$repository->setSource($this->input->getOption('database'));
+			try {
+				$database = $this->getConnection();
+				$repository = new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME);
+				$repository->setSource($this->input->getOption('database'));
 
-			$repository->createRepository();
+				$repository->createRepository();
 
-			$this->output->info('Migration table created successfully.');
-		}, true);
+				$this->output->info('Migration table created successfully.');
+			} catch (\Throwable $e) {
+				$this->output->error($e->getMessage());
+			}
+		});
 	}
 }

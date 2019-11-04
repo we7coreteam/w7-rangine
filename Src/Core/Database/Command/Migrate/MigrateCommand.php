@@ -55,27 +55,31 @@ class MigrateCommand extends MigrateCommandAbstract {
 		}
 
 		igo(function () {
-			$database = $this->getConnection();
-			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
+			try {
+				$database = $this->getConnection();
+				$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
 
-			$this->prepareDatabase();
+				$this->prepareDatabase();
 
-			// Next, we will check to see if a path option has been defined. If it has
-			// we will use the path relative to the root of this installation folder
-			// so that migrations may be run for any path within the applications.
-			$this->migrator->setOutput($this->output)
-				->run($this->getMigrationPaths(), [
-					'pretend' => $this->option('pretend'),
-					'step' => $this->option('step'),
-				]);
+				// Next, we will check to see if a path option has been defined. If it has
+				// we will use the path relative to the root of this installation folder
+				// so that migrations may be run for any path within the applications.
+				$this->migrator->setOutput($this->output)
+					->run($this->getMigrationPaths(), [
+						'pretend' => $this->option('pretend'),
+						'step' => $this->option('step'),
+					]);
 
-			// Finally, if the "seed" option has been given, we will re-run the database
-			// seed task to re-populate the database, which is convenient when adding
-			// a migration and a seed at the same time, as it is only this command.
-			if ($this->option('seed') && ! $this->option('pretend')) {
-				$this->call('seed:seed', ['--force' => true]);
+				// Finally, if the "seed" option has been given, we will re-run the database
+				// seed task to re-populate the database, which is convenient when adding
+				// a migration and a seed at the same time, as it is only this command.
+				if ($this->option('seed') && ! $this->option('pretend')) {
+					$this->call('seed:seed', ['--force' => true]);
+				}
+			} catch (\Throwable $e) {
+				$this->output->error($e->getMessage());
 			}
-		}, true);
+		});
 	}
 
 	/**

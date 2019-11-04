@@ -47,24 +47,28 @@ class StatusCommand extends MigrateCommandAbstract {
 	 */
 	protected function handle($options) {
 		igo(function () {
-			$database = $this->getConnection();
-			$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
-			$this->migrator->setConnection($this->option('database'));
+			try {
+				$database = $this->getConnection();
+				$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
+				$this->migrator->setConnection($this->option('database'));
 
-			if (! $this->migrator->repositoryExists()) {
-				return $this->output->error('Migration table not found.');
+				if (! $this->migrator->repositoryExists()) {
+					return $this->output->error('Migration table not found.');
+				}
+
+				$ran = $this->migrator->getRepository()->getRan();
+
+				$batches = $this->migrator->getRepository()->getMigrationBatches();
+
+				if (count($migrations = $this->getStatusFor($ran, $batches)) > 0) {
+					$this->output->table(['Ran?', 'Migration', 'Batch'], $migrations->toArray());
+				} else {
+					$this->output->error('No migrations found');
+				}
+			} catch (\Throwable $e) {
+				$this->output->error($e->getMessage());
 			}
-
-			$ran = $this->migrator->getRepository()->getRan();
-
-			$batches = $this->migrator->getRepository()->getMigrationBatches();
-
-			if (count($migrations = $this->getStatusFor($ran, $batches)) > 0) {
-				$this->output->table(['Ran?', 'Migration', 'Batch'], $migrations->toArray());
-			} else {
-				$this->output->error('No migrations found');
-			}
-		}, true);
+		});
 	}
 
 	/**
