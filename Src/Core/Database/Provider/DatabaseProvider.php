@@ -33,11 +33,22 @@ use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
 	public function register() {
+		$this->addOpenBaseDir();
 		$this->registerLog();
 		$this->registerDb();
 
 		$application = iloader()->get(Application::class);
 		$application->autoRegisterCommands($this->rootPath . '/Command', 'W7\Core\Database');
+	}
+
+	private function addOpenBaseDir() {
+		if (!is_dir(BASE_PATH . '/database/migrations')) {
+			mkdir(BASE_PATH . '/database/migrations');
+		}
+		if (!is_dir(BASE_PATH . '/database/seeds')) {
+			mkdir(BASE_PATH . '/database/seeds');
+		}
+		$this->registerOpenBaseDir(BASE_PATH . '/database');
 	}
 
 	/**
