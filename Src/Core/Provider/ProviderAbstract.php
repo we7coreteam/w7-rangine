@@ -127,6 +127,14 @@ abstract class ProviderAbstract {
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $namespace);
 	}
 
+	protected function registerOpenBaseDir($dir) {
+		$dir = (array)$dir;
+		$config = iconfig()->getUserConfig('app');
+		$config['setting']['basedir'] = (array)($config['setting']['basedir'] ?? []);
+		$config['setting']['basedir'] = array_merge($config['setting']['basedir'], $dir);
+		iconfig()->setUserConfig('app', $config);
+	}
+
 	protected function registerServer($name, $class) {
 		ServerEnum::registerServer($name, $class);
 	}
