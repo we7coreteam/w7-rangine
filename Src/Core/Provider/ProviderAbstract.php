@@ -15,6 +15,8 @@ namespace W7\Core\Provider;
 use Illuminate\Filesystem\Filesystem;
 use W7\Console\Application;
 use W7\Core\Route\RouteMapping;
+use W7\Core\Server\ServerEnum;
+use W7\Core\Server\SwooleEvent;
 use W7\Core\View\View;
 
 abstract class ProviderAbstract {
@@ -123,6 +125,15 @@ abstract class ProviderAbstract {
 		 */
 		$application = iloader()->get(Application::class);
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $namespace);
+	}
+
+	protected function registerServer($name, $class) {
+		ServerEnum::registerServer($name, $class);
+	}
+
+	protected function registerServerEvent($name, array $events) {
+		$event = iloader()->get(SwooleEvent::class);
+		$event->addServerEvents($name, $events);
 	}
 
 	protected function setRootPath($path) {
