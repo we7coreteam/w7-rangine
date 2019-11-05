@@ -30,7 +30,7 @@ class SeedCommand extends CommandAbstract {
 
 	protected function configure() {
 		$this->addOption('--class', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder', 'DatabaseSeeder');
-		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to seed');
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to seed', 'default');
 		$this->addOption('--force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production');
 	}
 
@@ -53,8 +53,14 @@ class SeedCommand extends CommandAbstract {
 
 		idb()->setDefaultConnection($this->option('database'));
 
-		Model::unguarded(function () use ($class) {
-			(new $class)->run();
+		igo(function () use ($class) {
+			try {
+				Model::unguarded(function () use ($class) {
+					(new $class)->run();
+				});
+			} catch (\Throwable $e) {
+				$this->output->error($e->getMessage());
+			}
 		});
 
 		$this->output->success('Database seeding completed successfully.');
