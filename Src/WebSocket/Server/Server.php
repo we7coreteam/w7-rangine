@@ -22,10 +22,14 @@ class Server extends ServerAbstract {
 		return ServerEnum::TYPE_WEBSOCKET;
 	}
 
-	public function start() {
-		if ($this->setting['dispatch_mode'] == 1 || $this->setting['dispatch_mode'] == 3) {
-			throw new \RuntimeException('not support the dispatch mode, please reset config/server.php/common/dispatch_mode');
+	protected function checkSetting() {
+		parent::checkSetting();
+		if (in_array($this->setting['dispatch_mode'], [1, 3])) {
+			throw new \RuntimeException("dispatch mode can't be 1,3, please reset config/server.php/common/dispatch_mode");
 		}
+	}
+
+	public function start() {
 		$this->server = $this->getServer();
 		$this->setting['open_websocket_close_frame'] = false;
 		$this->server->set($this->setting);

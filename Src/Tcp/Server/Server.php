@@ -22,6 +22,13 @@ class Server extends ServerAbstract {
 		return ServerEnum::TYPE_TCP;
 	}
 
+	protected function checkSetting() {
+		parent::checkSetting();
+		if (in_array($this->setting['dispatch_mode'], [1, 3, 7])) {
+			throw new \RuntimeException("dispatch mode can't be 1,3,7, please reset config/server.php/common/dispatch_mode");
+		}
+	}
+
 	public function start() {
 		$this->server = $this->getServer();
 		$this->server->set($this->setting);
@@ -61,5 +68,12 @@ class Server extends ServerAbstract {
 			$object = \iloader()->get($class);
 			$tcpServer->on($eventName, [$object, 'run']);
 		}
+	}
+
+	protected function getDefaultSetting() : array {
+		$setting = parent::getDefaultSetting();
+		$setting['dispatch_mode'] = 2;
+
+		return $setting;
 	}
 }
