@@ -81,10 +81,10 @@ class RequestDispatcher extends DispatcherAbstract {
 		$controller = $method = '';
 		switch ($route[0]) {
 			case Dispatcher::NOT_FOUND:
-				throw new RouteNotFoundException('Route not found', 404);
+				throw new RouteNotFoundException('Route not found, ' . $url, 404);
 				break;
 			case Dispatcher::METHOD_NOT_ALLOWED:
-				throw new RouteNotAllowException('Route not allowed', 405);
+				throw new RouteNotAllowException('Route not allowed, ' . $url, 405);
 				break;
 			case Dispatcher::FOUND:
 				if ($route[1]['handler'] instanceof \Closure) {
