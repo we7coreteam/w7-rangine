@@ -111,6 +111,11 @@ class ProviderManager {
 
 		if ($conf[$conf['installation-source']]['type'] == 'path') {
 			$path = BASE_PATH . '/' . $conf[$conf['installation-source']]['url'];
+
+			$config = iconfig()->getUserConfig('app');
+			$config['setting']['basedir'] = (array)($config['setting']['basedir'] ?? []);
+			$config['setting']['basedir'][] = $path;
+			iconfig()->setUserConfig('app', $config);
 		} else {
 			$path = BASE_PATH . '/vendor/' . $conf['name'];
 		}
