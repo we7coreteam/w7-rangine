@@ -126,7 +126,24 @@ class DatabaseProvider extends ProviderAbstract {
 	}
 
 	private function log($data) {
-		ilogger()->channel('database')->debug('connection ' . $data->connectionName . ', ' . ($data->sql ?? '') . ', params: ' . implode(',', (array) (empty($data->bindings) ? [] : $data->bindings)));
+		$sql = $data->sql ?? '';
+		$bindings = (array) (empty($data->bindings) ? [] : $data->bindings);
+		foreach ($bindings as $key => $binding) {
+			// This regex matches placeholders only, not the question marks,
+			// nested in quotes, while we iterate through the bindings
+			// and substitute placeholders by suitable values.
+			$regex = is_numeric($key)
+				? "/\?(?=(?:[^'\\\']*'[^'\\\']*')*[^'\\\']*$)/"
+				: "/:{$key}(?=(?:[^'\\\']*'[^'\\\']*')*[^'\\\']*$)/";
+
+			// Mimic bindValue and only quote non-integer and non-float data types
+			if (!is_int($binding) && !is_float($binding)) {
+				$binding = $data->connection->getPdo()->quote($binding);
+			}
+
+			$sql = preg_replace($regex, $binding, $sql, 1);
+		}
+		ilogger()->channel('database')->debug('connection ' . $data->connectionName . ', ' . $sql);
 	}
 
 	private function releaseDb($data, $container) {
