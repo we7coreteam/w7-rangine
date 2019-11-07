@@ -12,7 +12,7 @@
 
 namespace W7\WebSocket\Collector;
 
-use W7\Http\Message\Server\Request;
+use W7\Tcp\Collector\CollectorManager as CollectManagerAbstract;
 
 /**
  * 统一收集连接时的资源
@@ -20,53 +20,6 @@ use W7\Http\Message\Server\Request;
  * Class CollectorManager
  * @package W7\WebSocket\Collector
  */
-class CollectorManager {
-	private $collectors = [];
+class CollectorManager extends CollectManagerAbstract {
 
-	public function addCollect(CollectorAbstract $collector) {
-		$this->collectors[$collector->getName()] = $collector;
-	}
-
-	public function delCollector($name) {
-		if (!empty($this->collectors[$name])) {
-			unset($this->collectors[$name]);
-		}
-	}
-
-	public function getCollector($name) : CollectorAbstract {
-		if (empty($this->collectors[$name])) {
-			throw new \RuntimeException('collect ' . $name . ' not exists');
-		}
-		return $this->collectors[$name];
-	}
-
-	public function set($fd, Request $psr7Request) {
-		/**
-		 * @var CollectorAbstract $collector
-		 */
-		foreach ($this->collectors as $collector) {
-			$collector->set($fd, $psr7Request);
-		}
-	}
-
-	public function get($fd) {
-		$data = [];
-		/**
-		 * @var CollectorAbstract $collector
-		 */
-		foreach ($this->collectors as $collector) {
-			$data[$collector->getName()] = $collector->get($fd);
-		}
-
-		return $data;
-	}
-
-	public function del($fd) {
-		/**
-		 * @var CollectorAbstract $collector
-		 */
-		foreach ($this->collectors as $collector) {
-			$collector->del($fd);
-		}
-	}
 }
