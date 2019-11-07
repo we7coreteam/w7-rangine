@@ -41,6 +41,7 @@ class ReceiveListener extends ListenerAbstract {
 	 */
 	private function dispatch(Server $server, $reactorId, $fd, $data) {
 		$context = App::getApp()->getContext();
+		$context->setContextDataByKey('fd', $fd);
 		$context->setContextDataByKey('reactorid', $reactorId);
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());

@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\WebSocket\Collector;
+namespace W7\Tcp\Collector;
 
 abstract class CollectorAbstract {
 	protected static $name;
