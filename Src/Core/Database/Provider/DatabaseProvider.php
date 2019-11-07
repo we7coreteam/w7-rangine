@@ -180,7 +180,7 @@ class DatabaseProvider extends ProviderAbstract {
 		$logManager = iloader()->get(LogManager::class);
 		$logManager->addChannel('database', 'stream', [
 			'path' => RUNTIME_PATH . '/logs/db.log',
-			'level' => ienv('LOG_CHANNEL_DATABASE_LEVEL', 'debug')
+			'level' => ((ENV & DEBUG) === DEBUG) ? 'debug' : 'info'
 		]);
 	}
 }

@@ -44,7 +44,7 @@ class CacheProvider extends ProviderAbstract {
 		$logManager = iloader()->get(LogManager::class);
 		$logManager->addChannel('cache', 'stream', [
 			'path' => RUNTIME_PATH . '/logs/cache.log',
-			'level' => ienv('LOG_CHANNEL_CACHE_LEVEL', 'debug')
+			'level' => ((ENV & DEBUG) === DEBUG) ? 'debug' : 'info'
 		]);
 	}
 }
