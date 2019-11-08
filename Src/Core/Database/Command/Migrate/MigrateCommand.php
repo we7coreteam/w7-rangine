@@ -37,7 +37,7 @@ class MigrateCommand extends MigrateCommandAbstract {
 	protected $migrator;
 
 	protected function configure() {
-		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use', 'default');
 		$this->addOption('--pretend', null, InputOption::VALUE_NONE, 'Dump the SQL queries that would be run');
 		$this->addOption('--seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run');
 		$this->addOption('--step', null, InputOption::VALUE_OPTIONAL, 'Force the migrations to be run so they can be rolled back individually');
@@ -54,9 +54,9 @@ class MigrateCommand extends MigrateCommandAbstract {
 			return;
 		}
 
-		igo(function () {
+		igo(function () use ($options) {
 			try {
-				$database = $this->getConnection();
+				$database = $this->getConnection($options['database']);
 				$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
 
 				$this->prepareDatabase();

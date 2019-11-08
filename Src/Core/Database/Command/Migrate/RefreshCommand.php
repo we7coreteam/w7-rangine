@@ -27,7 +27,7 @@ class RefreshCommand extends CommandAbstract {
 	protected $description = 'Reset and re-run all migrations';
 
 	protected function configure() {
-		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use', 'default');
 		$this->addOption('--force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production');
 		$this->addOption('--path', null, InputOption::VALUE_OPTIONAL, 'The path to the migrations files to be executed');
 		$this->addOption('--realpath', null, InputOption::VALUE_NONE, 'Indicate any provided migration file paths are pre-resolved absolute paths');

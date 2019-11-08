@@ -24,7 +24,7 @@ class InstallCommand extends MigrateCommandAbstract {
 	protected $description = 'Create the migration repository';
 
 	protected function configure() {
-		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use', 'default');
 	}
 
 	/**
@@ -33,9 +33,9 @@ class InstallCommand extends MigrateCommandAbstract {
 	 * @return void
 	 */
 	protected function handle($options) {
-		igo(function () {
+		igo(function () use ($options) {
 			try {
-				$database = $this->getConnection();
+				$database = $this->getConnection($options['database']);
 				$repository = new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME);
 				$repository->setSource($this->input->getOption('database'));
 

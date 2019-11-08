@@ -35,7 +35,7 @@ class StatusCommand extends MigrateCommandAbstract {
 	protected $migrator;
 
 	protected function configure() {
-		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use', 'default');
 		$this->addOption('--path', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'The path to the migrations files to be executed');
 		$this->addOption('--realpath', null, InputOption::VALUE_NONE, 'Indicate any provided migration file paths are pre-resolved absolute paths');
 	}
@@ -46,9 +46,9 @@ class StatusCommand extends MigrateCommandAbstract {
 	 * @return void
 	 */
 	protected function handle($options) {
-		igo(function () {
+		igo(function () use ($options) {
 			try {
-				$database = $this->getConnection();
+				$database = $this->getConnection($options['database']);
 				$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
 				$this->migrator->setConnection($this->option('database'));
 

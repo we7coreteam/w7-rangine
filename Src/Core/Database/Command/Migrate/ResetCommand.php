@@ -30,7 +30,7 @@ class ResetCommand extends MigrateCommandAbstract {
 	protected $description = 'Rollback all database migrations';
 
 	protected function configure() {
-		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use');
+		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use', 'default');
 		$this->addOption('--force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production');
 		$this->addOption('--path', null, InputOption::VALUE_OPTIONAL, 'The path to the migrations files to be executed');
 		$this->addOption('--realpath', null, InputOption::VALUE_NONE, 'Indicate any provided migration file paths are pre-resolved absolute paths');
@@ -47,9 +47,9 @@ class ResetCommand extends MigrateCommandAbstract {
 			return;
 		}
 
-		igo(function () {
+		igo(function () use ($options) {
 			try {
-				$database = $this->getConnection();
+				$database = $this->getConnection($options['database']);
 				$this->migrator = new Migrator(new DatabaseMigrationRepository($database, 'migration'), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
 				$this->migrator->setConnection($this->option('database'));
 

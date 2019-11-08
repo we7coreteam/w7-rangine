@@ -12,8 +12,6 @@
 
 namespace W7\Core\Database\Command\Seed;
 
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Composer;
 use W7\Console\Command\GeneratorCommandAbstract;
 
 class MakeCommand extends GeneratorCommandAbstract {
@@ -29,8 +27,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 	}
 
 	protected function after() {
-		$composer = new Composer(new Filesystem(), __DIR__);
-		$composer->dumpAutoloads();
+		exec('composer dump-autoload');
 	}
 
 	/**

@@ -16,7 +16,6 @@ use Illuminate\Database\Console\Migrations\TableGuesser;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Core\Database\Migrate\MigrationCreator;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Composer;
 use W7\Core\Exception\CommandException;
 use W7\Core\Helper\StringHelper;
 
@@ -34,13 +33,6 @@ class MakeCommand extends MigrateCommandAbstract {
 	 * @var MigrationCreator
 	 */
 	protected $creator;
-
-	/**
-	 * The Composer instance.
-	 *
-	 * @var \Illuminate\Support\Composer
-	 */
-	protected $composer;
 
 	protected function configure() {
 		$this->addArgument('name', InputOption::VALUE_REQUIRED, 'The name of the migration');
@@ -89,11 +81,10 @@ class MakeCommand extends MigrateCommandAbstract {
 		// make sure that the migrations are registered by the class loaders.
 		$filesystem = new Filesystem();
 		$this->creator = new MigrationCreator($filesystem);
-		$this->composer = new Composer($filesystem, __DIR__);
 
 		$this->writeMigration($name, $table, $create);
 
-		$this->composer->dumpAutoloads();
+		exec('composer dump-autoload');
 	}
 
 	/**
