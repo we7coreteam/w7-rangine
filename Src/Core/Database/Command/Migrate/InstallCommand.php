@@ -35,8 +35,8 @@ class InstallCommand extends MigrateCommandAbstract {
 	protected function handle($options) {
 		igo(function () use ($options) {
 			try {
-				$database = $this->getConnection($options['database']);
-				$repository = new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME);
+				idb()->setDefaultConnection($options['database']);
+				$repository = new DatabaseMigrationRepository(idb(), MigrateCommandAbstract::MIGRATE_TABLE_NAME);
 				$repository->setSource($this->input->getOption('database'));
 
 				$repository->createRepository();

@@ -56,8 +56,8 @@ class MigrateCommand extends MigrateCommandAbstract {
 
 		igo(function () use ($options) {
 			try {
-				$database = $this->getConnection($options['database']);
-				$this->migrator = new Migrator(new DatabaseMigrationRepository($database, MigrateCommandAbstract::MIGRATE_TABLE_NAME), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
+				idb()->setDefaultConnection($options['database']);
+				$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), MigrateCommandAbstract::MIGRATE_TABLE_NAME), idb(), new Filesystem(), iloader()->get(EventDispatcher::class));
 
 				$this->prepareDatabase();
 

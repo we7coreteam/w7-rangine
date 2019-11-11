@@ -58,10 +58,4 @@ abstract class MigrateCommandAbstract extends CommandAbstract {
 	protected function getMigrationPath() {
 		return BASE_PATH.DIRECTORY_SEPARATOR.'database/migrations';
 	}
-
-	protected function getConnection($connection = 'default') {
-		$database = idb();
-		icontext()->setContextDataByKey('db-transaction', $database->connection($connection));
-		return $database;
-	}
 }

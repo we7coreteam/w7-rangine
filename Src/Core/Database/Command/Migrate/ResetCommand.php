@@ -49,8 +49,8 @@ class ResetCommand extends MigrateCommandAbstract {
 
 		igo(function () use ($options) {
 			try {
-				$database = $this->getConnection($options['database']);
-				$this->migrator = new Migrator(new DatabaseMigrationRepository($database, 'migration'), $database, new Filesystem(), iloader()->get(EventDispatcher::class));
+				idb()->setDefaultConnection($options['database']);
+				$this->migrator = new Migrator(new DatabaseMigrationRepository(idb(), 'migration'), idb(), new Filesystem(), iloader()->get(EventDispatcher::class));
 				$this->migrator->setConnection($this->option('database'));
 
 				// First, we'll make sure that the migration table actually exists before we
