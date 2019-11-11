@@ -144,7 +144,7 @@ class SwooleEvent {
 	}
 
 	private function registerSystemEvent() {
-		$eventTypes = [App::$server->getType(), 'manage'];
+		$eventTypes = ['manage', 'worker', App::$server->getType(), 'task'];
 
 		$swooleEvents = $this->getDefaultEvent();
 		foreach ($eventTypes as $name) {
