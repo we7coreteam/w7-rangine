@@ -43,10 +43,10 @@ class DatabaseProvider extends ProviderAbstract {
 
 	private function addOpenBaseDir() {
 		if (!is_dir(BASE_PATH . '/database/migrations')) {
-			mkdir(BASE_PATH . '/database/migrations');
+			mkdir(BASE_PATH . '/database/migrations', 0777, true);
 		}
 		if (!is_dir(BASE_PATH . '/database/seeds')) {
-			mkdir(BASE_PATH . '/database/seeds');
+			mkdir(BASE_PATH . '/database/seeds', 0777, true);
 		}
 		$this->registerOpenBaseDir(BASE_PATH . '/database');
 	}
