@@ -26,7 +26,7 @@ class SeedCommand extends CommandAbstract {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Seed the database with records';
+	protected $description = 'seed the database with records';
 
 	protected function configure() {
 		$this->addOption('--class', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder', 'DatabaseSeeder');

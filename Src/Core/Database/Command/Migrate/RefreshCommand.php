@@ -24,7 +24,7 @@ class RefreshCommand extends CommandAbstract {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Reset and re-run all migrations';
+	protected $description = 'reset and re-run all migrations';
 
 	protected function configure() {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use', 'default');

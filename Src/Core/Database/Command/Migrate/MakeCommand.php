@@ -25,7 +25,7 @@ class MakeCommand extends MigrateCommandAbstract {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Create a new migration file';
+	protected $description = 'create a new migration file';
 
 	/**
 	 * The migration creator instance.

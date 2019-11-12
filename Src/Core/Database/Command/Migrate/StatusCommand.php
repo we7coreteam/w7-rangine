@@ -25,7 +25,7 @@ class StatusCommand extends MigrateCommandAbstract {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Show the status of each migration';
+	protected $description = 'show the status of each migration';
 
 	/**
 	 * The migrator instance.

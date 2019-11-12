@@ -27,7 +27,7 @@ class ResetCommand extends MigrateCommandAbstract {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Rollback all database migrations';
+	protected $description = 'rollback all database migrations';
 
 	protected function configure() {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use', 'default');

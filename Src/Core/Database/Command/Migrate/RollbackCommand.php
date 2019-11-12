@@ -27,7 +27,7 @@ class RollbackCommand extends MigrateCommandAbstract {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Rollback the last database migration';
+	protected $description = 'rollback the last database migration';
 
 	protected function configure() {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use', 'default');

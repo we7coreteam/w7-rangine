@@ -20,7 +20,7 @@ class MakeCommand extends GeneratorCommandAbstract {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Create a new seeder class';
+	protected $description = 'create a new seeder class';
 
 	protected function before() {
 		$this->name = ucfirst($this->name);

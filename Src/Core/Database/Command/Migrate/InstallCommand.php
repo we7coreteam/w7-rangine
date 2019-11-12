@@ -21,7 +21,7 @@ class InstallCommand extends MigrateCommandAbstract {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Create the migration repository';
+	protected $description = 'create the migration repository';
 
 	protected function configure() {
 		$this->addOption('--database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use', 'default');
