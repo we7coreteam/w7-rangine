@@ -56,7 +56,7 @@ class App {
 		date_default_timezone_set('Asia/Shanghai');
 
 		if (!is_dir(RUNTIME_PATH)) {
-			mkdir(RUNTIME_PATH);
+			mkdir(RUNTIME_PATH, 0777, true);
 		}
 		if (!is_readable(RUNTIME_PATH)) {
 			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no read permission');
