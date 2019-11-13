@@ -24,6 +24,7 @@ use W7\Console\Io\Output;
 use W7\Core\Message\TaskMessage;
 use Illuminate\Database\Eloquent\Model;
 use W7\Core\Route\Route;
+use Swoole\Timer;
 
 if (!function_exists('ievent')) {
 	/**
@@ -361,5 +362,27 @@ if (!function_exists('ivalidator')) {
 	function ivalidator() : Factory {
 		$validator = iloader()->get(Factory::class);
 		return $validator;
+	}
+}
+if (!function_exists('itimeTick')) {
+	function itimeTick($ms, \Closure $callback) {
+		Timer::tick($ms, function () use ($callback) {
+			try {
+				$callback();
+			} catch (Throwable $throwable) {
+				ilogger()->debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+			}
+		});
+	}
+}
+if (!function_exists('itimeAfter')) {
+	function itimeAfter($ms, \Closure $callback) {
+		Timer::after($ms, function () use ($callback) {
+			try {
+				$callback();
+			} catch (Throwable $throwable) {
+				ilogger()->debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+			}
+		});
 	}
 }

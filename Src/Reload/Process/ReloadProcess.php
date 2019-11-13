@@ -13,7 +13,6 @@
 namespace W7\Reload\Process;
 
 use Swoole\Process;
-use Swoole\Timer;
 use W7\App;
 use W7\Core\Process\ProcessAbstract;
 
@@ -70,7 +69,7 @@ class ReloadProcess extends ProcessAbstract {
 
 	protected function run(Process $process) {
 		$server = App::$server;
-		Timer::tick(1000, function () use ($server) {
+		itimeTick(1000, function () use ($server) {
 			$md5File = $this->getWatchDirMd5();
 			$startReload = (strcmp($this->md5File, $md5File) !== 0);
 			$this->md5File = $md5File;
