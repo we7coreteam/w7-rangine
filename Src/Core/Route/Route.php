@@ -328,7 +328,10 @@ class Route {
 			return $handler;
 		}
 		if (is_string($handler)) {
-			$handler = explode('@', $handler);
+			$handler = explode('@', $handler, 2);
+		}
+		if (count($handler) != 2) {
+			throw new \RuntimeException('route handler ' . $handler[0] . ' error');
 		}
 		list($className, $action) = $handler;
 		if (empty($action)) {
