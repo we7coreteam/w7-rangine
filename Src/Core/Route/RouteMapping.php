@@ -16,6 +16,7 @@ use W7\Core\Middleware\MiddlewareMapping;
 
 class RouteMapping {
 	private $routeConfig;
+	private $routeKeyWords = ['prefix', 'method', 'middleware', 'name', 'namespace', 'uri', 'handler'];
 
 	/**
 	 * @var MiddlewareMapping
@@ -52,97 +53,123 @@ class RouteMapping {
 		return irouter()->getData();
 	}
 
-	private function initRouteByConfig($config, $prefix = '', $middleware = [], $method = '', $name = '', $routeNamespace = '') {
-		if (!is_array($config)) {
-			return [];
+	private function initRouteByConfig($config) {
+		$prefix = '';
+		$middleware = [];
+		$name = '';
+		$routeNamespace = '';
+
+		$prefix .= '/' . trim($config['prefix'] ?? '', '/');
+
+		$method = $config['method'] ?? [];
+		if (!empty($config['middleware'])) {
+			$middleware = array_merge([], $middleware, (array) $config['middleware']);
+		}
+		if (!empty($config['name'])) {
+			$name .= $config['name'] . '.';
+		}
+		if (!empty($config['namespace'])) {
+			$routeNamespace = $config['namespace'];
+		}
+
+		foreach ($this->routeKeyWords as $routeKeyWord) {
+			if (isset($config[$routeKeyWord])) {
+				unset($config[$routeKeyWord]);
+			}
 		}
 
 		foreach ($config as $section => $routeItem) {
 			//包含prefix时，做为URL的前缀
-			if ($section == 'prefix') {
-				$prefix .= $routeItem;
-				continue;
+			$this->parseRoute($section, $routeItem, $prefix, $middleware, $method, $name, $routeNamespace);
+		}
+	}
+
+	private function parseRoute($key, $route, $prefix = '', $middleware = [], $method = '', $name = '', $routeNamespace = '') {
+		$childRoutes = array_diff(array_keys($route), $this->routeKeyWords);
+		if (!empty($childRoutes)) {
+			$prefix .= '/' . trim($route['prefix'] ?? '', '/');
+			$method = $route['method'] ?? [];
+
+			if (!empty($route['middleware'])) {
+				$middleware = array_merge([], $middleware, (array) $route['middleware']);
 			}
 
-			//包含method时，做为默认method
-			if ($section == 'method') {
-				$method = $routeItem;
-				continue;
+			if (!empty($route['name'])) {
+				$name .= $route['name'] . '.';
 			}
 
-			//仅当下属节点不包含prefix时，才会拼接键名
-			if (empty($routeItem['prefix'])) {
-				$uri = sprintf('%s/%s', $prefix, ltrim($section, '/'));
-			} else {
-				$uri = sprintf('%s', $prefix);
+			if (!empty($route['namespace'])) {
+				$routeNamespace = $route['namespace'];
+			}
+			foreach ($childRoutes as $section => $childRoute) {
+				$this->parseRoute($key . '/' . $childRoute, $route[$childRoute], $prefix, $middleware, $method, $name, $routeNamespace);
+			}
+		} else {
+			//如果没有指定Uri,则根据数组结构生成uri
+			if (empty($route['uri'])) {
+				if (!empty($route['prefix'])) {
+					$prefix .= '/' . trim($route['prefix'] ?? '', '/');
+				}
+
+				$prefixArr = explode('/', $prefix);
+				$tmpKey = explode('/', $key);
+				foreach ($tmpKey as $index => $value) {
+					if (!empty($prefixArr[$index + 2])) {
+						$tmpKey[$index] = $prefixArr[$index + 2];
+					}
+				}
+				if (!empty($prefixArr[1])) {
+					array_unshift($tmpKey, $prefixArr[1]);
+				}
+				$tmpKey = implode('/', $tmpKey);
+				$uri = sprintf('/%s', $tmpKey);
+				$route['uri'] = $uri;
+			}
+			if (empty($route['uri'])) {
+				return false;
 			}
 
-			if ($section == 'middleware') {
-				$middleware = array_merge([], $middleware, (array) $routeItem);
+			//如果没有指定handler，则按数组层级生成命名空间+Controller@当前键名
+			if (empty($route['handler'])) {
+				$namespace = explode('/', ltrim($key, '/'));
+				$namespace = array_slice($namespace, 0, -1);
+
+				$namespace = array_map('ucfirst', $namespace);
+				$key = explode('/', $key);
+				$key = end($key);
+				$route['handler'] = sprintf('%sController@%s', implode('\\', $namespace), $key);
 			}
 
-			if ($section == 'name' && $routeItem) {
-				$name .= $routeItem . '.';
+			if (empty($route['method'])) {
+				$route['method'] = $method;
 			}
 
-			if ($section == 'namespace') {
-				$routeNamespace = $routeItem;
-				continue;
+			if (empty($route['method'])) {
+				$route['method'] = Route::METHOD_BOTH_GP;
 			}
 
-			if (is_array($routeItem) && !empty($routeItem) && empty($routeItem['handler']) && empty($routeItem['uri'])) {
-				$this->initRouteByConfig($routeItem, $uri ?? '', $middleware, $method, $name, $routeNamespace);
-			} else {
-				if (!is_array($routeItem) || $section == 'middleware' || $section == 'method') {
-					continue;
-				}
-				//如果没有指定Uri,则根据数组结构生成uri
-				if (empty($routeItem['uri'])) {
-					$routeItem['uri'] = $uri;
-				}
-				if (empty($routeItem['uri'])) {
-					continue;
-				}
-
-				//如果没有指定handler，则按数组层级生成命名空间+Controller@当前键名
-				if (empty($routeItem['handler'])) {
-					$namespace = explode('/', ltrim($uri, '/'));
-					$namespace = array_slice($namespace, 0, -1);
-
-					$namespace = array_map('ucfirst', $namespace);
-					$routeItem['handler'] = sprintf('%sController@%s', implode('\\', $namespace), $section);
-				}
-
-				if (empty($routeItem['method'])) {
-					$routeItem['method'] = $method;
-				}
-
-				if (empty($routeItem['method'])) {
-					$routeItem['method'] = Route::METHOD_BOTH_GP;
-				}
-
-				if (is_string($routeItem['method'])) {
-					$routeItem['method'] = explode(',', $routeItem['method']);
-				}
-
-				if (!isset($routeItem['name'])) {
-					$routeItem['name'] = '';
-				}
-				if (empty($routeItem['name']) && !($routeItem['handler'] instanceof \Closure)) {
-					$routeItem['name'] = $name . ltrim(strrchr($routeItem['handler'], '@'), '@');
-				}
-
-				//组合中间件
-				if (empty($routeItem['middleware'])) {
-					$routeItem['middleware'] = [];
-				}
-				$routeItem['middleware'] = array_merge([], $middleware, (array) $routeItem['middleware']);
-				irouter()->group([
-					'namespace' => $routeNamespace
-				], function () use ($routeItem) {
-					irouter()->middleware($routeItem['middleware'])->add(array_map('strtoupper', $routeItem['method']), $routeItem['uri'], $routeItem['handler'], $routeItem['name']);
-				});
+			if (is_string($route['method'])) {
+				$route['method'] = explode(',', $route['method']);
 			}
+
+			if (!isset($route['name'])) {
+				$route['name'] = '';
+			}
+			if (empty($route['name']) && !($route['handler'] instanceof \Closure)) {
+				$route['name'] = $name . ltrim(strrchr($route['handler'], '@'), '@');
+			}
+
+			//组合中间件
+			if (empty($route['middleware'])) {
+				$route['middleware'] = [];
+			}
+			$route['middleware'] = array_unique(array_merge([], $middleware, (array) $route['middleware']));
+
+			irouter()->group([
+				'namespace' => $routeNamespace
+			], function () use ($route) {
+				irouter()->middleware($route['middleware'])->add(array_map('strtoupper', $route['method']), $route['uri'], $route['handler'], $route['name']);
+			});
 		}
 	}
 
