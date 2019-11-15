@@ -54,6 +54,7 @@ class RouteMapping {
 	}
 
 	private function initRouteByConfig($config) {
+		//处理路由最外层的全局配置
 		$prefix = '';
 		$middleware = [];
 		$name = '';
@@ -86,7 +87,9 @@ class RouteMapping {
 
 	private function parseRoute($key, $route, $prefix = '', $middleware = [], $method = '', $name = '', $routeNamespace = '') {
 		$childRoutes = array_diff(array_keys($route), $this->routeKeyWords);
+		//如果有子路由的话，解析子路由
 		if (!empty($childRoutes)) {
+			//这里按照路由级别，把prefix全部加上，在具体的路由上，按照路径进行替换
 			$prefix .= '/' . trim($route['prefix'] ?? '', '/');
 			$method = $route['method'] ?? $method;
 
@@ -105,8 +108,10 @@ class RouteMapping {
 				$this->parseRoute($key . '/' . $childRoute, $route[$childRoute], $prefix, $middleware, $method, $name, $routeNamespace);
 			}
 		} else {
+			//解析具体的路由
 			//如果没有指定Uri,则根据数组结构生成uri
 			if (empty($route['uri'])) {
+				//按prefix和key的路径，按位置替换，生成最后的url
 				if (!empty($route['prefix'])) {
 					$prefix .= '/' . trim($route['prefix'] ?? '', '/');
 				}
