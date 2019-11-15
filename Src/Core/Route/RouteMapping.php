@@ -88,7 +88,7 @@ class RouteMapping {
 		$childRoutes = array_diff(array_keys($route), $this->routeKeyWords);
 		if (!empty($childRoutes)) {
 			$prefix .= '/' . trim($route['prefix'] ?? '', '/');
-			$method = $route['method'] ?? [];
+			$method = $route['method'] ?? $method;
 
 			if (!empty($route['middleware'])) {
 				$middleware = array_merge([], $middleware, (array) $route['middleware']);
@@ -135,6 +135,10 @@ class RouteMapping {
 				$namespace = array_slice($namespace, 0, -1);
 
 				$namespace = array_map('ucfirst', $namespace);
+				if (empty($namespace)) {
+					throw new \RuntimeException('route format error, route: ' . $route['uri']);
+				}
+
 				$key = explode('/', $key);
 				$key = end($key);
 				$route['handler'] = sprintf('%sController@%s', implode('\\', $namespace), $key);
