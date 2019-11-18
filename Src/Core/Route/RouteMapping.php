@@ -127,7 +127,7 @@ class RouteMapping {
 					array_unshift($tmpKey, $prefixArr[1]);
 				}
 				$tmpKey = implode('/', $tmpKey);
-				$uri = sprintf('/%s', $tmpKey);
+				$uri = sprintf('/%s', trim($tmpKey, '/'));
 				$route['uri'] = $uri;
 			}
 			if (empty($route['uri'])) {
