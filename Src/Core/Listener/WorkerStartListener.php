@@ -23,6 +23,6 @@ class WorkerStartListener implements ListenerInterface {
 
 		\isetProcessTitle(App::$server->getPname(). App::$server->getType() . (App::$server->server->taskworker ? ' task' : '')  . ' worker process');
 
-		ievent(SwooleEvent::ON_USER_AFTER_WORKER_START);
+		ievent(SwooleEvent::ON_USER_AFTER_WORKER_START, $params);
 	}
 }

@@ -6,7 +6,7 @@ use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Http\Message\Server\Response;
 
-class AfterShutDownListener extends ListenerAbstract {
+class AfterWorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
 		/**
 		 * @var Response $response

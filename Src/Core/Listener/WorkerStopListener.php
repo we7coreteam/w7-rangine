@@ -17,7 +17,7 @@ use W7\Core\Server\SwooleEvent;
 
 class WorkerStopListener implements ListenerInterface {
 	public function run(...$params) {
-		ievent(SwooleEvent::ON_USER_AFTER_WORKER_STOP);
+		ievent(SwooleEvent::ON_USER_AFTER_WORKER_STOP, $params);
 
 		App::getApp()->exit();
 	}

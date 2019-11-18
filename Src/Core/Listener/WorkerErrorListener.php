@@ -16,6 +16,6 @@ use W7\Core\Server\SwooleEvent;
 
 class WorkerErrorListener implements ListenerInterface {
 	public function run(...$params) {
-		ievent(SwooleEvent::ON_USER_AFTER_WORKER_ERROR);
+		ievent(SwooleEvent::ON_USER_AFTER_WORKER_ERROR, $params);
 	}
 }

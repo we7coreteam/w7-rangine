@@ -19,6 +19,6 @@ class ManagerStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' manager process');
 
-		ievent(SwooleEvent::ON_USER_AFTER_MANAGER_START);
+		ievent(SwooleEvent::ON_USER_AFTER_MANAGER_START, $params);
 	}
 }

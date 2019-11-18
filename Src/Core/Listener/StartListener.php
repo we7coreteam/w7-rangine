@@ -22,6 +22,6 @@ class StartListener implements ListenerInterface {
 
 		iloader()->get(LogManager::class)->cleanLogFile();
 
-		ievent(SwooleEvent::ON_USER_AFTER_START);
+		ievent(SwooleEvent::ON_USER_AFTER_START, $params);
 	}
 }

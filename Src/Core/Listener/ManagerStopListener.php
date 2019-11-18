@@ -16,6 +16,6 @@ use W7\Core\Server\SwooleEvent;
 
 class ManagerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		ievent(SwooleEvent::ON_USER_AFTER_MANAGER_STOP);
+		ievent(SwooleEvent::ON_USER_AFTER_MANAGER_STOP, $params);
 	}
 }
