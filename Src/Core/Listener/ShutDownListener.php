@@ -12,10 +12,7 @@
 
 namespace W7\Core\Listener;
 
-use W7\Core\Server\SwooleEvent;
-
 class ShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
-		ievent(SwooleEvent::ON_USER_AFTER_SHUTDOWN);
 	}
 }

@@ -17,6 +17,7 @@ use W7\App;
 use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Exception\Handler\HandlerAbstract;
 use W7\Core\Helper\StringHelper;
+use W7\Core\Server\SwooleEvent;
 
 class HandlerExceptions {
 	/**
@@ -41,7 +42,8 @@ class HandlerExceptions {
 			}
 
 			$throwable = new ShutDownException($e['message'], 0, $e['type'], $e['file'], $e['line']);
-			$this->handleException($throwable);
+			$response = $this->handleException($throwable);
+			ievent(SwooleEvent::ON_USER_AFTER_SHUTDOWN, [App::$server->getServer(), $response, $throwable]);
 		});
 	}
 
@@ -67,7 +69,7 @@ class HandlerExceptions {
 	 * @param \Throwable $throwable
 	 */
 	public function handleException(\Throwable $throwable) {
-		$this->handle($throwable);
+		return $this->handle($throwable);
 	}
 
 	public function handle(\Throwable $throwable, $serverType = null) {
