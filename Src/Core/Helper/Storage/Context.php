@@ -147,6 +147,10 @@ class Context {
 		}
 	}
 
+	public function all() {
+		return self::$context ?? [];
+	}
+
 	/**
 	 * Get data from coroutine context by key
 	 *
