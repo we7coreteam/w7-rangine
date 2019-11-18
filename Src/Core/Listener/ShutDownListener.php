@@ -16,6 +16,6 @@ use W7\Core\Server\SwooleEvent;
 
 class ShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
-		ievent(SwooleEvent::ON_USER_AFTER_STOP);
+		ievent(SwooleEvent::ON_USER_AFTER_SHUTDOWN);
 	}
 }

@@ -72,10 +72,12 @@ class SwooleEvent {
 	const ON_USER_BEFORE_START = 'beforeStart';
 	const ON_USER_AFTER_START = 'afterStart';
 	const ON_USER_AFTER_STOP = 'afterStop';
+	const ON_USER_AFTER_SHUTDOWN = 'afterShutDown';
 	const ON_USER_AFTER_MANAGER_START = 'afterManagerStart';
 	const ON_USER_AFTER_MANAGER_STOP = 'afterManagerStop';
 	const ON_USER_AFTER_WORKER_START = 'afterWorkerStart';
 	const ON_USER_AFTER_WORKER_STOP = 'afterWorkerStop';
+	const ON_USER_AFTER_WORKER_ERROR = 'afterWorkerError';
 	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
 	const ON_USER_AFTER_REQUEST = 'afterRequest';
 	const ON_USER_TASK_FINISH = 'afterTaskFinish';
@@ -130,10 +132,12 @@ class SwooleEvent {
 			self::ON_USER_BEFORE_START,
 			self::ON_USER_AFTER_START,
 			self::ON_USER_AFTER_STOP,
+			self::ON_USER_AFTER_SHUTDOWN,
 			self::ON_USER_AFTER_MANAGER_START,
 			self::ON_USER_AFTER_MANAGER_STOP,
 			self::ON_USER_AFTER_WORKER_START,
 			self::ON_USER_AFTER_WORKER_STOP,
+			self::ON_USER_AFTER_WORKER_ERROR,
 			self::ON_USER_BEFORE_REQUEST,
 			self::ON_USER_AFTER_REQUEST,
 			self::ON_USER_TASK_FINISH,
