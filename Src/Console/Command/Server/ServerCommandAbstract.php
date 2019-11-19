@@ -28,6 +28,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	protected function handle($options) {
+		$this->clearStartServerLog();
 		$this->parseServer();
 	}
 
@@ -108,6 +109,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			if ($subServer->listener($server->getServer()) === false) {
 				continue;
 			}
+			$this->logStartServer($subServer->getType());
 
 			$statusInfo = '';
 			foreach ($subServer->getStatus() as $key => $value) {
@@ -120,7 +122,11 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	protected function start() {
+		/**
+		 * @var ServerAbstract $server
+		 */
 		$server = $this->getMasterServer();
+		$this->logStartServer($server->getType());
 		$status = $server->getStatus();
 
 		if ($server->isRun()) {
@@ -149,6 +155,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	protected function stop() {
+		$this->clearStartServerLog();
 		$server = $this->getMasterServer();
 		// 是否已启动
 		if (!$server->isRun()) {
@@ -167,5 +174,18 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	protected function restart() {
 		$this->stop();
 		$this->start();
+	}
+
+	private function logStartServer($type) {
+		$config = iconfig()->getUserConfig('app');
+		$config['setting']['started_servers'] = $config['setting']['started_servers'] ?? [];
+		$config['setting']['started_servers'][] = $type;
+		iconfig()->setUserConfig('app', $config);
+	}
+
+	private function clearStartServerLog() {
+		$config = iconfig()->getUserConfig('app');
+		$config['setting']['started_servers'] = [];
+		iconfig()->setUserConfig('app', $config);
 	}
 }

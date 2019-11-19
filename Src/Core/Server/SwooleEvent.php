@@ -46,10 +46,11 @@ class SwooleEvent {
 	const ON_WORKER_START = 'workerStart';
 	const ON_WORKER_STOP = 'workerStop';
 	const ON_WORKER_EXIT = 'workerExit';
-	const ON_WORKER_ERROR = 'workerError';
+	const ON_WORKER_SHUTDOWN = 'workerShutDown';
 
 	const ON_MANAGER_START = 'managerStart';
 	const ON_MANAGER_STOP = 'managerStop';
+	const ON_WORKER_ERROR = 'workerError';
 
 	const ON_CONNECT = 'connect';
 	const ON_RECEIVE = 'receive';
@@ -137,7 +138,7 @@ class SwooleEvent {
 			self::ON_USER_AFTER_MANAGER_STOP,
 			self::ON_USER_AFTER_WORKER_START,
 			self::ON_USER_AFTER_WORKER_STOP,
-			self::ON_USER_AFTER_WORKER_SHUTDOWN,
+			self::ON_WORKER_SHUTDOWN,
 			self::ON_USER_BEFORE_REQUEST,
 			self::ON_USER_AFTER_REQUEST,
 			self::ON_USER_TASK_FINISH,

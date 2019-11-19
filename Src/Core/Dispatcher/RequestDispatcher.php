@@ -30,10 +30,16 @@ class RequestDispatcher extends DispatcherAbstract {
 	 * @var MiddlewareMapping
 	 */
 	protected $middlewareMapping;
+	protected $serverType;
 
 	public function __construct() {
 		//当不同类型的server一起启动时，需要区分middleware
+		$this->serverType = lcfirst(explode('\\', static::class)[1]);
 		$this->middlewareMapping = new MiddlewareMapping();
+	}
+
+	public function setServerType($type) {
+		$this->serverType = $type;
 	}
 
 	public function getMiddlewareMapping() {
@@ -50,6 +56,7 @@ class RequestDispatcher extends DispatcherAbstract {
 		$contextObj = App::getApp()->getContext();
 		$contextObj->setRequest($psr7Request);
 		$contextObj->setResponse($psr7Response);
+		$contextObj->setContextDataByKey('server-type', $this->serverType);
 
 		try {
 			//根据router配置，获取到匹配的controller信息
@@ -62,7 +69,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			$middlewareHandler = new MiddlewareHandler($middleWares);
 			$response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
-			$response = iloader()->get(HandlerExceptions::class)->handle($throwable);
+			$response = iloader()->get(HandlerExceptions::class)->handle($throwable, $this->serverType);
 		} finally {
 			return $response;
 		}

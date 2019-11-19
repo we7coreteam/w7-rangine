@@ -12,19 +12,21 @@
 
 namespace W7\WebSocket\Listener;
 
+use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Http\Message\Server\Response;
 
 class AfterWorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
+		$contexts = icontext()->all();
 		/**
 		 * @var Response $response
 		 */
-		$response = $params[1];
-		$contexts = icontext()->all();
+		$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_WEBSOCKET);
 		foreach ($contexts as $id => $context) {
-			if (!empty($context[Context::RESPONSE_KEY])) {
+			if (!empty($context[Context::RESPONSE_KEY]) && $context['data']['server-type'] == ServerEnum::TYPE_WEBSOCKET) {
 				/**
 				 * @var \W7\WebSocket\Message\Response $cResponse
 				 */

@@ -42,8 +42,7 @@ class HandlerExceptions {
 			}
 
 			$throwable = new ShutDownException($e['message'], 0, $e['type'], $e['file'], $e['line']);
-			$response = $this->handleException($throwable);
-			ievent(SwooleEvent::ON_USER_AFTER_WORKER_SHUTDOWN, [App::$server->getServer(), $response, $throwable]);
+			ievent(SwooleEvent::ON_WORKER_SHUTDOWN, [App::$server->getServer(), $throwable]);
 			ievent(SwooleEvent::ON_WORKER_STOP, [App::$server->getServer(), App::$server->getServer()->worker_id]);
 		});
 	}
