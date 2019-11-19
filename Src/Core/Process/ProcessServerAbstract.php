@@ -76,10 +76,10 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 	}
 
 	protected function registerSwooleEventListener() {
-		iloader()->get(SwooleEvent::class)->register();
+		$eventTypes = ['manage', $this->getType()];
+		iloader()->get(SwooleEvent::class)->register($eventTypes);
 
 		$swooleEvents = iloader()->get(SwooleEvent::class)->getDefaultEvent();
-		$eventTypes = ['manage', $this->getType()];
 		foreach ($eventTypes as $name) {
 			$event = $swooleEvents[$name];
 			if (!empty($event)) {

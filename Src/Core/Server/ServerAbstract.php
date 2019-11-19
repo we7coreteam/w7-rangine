@@ -183,10 +183,10 @@ abstract class ServerAbstract implements ServerInterface {
 	}
 
 	protected function registerSwooleEventListener() {
-		iloader()->get(SwooleEvent::class)->register();
+		$eventTypes = ['manage', 'worker', $this->getType(), 'task'];
+		iloader()->get(SwooleEvent::class)->register($eventTypes);
 
 		$swooleEvents = iloader()->get(SwooleEvent::class)->getDefaultEvent();
-		$eventTypes = ['manage', $this->getType(), 'task'];
 		foreach ($eventTypes as $name) {
 			$event = $swooleEvents[$name];
 			if (!empty($event)) {

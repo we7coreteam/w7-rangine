@@ -94,28 +94,24 @@ class SwooleEvent {
 			self::ON_WORKER_ERROR => WorkerErrorListener::class,
 			self::ON_SHUTDOWN => ShutDownListener::class
 		],
+		'worker' => [
+			self::ON_WORKER_START => WorkerStartListener::class,
+			self::ON_WORKER_STOP => WorkerStopListener::class,
+			self::ON_PIPE_MESSAGE => PipeMessageListener::class,
+		],
 		'task' => [
 			self::ON_TASK => TaskListener::class,
 			self::ON_FINISH => FinishListener::class
 		],
 		ServerEnum::TYPE_HTTP => [
-			self::ON_WORKER_START => WorkerStartListener::class,
-			self::ON_WORKER_STOP => WorkerStopListener::class,
-			self::ON_PIPE_MESSAGE => PipeMessageListener::class,
 			self::ON_REQUEST => RequestListener::class
 		],
 		ServerEnum::TYPE_TCP => [
-			self::ON_WORKER_START => WorkerStartListener::class,
-			self::ON_WORKER_STOP => WorkerStopListener::class,
-			self::ON_PIPE_MESSAGE => PipeMessageListener::class,
 			self::ON_RECEIVE => ReceiveListener::class,
 			self::ON_CONNECT => ConnectListener::class,
 			self::ON_CLOSE => CloseListener::class
 		],
 		ServerEnum::TYPE_WEBSOCKET => [
-			self::ON_WORKER_START => WorkerStartListener::class,
-			self::ON_WORKER_STOP => WorkerStopListener::class,
-			self::ON_PIPE_MESSAGE => PipeMessageListener::class,
 			self::ON_HAND_SHAKE => HandshakeListener::class,
 			self::ON_OPEN => OpenListener::class,
 			self::ON_CLOSE => WebSocketCloseListener::class,
@@ -152,9 +148,7 @@ class SwooleEvent {
 		];
 	}
 
-	private function registerSystemEvent() {
-		$eventTypes = ['manage', App::$server->getType(), 'task'];
-
+	private function registerSystemEvent($eventTypes) {
 		$swooleEvents = $this->getDefaultEvent();
 		foreach ($eventTypes as $name) {
 			$events = $swooleEvents[$name] ?? [];
@@ -185,8 +179,8 @@ class SwooleEvent {
 		self::$event[ServerEnum::TYPE_WEBSOCKET][self::ON_REQUEST] = RequestListener::class;
 	}
 
-	public function register() {
-		$this->registerSystemEvent();
+	public function register($eventTypes) {
+		$this->registerSystemEvent($eventTypes);
 		$this->registerUserEvent();
 	}
 }
