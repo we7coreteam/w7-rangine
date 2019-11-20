@@ -21,7 +21,7 @@ abstract class Migration extends MigrationAbstract {
 	 *
 	 * @var string|null
 	 */
-	protected $connection = 'default';
+	protected $connection = '';
 	/**
 	 * @var MySqlBuilder
 	 */
