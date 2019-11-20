@@ -20,6 +20,7 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 use W7\App;
 use W7\Console\Application;
@@ -113,6 +114,8 @@ class DatabaseProvider extends ProviderAbstract {
 
 		Model::setEventDispatcher($dbDispatch);
 		Model::setConnectionResolver($dbManager);
+
+		DB::swap(idb());
 	}
 
 	private function log($data) {
