@@ -77,7 +77,8 @@ abstract class CommandAbstract extends Command {
 
 		$this->overwriteConfigByOptions();
 
-		$this->handle($this->input->getOptions());
+		$ret = $this->handle($this->input->getOptions());
+		return isset($ret) ? (int)$ret : 0;
 	}
 
 	abstract protected function handle($options);
