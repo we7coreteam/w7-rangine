@@ -193,9 +193,11 @@ class Route {
 	private function isStaticResource($resource) {
 		if (is_string($resource)) {
 			$config = iconfig()->getServer();
-			if (!empty($config['common']['document_root'])) {
+			$enableStatic = $config['common']['enable_static_handler'] ?? true;
+			$path = $config['common']['document_root'] ?? BASE_PATH . '/public';
+			if ($enableStatic && $path) {
 				$module = $this->getModule() === $this->defaultModule ? '' : '/' . $this->getModule();
-				$path = rtrim($config['common']['document_root'], '/') . $module . '/' . ltrim($resource);
+				$path = rtrim($path, '/') . $module . '/' . ltrim($resource);
 				return file_exists($path);
 			}
 		}
