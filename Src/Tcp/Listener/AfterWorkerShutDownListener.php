@@ -22,12 +22,15 @@ use W7\Http\Message\Server\Response;
 class AfterWorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
 		$contexts = icontext()->all();
-		/**
-		 * @var Response $response
-		 */
-		$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_TCP);
 		foreach ($contexts as $id => $context) {
 			if (!empty($context[Context::RESPONSE_KEY]) && $context['data']['server-type'] == ServerEnum::TYPE_TCP) {
+				icontext()->setRequest($context[Context::REQUEST_KEY]);
+				icontext()->setResponse($context[Context::RESPONSE_KEY]);
+				icontext()->setContextData($context['data']);
+				/**
+				 * @var Response $response
+				 */
+				$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_TCP);
 				App::$server->getServer()->send($context['data']['fd'], $response->getBody()->getContents());
 				App::$server->getServer()->close($context['data']['fd']);
 			}
