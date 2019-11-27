@@ -42,7 +42,7 @@ class HandlerExceptions {
 			}
 
 			$throwable = new ShutDownException($e['message'], 0, $e['type'], $e['file'], $e['line']);
-			if (App::$server) {
+			if (App::$server && App::$server->server) {
 				ievent(SwooleEvent::ON_WORKER_SHUTDOWN, [App::$server->getServer(), $throwable]);
 				ievent(SwooleEvent::ON_WORKER_STOP, [App::$server->getServer(), App::$server->getServer()->worker_id]);
 			} else {
