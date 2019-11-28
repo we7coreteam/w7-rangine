@@ -12,16 +12,15 @@
 
 namespace W7\Core\Database;
 
-use Illuminate\Database\Connectors\MySqlConnector;
-use W7\Core\Database\Connector\SwooleMySqlConnector;
+use Illuminate\Database\Connectors\Connector;
 use W7\Core\Database\Pool\Pool;
 
 class ConnectorManager {
 	private $poolConfig;
 	private $pool;
-	private $mySqlConnector; //swoole的协程mysql连接
-	private $pdoConnector; //laravel原始的Pdo连接
 	private $defaultConnection;
+	private static $connectors;
+	private $connectorObjs = [];
 
 	public function __construct() {
 		$this->poolConfig = \iconfig()->getUserAppConfig('pool')['database'] ?? [];
@@ -62,19 +61,20 @@ class ConnectorManager {
 		return $this->pool[$name];
 	}
 
-	private function getDefaultConnector($driver = 'swoolemysql') {
-		if ($driver == 'swoolemysql') {
-			if (empty($this->mySqlConnector)) {
-				$this->mySqlConnector = new SwooleMySqlConnector();
-			}
-			return $this->mySqlConnector;
-		} elseif ($driver == 'mysql') {
-			if (empty($this->pdoConnector)) {
-				$this->pdoConnector = new MySqlConnector();
-			}
-			return $this->pdoConnector;
+	private function getDefaultConnector($driver = 'mysql') : Connector {
+		if (empty(self::$connectors[$driver])) {
+			throw new \RuntimeException('Invalid driver');
 		}
-		throw new \RuntimeException('Invalid driver');
+		if (empty($this->connectorObjs[$driver])) {
+			$class = self::$connectors[$driver];
+			$connector = new $class();
+			if (!($connector instanceof Connector)) {
+				throw new \RuntimeException('connector ' . $class . ' must be instance Illuminate\Database\Connectors\Connector');
+			}
+			$this->connectorObjs[$driver] = $connector;
+		}
+
+		return $this->connectorObjs[$driver];
 	}
 
 	private function getDefaultConnection($config) {
@@ -82,5 +82,9 @@ class ConnectorManager {
 
 		$this->defaultConnection = $this->getDefaultConnector($config['driver'])->connect($config);
 		return $this->defaultConnection;
+	}
+
+	public static function registerConnector(string $driver, string $connectorClass) {
+		self::$connectors[$driver] = $connectorClass;
 	}
 }
