@@ -35,6 +35,33 @@ class MiddlewareMapping {
 		$this->afterMiddleware[] = [$middleware];
 	}
 
+	public function deleteBeforeMiddleware(string $middleware) {
+		foreach ($this->beforeMiddleware as $index => $item) {
+			if (in_array($middleware, $item)) {
+				unset($item[array_search($middleware, $item)]);
+				if (count($item) == 0) {
+					unset($this->beforeMiddleware[$index]);
+				}
+			}
+		}
+	}
+
+	public function deleteAfterMiddleware(string $middleware) {
+		foreach ($this->afterMiddleware as $index => $item) {
+			if (in_array($middleware, $item)) {
+				unset($item[array_search($middleware, $item)]);
+				if (count($item) == 0) {
+					unset($this->afterMiddleware[$index]);
+				}
+			}
+		}
+	}
+
+	public function deleteMiddleware(string $middleware) {
+		$this->deleteBeforeMiddleware($middleware);
+		$this->deleteAfterMiddleware($middleware);
+	}
+
 	/**
 	 * 获取系统最后的中间件
 	 */

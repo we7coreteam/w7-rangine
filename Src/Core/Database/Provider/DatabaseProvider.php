@@ -15,6 +15,7 @@ namespace W7\Core\Database\Provider;
 use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
+use Illuminate\Database\Connectors\MySqlConnector;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Events\TransactionBeginning;
@@ -25,7 +26,6 @@ use Illuminate\Support\Fluent;
 use W7\App;
 use W7\Console\Application;
 use W7\Core\Database\Connection\PdoMysqlConnection;
-use W7\Core\Database\Connection\SwooleMySqlConnection;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
 use W7\Core\Dispatcher\EventDispatcher;
@@ -49,17 +49,13 @@ class DatabaseProvider extends ProviderAbstract {
 	 * @return bool
 	 */
 	private function registerDb() {
-		//新增swoole连接mysql的方式
-		Connection::resolverFor('swoolemysql', function ($connection, $database, $prefix, $config) {
-			return new SwooleMySqlConnection($connection, $database, $prefix, $config);
-		});
 		Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
 			return new PdoMysqlConnection($connection, $database, $prefix, $config);
 		});
 
 		$container = new Container();
-		$container->instance('db.connector.swoolemysql', new ConnectorManager());
 		$container->instance('db.connector.mysql', new ConnectorManager());
+		ConnectorManager::registerConnector('mysql', MySqlConnector::class);
 
 		//侦听sql执行完后的事件，回收$connection
 		/**
@@ -149,7 +145,7 @@ class DatabaseProvider extends ProviderAbstract {
 		}
 		list($poolType, $poolName) = explode(':', $poolName);
 		if (empty($poolType)) {
-			$poolType = 'swoolemysql';
+			$poolType = 'mysql';
 		}
 
 		$activePdo = $connection->getActiveConnection();

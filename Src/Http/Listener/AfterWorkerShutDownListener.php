@@ -22,15 +22,19 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
 		$contexts = icontext()->all();
 		foreach ($contexts as $id => $context) {
-			/**
-			 * @var Response $response
-			 */
-			$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_HTTP);
 			if (!empty($context[Context::RESPONSE_KEY]) && $context['data']['server-type'] == ServerEnum::TYPE_HTTP) {
 				/**
 				 * @var Response $cResponse
 				 */
 				$cResponse = $context[Context::RESPONSE_KEY];
+				icontext()->setRequest($context[Context::REQUEST_KEY]);
+				icontext()->setResponse($cResponse);
+				icontext()->setContextData($context['data']);
+				/**
+				 * @var Response $response
+				 */
+				$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_HTTP);
+
 				$cResponse = $cResponse->withHeaders($response->getHeaders())->withContent($response->getBody()->getContents());
 				$cResponse->send();
 			}

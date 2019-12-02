@@ -140,10 +140,20 @@ class Session implements SessionInterface {
 		return self::$handler->write($this->prefix . $this->getId(), serialize($data));
 	}
 
+	public function has($key) {
+		$data = $this->readSession();
+
+		return isset($data[$key]);
+	}
+
 	public function get($key, $default = '') {
 		$data = $this->readSession();
 
 		return $data[$key] ?? $default;
+	}
+
+	public function all() {
+		return $this->readSession();
 	}
 
 	public function destroy() {

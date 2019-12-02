@@ -21,16 +21,20 @@ use W7\Http\Message\Server\Response;
 class AfterWorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
 		$contexts = icontext()->all();
-		/**
-		 * @var Response $response
-		 */
-		$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_WEBSOCKET);
 		foreach ($contexts as $id => $context) {
 			if (!empty($context[Context::RESPONSE_KEY]) && $context['data']['server-type'] == ServerEnum::TYPE_WEBSOCKET) {
 				/**
 				 * @var \W7\WebSocket\Message\Response $cResponse
 				 */
 				$cResponse = $context[Context::RESPONSE_KEY];
+				icontext()->setRequest($context[Context::REQUEST_KEY]);
+				icontext()->setResponse($cResponse);
+				icontext()->setContextData($context['data']);
+				/**
+				 * @var Response $response
+				 */
+				$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_WEBSOCKET);
+
 				$cResponse = $cResponse->withHeaders($response->getHeaders())->withContent($response->getBody()->getContents());
 				$cResponse->send();
 				$cResponse->disconnect($cResponse->getFd());
