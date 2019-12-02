@@ -67,11 +67,9 @@ class RequestDispatcher extends DispatcherAbstract {
 
 			$middleWares = $this->middlewareMapping->getRouteMiddleWares($route);
 			$middlewareHandler = new MiddlewareHandler($middleWares);
-			$response = $middlewareHandler->handle($psr7Request);
+			return $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $throwable) {
-			$response = iloader()->get(HandlerExceptions::class)->handle($throwable, $this->serverType);
-		} finally {
-			return $response;
+			return iloader()->get(HandlerExceptions::class)->handle($throwable, $this->serverType);
 		}
 	}
 
