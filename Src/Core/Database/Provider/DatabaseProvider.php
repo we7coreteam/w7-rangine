@@ -28,14 +28,16 @@ use W7\Console\Application;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
+use W7\Core\Database\Event\QueryExecutedEvent;
+use W7\Core\Database\Event\TransactionBeginningEvent;
+use W7\Core\Database\Event\TransactionCommittedEvent;
+use W7\Core\Database\Event\TransactionRolledBackEvent;
 use W7\Core\Dispatcher\EventDispatcher;
-use W7\Core\Log\LogManager;
 use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
 	public function register() {
 		$this->registerOpenBaseDir(BASE_PATH . '/database');
-		$this->registerLog();
 		$this->registerDb();
 
 		$application = iloader()->get(Application::class);
@@ -64,36 +66,47 @@ class DatabaseProvider extends ProviderAbstract {
 		$dbDispatch = iloader()->get(EventDispatcher::class);
 		$dbDispatch->setContainer($container);
 
-		$dbDispatch->listen(QueryExecuted::class, function ($data) use ($container) {
+		$dbDispatch->listen(QueryExecuted::class, function ($event) use ($container) {
+			/**
+			 * @var QueryExecuted $event
+			 */
+			ievent(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
 			/**
 			 *检测是否是事物里面的query
 			 */
-			$this->log($data);
 			if (App::getApp()->getContext()->getContextDataByKey('db-transaction')) {
 				return false;
 			}
-			return $this->releaseDb($data, $container);
+			return $this->releaseDb($event, $container);
 		});
-		$dbDispatch->listen(TransactionBeginning::class, function ($data) {
-			$connection = $data->connection;
-			$data->sql = 'begin transaction';
-			$this->log($data);
-			App::getApp()->getContext()->setContextDataByKey('db-transaction', $connection);
+		$dbDispatch->listen(TransactionBeginning::class, function ($event) {
+			/**
+			 * @var TransactionBeginning $event
+			 */
+			ievent(new TransactionBeginningEvent($event->connection));
+
+			App::getApp()->getContext()->setContextDataByKey('db-transaction', $event->connection);
 		});
-		$dbDispatch->listen(TransactionCommitted::class, function ($data) use ($container) {
+		$dbDispatch->listen(TransactionCommitted::class, function ($event) use ($container) {
 			if (idb()->transactionLevel() === 0) {
-				$data->sql = 'commit transaction';
-				$this->log($data);
+				/**
+				 * @var TransactionCommitted $event
+				 */
+				ievent(new TransactionCommittedEvent($event->connection));
+
 				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
-				return $this->releaseDb($data, $container);
+				return $this->releaseDb($event, $container);
 			}
 		});
-		$dbDispatch->listen(TransactionRolledBack::class, function ($data) use ($container) {
+		$dbDispatch->listen(TransactionRolledBack::class, function ($event) use ($container) {
 			if (idb()->transactionLevel() === 0) {
-				$data->sql = 'rollback transaction';
-				$this->log($data);
+				/**
+				 * @var TransactionRolledBack $event
+				 */
+				ievent(new TransactionRolledBackEvent($event->connection));
+
 				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
-				return $this->releaseDb($data, $container);
+				return $this->releaseDb($event, $container);
 			}
 		});
 
@@ -113,27 +126,6 @@ class DatabaseProvider extends ProviderAbstract {
 
 		$container['db'] = idb();
 		Facade::setFacadeApplication($container);
-	}
-
-	private function log($data) {
-		$sql = $data->sql ?? '';
-		$bindings = (array) (empty($data->bindings) ? [] : $data->bindings);
-		foreach ($bindings as $key => $binding) {
-			// This regex matches placeholders only, not the question marks,
-			// nested in quotes, while we iterate through the bindings
-			// and substitute placeholders by suitable values.
-			$regex = is_numeric($key)
-				? "/\?(?=(?:[^'\\\']*'[^'\\\']*')*[^'\\\']*$)/"
-				: "/:{$key}(?=(?:[^'\\\']*'[^'\\\']*')*[^'\\\']*$)/";
-
-			// Mimic bindValue and only quote non-integer and non-float data types
-			if (!is_int($binding) && !is_float($binding)) {
-				$binding = $data->connection->getReadPdo()->quote($binding);
-			}
-
-			$sql = preg_replace($regex, $binding, $sql, 1);
-		}
-		ilogger()->channel('database')->debug('connection ' . $data->connectionName . ', ' . $sql);
 	}
 
 	private function releaseDb($data, $container) {
@@ -158,19 +150,5 @@ class DatabaseProvider extends ProviderAbstract {
 			return true;
 		}
 		$pool->releaseConnection($activePdo);
-	}
-
-	private function registerLog() {
-		if (!empty($this->config->getUserConfig('log')['channel']['database'])) {
-			return false;
-		}
-		/**
-		 * @var LogManager $logManager
-		 */
-		$logManager = iloader()->get(LogManager::class);
-		$logManager->addChannel('database', 'stream', [
-			'path' => RUNTIME_PATH . '/logs/db.log',
-			'level' => ((ENV & DEBUG) === DEBUG) ? 'debug' : 'info'
-		]);
 	}
 }

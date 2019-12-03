@@ -13,6 +13,7 @@
 namespace W7\Core\Database;
 
 use Illuminate\Database\Connectors\Connector;
+use W7\Core\Database\Event\MakeConnectionEvent;
 use W7\Core\Database\Pool\Pool;
 
 class ConnectorManager {
@@ -78,9 +79,8 @@ class ConnectorManager {
 	}
 
 	private function getDefaultConnection($config) {
-		ilogger()->channel('database')->debug($config['name'] . ' create connection without pool');
-
 		$this->defaultConnection = $this->getDefaultConnector($config['driver'])->connect($config);
+		ievent(new MakeConnectionEvent($config['name'], $this->defaultConnection));
 		return $this->defaultConnection;
 	}
 

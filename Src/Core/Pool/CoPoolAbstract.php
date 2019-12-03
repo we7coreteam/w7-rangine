@@ -1,14 +1,24 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-10-23 下午3:40
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Pool;
 
-
 use Swoole\Coroutine;
 use Swoole\Coroutine\Channel;
+use W7\Core\Pool\Event\MakeConnectionEvent;
+use W7\Core\Pool\Event\PopConnectionEvent;
+use W7\Core\Pool\Event\PushConnectionEvent;
+use W7\Core\Pool\Event\ResumeConnectionEvent;
+use W7\Core\Pool\Event\SuspendConnectionEvent;
 
 abstract class CoPoolAbstract implements PoolInterface {
 	protected $poolName;
@@ -55,7 +65,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 		$this->waitQueue = new \SplQueue();
 	}
 
-	abstract function createConnection();
+	abstract public function createConnection();
 
 	public function getConnection() {
 		//如果 执行队列数 等于 最大连接数，则挂起协程
@@ -63,7 +73,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 			//等待进程数++
 			$this->waitCount++;
 
-			ilogger()->channel($this->type)->debug($this->poolName . ' suspend connection , count ' . $this->idleQueue->length() . '. wait count ' . $this->waitCount);
+			ievent(new SuspendConnectionEvent($this->type, $this->poolName, $this));
 
 			if ($this->suspendCurrentCo() == false) {
 				//挂起失败时，抛出异常，恢复等待数
@@ -71,11 +81,11 @@ abstract class CoPoolAbstract implements PoolInterface {
 				throw new \RuntimeException('Reach max connections! Cann\'t pending fetch!');
 			}
 			//回收连接时，恢复了协程，则从空闲中取出连接继续执行
-			ilogger()->channel($this->type)->debug($this->poolName . ' resume connection , count ' . $this->idleQueue->length());
+			ievent(new ResumeConnectionEvent($this->type, $this->poolName, $this));
 		}
 
 		if ($this->getIdleCount() > 0) {
-			ilogger()->channel($this->type)->debug($this->poolName . ' get by queue , count ' . $this->getIdleCount());
+			ievent(new PopConnectionEvent($this->type, $this->poolName, $this));
 
 			$connect = $this->getConnectionFromPool();
 			$this->busyCount++;
@@ -84,7 +94,8 @@ abstract class CoPoolAbstract implements PoolInterface {
 
 		$connect = $this->createConnection();
 		$this->busyCount++;
-		ilogger()->channel($this->type)->debug($this->poolName . ' create connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
+
+		ievent(new MakeConnectionEvent($this->type, $this->poolName, $this));
 
 		return $connect;
 	}
@@ -92,9 +103,8 @@ abstract class CoPoolAbstract implements PoolInterface {
 	public function releaseConnection($connection) {
 		$this->busyCount--;
 		if ($this->getIdleCount() < $this->getMaxCount()) {
-
 			$this->setConnectionFormPool($connection);
-			ilogger()->channel($this->type)->debug($this->poolName . ' release push connection , count ' . $this->idleQueue->length() . '. busy count ' . $this->busyCount);
+			ievent(new PushConnectionEvent($this->type, $this->poolName, $this));
 
 			if ($this->waitCount > 0) {
 				$this->waitCount--;
@@ -102,10 +112,6 @@ abstract class CoPoolAbstract implements PoolInterface {
 			}
 			return true;
 		}
-	}
-
-	public function getIdleCount() {
-		return $this->idleQueue->length();
 	}
 
 	public function getMaxCount() {
@@ -151,5 +157,17 @@ abstract class CoPoolAbstract implements PoolInterface {
 
 	private function setConnectionFormPool($connection) {
 		return $this->idleQueue->push($connection);
+	}
+
+	public function getIdleCount() {
+		return $this->idleQueue->length();
+	}
+
+	public function getBusyCount() {
+		return $this->busyCount;
+	}
+
+	public function getWaitCount() {
+		return $this->waitCount;
 	}
 }

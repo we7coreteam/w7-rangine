@@ -13,6 +13,7 @@
 namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
+use W7\Core\Cache\Event\MakeConnectionEvent;
 use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\Pool;
 
@@ -35,12 +36,15 @@ class ConnectorManager {
 		}
 
 		if (empty($poolConfig) || empty($poolConfig['enable'])) {
-			ilogger()->channel('cache')->debug($name . ' create connection without pool');
 			/**
 			 * @var HandlerAbstract $handlerClass
 			 */
 			$handlerClass = $this->checkHandler($config['driver']);
-			return $handlerClass::getHandler($config);
+			$handler = $handlerClass::getHandler($config);
+
+			ievent(new MakeConnectionEvent($name, $handler));
+
+			return $handler;
 		}
 
 		return $this->getPool($name)->getConnection();
