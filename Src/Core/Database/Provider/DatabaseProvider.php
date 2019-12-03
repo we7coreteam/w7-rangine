@@ -128,7 +128,7 @@ class DatabaseProvider extends ProviderAbstract {
 
 			// Mimic bindValue and only quote non-integer and non-float data types
 			if (!is_int($binding) && !is_float($binding)) {
-				$binding = $data->connection->getPdo()->quote($binding);
+				$binding = $data->connection->getReadPdo()->quote($binding);
 			}
 
 			$sql = preg_replace($regex, $binding, $sql, 1);
