@@ -21,6 +21,7 @@ use W7\Core\Exception\RouteNotFoundException;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Middleware\MiddlewareMapping;
+use W7\Core\Route\Event\RouteMatchedEvent;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 use FastRoute\Dispatcher\GroupCountBased;
@@ -62,6 +63,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			//根据router配置，获取到匹配的controller信息
 			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
 			$route = $this->getRoute($psr7Request);
+			ievent(new RouteMatchedEvent($route, $psr7Request));
 			$psr7Request = $psr7Request->withAttribute('route', $route);
 			$contextObj->setRequest($psr7Request);
 
