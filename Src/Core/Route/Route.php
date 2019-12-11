@@ -30,15 +30,13 @@ class Route {
 
 	private $router;
 
+	private $groupStack = [];
+
 	/**
 	 * 当前路由中间件
 	 * @var array
 	 */
 	private $currentMiddleware = [];
-	private $groupMiddleware = [];
-	private $groupName = [];
-	private $groupNamespace;
-	private $groupModule;
 	private $defaultNamespace = 'W7\App';
 	private $defaultModule = 'system';
 
@@ -57,8 +55,8 @@ class Route {
 		}
 		return [
 			'prefix' => $option['prefix'] ?? '',
-			'namespace' => empty($option['namespace']) ? $this->defaultNamespace : $option['namespace'],
-			'module' => $option['module'] ?? $this->defaultModule
+			'namespace' => $option['namespace'] ?? '',
+			'module' => $option['module'] ?? ''
 		];
 	}
 
@@ -71,33 +69,22 @@ class Route {
 	public function group($option, callable $callback) {
 		$option = $this->parseGroupOption($option);
 
-		$parentPrefix = $this->router->getCurrentGroupPrefix();
-		$this->router->addGroup($option['prefix'], function (RouteCollector $route) use ($callback, $option, $parentPrefix) {
-			$prefix = $this->router->getCurrentGroupPrefix();
+		$this->router->addGroup($option['prefix'], function (RouteCollector $route) use ($callback, $option) {
+			$groupInfo = [];
+			$groupInfo['prefix'] = $option['prefix'];
+			$groupInfo['namespace'] = $option['namespace'];
 
-			$groupNamespace = $this->groupNamespace[$parentPrefix] ?? $option['namespace'];
-			$this->groupNamespace[$prefix] = $groupNamespace;
-
-			$groupMiddleware = array_merge($this->groupMiddleware[$parentPrefix] ?? [], $this->checkMiddleware($this->currentMiddleware));
-			$this->groupMiddleware[$prefix] = $groupMiddleware;
+			$groupInfo['middleware'] = $this->currentMiddleware;
 			$this->currentMiddleware = [];
 
-			$groupName = $this->groupName[$parentPrefix] ?? '';
-			if ($this->name) {
-				$groupName .= $this->name . '.';
-			}
-			$this->groupName[$prefix] = $groupName;
+			$groupInfo['name'] = $this->name;
 			$this->name = '';
 
-			$groupModule = $this->groupModule[$parentPrefix] ?? $option['module'];
-			$this->groupModule[$prefix] = $groupModule;
+			$groupInfo['module'] = $option['module'];
 
+			$this->groupStack[] = $groupInfo;
 			$callback($this);
-
-			unset($this->groupMiddleware[$prefix]);
-			unset($this->groupName[$prefix]);
-			unset($this->groupNamespace[$prefix]);
-			unset($this->groupModule[$prefix]);
+			array_pop($this->groupStack);
 		});
 		return true;
 	}
@@ -247,9 +234,10 @@ class Route {
 			$name = $this->name;
 		}
 		if (!$name && !($handler instanceof \Closure)) {
-			$name = ($this->groupName[$this->router->getCurrentGroupPrefix()] ?? '') . $handler[1];
+			$name = trim(implode('.', array_filter(array_column($this->groupStack, 'name'))) . '.' . $handler[1], '.');
 		}
 		$routeHandler['name'] = $name;
+		$this->name = '';
 
 		//处理namespace
 		if (!($routeHandler['handler'] instanceof \Closure)) {
@@ -258,20 +246,22 @@ class Route {
 
 		//先获取上级的middleware
 		//添加完本次路由后，要清空掉当前Middleware值，以便下次使用
-		$groupMiddleware = $this->groupMiddleware[$this->router->getCurrentGroupPrefix()] ?? [];
+		$groupMiddleware = [];
+		$middleWares = array_filter(array_column($this->groupStack, 'middleware'));
+		array_walk($middleWares, function ($value) use (&$groupMiddleware) {
+			$groupMiddleware = array_merge($groupMiddleware, $this->checkMiddleware($value));
+		});
 		$routeHandler['middleware']['before'] = array_merge($groupMiddleware, $routeHandler['middleware']['before'], $this->checkMiddleware($this->currentMiddleware));
-
 		$this->currentMiddleware = [];
-		$this->name = '';
 
 		try {
 			$this->router->addRoute($methods, $uri, $routeHandler);
 		} catch (\Throwable $e) {
 			$dispatcher = new RouteDispatcher($this->getData());
 			foreach ($methods as $method) {
-				$route = $dispatcher->dispatch($method, $uri);
+				$route = $dispatcher->dispatch($method, $routeHandler['uri']);
 				if (!empty($route[1]['module'])) {
-					throw new \RuntimeException('route "' . $uri . '" for method "' . $method . '" exists in ' . $route[1]['module']);
+					throw new \RuntimeException('route "' . $routeHandler['uri'] . '" for method "' . $method . '" exists in ' . $route[1]['module']);
 				}
 			}
 		}
@@ -363,10 +353,12 @@ class Route {
 	}
 
 	private function getNamespace() {
-		return $this->groupNamespace[$this->router->getCurrentGroupPrefix()] ?? $this->defaultNamespace;
+		$groupNamespace = implode('\\', array_filter(array_column($this->groupStack, 'namespace')));
+		return empty($groupNamespace) ? $this->defaultNamespace : $groupNamespace;
 	}
 
 	private function getModule() {
-		return $this->groupModule[$this->router->getCurrentGroupPrefix()] ?? $this->defaultModule;
+		$module = array_filter(array_column($this->groupStack, 'module'));
+		return empty($module) ? $this->defaultModule : end($module);
 	}
 }
