@@ -12,7 +12,6 @@
 
 namespace W7\Core\Database;
 
-use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -73,14 +72,6 @@ use Illuminate\Database\Eloquent\Builder;
  * @method getMacro($name)
  */
 abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
-	use Cachable;
-
-	protected $cacheEnable = false;
-
-	public function isCachable(): bool {
-		return $this->cacheEnable;
-	}
-
 	protected function insertAndSetId(Builder $query, $attributes) {
 		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
 
