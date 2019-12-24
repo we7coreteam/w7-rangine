@@ -27,12 +27,13 @@ class FileHandler extends HandlerAbstract {
 		$this->setPath();
 	}
 
+	public function getUserSessionSavePath() {
+		return empty($this->config['save_path']) ? '/tmp/session' : $this->config['save_path'];
+	}
+
 	private function setPath() {
-		$this->directory = session_save_path();
-		if (!$this->filesystem->isWritable($this->directory) || !$this->filesystem->isReadable($this->directory)) {
-			$this->directory = '/tmp/session';
-			$this->ensureCacheDirectoryExists($this->directory);
-		}
+		$this->directory = $this->getUserSessionSavePath();
+		$this->ensureCacheDirectoryExists($this->directory);
 		if (!$this->filesystem->isWritable($this->directory) || !$this->filesystem->isReadable($this->directory)) {
 			throw new \RuntimeException('session path ' . $this->directory . ' not exist or no permission');
 		}
