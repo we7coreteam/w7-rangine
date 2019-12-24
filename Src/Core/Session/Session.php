@@ -13,6 +13,7 @@
 namespace W7\Core\Session;
 
 use W7\Core\Session\Channel\ChannelAbstract;
+use W7\Core\Session\Event\SessionStartEvent;
 use W7\Core\Session\Handler\HandlerAbstract;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
@@ -130,6 +131,8 @@ class Session implements SessionInterface {
 	public function start(Request $request) {
 		$this->initChannel($request);
 		$this->initHandler();
+
+		ievent(new SessionStartEvent($this));
 	}
 
 	public function set($key, $value) {
