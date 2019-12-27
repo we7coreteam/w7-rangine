@@ -35,9 +35,6 @@ abstract class HandlerAbstract implements \SessionHandlerInterface {
 	final public function open($save_path, $name) {
 	}
 
-	public function gc($maxlifetime) {
-	}
-
 	final public function close() {
 	}
 }
