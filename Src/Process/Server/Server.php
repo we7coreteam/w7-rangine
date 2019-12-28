@@ -34,7 +34,8 @@ class Server extends ProcessServerAbstract {
 
 	protected function checkSetting() {
 		//获取要启动的process
-		$supportProcess = iconfig()->getUserConfig('process')['process'] ?? [];
+		$processConfig = iconfig()->getUserConfig('process');
+		$supportProcess = $processConfig['process'] ?? [];
 		$servers = trim(iconfig()->getUserAppConfig('setting')['server']);
 		$servers = explode('|', $servers);
 
@@ -46,8 +47,17 @@ class Server extends ProcessServerAbstract {
 			throw new \RuntimeException('not support ' . implode(', ', $notSupportProcess) . ' process');
 		}
 
-		$this->setting['worker_num'] = $this->getWorkerNum();
+		//设置指定的process的对应enable为true
+		foreach ($this->processMap as $processName) {
+			$supportProcess[$processName]['enable'] = true;
+		}
+		$processConfig['process'] = $supportProcess;
+		iconfig()->setUserConfig('process', $processConfig);
 
+		$this->setting['worker_num'] = $this->getWorkerNum();
+		if ($this->setting['worker_num'] == 0) {
+			throw new \RuntimeException('the list of started processes is empty');
+		}
 		return parent::checkSetting();
 	}
 
@@ -55,11 +65,11 @@ class Server extends ProcessServerAbstract {
 		$workerNum = 0;
 		$config = iconfig()->getUserConfig('process');
 		$configProcess = $config['process'] ?? [];
-		foreach ($this->processMap as $key => $name) {
-			if (empty($configProcess[$name])) {
+		foreach ($configProcess as $key => $process) {
+			if (empty($process['enable'])) {
 				continue;
 			}
-			$workerNum += $configProcess[$name]['worker_num'] ?? 1;
+			$workerNum += $process['worker_num'] ?? 1;
 		}
 
 		return $workerNum;
@@ -68,11 +78,11 @@ class Server extends ProcessServerAbstract {
 	protected function register() {
 		$config = iconfig()->getUserConfig('process');
 		$configProcess = $config['process'] ?? [];
-		foreach ($this->processMap as $key => $name) {
-			if (empty($configProcess[$name])) {
-				throw new \RuntimeException('process server ' . $name . ' not found as app/Process');
+		foreach ($configProcess as $key => $process) {
+			if (empty($process['enable'])) {
+				throw new \RuntimeException('process server ' . $process['name'] . ' is disabled');
 			}
-			$this->pool->registerProcess($name, $configProcess[$name]['class'], $configProcess[$name]['worker_num'] ?? 1);
+			$this->pool->registerProcess($process['name'], $process['class'], $process['worker_num'] ?? 1);
 		}
 	}
 }
