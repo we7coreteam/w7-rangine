@@ -12,24 +12,7 @@
 
 namespace W7\WebSocket\Session;
 
-use W7\Core\Session\Session;
-use W7\Tcp\Collector\CollectorAbstract;
+use W7\Tcp\Session\SessionCollector as SessionCollectorAbstract;
 
-class SessionCollector extends CollectorAbstract {
-	protected static $name = 'session';
-
-	public function set($fd, $request) {
-		$session = new Session();
-		$session->start($request);
-		parent::set($fd, $session);
-	}
-
-	public function del($fd) {
-		/**
-		 * @var Session $session
-		 */
-		if ($session = parent::get($fd)) {
-			$session->destroy();
-		}
-	}
+class SessionCollector extends SessionCollectorAbstract {
 }
