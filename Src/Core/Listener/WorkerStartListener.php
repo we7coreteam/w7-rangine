@@ -17,6 +17,9 @@ use W7\Core\Server\SwooleEvent;
 
 class WorkerStartListener implements ListenerInterface {
 	public function run(...$params) {
+		//重新播种随机因子
+		mt_srand();
+
 		if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {
 			opcache_reset();
 		}

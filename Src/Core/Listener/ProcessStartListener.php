@@ -18,6 +18,8 @@ use W7\Core\Process\ProcessAbstract;
 class ProcessStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		list($serverType, $process, $workerId, $processFactory, $mqKey) = $params;
+		//重新播种随机因子
+		mt_srand();
 
 		/**
 		 * @var ProcessAbstract $userProcess

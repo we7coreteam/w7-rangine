@@ -17,6 +17,9 @@ use W7\Core\Server\SwooleEvent;
 
 class ManagerStartListener extends ListenerAbstract {
 	public function run(...$params) {
+		//重新播种随机因子
+		mt_srand();
+
 		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' manager process');
 
 		ievent(SwooleEvent::ON_USER_AFTER_MANAGER_START, $params);
