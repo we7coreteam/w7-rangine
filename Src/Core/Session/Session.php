@@ -118,7 +118,7 @@ class Session implements SessionInterface {
 		}
 
 		try {
-			$data = unserialize(self::$handler->read($this->prefix . $this->getId()));
+			$data = self::$handler->unpack(self::$handler->read($this->prefix . $this->getId()));
 			$data = !is_array($data) ? [] : $data;
 		} catch (\Throwable $e) {
 			$data = [];
@@ -140,7 +140,7 @@ class Session implements SessionInterface {
 
 		$data[$key] = $value;
 		$this->cache[$key] = $value;
-		return self::$handler->write($this->prefix . $this->getId(), serialize($data));
+		return self::$handler->write($this->prefix . $this->getId(), self::$handler->pack($data));
 	}
 
 	public function has($key) {

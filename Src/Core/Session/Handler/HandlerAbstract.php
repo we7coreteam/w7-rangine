@@ -32,6 +32,14 @@ abstract class HandlerAbstract implements \SessionHandlerInterface {
 		return $this->expires;
 	}
 
+	public function pack($data) {
+		return serialize($data);
+	}
+
+	public function unpack($data) {
+		return unserialize($data);
+	}
+
 	final public function open($save_path, $name) {
 	}
 
