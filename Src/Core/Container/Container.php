@@ -42,14 +42,27 @@ class Container {
 		$this->container[$name] = $handle;
 	}
 
-	public function get($name) {
-		if (!$this->has($name)) {
-			$this->set($name, $name);
+	public function get($name, array $params = []) {
+		$support = true;
+		foreach ($params as $param) {
+			if (!is_scalar($param) && !is_array($param)) {
+				$support = false;
+			}
+		}
+		if (!$support) {
+			throw new \RuntimeException('not support');
+		}
+		$instanceKey = $name;
+		if ($support && $params) {
+			$instanceKey = md5($instanceKey . json_encode($params));
+		}
+		if (!$this->has($instanceKey)) {
+			$this->set($instanceKey, $name, $params);
 		}
 
-		return $this->psrContainer->get($name);
+		return $this->psrContainer->get($instanceKey);
 	}
-	
+
 	public function has($name) {
 		return $this->psrContainer->has($name);
 	}
