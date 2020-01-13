@@ -10,6 +10,7 @@
 		}
 	],
 	"require": {
+		"php": ">=7.2",
 		"ext-swoole": ">=4.3.0",
 		"w7/rangine-http-message": "~2.0",
 		"w7/rangine-cache-model": "~2.0",
