@@ -19,7 +19,6 @@ use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
 use W7\Core\Exception\ValidatorException;
-use W7\Core\Lang\Translator;
 use W7\Console\Io\Output;
 use W7\Core\Message\TaskMessage;
 use Illuminate\Database\Eloquent\Model;
@@ -314,14 +313,6 @@ if (!function_exists('ienv')) {
 		}
 
 		return $value;
-	}
-}
-if (!function_exists('itrans')) {
-	function itrans($id = null, $replace = [], $locale = null) {
-		if (is_null($id)) {
-			return iloader()->get(Translator::class);
-		}
-		return iloader()->get(Translator::class)->trans($id, $replace, $locale);
 	}
 }
 if (!function_exists('igo')) {
