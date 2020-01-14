@@ -17,6 +17,14 @@ use Psr\SimpleCache\CacheInterface;
 abstract class HandlerAbstract implements CacheInterface {
 	abstract public static function getHandler($config) : HandlerAbstract;
 
+	public function pack($data) {
+		return is_numeric($data) ? $data : serialize($data);
+	}
+
+	public function unpack($data) {
+		return is_numeric($data) ? $data : unserialize($data);
+	}
+
 	public function alive() {
 		return true;
 	}

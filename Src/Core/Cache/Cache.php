@@ -12,6 +12,8 @@
 
 namespace W7\Core\Cache;
 
+use W7\Core\Cache\Handler\HandlerAbstract;
+
 /**
  * @method connect( $host, $port = 6379, $timeout = 0.0, $reserved = null, $retry_interval = 0 ) {}
  * @method psetex($key, $ttl, $value) {}
@@ -185,70 +187,85 @@ namespace W7\Core\Cache;
  */
 class Cache extends CacheAbstract {
 	public function set($key, $value, $ttl = null) {
-		$value = $this->serialize($value);
-		$params = ($ttl <= 0) ? [$key, $value] : [$key, $value, $ttl];
-		return $this->call('set', $params);
+		return $this->call(function (HandlerAbstract $handler) use ($key, $value, $ttl) {
+			$value = $handler->pack($value);
+			return $handler->set($key, $value, $ttl);
+		});
 	}
 
 	public function get($key, $default = null) {
-		$result = $this->call('get', [$key, $default]);
-		if ($result === false || $result === null) {
-			return $default;
-		}
+		return $this->call(function (HandlerAbstract $handler) use ($key, $default) {
+			$result = $handler->get($key, $default);
+			if ($result === false || $result === null) {
+				return $default;
+			}
 
-		return $this->unserialize($result);
+			return $handler->unpack($result);
+		});
 	}
 
 	public function delete($key) {
-		return (bool)$this->call('delete', [$key]);
+		return (bool)$this->call(function (HandlerAbstract $handler) use ($key) {
+			return (bool)$handler->delete($key);
+		});
 	}
 
 	public function setMultiple($values, $ttl = null) {
-		$values = (array)$values;
-		foreach ($values as $key => &$value) {
-			$value = $this->serialize($value);
-		}
-		$result = $this->call('setMultiple', [$values], $ttl);
-
-		return $result;
+		return$this->call(function (HandlerAbstract $handler) use ($values, $ttl) {
+			$values = (array)$values;
+			foreach ($values as $key => &$value) {
+				$value = $handler->pack($value);
+			}
+			return $handler->setMultiple($values, $ttl);
+		});
 	}
 
 	public function getMultiple($keys, $default = null) {
-		$keys = (array)$keys;
-		$mgetResult = $this->call('getMultiple', [$keys, $default]);
-		if ($mgetResult === false) {
-			return $default;
-		}
-		$result = [];
-		foreach ($mgetResult ?? [] as $key => $value) {
-			$result[$keys[$key]] = $this->unserialize($value);
-		}
+		return $this->call(function (HandlerAbstract $handler) use ($keys, $default) {
+			$keys = (array)$keys;
+			$mgetResult = $handler->getMultiple($keys, $default);
+			if ($mgetResult === false) {
+				return $default;
+			}
+			$result = [];
+			foreach ($mgetResult ?? [] as $key => $value) {
+				$result[$keys[$key]] = $handler->unpack($value);
+			}
 
-		return $result;
+			return $result;
+		});
 	}
 
 	public function deleteMultiple($keys): bool {
-		$keys = (array)$keys;
-		return (bool)$this->call('deleteMultiple', [$keys]);
+		return (bool)$this->call(function (HandlerAbstract $handler) use ($keys) {
+			$keys = (array)$keys;
+			return (bool)$handler->deleteMultiple($keys);
+		});
 	}
 
 	public function has($key) {
-		return $this->call('has', [$key]);
+		return (bool)$this->call(function (HandlerAbstract $handler) use ($key) {
+			return (bool)$handler->has($key);
+		});
 	}
 
 	public function clear() {
-		return $this->call('clear', []);
+		return (bool)$this->call(function (HandlerAbstract $handler) {
+			return (bool)$handler->clear();
+		});
 	}
 
 	public function __call($method, $arguments) {
-		return $this->call($method, $arguments);
+		return $this->call(function (HandlerAbstract $handler) use ($method, $arguments) {
+			return $handler->$method(...$arguments);
+		});
 	}
 
-	public function call(string $method, array $params) {
+	public function call(\Closure $method) {
 		$connection = $this->getConnection();
 
 		try {
-			$result = $connection->$method(...$params);
+			$result = $method($connection);
 		} catch (\Throwable $throwable) {
 			$result = null;
 		}
