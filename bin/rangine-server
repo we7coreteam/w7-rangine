@@ -13,7 +13,7 @@ if (strpos($path, '--app-path') !== false) {
 	array_pop($argv);
 	$_SERVER['argv'] = $argv;
 }
-
+//处理composer软连模式下，文件位置错误问题
 $dir = dirname(__DIR__, 4);
 if (!file_exists($dir . '/config/define.php')) {
 	if (!$appPath) {
@@ -22,6 +22,15 @@ if (!file_exists($dir . '/config/define.php')) {
 	}
 	$dir = explode('=', $appPath, 2)[1];
 }
+//通过命令，指定当前需要的env文件
+foreach ($_SERVER['argv'] as $index => $value) {
+	if (strpos($value, '--env=') !== false) {
+		$env = explode('=', $value, 2)[1];
+		putenv('ENV_NAME=' . $env);
+		unset($_SERVER['argv'][$index]);
+	}
+}
+$argv = $_SERVER['argv'];
 
 require_once $dir . '/config/define.php';
 $loader = require_once BASE_PATH . '/vendor/autoload.php';
