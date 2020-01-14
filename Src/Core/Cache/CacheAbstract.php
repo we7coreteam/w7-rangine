@@ -44,12 +44,4 @@ abstract class CacheAbstract implements CacheInterface {
 	public function setChannelName(string $channelName) {
 		$this->channelName = $channelName;
 	}
-
-	protected function unserialize($data) {
-		return is_numeric($data) ? $data : unserialize($data);
-	}
-
-	protected function serialize($data) {
-		return is_numeric($data) ? $data : serialize($data);
-	}
 }
