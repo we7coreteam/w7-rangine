@@ -13,7 +13,7 @@
 namespace W7\Core\Config;
 
 class Config {
-	const VERSION = '2.0.2';
+	const VERSION = '2.1.0';
 
 	private $server;
 	private $defaultServer = [];
