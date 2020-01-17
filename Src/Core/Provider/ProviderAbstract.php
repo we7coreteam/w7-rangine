@@ -34,10 +34,7 @@ abstract class ProviderAbstract {
 	 * @var \W7\Core\Log\Logger
 	 */
 	protected $logger;
-	/**
-	 * @var View
-	 */
-	protected $view;
+
 	protected $defer;
 	public static $publishes = [];
 	public static $publishGroups = [];
@@ -55,7 +52,6 @@ abstract class ProviderAbstract {
 		$this->config = iconfig();
 		$this->router = irouter();
 		$this->logger = ilogger();
-		$this->view = iloader()->get(View::class);
 	}
 
 	/**
@@ -111,8 +107,19 @@ abstract class ProviderAbstract {
 		}
 	}
 
+	public function getView() {
+		if (!iloader()->has(View::class)) {
+			throw new \RuntimeException('instance ' . View::class . ' not exists');
+		}
+		/**
+		 * @var View $view
+		 */
+		$view = iloader()->get(View::class);
+		return $view;
+	}
+
 	protected function registerView($namespace) {
-		$this->view->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
+		$this->getView()->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
 	}
 
 	protected function registerProvider($provider) {
