@@ -42,6 +42,11 @@ class Container {
 		$this->container[$name] = $handle;
 	}
 
+	/**
+	 * @param $name
+	 * @param array $params  当参数为标量或者数组时，可按参数进行单例
+	 * @return mixed
+	 */
 	public function get($name, array $params = []) {
 		$support = true;
 		foreach ($params as $param) {
