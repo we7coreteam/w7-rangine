@@ -155,6 +155,22 @@ class Session implements SessionInterface {
 		return $data[$key] ?? $default;
 	}
 
+	public function delete($keys) {
+		$keys = (array)$keys;
+		$sessionData = $this->readSession();
+		foreach ($keys as $key) {
+			if (isset($sessionData[$key])) {
+				unset($sessionData[$key], $this->cache[$key]);
+			}
+		}
+
+		if ($sessionData) {
+			return self::$handler->write($this->prefix . $this->getId(), self::$handler->pack($sessionData));
+		}
+
+		return $this->destroy();
+	}
+
 	public function all() {
 		return $this->readSession();
 	}
