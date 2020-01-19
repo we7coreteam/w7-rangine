@@ -47,10 +47,10 @@ class ReceiveListener extends ListenerAbstract {
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 
 		$params = json_decode($data, true);
-		$params['url'] = $params['url'] ?? '';
+		$params['cmd'] = $params['cmd'] ?? '';
 		$params['data'] = $params['data'] ?? [];
 
-		$psr7Request = new Request('POST', $params['url'], [], null);
+		$psr7Request = new Request('POST', $params['cmd'], [], null);
 		$psr7Request = $psr7Request->withParsedBody($params['data']);
 		$psr7Response = new Response();
 
