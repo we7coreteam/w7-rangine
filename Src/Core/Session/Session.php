@@ -107,6 +107,10 @@ class Session implements SessionInterface {
 		return self::$gcCondition;
 	}
 
+	public function getRealId() {
+		return $this->prefix . $this->getId();
+	}
+
 	public function getId() {
 		return $this->channel->getSessionId();
 	}
