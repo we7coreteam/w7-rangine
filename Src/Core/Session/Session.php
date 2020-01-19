@@ -111,6 +111,11 @@ class Session implements SessionInterface {
 		return $this->channel->getSessionId();
 	}
 
+	public function setId($sessionId) {
+		$this->channel->setSessionId($sessionId);
+		$this->cache = null;
+	}
+
 	private function readSession() {
 		//只读一次, 防止在临界点上,第一次读有数据,第二次读不到
 		if (isset($this->cache)) {
