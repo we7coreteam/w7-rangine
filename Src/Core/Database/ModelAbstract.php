@@ -73,7 +73,7 @@ use W7\Core\Dispatcher\EventDispatcher;
  * @method getMacro($name)
  */
 abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
-	protected static $hasRegisterEvent = false;
+	protected static $hasRegisterEvent = [];
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
@@ -85,10 +85,10 @@ abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	 * @return bool
 	 */
 	protected function registerEvent() {
-		if (static::$hasRegisterEvent) {
+		if (!empty(static::$hasRegisterEvent[static::class])) {
 			return true;
 		}
-		static::$hasRegisterEvent = true;
+		static::$hasRegisterEvent[static::class] = true;
 
 		/**
 		 * @var EventDispatcher $eventDispatcher
