@@ -292,7 +292,7 @@ if (!function_exists('ienv')) {
 		}
 
 		//约定如要env中要写常量名称的话必须要大写
-		if (preg_match('/^[A-Z\|\^\&]+$/', $value)) {
+		if (preg_match('/^[A-Z_\|\^\&]+$/', $value)) {
 			//常量解析
 			$exec = 'return ' . $value . ';';
 			try {
