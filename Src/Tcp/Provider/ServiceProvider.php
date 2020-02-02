@@ -18,10 +18,10 @@ use W7\Tcp\Parser\ParserInterface;
 
 class ServiceProvider extends ProviderAbstract {
     public function register() {
-		$this->registerFrameParser();
+		$this->registerDataParser();
     }
     
-    private function registerFrameParser() {
+    private function registerDataParser() {
         iloader()->set(ParserInterface::class, function () {
 			return new JsonParser();
 		});

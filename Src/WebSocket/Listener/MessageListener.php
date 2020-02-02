@@ -17,7 +17,6 @@ use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Server\SwooleEvent;
 use W7\WebSocket\Message\Frame;
 use W7\WebSocket\Message\Request;
 use W7\WebSocket\Message\Response;

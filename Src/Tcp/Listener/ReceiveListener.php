@@ -16,7 +16,6 @@ use W7\App;
 use Swoole\Coroutine;
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 use W7\Tcp\Message\Message;
