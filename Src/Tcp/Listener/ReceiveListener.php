@@ -19,6 +19,8 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
+use W7\Tcp\Message\Message;
+use W7\Tcp\Parser\ParserInterface;
 use W7\Tcp\Server\Dispatcher as RequestDispatcher;
 
 class ReceiveListener extends ListenerAbstract {
@@ -45,13 +47,13 @@ class ReceiveListener extends ListenerAbstract {
 		$context->setContextDataByKey('reactorid', $reactorId);
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());
-
-		$params = json_decode($data, true);
-		$params['cmd'] = $params['cmd'] ?? '';
-		$params['data'] = $params['data'] ?? [];
-
-		$psr7Request = new Request('POST', $params['cmd'], [], null);
-		$psr7Request = $psr7Request->withParsedBody($params['data']);
+	
+		/**
+		 * @var  Message $message
+		 */
+		$message = iloader()->get(ParserInterface::class)->decode($data);
+		$psr7Request = new Request('POST', $message->getCmd(), [], null);
+		$psr7Request = $psr7Request->withParsedBody($message->getData());
 		$psr7Response = new Response();
 
 		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);

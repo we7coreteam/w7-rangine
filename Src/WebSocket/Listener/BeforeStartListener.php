@@ -16,13 +16,10 @@ use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Route\RouteMapping;
 use FastRoute\Dispatcher\GroupCountBased;
-use W7\WebSocket\Parser\JsonParser;
-use W7\WebSocket\Parser\ParserInterface;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		iloader()->set(Context::ROUTE_KEY, $this->getRoute());
-		$this->setMessageParse();
 	}
 
 	/**
@@ -31,11 +28,5 @@ class BeforeStartListener extends ListenerAbstract {
 	private function getRoute() {
 		$routeInfo = iloader()->get(RouteMapping::class)->getMapping();
 		return new GroupCountBased($routeInfo);
-	}
-
-	private function setMessageParse() {
-		iloader()->set(ParserInterface::class, function () {
-			return new JsonParser();
-		});
 	}
 }

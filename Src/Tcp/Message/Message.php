@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\WebSocket\Message;
+namespace W7\Tcp\Message;
 
 class Message {
 	protected $cmd;
