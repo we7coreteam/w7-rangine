@@ -16,7 +16,7 @@ use W7\Core\Provider\ProviderAbstract;
 use W7\WebSocket\Parser\JsonParser;
 use W7\WebSocket\Parser\ParserInterface;
 
-class ServiceProvider implements ProviderAbstract {
+class ServiceProvider extends ProviderAbstract {
     public function register() {
 		$this->registerFrameParser();
     }

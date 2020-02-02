@@ -38,12 +38,12 @@ class MessageListener extends ListenerAbstract {
 		$psr7Request = Request::loadFromWebSocketFrame($frame);
 		$psr7Response = Response::loadFromWebSocketFrame($frame);
 
-		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+		// ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 
 		$dispatcher = \iloader()->get(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
-		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
+		// ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 	}
 }

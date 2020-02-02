@@ -56,7 +56,7 @@ class ReceiveListener extends ListenerAbstract {
 		$psr7Request = $psr7Request->withParsedBody($message->getData());
 		$psr7Response = new Response();
 
-		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+		// ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 		/**
 		 * @var RequestDispatcher $dispatcher
 		 */
@@ -66,6 +66,6 @@ class ReceiveListener extends ListenerAbstract {
 		$content = $psr7Response->getBody()->getContents();
 		$server->send($fd, $content);
 
-		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
+		// ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 	}
 }
