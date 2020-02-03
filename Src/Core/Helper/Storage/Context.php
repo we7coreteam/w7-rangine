@@ -176,14 +176,6 @@ class Context {
 	 * @return int|null Return null when in non-coroutine context
 	 */
 	public function getCoroutineId() {
-		$cid = Coroutine::getuid();
-		if ($cid > 0 && empty($this->recoverCallback[$cid])) {
-			$this->recoverCallback[$cid] = true;
-			Coroutine::defer(function () {
-				$this->destroy();
-				unset($this->recoverCallback[Coroutine::getuid()]);
-			});
-		}
-		return $cid;
+		return Coroutine::getuid();
 	}
 }

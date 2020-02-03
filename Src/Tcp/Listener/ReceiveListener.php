@@ -66,5 +66,6 @@ class ReceiveListener extends ListenerAbstract {
 		$server->send($fd, $content);
 
 		// ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
+		icontext()->destroy();
 	}
 }
