@@ -28,9 +28,7 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 				 * @var \W7\WebSocket\Message\Response $cResponse
 				 */
 				$cResponse = $context[Context::RESPONSE_KEY];
-				icontext()->setRequest($context[Context::REQUEST_KEY]);
-				icontext()->setResponse($cResponse);
-				icontext()->setContextData($context['data']);
+				icontext()->fork($id);
 				/**
 				 * @var Response $response
 				 */

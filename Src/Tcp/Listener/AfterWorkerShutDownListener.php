@@ -25,9 +25,7 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 		$contexts = icontext()->all();
 		foreach ($contexts as $id => $context) {
 			if (!empty($context[Context::RESPONSE_KEY]) && $context['data']['server-type'] == ServerEnum::TYPE_TCP) {
-				icontext()->setRequest($context[Context::REQUEST_KEY]);
-				icontext()->setResponse($context[Context::RESPONSE_KEY]);
-				icontext()->setContextData($context['data']);
+				icontext()->fork($id);
 				/**
 				 * @var Response $response
 				 */
