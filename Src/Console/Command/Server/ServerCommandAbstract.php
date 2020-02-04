@@ -169,11 +169,12 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			return false;
 		}
 		$this->output->success(sprintf('Server %s stop success!', $server->getType()));
+		return true;
 	}
 
 	protected function restart() {
-		$this->stop();
-		$this->start();
+		$stop = $this->stop();
+		$stop && $this->start();
 	}
 
 	private function logStartServer($type) {
