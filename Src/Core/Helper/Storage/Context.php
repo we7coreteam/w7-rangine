@@ -140,8 +140,11 @@ class Context {
 	/**
 	 * Destroy all current coroutine context data
 	 */
-	public function destroy() {
-		$coroutineId = self::getCoroutineId();
+	public function destroy($coroutineId = null) {
+		if (!$coroutineId) {
+			$coroutineId = self::getCoroutineId();
+		}
+		
 		if (isset(self::$context[$coroutineId])) {
 			unset(self::$context[$coroutineId]);
 		}
