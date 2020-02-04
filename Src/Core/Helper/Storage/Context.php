@@ -125,9 +125,9 @@ class Context {
 	 * @return mixed
 	 */
 	public function getContextDataByKey(string $key, $default = null) {
-		$coroutineId = self::getCoroutineId();
-		if (isset(self::$context[$coroutineId][self::DATA_KEY][$key])) {
-			return self::$context[$coroutineId][self::DATA_KEY][$key];
+		$data = $this->getContextData();
+		if ($data && isset($data[$key])) {
+			return $data[$key];
 		}
 
 		return $default;
