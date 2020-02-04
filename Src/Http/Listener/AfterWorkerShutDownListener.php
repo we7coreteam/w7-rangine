@@ -37,6 +37,8 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 
 				$cResponse = $cResponse->withHeaders($response->getHeaders())->withContent($response->getBody()->getContents());
 				$cResponse->send();
+
+				icontext()->destroy($id);
 			}
 		}
 	}

@@ -18,6 +18,7 @@ use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Http\Message\Server\Response;
+use W7\Tcp\Collector\CollectorManager;
 
 class AfterWorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -33,6 +34,9 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 				$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_TCP);
 				App::$server->getServer()->send($context['data']['fd'], $response->getBody()->getContents());
 				App::$server->getServer()->close($context['data']['fd']);
+
+				iloader()->get(CollectorManager::class)->del($context['data']['fd']);
+				icontext()->destroy($id);
 			}
 		}
 	}
