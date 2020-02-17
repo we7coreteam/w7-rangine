@@ -55,14 +55,14 @@ class Container {
 			}
 		}
 		if (!$support) {
-			throw new \RuntimeException('not support');
+			throw new \RuntimeException('when an object is included in a parameter, it cannot be singularized by a parameter');
 		}
 		$instanceKey = $name;
 		if ($support && $params) {
 			$instanceKey = md5($instanceKey . json_encode($params));
 		}
 		if (!$this->has($instanceKey)) {
-			$this->set($instanceKey, $name, $params);
+			$this->set($instanceKey, $name, ...$params);
 		}
 
 		return $this->psrContainer->get($instanceKey);
