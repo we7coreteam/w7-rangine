@@ -13,7 +13,6 @@
 namespace W7\Core\Database;
 
 use Illuminate\Database\Eloquent\Builder;
-use W7\Core\Dispatcher\EventDispatcher;
 
 /**
  * Class ModelAbstract
@@ -73,43 +72,6 @@ use W7\Core\Dispatcher\EventDispatcher;
  * @method getMacro($name)
  */
 abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
-	protected static $hasRegisterEvent = false;
-
-	public function __construct(array $attributes = []) {
-		parent::__construct($attributes);
-		$this->registerEvent();
-	}
-
-	/**
-	 * 自动注册model event
-	 * @return bool
-	 */
-	protected function registerEvent() {
-		if (static::$hasRegisterEvent) {
-			return true;
-		}
-		static::$hasRegisterEvent = true;
-
-		/**
-		 * @var EventDispatcher $eventDispatcher
-		 */
-		$eventDispatcher = iloader()->get(EventDispatcher::class);
-		foreach ($this->dispatchesEvents as $name => $event) {
-			if (class_exists($event) && !$eventDispatcher->hasListeners($event)) {
-				//生成listener类名,和event类名一致
-				$baseClassName = class_basename($event);
-				$subStrLen = strlen($baseClassName) - 5;
-				if (substr($baseClassName, $subStrLen, 5) == 'Event') {
-					$baseClassName = substr($baseClassName, 0, $subStrLen);
-				}
-				$listenerCLass = 'W7\App\Listener\\' . $baseClassName . 'Listener';
-				if (class_exists($listenerCLass)) {
-					$eventDispatcher->listen($event, $listenerCLass);
-				}
-			}
-		}
-	}
-
 	protected function insertAndSetId(Builder $query, $attributes) {
 		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
 
