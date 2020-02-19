@@ -140,7 +140,7 @@ abstract class ProviderAbstract {
 		 * @var EventDispatcher $eventDispatcher
 		 */
 		$eventDispatcher = iloader()->get(EventDispatcher::class);
-		$eventDispatcher->autoRegisterEvents($this->rootPath . '/src/', $this->namespace);
+		$eventDispatcher->autoRegisterEvents($this->rootPath . '/src/Event/', $this->namespace);
 	}
 
 	protected function registerOpenBaseDir($dir) {

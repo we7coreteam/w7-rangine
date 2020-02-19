@@ -22,7 +22,7 @@ class EventDispatcher extends Dispatcher {
 	}
 
 	public function register() {
-		$this->autoRegisterEvents(APP_PATH . '/Event', '\\W7\\App');
+		$this->autoRegisterEvents(APP_PATH . '/Event', 'W7\\App');
 	}
 
 	public function autoRegisterEvents($path, $classNamespace) {
