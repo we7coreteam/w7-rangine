@@ -45,10 +45,14 @@ class Server extends ProcessServerAbstract {
 			throw new \RuntimeException('not support ' . implode(', ', $notSupportProcess) . ' process');
 		}
 
-		//设置指定的process的对应enable为true
-		$processMap = empty($processMap) ? array_keys($supportProcess) : $processMap;
+		//如果processMap为空，表示输入的指令是bin/server process start
+		$startAll = false;
+		if (empty($processMap)) {
+			$startAll = true;
+			$processMap = empty($processMap) ? array_keys($supportProcess) : $processMap;
+		}
 		foreach ($processMap as $processName) {
-			$supportProcess[$processName]['enable'] = true;
+			$supportProcess[$processName]['enable'] = $startAll ? ($supportProcess[$processName]['enable'] ?? true) : true;
 		}
 		$processConfig['process'] = $supportProcess;
 		iconfig()->setUserConfig('process', $processConfig);
