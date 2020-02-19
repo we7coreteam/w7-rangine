@@ -50,6 +50,7 @@ class EventDispatcher extends Dispatcher {
 		foreach ($files as $file) {
 			$eventName = $file->getRelativePathname();
 			$eventName = substr($eventName, 0, strlen($eventName) - 9);
+			$eventName = str_replace('/', '\\', $eventName);
 			$listenerClass = $classNamespace . '\\Listener\\' . $eventName . 'Listener';
 			if (class_exists($listenerClass)) {
 				$eventClass = $classNamespace . '\\Event\\' . $eventName . 'Event';
