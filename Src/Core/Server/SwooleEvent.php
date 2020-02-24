@@ -14,6 +14,7 @@ namespace W7\Core\Server;
 
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
+use W7\Core\Helper\StringHelper;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
 use W7\Core\Listener\ManagerStopListener;
@@ -163,7 +164,7 @@ class SwooleEvent {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
 			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 
-			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst(App::$server->getType()), ucfirst($eventName));
+			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly(App::$server->getType()), ucfirst($eventName));
 			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
