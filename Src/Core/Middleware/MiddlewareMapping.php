@@ -65,11 +65,11 @@ class MiddlewareMapping {
 	/**
 	 * 获取系统最后的中间件
 	 */
-	private function getLastMiddleware() {
+	protected function getLastMiddleware() {
 		return [[LastMiddleware::class]];
 	}
 
-	private function getControllerMiddleware() {
+	protected function getControllerMiddleware() {
 		if (empty(App::$server->getType())) {
 			return [];
 		}
