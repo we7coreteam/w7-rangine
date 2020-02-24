@@ -75,7 +75,7 @@ class RequestDispatcher extends DispatcherAbstract {
 		}
 	}
 
-	private function getRoute(ServerRequestInterface $request) {
+	protected function getRoute(ServerRequestInterface $request) {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
 
