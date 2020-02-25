@@ -17,13 +17,13 @@ use W7\Tcp\Parser\JsonParser;
 use W7\Tcp\Parser\ParserInterface;
 
 class ServiceProvider extends ProviderAbstract {
-    public function register() {
+	public function register() {
 		$this->registerDataParser();
-    }
-    
-    private function registerDataParser() {
-        iloader()->set(ParserInterface::class, function () {
+	}
+
+	private function registerDataParser() {
+		iloader()->set(ParserInterface::class, function () {
 			return new JsonParser();
 		});
-    }
+	}
 }

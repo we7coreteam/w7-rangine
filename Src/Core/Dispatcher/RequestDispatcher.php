@@ -32,6 +32,10 @@ class RequestDispatcher extends DispatcherAbstract {
 	 */
 	protected $middlewareMapping;
 	protected $serverType;
+	/**
+	 * @var GroupCountBased
+	 */
+	protected $router;
 
 	public function __construct() {
 		//当不同类型的server一起启动时，需要区分middleware
@@ -41,6 +45,10 @@ class RequestDispatcher extends DispatcherAbstract {
 
 	public function setServerType($type) {
 		$this->serverType = $type;
+	}
+
+	public function setRouter(GroupCountBased $router) {
+		$this->router = $router;
 	}
 
 	public function getMiddlewareMapping() {
@@ -79,11 +87,7 @@ class RequestDispatcher extends DispatcherAbstract {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
 
-		/**
-		 * @var GroupCountBased $router
-		 */
-		$router = iloader()->get(Context::ROUTE_KEY);
-		$route = $router->dispatch($httpMethod, $url);
+		$route = $this->router->dispatch($httpMethod, $url);
 
 		$controller = $method = '';
 		switch ($route[0]) {

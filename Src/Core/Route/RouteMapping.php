@@ -15,8 +15,12 @@ namespace W7\Core\Route;
 use W7\Core\Middleware\MiddlewareMapping;
 
 class RouteMapping {
-	private $routeConfig;
-	private $routeKeyWords = ['prefix', 'method', 'middleware', 'name', 'namespace', 'uri', 'handler'];
+	protected $routeConfig;
+	protected $routeKeyWords = ['prefix', 'method', 'middleware', 'name', 'namespace', 'uri', 'handler'];
+	/**
+	 * @var Route
+	 */
+	protected $router;
 
 	/**
 	 * @var MiddlewareMapping
@@ -26,6 +30,7 @@ class RouteMapping {
 	public function __construct() {
 		$this->middlewareMapping = iloader()->get(MiddlewareMapping::class);
 		$this->routeConfig = \iconfig()->getRouteConfig();
+		$this->router = irouter();
 		/**
 		 * @todo 增加引入扩展机制的路由
 		 */
@@ -50,10 +55,10 @@ class RouteMapping {
 		}
 		$this->registerSystemRoute();
 
-		return irouter()->getData();
+		return $this->router->getData();
 	}
 
-	private function initRouteByConfig($config) {
+	protected function initRouteByConfig($config) {
 		//处理路由最外层的全局配置
 		$prefix = '';
 		$middleware = [];
@@ -85,7 +90,7 @@ class RouteMapping {
 		}
 	}
 
-	private function parseRoute($key, $route, $prefix = '', $middleware = [], $method = '', $name = '', $routeNamespace = '') {
+	protected function parseRoute($key, $route, $prefix = '', $middleware = [], $method = '', $name = '', $routeNamespace = '') {
 		$childRoutes = array_diff(array_keys($route), $this->routeKeyWords);
 		//如果有子路由的话，解析子路由
 		if (!empty($childRoutes)) {
@@ -174,10 +179,10 @@ class RouteMapping {
 			}
 			$route['middleware'] = array_unique(array_merge([], $middleware, (array) $route['middleware']));
 
-			irouter()->group([
+			$this->router->group([
 				'namespace' => $routeNamespace
 			], function () use ($route) {
-				irouter()->middleware($route['middleware'])->add(array_map('strtoupper', $route['method']), $route['uri'], $route['handler'], $route['name']);
+				$this->router->middleware($route['middleware'])->add(array_map('strtoupper',  $route['method']), $route['uri'], $route['handler'], $route['name']);
 			});
 		}
 	}
@@ -185,7 +190,7 @@ class RouteMapping {
 	//如果用户自定义了系统路由，则按照用户的路由走
 	public function registerSystemRoute() {
 		try {
-			irouter()->get('/favicon.ico', function () {
+			$this->router->get('/favicon.ico', function () {
 				return icontext()->getResponse()->withContent('');
 			});
 		} catch (\Throwable $e) {

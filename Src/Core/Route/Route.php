@@ -47,6 +47,10 @@ class Route {
 		$this->router = new RouteCollector(new Std(), new GroupCountBased());
 	}
 
+	public function getRouter() {
+		return $this->router;
+	}
+
 	private function parseGroupOption($option) {
 		if (!is_array($option)) {
 			$prefix = $option;
