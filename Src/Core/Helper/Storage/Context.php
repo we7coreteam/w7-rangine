@@ -44,11 +44,6 @@ class Context {
 	 */
 	const MIDDLEWARE_KEY = 'lastMiddleware';
 
-	/**
-	 * 路由表
-	 */
-	const ROUTE_KEY = 'route_tables';
-
 	private $recoverCallback;
 
 	/**
