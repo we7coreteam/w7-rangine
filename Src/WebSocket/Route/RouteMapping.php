@@ -12,33 +12,8 @@
 
 namespace W7\WebSocket\Route;
 
-use W7\Core\Route\Route;
-use W7\Core\Route\RouteMapping as RouteMappingAbstract;
+use W7\Tcp\Route\RouteMapping as RouteMappingAbstract;
 
 class RouteMapping extends RouteMappingAbstract {
-	/**
-	 * @return array|mixed
-	 */
-	public function getMapping() {
-		if (!empty($this->routeConfig)) {
-			foreach ($this->routeConfig as $index => $routeConfig) {
-				$this->initRouteByConfig($routeConfig);
-			}
-		}
-		$this->registerSystemRoute();
 
-		$routes = $this->router->getData();
-		$this->router = new Route();
-		$this->processRoutes($routes);
-
-		return $this->router->getData();
-	}
-
-	protected function processRoutes($routeMap) {
-		foreach ($routeMap[0] as $method => $routes) {
-			foreach ($routes as $key => $route) {
-				$this->router->getRouter()->addRoute('POST', $route['uri'], $route);
-			}
-		}
-	}
 }

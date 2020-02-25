@@ -35,9 +35,22 @@ class RouteMapping extends RouteMappingAbstract {
 	}
 
 	protected function processRoutes($routeMap) {
+		$registerRoutes = [];
 		foreach ($routeMap[0] as $method => $routes) {
 			foreach ($routes as $key => $route) {
+				$registerRoutes[] = $route['uri'];
 				$this->router->getRouter()->addRoute('POST', $route['uri'], $route);
+			}
+		}
+
+		foreach ($routeMap[1] as $method => $routeGroup) {
+			foreach ($routeGroup as $routes) {
+				foreach ($routes['routeMap'] as $route) {
+					$route = $route[0];
+					if (!in_array($route['uri'], $registerRoutes)) {
+						$this->router->getRouter()->addRoute('POST', $route['uri'], $route);
+					}
+				}
 			}
 		}
 	}
