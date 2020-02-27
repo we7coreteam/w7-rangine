@@ -27,9 +27,16 @@ class RouteMapping {
 	 */
 	private $middlewareMapping;
 
+	private static $isInitRouteByFunc = false;
+	private static $isInitRouteByConfig = false;
+
 	public function __construct() {
 		$this->middlewareMapping = iloader()->get(MiddlewareMapping::class);
-		$this->routeConfig = \iconfig()->getRouteConfig();
+		if (!self::$isInitRouteByConfig) {
+			//在多个服务同时启动的时候，防止重复注册
+			$this->routeConfig = \iconfig()->getRouteConfig();
+			self::$isInitRouteByConfig = true;
+		}
 		$this->router = irouter();
 		/**
 		 * @todo 增加引入扩展机制的路由
@@ -48,13 +55,17 @@ class RouteMapping {
 	 * @return array|mixed
 	 */
 	public function getMapping() {
+		//在多个服务同时启动的时候，防止重复注册
+		if (self::$isInitRouteByFunc) {
+			$this->router->getData();
+		}
 		if (!empty($this->routeConfig)) {
 			foreach ($this->routeConfig as $index => $routeConfig) {
 				$this->initRouteByConfig($routeConfig);
 			}
 		}
 		$this->registerSystemRoute();
-
+		self::$isInitRouteByFunc = true;
 		return $this->router->getData();
 	}
 

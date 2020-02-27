@@ -20,14 +20,7 @@ class RouteMapping extends RouteMappingAbstract {
 	 * @return array|mixed
 	 */
 	public function getMapping() {
-		if (!empty($this->routeConfig)) {
-			foreach ($this->routeConfig as $index => $routeConfig) {
-				$this->initRouteByConfig($routeConfig);
-			}
-		}
-		$this->registerSystemRoute();
-
-		$routes = $this->router->getData();
+		$routes = parent::getMapping();
 		$this->router = new Route();
 		$this->processRoutes($routes);
 

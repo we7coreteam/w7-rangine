@@ -13,9 +13,11 @@
 namespace W7\Tcp\Server;
 
 use Swoole\Server as TcpServer;
+use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleEvent;
+use W7\Tcp\Listener\BeforeStartListener;
 
 class Server extends ServerAbstract {
 	public function getType() {
@@ -60,6 +62,11 @@ class Server extends ServerAbstract {
 			'open_http_protocol' => false,
 			'open_websocket_protocol' => false,
 		]);
+		/**
+		 * @var EventDispatcher $eventDispatcher
+		 */
+		$eventDispatcher = iloader()->get(EventDispatcher::class);
+		$eventDispatcher->listen(SwooleEvent::ON_USER_BEFORE_START, BeforeStartListener::class);
 		$event = (new SwooleEvent())->getDefaultEvent()[$this->getType()];
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
