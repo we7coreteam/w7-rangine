@@ -12,6 +12,7 @@
 
 namespace W7\Tcp\Listener;
 
+use function GuzzleHttp\Psr7\parse_query;
 use W7\App;
 use Swoole\Coroutine;
 use Swoole\Server;
@@ -52,7 +53,7 @@ class ReceiveListener extends ListenerAbstract {
 		 */
 		$message = iloader()->get(ParserInterface::class)->decode($data);
 		$psr7Request = new Request('POST', $message->getCmd(), [], null);
-		$psr7Request = $psr7Request->withParsedBody($message->getData());
+		$psr7Request = $psr7Request->withQueryParams(parse_query($psr7Request->getUri()->getQuery()))->withParsedBody($message->getData());
 		$psr7Response = new Response();
 
 		// ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
