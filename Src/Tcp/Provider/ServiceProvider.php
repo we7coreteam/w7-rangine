@@ -13,17 +13,17 @@
 namespace  W7\Tcp\Provider;
 
 use W7\Core\Provider\ProviderAbstract;
-use W7\Tcp\Parser\JsonParser;
-use W7\Tcp\Parser\ParserInterface;
+use W7\Tcp\Packer\JsonPacker;
+use W7\Tcp\Packer\PackerInterface;
 
 class ServiceProvider extends ProviderAbstract {
 	public function register() {
-		$this->registerDataParser();
+		$this->registerDataPacker();
 	}
 
-	private function registerDataParser() {
-		iloader()->set(ParserInterface::class, function () {
-			return new JsonParser();
+	private function registerDataPacker() {
+		iloader()->set(PackerInterface::class, function () {
+			return new JsonPacker();
 		});
 	}
 }

@@ -20,7 +20,7 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 use W7\Tcp\Message\Message;
-use W7\Tcp\Parser\ParserInterface;
+use W7\Tcp\Packer\PackerInterface;
 use W7\Tcp\Server\Dispatcher as RequestDispatcher;
 
 class ReceiveListener extends ListenerAbstract {
@@ -51,7 +51,7 @@ class ReceiveListener extends ListenerAbstract {
 		/**
 		 * @var  Message $message
 		 */
-		$message = iloader()->get(ParserInterface::class)->decode($data);
+		$message = iloader()->get(PackerInterface::class)->unpack($data);
 		$psr7Request = new Request('POST', $message->getCmd(), [], null);
 		$psr7Request = $psr7Request->withQueryParams(parse_query($psr7Request->getUri()->getQuery()))->withParsedBody($message->getData());
 		$psr7Response = new Response();
@@ -62,9 +62,7 @@ class ReceiveListener extends ListenerAbstract {
 		 */
 		$dispatcher = \iloader()->get(RequestDispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
-
-		$content = $psr7Response->getBody()->getContents();
-		$server->send($fd, $content);
+		$server->send($fd, $psr7Response->getBody()->getContents());
 
 		// ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 		icontext()->destroy();

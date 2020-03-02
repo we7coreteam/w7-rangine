@@ -10,16 +10,16 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace  W7\Tcp\Parser;
+namespace  W7\Tcp\Packer;
 
 use W7\Tcp\Message\Message;
 
-class JsonParser implements ParserInterface {
-	public function encode(Message $message) {
+class JsonPacker implements PackerInterface {
+	public function pack(Message $message) {
 		return json_encode($message->getPackage());
 	}
 
-	public function decode($data): Message {
+	public function unpack($data): Message {
 		$cmd = '';
 		$map = json_decode($data, true);
 

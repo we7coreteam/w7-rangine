@@ -10,11 +10,11 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Tcp\Parser;
+namespace W7\Tcp\Packer;
 
 use W7\Tcp\Message\Message;
 
-interface ParserInterface {
-	public function encode(Message $message);
-	public function decode($message) : Message;
+interface PackerInterface {
+	public function pack(Message $message);
+	public function unpack($message) : Message;
 }

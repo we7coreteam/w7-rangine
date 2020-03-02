@@ -13,17 +13,17 @@
 namespace  W7\WebSocket\Provider;
 
 use W7\Core\Provider\ProviderAbstract;
-use W7\WebSocket\Parser\JsonParser;
-use W7\WebSocket\Parser\ParserInterface;
+use W7\WebSocket\Packer\JsonPacker;
+use W7\WebSocket\Packer\PackerInterface;
 
 class ServiceProvider extends ProviderAbstract {
 	public function register() {
-		$this->registerDataParser();
+		$this->registerDataPacker();
 	}
 
-	private function registerDataParser() {
-		iloader()->set(ParserInterface::class, function () {
-			return new JsonParser();
+	private function registerDataPacker() {
+		iloader()->set(PackerInterface::class, function () {
+			return new JsonPacker();
 		});
 	}
 }
