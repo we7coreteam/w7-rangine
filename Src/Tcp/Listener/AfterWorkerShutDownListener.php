@@ -13,11 +13,9 @@
 namespace W7\Tcp\Listener;
 
 use W7\App;
-use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
-use W7\Http\Message\Server\Response;
 use W7\Tcp\Collector\CollectorManager;
 
 class AfterWorkerShutDownListener extends ListenerAbstract {
@@ -25,12 +23,7 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 		$contexts = icontext()->all();
 		foreach ($contexts as $id => $context) {
 			if (!empty($context[Context::RESPONSE_KEY]) && $context['data']['server-type'] == ServerEnum::TYPE_TCP) {
-				icontext()->fork($id);
-				/**
-				 * @var Response $response
-				 */
-				$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_TCP);
-				App::$server->getServer()->send($context['data']['fd'], $response->getBody()->getContents());
+				App::$server->getServer()->send($context['data']['fd'], '发生致命错误，请在日志中查看错误原因。');
 				App::$server->getServer()->close($context['data']['fd']);
 
 				iloader()->get(CollectorManager::class)->del($context['data']['fd']);

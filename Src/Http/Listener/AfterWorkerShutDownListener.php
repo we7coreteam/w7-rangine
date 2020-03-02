@@ -12,7 +12,6 @@
 
 namespace W7\Http\Listener;
 
-use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
@@ -27,13 +26,7 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 				 * @var Response $cResponse
 				 */
 				$cResponse = $context[Context::RESPONSE_KEY];
-				icontext()->fork($id);
-				/**
-				 * @var Response $response
-				 */
-				$response = iloader()->get(HandlerExceptions::class)->handle($params[1], ServerEnum::TYPE_HTTP);
-
-				$cResponse = $cResponse->withHeaders($response->getHeaders())->withContent($response->getBody()->getContents());
+				$cResponse = $cResponse->raw('发生致命错误，请在日志中查看错误原因。');
 				$cResponse->send();
 
 				icontext()->destroy($id);
