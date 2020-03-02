@@ -23,7 +23,7 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 		$contexts = icontext()->all();
 		foreach ($contexts as $id => $context) {
 			if (!empty($context[Context::RESPONSE_KEY]) && $context['data']['server-type'] == ServerEnum::TYPE_TCP) {
-				App::$server->getServer()->send($context['data']['fd'], '发生致命错误，请在日志中查看错误原因。');
+				App::$server->getServer()->send($context['data']['fd'], '发生致命错误，请在日志中查看错误原因，workid：' . ($context['data']['workid'] ?? '') . '，coid：' . icontext()->getLastCoId() . '。');
 				App::$server->getServer()->close($context['data']['fd']);
 
 				iloader()->get(CollectorManager::class)->del($context['data']['fd']);

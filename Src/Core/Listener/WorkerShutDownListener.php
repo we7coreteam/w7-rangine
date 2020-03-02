@@ -12,6 +12,7 @@
 
 namespace W7\Core\Listener;
 
+use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Server\SwooleEvent;
 
@@ -28,6 +29,8 @@ class WorkerShutDownListener extends ListenerAbstract {
 	}
 
 	protected function log(\Throwable $throwable) {
+		icontext()->setContextDataByKey('workid', App::$server->getServer()->worker_id);
+		icontext()->setContextDataByKey('coid', icontext()->getLastCoId());
 		$errorMessage = sprintf(
 			'Uncaught Exception %s: "%s" at %s line %s',
 			get_class($throwable),

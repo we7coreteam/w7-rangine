@@ -47,6 +47,11 @@ class Context {
 	private $recoverCallback;
 
 	/**
+	 * @var 最后请求的协程号
+	 */
+	private $lastCoId;
+
+	/**
 	 * @return Request|null
 	 */
 	public function getRequest() {
@@ -174,6 +179,15 @@ class Context {
 	 * @return int|null Return null when in non-coroutine context
 	 */
 	public function getCoroutineId() {
-		return Coroutine::getuid();
+		$coId = Coroutine::getuid();
+		if ($coId != -1) {
+			$this->lastCoId = $coId;
+		}
+
+		return $coId;
+	}
+
+	public function getLastCoId() {
+		return $this->lastCoId;
 	}
 }
