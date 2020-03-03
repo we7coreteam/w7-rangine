@@ -17,7 +17,7 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\WebSocket\Collector\CollectorManager;
 
-class AfterWorkerShutDownListener extends ListenerAbstract {
+class AfterWorkerStopListener extends ListenerAbstract {
 	public function run(...$params) {
 		$contexts = icontext()->all();
 		foreach ($contexts as $id => $context) {
