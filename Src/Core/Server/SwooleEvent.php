@@ -165,6 +165,7 @@ class SwooleEvent {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
 			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 
+			//当多类型服务同时启动时，触发事件，要触发各自对应的事件
 			foreach ($startedServers as $server) {
 				$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly($server), ucfirst($eventName));
 				iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
