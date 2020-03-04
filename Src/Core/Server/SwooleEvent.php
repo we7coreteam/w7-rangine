@@ -160,12 +160,15 @@ class SwooleEvent {
 	}
 
 	private function registerUserEvent() {
+		$startedServers = iconfig()->getUserAppConfig('setting')['started_servers'] ?? [];
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
 			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
 
-			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly(App::$server->getType()), ucfirst($eventName));
-			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
+			foreach ($startedServers as $server) {
+				$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly($server), ucfirst($eventName));
+				iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
+			}
 
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
 			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);

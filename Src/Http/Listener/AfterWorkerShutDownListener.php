@@ -21,7 +21,7 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
 		$contexts = icontext()->all();
 		foreach ($contexts as $id => $context) {
-			if (!empty($context[Context::RESPONSE_KEY]) && $context['data']['server-type'] == ServerEnum::TYPE_HTTP) {
+			if (!empty($context[Context::RESPONSE_KEY]) && !empty($context['data']['server-type']) && $context['data']['server-type'] == ServerEnum::TYPE_HTTP) {
 				/**
 				 * @var Response $cResponse
 				 */
