@@ -26,7 +26,6 @@ class AfterWorkerStopListener extends ListenerAbstract {
 		$requestCollect = $collectManager->getCollector(SwooleRequestCollector::getName());
 		foreach ($requestCollect->all() as $fd => $request) {
 			App::$server->getServer()->disconnect($fd, 0, '');
-			$collectManager->del($fd);
 		}
 	}
 }
