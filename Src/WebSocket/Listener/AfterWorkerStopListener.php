@@ -12,28 +12,21 @@
 
 namespace W7\WebSocket\Listener;
 
-use W7\Core\Helper\Storage\Context;
+use W7\App;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Server\ServerEnum;
 use W7\WebSocket\Collector\CollectorManager;
+use W7\WebSocket\Collector\SwooleRequestCollector;
 
 class AfterWorkerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		$contexts = icontext()->all();
-		foreach ($contexts as $id => $context) {
-			if (!empty($context[Context::RESPONSE_KEY]) && $context['data']['server-type'] == ServerEnum::TYPE_WEBSOCKET) {
-				/**
-				 * @var \W7\WebSocket\Message\Response $cResponse
-				 */
-				$cResponse = $context[Context::RESPONSE_KEY];
-
-				$cResponse = $cResponse->withContent('发生致命错误，请在日志中查看错误原因，workid：' . ($context['data']['workid'] ?? '') . '，coid：' . icontext()->getLastCoId() . '。');
-				$cResponse->send();
-				$cResponse->disconnect($cResponse->getFd());
-
-				iloader()->get(CollectorManager::class)->del($cResponse->getFd());
-				icontext()->destroy($id);
-			}
+		/**
+		 * @var CollectorManager $collectManager
+		 */
+		$collectManager = iloader()->get(CollectorManager::class);
+		$requestCollect = $collectManager->getCollector(SwooleRequestCollector::getName());
+		foreach ($requestCollect->all() as $fd => $request) {
+			App::$server->getServer()->disconnect($fd, 0, '');
+			$collectManager->del($fd);
 		}
 	}
 }

@@ -33,4 +33,8 @@ abstract class CollectorAbstract {
 			unset($this->fds[$fd]);
 		}
 	}
+
+	public function all() {
+		return $this->fds;
+	}
 }
