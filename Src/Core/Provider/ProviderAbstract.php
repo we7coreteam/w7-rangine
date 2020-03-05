@@ -14,7 +14,6 @@ namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
 use W7\Console\Application;
-use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleEvent;
@@ -136,11 +135,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerEvent() {
-		/**
-		 * @var EventDispatcher $eventDispatcher
-		 */
-		$eventDispatcher = iloader()->get(EventDispatcher::class);
-		$eventDispatcher->autoRegisterEvents($this->rootPath . '/src/Event/', $this->namespace);
+		ieventDispatcher()->autoRegisterEvents($this->rootPath . '/src/Event/', $this->namespace);
 	}
 
 	protected function registerOpenBaseDir($dir) {

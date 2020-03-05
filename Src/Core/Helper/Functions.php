@@ -25,6 +25,16 @@ use Illuminate\Database\Eloquent\Model;
 use W7\Core\Route\Route;
 use Swoole\Timer;
 
+if (!function_exists('ieventDispatcher')) {
+	function ieventDispatcher() {
+		/**
+		 * @var EventDispatcher $dispatcher
+		 */
+		$dispatcher = iloader()->get(EventDispatcher::class);
+		return $dispatcher;
+	}
+}
+
 if (!function_exists('ievent')) {
 	/**
 	 * 派发一个事件
@@ -34,11 +44,7 @@ if (!function_exists('ievent')) {
 	 * @return array|null
 	 */
 	function ievent($eventName, $args = [], $halt = false) {
-		/**
-		 * @var EventDispatcher $dispatcher
-		 */
-		$dispatcher = iloader()->get(EventDispatcher::class);
-		return $dispatcher->dispatch($eventName, $args);
+		return ieventDispatcher()->dispatch($eventName, $args, $halt);
 	}
 }
 if (!function_exists('itask')) {

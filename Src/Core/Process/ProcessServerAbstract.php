@@ -13,7 +13,6 @@
 namespace W7\Core\Process;
 
 use Swoole\Process\Pool as PoolManager;
-use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Process\Pool\DependentPool;
 use W7\Core\Process\Pool\IndependentPool;
 use W7\Core\Process\Pool\PoolAbstract;
@@ -95,11 +94,11 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 			}
 			if (in_array($eventName, [SwooleEvent::ON_WORKER_START, SwooleEvent::ON_WORKER_STOP, SwooleEvent::ON_MESSAGE])) {
 				$this->pool->on($eventName, function (PoolManager $pool, $workerId) use ($eventName) {
-					iloader()->get(EventDispatcher::class)->dispatch($eventName, [$this->getType(), $pool->getProcess(), $workerId, $this->pool->getProcessFactory(), $this->pool->getMqKey()]);
+					ieventDispatcher()->dispatch($eventName, [$this->getType(), $pool->getProcess(), $workerId, $this->pool->getProcessFactory(), $this->pool->getMqKey()]);
 				});
 			} else {
 				$this->pool->on($eventName, function () use ($eventName) {
-					iloader()->get(EventDispatcher::class)->dispatch($eventName, func_get_args());
+					ieventDispatcher()->dispatch($eventName, func_get_args());
 				});
 			}
 		}
