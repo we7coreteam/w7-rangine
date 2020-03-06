@@ -13,6 +13,8 @@
 namespace W7\Core\Dispatcher;
 
 use Illuminate\Events\Dispatcher;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class EventDispatcher extends Dispatcher {
 	public function __construct() {
@@ -20,12 +22,43 @@ class EventDispatcher extends Dispatcher {
 	}
 
 	public function register() {
-		$userEvents = iconfig()->getUserConfig('event');
-		foreach ($userEvents as $name => $listener) {
-			foreach ((array)$listener as $item) {
-				$this->listen($name, $item);
+		$this->autoRegisterEvents(APP_PATH . '/Event', 'W7\\App');
+	}
+
+	public function autoRegisterEvents($path, $classNamespace) {
+		if (!file_exists($path)) {
+			return false;
+		}
+		$events = $this->findEvents($path, $classNamespace);
+		foreach ($events as $event => $listener) {
+			$this->listen($event, $listener);
+		}
+	}
+
+	private function findEvents($path, $classNamespace) {
+		$events = [];
+
+		$files = Finder::create()
+			->in($path)
+			->files()
+			->ignoreDotFiles(true)
+			->name('/^[\w\W\d]+Event.php$/');
+
+		/**
+		 * @var SplFileInfo $file
+		 */
+		foreach ($files as $file) {
+			$eventName = $file->getRelativePathname();
+			$eventName = substr($eventName, 0, strlen($eventName) - 9);
+			$eventName = str_replace('/', '\\', $eventName);
+			$listenerClass = $classNamespace . '\\Listener\\' . $eventName . 'Listener';
+			if (class_exists($listenerClass)) {
+				$eventClass = $classNamespace . '\\Event\\' . $eventName . 'Event';
+				$events[$eventClass] = $listenerClass;
 			}
 		}
+		
+		return $events;
 	}
 
 	public function listen($events, $listener) {

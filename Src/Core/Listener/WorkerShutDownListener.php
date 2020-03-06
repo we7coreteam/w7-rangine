@@ -12,17 +12,37 @@
 
 namespace W7\Core\Listener;
 
-use W7\Core\Dispatcher\EventDispatcher;
+use W7\App;
 use W7\Core\Server\SwooleEvent;
 
 class WorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
+		$this->log($params[1]);
 		$startedServers = iconfig()->getUserConfig('app')['setting']['started_servers'] ?? [];
 		foreach ($startedServers as $startedServer) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst($startedServer), ucfirst(SwooleEvent::ON_USER_AFTER_WORKER_SHUTDOWN));
-			iloader()->get(EventDispatcher::class)->listen(SwooleEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $listener);
+			ieventDispatcher()->listen(SwooleEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $listener);
 		}
 
 		ievent(SwooleEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $params);
+	}
+
+	protected function log(\Throwable $throwable) {
+		icontext()->setContextDataByKey('workid', App::$server->getServer()->worker_id);
+		icontext()->setContextDataByKey('coid', icontext()->getLastCoId());
+		$errorMessage = sprintf(
+			'Uncaught Exception %s: "%s" at %s line %s',
+			get_class($throwable),
+			$throwable->getMessage(),
+			$throwable->getFile(),
+			$throwable->getLine()
+		);
+
+		$context = [];
+		if ((ENV & BACKTRACE) === BACKTRACE) {
+			$context = array('exception' => $throwable);
+		}
+
+		ilogger()->debug($errorMessage, $context);
 	}
 }

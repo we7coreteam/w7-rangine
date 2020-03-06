@@ -60,6 +60,7 @@ class Server extends ServerAbstract {
 			'open_http_protocol' => false,
 			'open_websocket_protocol' => false,
 		]);
+
 		$event = (new SwooleEvent())->getDefaultEvent()[$this->getType()];
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {

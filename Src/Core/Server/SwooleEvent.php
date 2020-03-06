@@ -12,8 +12,7 @@
 
 namespace W7\Core\Server;
 
-use W7\App;
-use W7\Core\Dispatcher\EventDispatcher;
+use W7\Core\Helper\StringHelper;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
 use W7\Core\Listener\ManagerStopListener;
@@ -153,21 +152,25 @@ class SwooleEvent {
 		foreach ($eventTypes as $name) {
 			$events = $swooleEvents[$name] ?? [];
 			foreach ($events as $name => $event) {
-				iloader()->get(EventDispatcher::class)->listen($name, $event);
+				ieventDispatcher()->listen($name, $event);
 			}
 		}
 	}
 
 	private function registerUserEvent() {
+		$startedServers = iconfig()->getUserAppConfig('setting')['started_servers'] ?? [];
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
-			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
+			ieventDispatcher()->listen($eventName, $listener);
 
-			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst(App::$server->getType()), ucfirst($eventName));
-			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
+			//当多类型服务同时启动时，触发事件，要触发各自对应的事件
+			foreach ($startedServers as $server) {
+				$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly($server), ucfirst($eventName));
+				ieventDispatcher()->listen($eventName, $listener);
+			}
 
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
-			iloader()->get(EventDispatcher::class)->listen($eventName, $listener);
+			ieventDispatcher()->listen($eventName, $listener);
 		}
 	}
 

@@ -22,8 +22,7 @@ class ProcessFactory {
 			$this->processMap[] = [
 				'name' => $name,
 				'handle' => $handle,
-				'num' => $num,
-				'runing_num' => 0
+				'num' => $num
 			];
 		}
 	}

@@ -10,11 +10,9 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\WebSocket\Parser;
+namespace W7\WebSocket\Route;
 
-use W7\WebSocket\Message\Message;
+use W7\Tcp\Route\RouteMapping as RouteMappingAbstract;
 
-interface ParserInterface {
-	public function encode(Message $message);
-	public function decode($message) : Message;
+class RouteMapping extends RouteMappingAbstract {
 }

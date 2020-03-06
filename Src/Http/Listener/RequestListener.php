@@ -54,5 +54,6 @@ class RequestListener extends ListenerAbstract {
 		$psr7Response->send();
 
 		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
+		icontext()->destroy();
 	}
 }

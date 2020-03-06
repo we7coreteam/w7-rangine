@@ -15,9 +15,11 @@ namespace W7\WebSocket\Listener;
 use Swoole\Coroutine;
 use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
+use W7\Core\Server\SwooleEvent;
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Server\SwooleEvent;
+use W7\WebSocket\Collector\CollectorManager;
+use W7\WebSocket\Collector\SwooleRequestCollector;
 use W7\WebSocket\Message\Frame;
 use W7\WebSocket\Message\Request;
 use W7\WebSocket\Message\Response;
@@ -36,6 +38,11 @@ class MessageListener extends ListenerAbstract {
 
 		$frame = new Frame($frame);
 		$psr7Request = Request::loadFromWebSocketFrame($frame);
+		/**
+		 * @var \W7\Http\Message\Server\Request $swooleRequest
+		 */
+		$swooleRequest = iloader()->get(CollectorManager::class)->getCollector(SwooleRequestCollector::getName())->get($frame->getFd());
+		$psr7Request = $psr7Request->setSwooleRequest($swooleRequest->getSwooleRequest());
 		$psr7Response = Response::loadFromWebSocketFrame($frame);
 
 		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
@@ -45,5 +52,6 @@ class MessageListener extends ListenerAbstract {
 		$psr7Response->send();
 
 		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
+		icontext()->destroy();
 	}
 }

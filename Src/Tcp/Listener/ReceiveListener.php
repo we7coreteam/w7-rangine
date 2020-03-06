@@ -12,6 +12,7 @@
 
 namespace W7\Tcp\Listener;
 
+use function GuzzleHttp\Psr7\parse_query;
 use W7\App;
 use Swoole\Coroutine;
 use Swoole\Server;
@@ -19,7 +20,11 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
+use W7\Tcp\Message\Message;
+use W7\Tcp\Packer\PackerInterface;
 use W7\Tcp\Server\Dispatcher as RequestDispatcher;
+use W7\Tcp\Collector\CollectorManager;
+use W7\Tcp\Collector\SwooleRequestCollector;
 
 class ReceiveListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -45,13 +50,18 @@ class ReceiveListener extends ListenerAbstract {
 		$context->setContextDataByKey('reactorid', $reactorId);
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());
-
-		$params = json_decode($data, true);
-		$params['cmd'] = $params['cmd'] ?? '';
-		$params['data'] = $params['data'] ?? [];
-
-		$psr7Request = new Request('POST', $params['cmd'], [], null);
-		$psr7Request = $psr7Request->withParsedBody($params['data']);
+	
+		/**
+		 * @var  Message $message
+		 */
+		$message = iloader()->get(PackerInterface::class)->unpack($data);
+		$psr7Request = new Request('POST', $message->getCmd(), [], null);
+		$psr7Request = $psr7Request->withQueryParams(parse_query($psr7Request->getUri()->getQuery()))->withParsedBody($message->getData());
+		/**
+		 * @var \W7\Http\Message\Server\Request $swooleRequest
+		 */
+		$swooleRequest = iloader()->get(CollectorManager::class)->getCollector(SwooleRequestCollector::getName())->get($fd);
+		$psr7Request = $psr7Request->setSwooleRequest($swooleRequest->getSwooleRequest());
 		$psr7Response = new Response();
 
 		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
@@ -60,10 +70,9 @@ class ReceiveListener extends ListenerAbstract {
 		 */
 		$dispatcher = \iloader()->get(RequestDispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
-
-		$content = $psr7Response->getBody()->getContents();
-		$server->send($fd, $content);
+		$server->send($fd, $psr7Response->getBody()->getContents());
 
 		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
+		icontext()->destroy();
 	}
 }

@@ -134,6 +134,10 @@ abstract class ProviderAbstract {
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $namespace);
 	}
 
+	protected function registerEvent() {
+		ieventDispatcher()->autoRegisterEvents($this->rootPath . '/src/Event/', $this->namespace);
+	}
+
 	protected function registerOpenBaseDir($dir) {
 		$dir = (array)$dir;
 		$config = iconfig()->getUserConfig('app');

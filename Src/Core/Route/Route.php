@@ -16,6 +16,7 @@ use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher\GroupCountBased as RouteDispatcher;
 use W7\App;
+use W7\Http\Message\File\File;
 
 class Route {
 	const METHOD_POST = 'POST';
@@ -44,6 +45,10 @@ class Route {
 
 	public function __construct() {
 		$this->router = new RouteCollector(new Std(), new GroupCountBased());
+	}
+
+	public function getRouter() {
+		return $this->router;
 	}
 
 	private function parseGroupOption($option) {
@@ -156,21 +161,26 @@ class Route {
 		return false;
 	}
 
+	private function getStaticResourcePath($destination) {
+		$module = $this->getModule();
+		$destination = ltrim($destination, '/');
+		//如果是通过provider注册的，自动补充前缀
+		if ($module !== $this->defaultModule) {
+			$destination = $module . '/' . $destination;
+		}
+		$destination = '/' . $destination;
+		return $destination;
+	}
+
 	/**
 	 * 注册一个直接跳转路由
 	 * @param $uri
 	 * @param $destination
 	 * @param int $status
 	 */
-	public function redirect($uri, $destination, $status = 301) {
+	public function redirect($uri, $destination, $status = 302) {
 		if ($this->isStaticResource($destination)) {
-			$module = $this->getModule();
-			$destination = ltrim($destination, '/');
-			//如果是通过provider注册的，自动补充前缀
-			if ($module !== $this->defaultModule) {
-				$destination = $module . '/' . $destination;
-			}
-			$destination = '/' . $destination;
+			$destination = $this->getStaticResourcePath($destination);
 		}
 
 		$this->any($uri, function () use ($destination, $status) {
@@ -309,6 +319,13 @@ class Route {
 	}
 
 	private function checkHandler($handler) {
+		if ($this->isStaticResource($handler)) {
+			$uri = $this->getStaticResourcePath($handler);
+			$handler = function () use ($uri) {
+				return App::getApp()->getContext()->getResponse()->withFile(new File(BASE_PATH . '/public' . $uri));
+			};
+		}
+
 		if ($handler instanceof \Closure) {
 			return $handler;
 		}

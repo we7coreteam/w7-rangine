@@ -44,12 +44,12 @@ class Context {
 	 */
 	const MIDDLEWARE_KEY = 'lastMiddleware';
 
-	/**
-	 * 路由表
-	 */
-	const ROUTE_KEY = 'route_tables';
-
 	private $recoverCallback;
+
+	/**
+	 * @var 最后请求的协程号
+	 */
+	private $lastCoId;
 
 	/**
 	 * @return Request|null
@@ -125,9 +125,9 @@ class Context {
 	 * @return mixed
 	 */
 	public function getContextDataByKey(string $key, $default = null) {
-		$coroutineId = self::getCoroutineId();
-		if (isset(self::$context[$coroutineId][self::DATA_KEY][$key])) {
-			return self::$context[$coroutineId][self::DATA_KEY][$key];
+		$data = $this->getContextData();
+		if ($data && isset($data[$key])) {
+			return $data[$key];
 		}
 
 		return $default;
@@ -140,8 +140,11 @@ class Context {
 	/**
 	 * Destroy all current coroutine context data
 	 */
-	public function destroy() {
-		$coroutineId = self::getCoroutineId();
+	public function destroy($coroutineId = null) {
+		if (!$coroutineId) {
+			$coroutineId = self::getCoroutineId();
+		}
+		
 		if (isset(self::$context[$coroutineId])) {
 			unset(self::$context[$coroutineId]);
 		}
@@ -176,14 +179,15 @@ class Context {
 	 * @return int|null Return null when in non-coroutine context
 	 */
 	public function getCoroutineId() {
-		$cid = Coroutine::getuid();
-		if ($cid > 0 && empty($this->recoverCallback[$cid])) {
-			$this->recoverCallback[$cid] = true;
-			Coroutine::defer(function () {
-				$this->destroy();
-				unset($this->recoverCallback[Coroutine::getuid()]);
-			});
+		$coId = Coroutine::getuid();
+		if ($coId != -1) {
+			$this->lastCoId = $coId;
 		}
-		return $cid;
+
+		return $coId;
+	}
+
+	public function getLastCoId() {
+		return $this->lastCoId;
 	}
 }

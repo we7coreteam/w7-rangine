@@ -1,10 +1,14 @@
 <?php
-/**
- * 由Dispatch调用，传入准备好的中间件和处理回调，调用中间件队列
- * @author donknap
- * @date 18-7-21 上午11:08
- */
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
 
 namespace W7\Core\Middleware;
 
@@ -12,10 +16,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Helper\StringHelper;
 
-class MiddlewareHandler implements RequestHandlerInterface
-{
+class MiddlewareHandler implements RequestHandlerInterface {
 	/**
 	* @var array
 	*/

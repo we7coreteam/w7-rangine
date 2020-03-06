@@ -25,6 +25,16 @@ use Illuminate\Database\Eloquent\Model;
 use W7\Core\Route\Route;
 use Swoole\Timer;
 
+if (!function_exists('ieventDispatcher')) {
+	function ieventDispatcher() {
+		/**
+		 * @var EventDispatcher $dispatcher
+		 */
+		$dispatcher = iloader()->get(EventDispatcher::class);
+		return $dispatcher;
+	}
+}
+
 if (!function_exists('ievent')) {
 	/**
 	 * 派发一个事件
@@ -34,11 +44,7 @@ if (!function_exists('ievent')) {
 	 * @return array|null
 	 */
 	function ievent($eventName, $args = [], $halt = false) {
-		/**
-		 * @var EventDispatcher $dispatcher
-		 */
-		$dispatcher = iloader()->get(EventDispatcher::class);
-		return $dispatcher->dispatch($eventName, $args);
+		return ieventDispatcher()->dispatch($eventName, $args, $halt);
 	}
 }
 if (!function_exists('itask')) {
@@ -292,7 +298,7 @@ if (!function_exists('ienv')) {
 		}
 
 		//约定如要env中要写常量名称的话必须要大写
-		if (preg_match('/^[A-Z_\|\^\&]+$/', $value)) {
+		if (preg_match('/([A-Z]+[\|\^\&])+/', $value)) {
 			//常量解析
 			$exec = 'return ' . $value . ';';
 			try {
@@ -325,6 +331,10 @@ if (!function_exists('igo')) {
 			} catch (Throwable $throwable) {
 				ilogger()->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
+
+			Coroutine::defer(function () {
+				icontext()->destroy();
+			});
 		});
 	}
 }
@@ -363,6 +373,10 @@ if (!function_exists('itimeTick')) {
 			} catch (Throwable $throwable) {
 				ilogger()->debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
+
+			Coroutine::defer(function () {
+				icontext()->destroy();
+			});
 		});
 	}
 }
@@ -374,6 +388,10 @@ if (!function_exists('itimeAfter')) {
 			} catch (Throwable $throwable) {
 				ilogger()->debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
+
+			Coroutine::defer(function () {
+				icontext()->destroy();
+			});
 		});
 	}
 }

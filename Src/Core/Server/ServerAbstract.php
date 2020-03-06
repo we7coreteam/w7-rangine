@@ -14,7 +14,6 @@ namespace W7\Core\Server;
 
 use Swoole\Process;
 use W7\App;
-use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Exception\CommandException;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -203,11 +202,11 @@ abstract class ServerAbstract implements ServerInterface {
 			if ($eventName == SwooleEvent::ON_REQUEST) {
 				$server = \W7\App::$server->server;
 				$this->server->on(SwooleEvent::ON_REQUEST, function ($request, $response) use ($server) {
-					iloader()->get(EventDispatcher::class)->dispatch(SwooleEvent::ON_REQUEST, [$server, $request, $response]);
+					ieventDispatcher()->dispatch(SwooleEvent::ON_REQUEST, [$server, $request, $response]);
 				});
 			} else {
 				$this->server->on($eventName, function () use ($eventName) {
-					iloader()->get(EventDispatcher::class)->dispatch($eventName, func_get_args());
+					ieventDispatcher()->dispatch($eventName, func_get_args());
 				});
 			}
 		}

@@ -211,7 +211,7 @@ class Cache extends CacheAbstract {
 	}
 
 	public function setMultiple($values, $ttl = null) {
-		return$this->call(function (HandlerAbstract $handler) use ($values, $ttl) {
+		return $this->call(function (HandlerAbstract $handler) use ($values, $ttl) {
 			$values = (array)$values;
 			foreach ($values as $key => &$value) {
 				$value = $handler->pack($value);

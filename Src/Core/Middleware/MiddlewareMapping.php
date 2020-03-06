@@ -13,6 +13,7 @@
 namespace W7\Core\Middleware;
 
 use W7\App;
+use W7\Core\Helper\StringHelper;
 
 class MiddlewareMapping {
 	/**
@@ -65,16 +66,16 @@ class MiddlewareMapping {
 	/**
 	 * 获取系统最后的中间件
 	 */
-	private function getLastMiddleware() {
+	protected function getLastMiddleware() {
 		return [[LastMiddleware::class]];
 	}
 
-	private function getControllerMiddleware() {
+	protected function getControllerMiddleware() {
 		if (empty(App::$server->getType())) {
 			return [];
 		}
 
-		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', ucfirst(App::$server->getType()));
+		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', StringHelper::studly(App::$server->getType()));
 		if (class_exists($class)) {
 			return [[$class]];
 		} else {

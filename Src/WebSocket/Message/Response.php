@@ -14,7 +14,7 @@ namespace W7\WebSocket\Message;
 
 use W7\App;
 use W7\Http\Message\Server\Response as Psr7Response;
-use W7\WebSocket\Parser\ParserInterface;
+use W7\WebSocket\Packer\PackerInterface;
 
 class Response extends Psr7Response {
 	/**
@@ -74,8 +74,7 @@ class Response extends Psr7Response {
 		if (!App::$server->getServer()->isEstablished($fd)) {
 			return false;
 		}
-		//parse 待定
-		App::$server->getServer()->push($fd, iloader()->get(ParserInterface::class)->encode($message), $opcode);
+		App::$server->getServer()->push($fd, iloader()->get(PackerInterface::class)->pack($message), $opcode);
 	}
 
 	public function sendToSome(array $fds, Message $message, $opcode = WEBSOCKET_OPCODE_TEXT) {
