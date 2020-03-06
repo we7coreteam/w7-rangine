@@ -18,7 +18,7 @@ use W7\Http\Message\Server\Request;
  * 统一收集连接时的资源
  * 统一释放断开后的无用资源
  * Class CollectorManager
- * @package W7\WebSocket\Collector
+ * @package W7\Tcp\Collector
  */
 class CollectorManager {
 	private $collectors = [];

@@ -55,7 +55,7 @@ class ReceiveListener extends ListenerAbstract {
 		 * @var  Message $message
 		 */
 		$message = iloader()->get(PackerInterface::class)->unpack($data);
-		$psr7Request = new Request('POST', $message->getCmd(), [], null);
+		$psr7Request = new Request('POST', $message->getCmd());
 		$psr7Request = $psr7Request->withQueryParams(parse_query($psr7Request->getUri()->getQuery()))->withParsedBody($message->getData());
 		/**
 		 * @var \W7\Http\Message\Server\Request $swooleRequest

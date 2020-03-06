@@ -12,8 +12,8 @@
 
 namespace W7\WebSocket\Message;
 
+use function GuzzleHttp\Psr7\parse_query;
 use W7\Http\Message\Server\Request as Psr7Request;
-use W7\Http\Message\Stream\SwooleStream;
 
 class Request extends Psr7Request {
 	/**
@@ -26,11 +26,10 @@ class Request extends Psr7Request {
 	 * @return Request
 	 */
 	public static function loadFromWebSocketFrame(Frame $frame): self {
-		$body = new SwooleStream();
-		$protocol = 'HTTP/1.1';
-		$request = new static('POST', $frame->getMessage()->getCmd(), [], $body, $protocol);
+		$request = new static('POST', $frame->getMessage()->getCmd());
 		$request->frame = $frame;
-		return $request->withParsedBody($frame->getMessage()->getData());
+
+		return $request->withQueryParams(parse_query($request->getUri()->getQuery()))->withParsedBody($frame->getMessage()->getData());
 	}
 
 	/**

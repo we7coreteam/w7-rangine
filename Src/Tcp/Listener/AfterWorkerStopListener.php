@@ -20,7 +20,7 @@ use W7\Tcp\Collector\SwooleRequestCollector;
 class AfterWorkerStopListener extends ListenerAbstract {
 	public function run(...$params) {
 		/**
-		 * @var \W7\WebSocket\Collector\CollectorManager $collectManager
+		 * @var CollectorManager $collectManager
 		 */
 		$collectManager = iloader()->get(CollectorManager::class);
 		$requestCollect = $collectManager->getCollector(SwooleRequestCollector::getName());
