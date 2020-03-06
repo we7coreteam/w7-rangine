@@ -18,6 +18,8 @@ use W7\Tcp\Collector\CollectorManager;
 
 class ConnectListener extends ListenerAbstract {
 	public function run(...$params) {
-		iloader()->get(CollectorManager::class)->set($params[1], new Request('POST', '/'));
+		$request = new Request('POST', '/');
+		$request = $request->setSwooleRequest(new \Swoole\Http\Request());
+		iloader()->get(CollectorManager::class)->set($params[1], $request);
 	}
 }
