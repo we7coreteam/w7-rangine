@@ -177,10 +177,16 @@ class Route {
 	 * @param $uri
 	 * @param $destination
 	 * @param int $status
+	 * @throws \ErrorException
 	 */
 	public function redirect($uri, $destination, $status = 302) {
 		if ($this->isStaticResource($destination)) {
 			$destination = $this->getStaticResourcePath($destination);
+			$config = iconfig()->getServer();
+			$staticPath = rtrim($config['common']['document_root'] ?? BASE_PATH . '/public', '/');
+			if (filesize($staticPath . $destination) <= 0) {
+				throw new \ErrorException('static file can\'t be empty, ' . $staticPath . $destination, 500);
+			}
 		}
 
 		$this->any($uri, function () use ($destination, $status) {
@@ -192,7 +198,7 @@ class Route {
 	 * 注册一个直接显示的静态页
 	 * @param $uri
 	 * @param string $view
-	 * @param array $data
+	 * @throws \ErrorException
 	 */
 	public function view($uri, string $view) {
 		$this->add([self::METHOD_GET, self::METHOD_HEAD], $uri, $view);
@@ -205,6 +211,7 @@ class Route {
 	 * @param $handler
 	 * @param string $name
 	 * @return bool
+	 * @throws \ErrorException
 	 */
 	public function add($methods, $uri, $handler, $name = '') {
 		$handler = $this->checkHandler($handler);
@@ -321,10 +328,13 @@ class Route {
 	private function checkHandler($handler) {
 		if ($this->isStaticResource($handler)) {
 			$uri = $this->getStaticResourcePath($handler);
+			$config = iconfig()->getServer();
+			$staticPath = rtrim($config['common']['document_root'] ?? BASE_PATH . '/public', '/');
+			if (filesize($staticPath . $uri) <= 0) {
+				throw new \ErrorException('static file can\'t be empty, ' . $staticPath . $uri, 500);
+			}
+
 			$handler = function () use ($uri) {
-				if (filesize(BASE_PATH . '/public' . $uri) <= 0) {
-					throw new \ErrorException('can\'t send empty file ' . BASE_PATH . '/public' . $uri, 500);
-				}
 				return App::getApp()->getContext()->getResponse()->withFile(new File(BASE_PATH . '/public' . $uri));
 			};
 		}
