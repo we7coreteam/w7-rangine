@@ -45,13 +45,15 @@ class Server extends ProcessServerAbstract {
 			throw new \RuntimeException('not support ' . implode(', ', $notSupportProcess) . ' process');
 		}
 
-		//如果processMap为空，表示输入的指令是bin/server process start
+		//如果processMap为空，表示输入的指令是bin/server process start，将启动所有enable的process
 		$startAll = false;
 		if (empty($processMap)) {
 			$startAll = true;
 			$processMap = empty($processMap) ? array_keys($supportProcess) : $processMap;
 		}
+		//设置要启动的process的enable属性为true
 		foreach ($processMap as $processName) {
+			//如果是全部启动的话，enable和配置中的值保持一致
 			$supportProcess[$processName]['enable'] = $startAll ? ($supportProcess[$processName]['enable'] ?? true) : true;
 		}
 		$processConfig['process'] = $supportProcess;
@@ -61,6 +63,7 @@ class Server extends ProcessServerAbstract {
 		if ($this->setting['worker_num'] == 0) {
 			throw new \RuntimeException('the list of started processes is empty');
 		}
+
 		return parent::checkSetting();
 	}
 

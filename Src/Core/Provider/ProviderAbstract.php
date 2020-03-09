@@ -150,9 +150,17 @@ abstract class ProviderAbstract {
 		ServerEnum::registerServer($name, $class);
 	}
 
-	protected function registerServerEvent($name, array $events) {
+	/**
+	 * @param $name
+	 * @param array $events
+	 * @param bool $cover 是否覆盖已注册的事件
+	 */
+	protected function registerServerEvent($name, array $events, $cover = false) {
+		/**
+		 * @var SwooleEvent $event
+		 */
 		$event = iloader()->get(SwooleEvent::class);
-		$event->addServerEvents($name, $events);
+		$event->addServerEvents($name, $events, $cover);
 	}
 
 	protected function setRootPath($path) {
@@ -163,7 +171,6 @@ abstract class ProviderAbstract {
 	 * Merge the given configuration with the existing configuration.
 	 * @param $path
 	 * @param $key
-	 * @return bool
 	 */
 	protected function mergeConfigFrom($path, $key) {
 		$config = $this->config->getUserConfig($key);

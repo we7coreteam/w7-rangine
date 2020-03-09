@@ -30,6 +30,7 @@ class Server extends ServerAbstract {
 			$this->setting['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
 		$this->server = $this->getServer();
+		//自动打开POST消息解析
 		$this->setting['http_parse_post'] = true;
 		$this->server->set($this->setting);
 
@@ -54,6 +55,7 @@ class Server extends ServerAbstract {
 	 */
 	public function listener(\Swoole\Server $server) {
 		if (App::$server instanceof WebSocketServer) {
+			//按服务级别，http如果要和其他服务同时启动，当和websocket同时启动时，websocket本身有http request,只需要添加对应的回调即可
 			/**
 			 * @var SwooleEvent $serverEvent
 			 */
