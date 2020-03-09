@@ -25,7 +25,7 @@ class AfterWorkerStopListener extends ListenerAbstract {
 		$collectManager = iloader()->get(CollectorManager::class);
 		$requestCollect = $collectManager->getCollector(SwooleRequestCollector::getName());
 		foreach ($requestCollect->all() as $fd => $request) {
-			App::$server->getServer()->disconnect($fd, 0, '');
+			App::$server->getServer()->exists($fd) && App::$server->getServer()->close($fd, true);
 		}
 	}
 }
