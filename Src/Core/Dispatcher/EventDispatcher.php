@@ -35,6 +35,12 @@ class EventDispatcher extends Dispatcher {
 		}
 	}
 
+	/**
+	 * 自动发现event和listener 如 app/Event/TestEvent.php 对应app/Listener/TestListener.php. app/Event/Test/TestEvent.php 对应app/Listener/Test/TestListener.php
+	 * @param $path
+	 * @param $classNamespace
+	 * @return array
+	 */
 	private function findEvents($path, $classNamespace) {
 		$events = [];
 

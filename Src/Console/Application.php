@@ -91,6 +91,14 @@ class Application extends SymfontApplication {
 		}
 	}
 
+	/**
+	 * 自动在指定的目录下找command, 命令文件必须保存在command下的目录中, 最后的command名称，是按照目录和文件名称命名
+	 * 例如 app/Command/Test/FirstCommand.php  命令名称为 test:first
+	 * @param $path
+	 * @param $classNamespace
+	 * @param $commandNamespace
+	 * @return array
+	 */
 	private function findCommands($path, $classNamespace, $commandNamespace) {
 		$commands = [];
 
