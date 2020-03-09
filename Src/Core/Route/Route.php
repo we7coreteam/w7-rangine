@@ -322,6 +322,9 @@ class Route {
 		if ($this->isStaticResource($handler)) {
 			$uri = $this->getStaticResourcePath($handler);
 			$handler = function () use ($uri) {
+				if (filesize(BASE_PATH . '/public' . $uri) <= 0) {
+					throw new \ErrorException('can\'t send empty file ' . BASE_PATH . '/public' . $uri, 500);
+				}
 				return App::getApp()->getContext()->getResponse()->withFile(new File(BASE_PATH . '/public' . $uri));
 			};
 		}
