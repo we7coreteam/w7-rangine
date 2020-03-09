@@ -13,6 +13,7 @@
 namespace W7\Http\Server;
 
 use Swoole\Http\Server as HttpServer;
+use W7\Http\Listener\RequestListener;
 use W7\WebSocket\Server\Server as WebSocketServer;
 use W7\App;
 use W7\Core\Server\ServerAbstract;
@@ -53,7 +54,13 @@ class Server extends ServerAbstract {
 	 */
 	public function listener(\Swoole\Server $server) {
 		if (App::$server instanceof WebSocketServer) {
-			(new SwooleEvent())->websocketSupportHttp();
+			/**
+			 * @var SwooleEvent $serverEvent
+			 */
+			$serverEvent = iloader()->get(SwooleEvent::class);
+			$serverEvent->addServerEvents(ServerEnum::TYPE_WEBSOCKET, [
+				SwooleEvent::ON_REQUEST => RequestListener::class
+			]);
 		}
 	}
 }

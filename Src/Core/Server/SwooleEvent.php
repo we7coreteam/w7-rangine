@@ -174,12 +174,13 @@ class SwooleEvent {
 		}
 	}
 
-	public function addServerEvents($server, array $events) {
-		static::$event[$server] = $events;
-	}
-
-	public function websocketSupportHttp() {
-		self::$event[ServerEnum::TYPE_WEBSOCKET][self::ON_REQUEST] = RequestListener::class;
+	public function addServerEvents($server, array $events, $cover = false) {
+		if ($cover) {
+			static::$event[$server] = $events;
+		} else {
+			static::$event[$server] = static::$event[$server] ?? [];
+			static::$event[$server] = array_merge(static::$event[$server], $events);
+		}
 	}
 
 	public function register($eventTypes) {
