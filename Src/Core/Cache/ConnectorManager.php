@@ -35,7 +35,7 @@ class ConnectorManager {
 			throw new \RuntimeException('Cache is not configured.');
 		}
 
-		if (empty($poolConfig) || empty($poolConfig['enable'])) {
+		if (!isCo() || empty($poolConfig) || empty($poolConfig['enable'])) {
 			/**
 			 * @var HandlerAbstract $handlerClass
 			 */
