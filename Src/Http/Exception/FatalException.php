@@ -29,12 +29,6 @@ class FatalException extends FatalExceptionAbstract {
 			$render->setException($this->getPrevious());
 			$render->setInspector(new Inspector($this->getPrevious()));
 			$render->setRun(new Run());
-			$_GET = icontext()->getRequest()->getQueryParams();
-			$_POST = icontext()->getRequest()->getParsedBody();
-			$_FILES = icontext()->getRequest()->getUploadedFiles();
-			$_COOKIE = icontext()->getRequest()->getCookieParams();
-			$_SESSION = icontext()->getRequest()->session->all();
-			$_SERVER = icontext()->getRequest()->getServerParams();
 			$render->handle();
 			$content = ob_get_clean();
 		}
