@@ -37,7 +37,8 @@ class HandlerExceptions {
 		set_error_handler([$this, 'handleError']);
 		set_exception_handler([$this, 'handleException']);
 		register_shutdown_function(function () {
-			if (!$e = error_get_last()) {
+			$e = error_get_last();
+			if (!$e || !in_array($e['type'], [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE])) {
 				return;
 			}
 
@@ -60,8 +61,7 @@ class HandlerExceptions {
 	 * @throws \ErrorException
 	 */
 	public function handleError(int $type, string $message, string $file, int $line) {
-		//这里不用error_reporting直接获取的原因是，当使用@触发异常时，取到的值是0
-		if ($type === ($type & $this->errorLevel)) {
+		if (error_reporting() & $type) {
 			$throwable = new \ErrorException($message, 0, $type, $file, $line);
 			throw $throwable;
 		}
