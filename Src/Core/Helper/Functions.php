@@ -189,14 +189,27 @@ if (!function_exists('getClientIp')) {
 	function getClientIp() {
 		$request = App::getApp()->getContext()->getRequest();
 
-		if ($request->getHeader('X-Forwarded-For')) {
-			return $request->getHeader('X-Forwarded-For');
-		}
-		if ($request->getHeader('X-Real-IP')) {
-			return $request->getHeader('X-Real-IP');
+		$serverParams = $request->getServerParams();
+		if (!empty($serverParams['HTTP_X_FORWARDED_FOR'])) {
+			$arr = explode(',', $serverParams['HTTP_X_FORWARDED_FOR']);
+			$pos = array_search('unknown', $arr);
+			if (false !== $pos) {
+				unset($arr[$pos]);
+			}
+			$ip = trim($arr[0]);
+		} elseif (!empty($serverParams['HTTP_CLIENT_IP'])) {
+			$ip = $serverParams['HTTP_CLIENT_IP'];
+		} elseif (!empty($serverParams['REMOTE_ADDR'])) {
+			$ip = $serverParams['REMOTE_ADDR'];
+		} elseif ($request->getHeader('X-Forwarded-For')) {
+			$ip = $request->getHeader('X-Forwarded-For');
+		} elseif ($request->getHeader('X-Real-IP')) {
+			$ip = $request->getHeader('X-Real-IP');
+		} else {
+			$ip = $request->getSwooleRequest()->server['remote_addr'];
 		}
 
-		return $request->getSwooleRequest()->server['remote_addr'];
+		return $ip;
 	}
 }
 
