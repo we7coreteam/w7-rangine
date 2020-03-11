@@ -25,15 +25,12 @@ class HandlerExceptions {
 	 */
 	private $handler;
 
-	private $errorLevel;
-
 	/**
 	 * Register system error handle
 	 *
 	 * @throws InvalidArgumentException
 	 */
 	public function registerErrorHandle() {
-		$this->errorLevel = error_reporting();
 		set_error_handler([$this, 'handleError']);
 		set_exception_handler([$this, 'handleException']);
 		register_shutdown_function(function () {
