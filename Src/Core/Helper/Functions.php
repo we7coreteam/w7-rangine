@@ -92,7 +92,7 @@ if (!function_exists('iuuid')) {
 	 */
 	function iuuid() {
 		$len = rand(2, 16);
-		$prefix = md5(substr(md5(Coroutine::getuid()), $len));
+		$prefix = md5(substr(md5(icontext()->getCoroutineId()), $len));
 		return uniqid($prefix);
 	}
 }
@@ -181,7 +181,7 @@ if (!function_exists('isCo')) {
 	 * @return bool
 	 */
 	function isCo():bool {
-		return Coroutine::getuid() > 0;
+		return icontext()->getCoroutineId() > 0;
 	}
 }
 
