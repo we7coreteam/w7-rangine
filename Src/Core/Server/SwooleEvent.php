@@ -12,6 +12,7 @@
 
 namespace W7\Core\Server;
 
+use W7\App;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
@@ -158,7 +159,7 @@ class SwooleEvent {
 	}
 
 	private function registerUserEvent() {
-		$startedServers = iconfig()->getUserAppConfig('setting')['started_servers'] ?? [];
+		$startedServers = iconfig()->getUserAppConfig('setting')['started_servers'] ?? [App::$server->getType()];
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
 			ieventDispatcher()->listen($eventName, $listener);
