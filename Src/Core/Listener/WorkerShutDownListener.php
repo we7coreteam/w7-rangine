@@ -18,7 +18,7 @@ use W7\Core\Server\SwooleEvent;
 class WorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
 		$this->log($params[1]);
-		$startedServers = iconfig()->getUserConfig('app')['setting']['started_servers'] ?? [];
+		$startedServers = iconfig()->getUserAppConfig('setting')['started_servers'] ?? [App::$server->getType()];
 		foreach ($startedServers as $startedServer) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst($startedServer), ucfirst(SwooleEvent::ON_USER_AFTER_WORKER_SHUTDOWN));
 			ieventDispatcher()->listen(SwooleEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $listener);
