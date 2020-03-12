@@ -61,7 +61,7 @@ abstract class CommandAbstract extends Command {
 					}
 
 					$key = array_shift($option);
-					putenv($key . '=' . Env::parseValue($value));
+					putenv($key . '=' . Env\Loader::parseValue($value));
 					$childConfig[$key] = ienv($key);
 
 					iconfig()->setUserConfig($name, $config);
