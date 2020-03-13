@@ -13,13 +13,12 @@
 namespace W7\Fpm\Listener;
 
 use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\SwooleEvent;
 use W7\Http\Message\Formatter\ResponseFormatterInterface;
-use W7\Http\Message\Server\Request as Psr7Request;
+use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 use W7\Fpm\Server\Dispatcher;
 
@@ -34,21 +33,15 @@ class RequestListener extends ListenerAbstract {
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	private function dispatch($server, Request $request, Response $response) {
+	private function dispatch($server, Request $psr7Request, Response $response) {
 		$context = App::getApp()->getContext();
-		$context->setContextDataByKey('workid', 0);
+		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', 0);
 
-		$psr7Request = new Psr7Request($request->getMethod(), $request->getUri(), $request->headers->all(), $request->getContent(), $request->getProtocolVersion());
-		$psr7Request = $psr7Request->withCookieParams($request->cookies->all())
-			->withServerParams($request->server->all())
-			->withQueryParams($request->query->all())
-			->withParsedBody($request->request->all())
-			->withUploadedFiles($request->files->all());
 		$psr7Response = new Psr7Response();
 		$psr7Response->setFormatter(iloader()->get(ResponseFormatterInterface::class));
 
-//		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 
 		/**
 		 * @var Dispatcher $dispatcher
@@ -67,6 +60,6 @@ class RequestListener extends ListenerAbstract {
 		}
 		$response->send();
 
-//		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
+		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 	}
 }

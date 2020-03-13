@@ -12,12 +12,12 @@
 
 namespace W7\Fpm\Server;
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use W7\App;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleEvent;
+use W7\Http\Message\Server\Request;
 
 class Server extends ServerAbstract {
 	public static $masterServer = false;
@@ -42,7 +42,7 @@ class Server extends ServerAbstract {
 		$this->registerService();
 		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this]);
 
-		$request = Request::createFromGlobals();
+		$request = Request::loadFromFpmRequest();
 		$response = Response::create();
 
 		ievent(SwooleEvent::ON_USER_AFTER_WORKER_START, [$this, 0]);
