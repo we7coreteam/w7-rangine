@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use W7\App;
 use W7\Core\Server\ServerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleEvent;
 
 class Server extends ServerAbstract {
@@ -29,7 +30,7 @@ class Server extends ServerAbstract {
 	}
 
 	public function getType() {
-		return 'fpm';
+		return ServerEnum::TYPE_FPM;
 	}
 
 	protected function registerServerEventListener() {

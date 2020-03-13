@@ -48,7 +48,7 @@ class RequestListener extends ListenerAbstract {
 		$psr7Response = new Psr7Response();
 		$psr7Response->setFormatter(iloader()->get(ResponseFormatterInterface::class));
 
-		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+//		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 
 		/**
 		 * @var Dispatcher $dispatcher
@@ -67,6 +67,6 @@ class RequestListener extends ListenerAbstract {
 		}
 		$response->send();
 
-		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
+//		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
 	}
 }

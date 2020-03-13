@@ -19,6 +19,7 @@ use W7\Tcp\Server\Server as TcpServer;
 use W7\WebSocket\Server\Server as WebSocketServer;
 
 class ServerEnum {
+	const TYPE_FPM = 'fpm';
 	const TYPE_HTTP = 'http';
 	const TYPE_RPC = 'rpc';
 	const TYPE_TCP = 'tcp';
