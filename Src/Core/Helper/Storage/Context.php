@@ -87,7 +87,7 @@ class Context {
 	 *
 	 * @param ResponseInterface $response
 	 */
-	public function setResponse(ResponseInterface $response) {
+	public function setResponse($response) {
 		$coroutineId = self::getCoroutineId();
 		self::$context[$coroutineId][self::RESPONSE_KEY] = $response;
 	}

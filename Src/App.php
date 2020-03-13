@@ -44,7 +44,7 @@ class App {
 			iconfig();
 			$this->registerRuntimeEnv();
 			$this->registerErrorHandler();
-			$this->registerProvider();
+			//$this->registerProvider();
 			$this->registerSecurityDir();
 		} catch (\Throwable $e) {
 			ioutputer()->error($e->getMessage());

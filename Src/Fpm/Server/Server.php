@@ -12,8 +12,11 @@
 
 namespace W7\Fpm\Server;
 
+use FastRoute\Dispatcher\GroupCountBased;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use W7\App;
+use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleEvent;
@@ -39,17 +42,36 @@ class Server extends ServerAbstract {
 	}
 
 	public function start() {
-		$this->registerService();
+		//$this->registerService();
 		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this]);
 
-		$request = Request::loadFromFpmRequest();
-		$response = Response::create();
+		$response = $this->dispatch(Request::loadFromFpmRequest(), new \W7\Http\Message\Server\Response());
 
-		ievent(SwooleEvent::ON_USER_AFTER_WORKER_START, [$this, 0]);
-		ievent(SwooleEvent::ON_REQUEST, [$this, $request, $response]);
+		$symfonyResponse = Response::create();
+		$symfonyResponse->setStatusCode($response->getStatusCode());
+		$symfonyResponse->setContent($response->getBody()->getContents());
+		$symfonyResponse->headers->add($response->getHeaders());
+
+		$symfonyResponse->send();
 	}
 
 	public function getServer() {
 		return $this->server;
+	}
+
+	/**
+	 * 分发请求
+	 * @param $request
+	 * @param $response
+	 * @return \Psr\Http\Message\ResponseInterface|void
+	 */
+	private function dispatch($request, $response) {
+		$routeInfo = iloader()->get(RouteMapping::class)->getMapping();
+		/**
+		 * @var Dispatcher $dispatcher
+		 */
+		$dispatcher = \iloader()->get(Dispatcher::class);
+		$dispatcher->setRouter(new GroupCountBased($routeInfo));
+		return $dispatcher->dispatch($request, $response);
 	}
 }
