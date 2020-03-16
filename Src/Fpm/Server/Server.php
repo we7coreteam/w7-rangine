@@ -13,14 +13,16 @@
 namespace W7\Fpm\Server;
 
 use FastRoute\Dispatcher\GroupCountBased;
-use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\HttpFoundation\Response;
 use W7\App;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleEvent;
-use W7\Http\Message\Server\Request;
+use W7\Http\Message\Base\Cookie;
+use W7\Http\Message\Formatter\ResponseFormatterInterface;
+use W7\Http\Message\Outputer\FpmResponseOutputer;
+use W7\Http\Message\Server\Request as Psr7Request;
+use W7\Http\Message\Server\Response as Psr7Response;
 
 class Server extends ServerAbstract {
 	public static $masterServer = false;
@@ -45,14 +47,18 @@ class Server extends ServerAbstract {
 		//$this->registerService();
 		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this]);
 
-		$response = $this->dispatch(Request::loadFromFpmRequest(), new \W7\Http\Message\Server\Response());
+		$response = new Psr7Response();
+		$response->setOutputer(new FpmResponseOutputer());
+		//$response->setFormatter(iloader()->get(ResponseFormatterInterface::class));
 
-		$symfonyResponse = Response::create();
-		$symfonyResponse->setStatusCode($response->getStatusCode());
-		$symfonyResponse->setContent($response->getBody()->getContents());
-		$symfonyResponse->headers->add($response->getHeaders());
+		/**
+		 * @var Response $response
+		 */
+		$response = $this->dispatch(Psr7Request::loadFromFpmRequest(), $response);
 
-		$symfonyResponse->send();
+		$response = $response->withCookie('test', 'value');
+		$response = $response->withCookie(Cookie::create('test1', 'value1'));
+		$response->send();
 	}
 
 	public function getServer() {
