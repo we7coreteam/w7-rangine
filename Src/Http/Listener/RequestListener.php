@@ -43,7 +43,6 @@ class RequestListener extends ListenerAbstract {
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
 		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
 
-		iloader()->set('test', '');
 		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 		/**
 		 * @var Dispatcher $dispatcher
