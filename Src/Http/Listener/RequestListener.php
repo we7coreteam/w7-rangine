@@ -19,6 +19,8 @@ use Swoole\Http\Response;
 use Swoole\Http\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEvent;
+use W7\Http\Message\Formatter\ResponseFormatterInterface;
+use W7\Http\Message\Outputer\SwooleResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 use W7\Http\Server\Dispatcher;
@@ -41,7 +43,8 @@ class RequestListener extends ListenerAbstract {
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
-		$psr7Response = Psr7Response::loadFromSwooleResponse($response);
+		$psr7Response = new Psr7Response();
+		$psr7Response->setOutputer(new SwooleResponseOutputer($response));
 
 		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 		/**

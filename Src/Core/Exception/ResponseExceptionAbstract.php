@@ -26,11 +26,13 @@ abstract class ResponseExceptionAbstract extends \LogicException {
 
 	public function __construct($message = '', $code = 0, \Throwable $previous = null) {
 		parent::__construct($message, (int)$code, $previous);
-		if (isCo() && App::getApp()->getContext()->getResponse()) {
-			$this->response = App::getApp()->getContext()->getResponse();
-		} else {
-			$this->response = new Response();
+
+		$response = App::getApp()->getContext()->getResponse();
+		if (empty($response)) {
+			trigger_error("Invalid Http Response object.", E_USER_ERROR);
 		}
+
+		$this->response = $response;
 	}
 
 	abstract public function render() : ResponseInterface;

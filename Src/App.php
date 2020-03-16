@@ -96,6 +96,8 @@ class App {
 		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
 		error_reporting($errorLevel);
 
+		((ENV & DEBUG) === DEBUG) && ini_set('display_errors', 'On');
+
 		/**
 		 * 设置错误信息接管
 		 */

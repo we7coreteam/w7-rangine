@@ -13,12 +13,15 @@
 namespace W7\Fpm\Server;
 
 use FastRoute\Dispatcher\GroupCountBased;
-use Symfony\Component\HttpFoundation\Response;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request;
+use W7\Http\Message\Base\Cookie;
+use W7\Http\Message\Outputer\FpmResponseOutputer;
+use W7\Http\Message\Server\Request as Psr7Request;
+use W7\Http\Message\Server\Response as Psr7Response;
 
 class Server extends ServerAbstract {
 	public $worker_id;
@@ -41,7 +44,11 @@ class Server extends ServerAbstract {
 
 		ievent(ServerEvent::ON_USER_BEFORE_START, [$this]);
 
-		$this->dispatch(Request::loadFromFpmRequest(), new \W7\Http\Message\Server\Response());
+		$response = new Psr7Response();
+		$response->setOutputer(new FpmResponseOutputer());
+
+		$response = $this->dispatch(Request::loadFromFpmRequest(), $response);
+		$response->send();
 	}
 
 	public function getServer() {
@@ -69,13 +76,8 @@ class Server extends ServerAbstract {
 
 		$response = $dispatcher->dispatch($request, $response);
 
-		$symfonyResponse = Response::create();
-		$symfonyResponse->setStatusCode($response->getStatusCode());
-		$symfonyResponse->setContent($response->getBody()->getContents());
-		$symfonyResponse->headers->add($response->getHeaders());
-
-		$symfonyResponse->send();
-
 		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
+
+		return $response;
 	}
 }
