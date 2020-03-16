@@ -55,6 +55,8 @@ class Server extends SwooleServerAbstract {
 	 */
 	public function listener(\Swoole\Server $server) {
 		if (App::$server instanceof WebSocketServer) {
+			$this->registerProvider();
+
 			//按服务级别，http如果要和其他服务同时启动，当和websocket同时启动时，websocket本身有http request,只需要添加对应的回调即可
 			/**
 			 * @var ServerEvent $serverEvent

@@ -14,6 +14,7 @@ namespace W7\Core\Server;
 
 use W7\App;
 use W7\Core\Exception\CommandException;
+use W7\Core\Provider\ProviderManager;
 
 abstract class ServerAbstract implements ServerInterface {
 	public $server;
@@ -24,16 +25,30 @@ abstract class ServerAbstract implements ServerInterface {
 	 */
 	public function __construct() {
 		!App::$server && App::$server = $this;
-		$this->server = $this;
 	}
 
 	public function getServer() {
 		return $this->server;
 	}
 
+	/**
+	 * //执行一些公共操作，注册事件,provider等
+	 */
 	public function registerService() {
+		$this->registerProvider();
 		$this->registerServerEventListener();
 	}
 
 	abstract protected function registerServerEventListener();
+
+	protected function registerProvider() {
+		$reflect = new \ReflectionClass($this);
+		$namespace = str_replace('\Server', '', $reflect->getNamespaceName());
+		$dir = dirname($reflect->getFileName(), 2);
+		/**
+		 * @var ProviderManager $providerManager
+		 */
+		$providerManager = iloader()->get(ProviderManager::class);
+		$providerManager->registerProviders($providerManager->autoFindProviders($dir, $namespace));
+	}
 }

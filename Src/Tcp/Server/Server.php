@@ -53,6 +53,8 @@ class Server extends SwooleServerAbstract {
 	 * 通过侦听端口的方法创建服务
 	 */
 	public function listener(\Swoole\Server $server) {
+		$this->registerProvider();
+
 		$tcpServer = $server->addListener($this->setting['host'], $this->setting['port'], $this->setting['sock_type']);
 		//tcp需要强制关闭其它协议支持，否则继续父服务
 		$tcpServer->set([

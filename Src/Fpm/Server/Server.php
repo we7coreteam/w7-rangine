@@ -40,6 +40,9 @@ class Server extends ServerAbstract {
 	}
 
 	public function getServer() {
+		if (!$this->server) {
+			$this->server = $this;
+		}
 		return $this->server;
 	}
 

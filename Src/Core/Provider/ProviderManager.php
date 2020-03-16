@@ -60,7 +60,8 @@ class ProviderManager {
 	}
 
 	private function findProviders() {
-		$systemProviders = $this->autoFindProviders(dirname(__DIR__, 2), 'W7');
+		//自动注册系统provider,不包括服务
+		$systemProviders = $this->autoFindProviders(dirname(__DIR__, 1), 'W7/Core');
 		$vendorProviders = $this->findVendorProviders();
 		$appProvider = $this->autoFindProviders(BASE_PATH . '/app', 'W7/App');
 
