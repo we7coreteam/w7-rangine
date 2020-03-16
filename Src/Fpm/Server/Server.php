@@ -64,6 +64,9 @@ class Server extends ServerAbstract {
 		 */
 		$dispatcher = \iloader()->get(Dispatcher::class);
 		$dispatcher->setRouter(new GroupCountBased($routeInfo));
+
+		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response]);
+
 		$response = $dispatcher->dispatch($request, $response);
 
 		$symfonyResponse = Response::create();
@@ -72,5 +75,7 @@ class Server extends ServerAbstract {
 		$symfonyResponse->headers->add($response->getHeaders());
 
 		$symfonyResponse->send();
+
+		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
 	}
 }
