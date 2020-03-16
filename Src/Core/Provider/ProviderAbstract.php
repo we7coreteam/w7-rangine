@@ -73,6 +73,10 @@ abstract class ProviderAbstract {
 	}
 
 	protected function publishConfig($sourceFileName, $targetFileName = null, $group = null) {
+		if (PHP_SAPI !== 'cli') {
+			return false;
+		}
+
 		if (!$targetFileName) {
 			$targetFileName = $sourceFileName;
 		}
@@ -127,6 +131,9 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerCommand($namespace = '') {
+		if (PHP_SAPI !== 'cli') {
+			return false;
+		}
 		/**
 		 * @var  Application $application
 		 */
