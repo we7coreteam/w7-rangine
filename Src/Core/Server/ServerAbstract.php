@@ -24,6 +24,7 @@ abstract class ServerAbstract implements ServerInterface {
 	 */
 	public function __construct() {
 		!App::$server && App::$server = $this;
+		$this->server = $this;
 	}
 
 	public function getServer() {
