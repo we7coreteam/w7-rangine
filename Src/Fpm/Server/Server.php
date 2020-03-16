@@ -36,14 +36,7 @@ class Server extends ServerAbstract {
 		$this->registerService();
 		ievent(ServerEvent::ON_USER_BEFORE_START, [$this]);
 
-		$response = $this->dispatch(Request::loadFromFpmRequest(), new \W7\Http\Message\Server\Response());
-
-		$symfonyResponse = Response::create();
-		$symfonyResponse->setStatusCode($response->getStatusCode());
-		$symfonyResponse->setContent($response->getBody()->getContents());
-		$symfonyResponse->headers->add($response->getHeaders());
-
-		$symfonyResponse->send();
+		$this->dispatch(Request::loadFromFpmRequest(), new \W7\Http\Message\Server\Response());
 	}
 
 	public function getServer() {
@@ -63,6 +56,13 @@ class Server extends ServerAbstract {
 		 */
 		$dispatcher = \iloader()->get(Dispatcher::class);
 		$dispatcher->setRouter(new GroupCountBased($routeInfo));
-		return $dispatcher->dispatch($request, $response);
+		$response = $dispatcher->dispatch($request, $response);
+
+		$symfonyResponse = Response::create();
+		$symfonyResponse->setStatusCode($response->getStatusCode());
+		$symfonyResponse->setContent($response->getBody()->getContents());
+		$symfonyResponse->headers->add($response->getHeaders());
+
+		$symfonyResponse->send();
 	}
 }
