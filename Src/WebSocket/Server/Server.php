@@ -29,6 +29,20 @@ class Server extends SwooleServerAbstract {
 		}
 	}
 
+	protected function getDefaultSetting(): array {
+		$setting = parent::getDefaultSetting();
+		$setting['dispatch_mode'] = 2;
+
+		return $setting;
+	}
+
+	public function getServer() {
+		if (empty($this->server)) {
+			$this->server = new WebSocketServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
+		}
+		return $this->server;
+	}
+
 	public function start() {
 		$this->server = $this->getServer();
 		$this->setting['open_websocket_close_frame'] = false;
@@ -48,19 +62,5 @@ class Server extends SwooleServerAbstract {
 	 */
 	public function listener(\Swoole\Server $server) {
 		throw new \RuntimeException('websocket server not support create by listener');
-	}
-
-	public function getServer() {
-		if (empty($this->server)) {
-			$this->server = new WebSocketServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
-		}
-		return $this->server;
-	}
-
-	protected function getDefaultSetting(): array {
-		$setting = parent::getDefaultSetting();
-		$setting['dispatch_mode'] = 2;
-
-		return $setting;
 	}
 }

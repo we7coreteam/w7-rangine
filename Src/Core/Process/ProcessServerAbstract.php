@@ -20,6 +20,8 @@ use W7\Core\Server\ServerEvent;
 use W7\Core\Server\SwooleServerAbstract;
 
 abstract class ProcessServerAbstract extends SwooleServerAbstract {
+	protected $masterServerType = ['manage'];
+
 	public static $masterServer = false;
 	public static $onlyFollowMasterServer = false;
 	/**
@@ -59,9 +61,9 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 
 	public function start() {
 		$this->pool = new IndependentPool($this->getType(), $this->setting);
-		$this->register();
 
 		$this->registerService();
+		$this->register();
 
 		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->pool]);
 
@@ -70,24 +72,13 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 
 	public function listener(\Swoole\Server $server = null) {
 		$this->pool = new DependentPool($this->getType(), $this->setting);
+
 		$this->register();
+
 		return $this->pool->start();
 	}
 
-	protected function registerServerEventListener() {
-		$eventTypes = ['manage', $this->getType()];
-		iloader()->get(ServerEvent::class)->register($eventTypes);
-
-		$swooleEvents = iloader()->get(ServerEvent::class)->getDefaultEvent();
-		foreach ($eventTypes as $name) {
-			$event = $swooleEvents[$name];
-			if (!empty($event)) {
-				$this->registerEvent($event);
-			}
-		}
-	}
-
-	protected function registerEvent($event) {
+	protected function registerSwooleEvent($server, $event) {
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;

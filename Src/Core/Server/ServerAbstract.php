@@ -36,10 +36,10 @@ abstract class ServerAbstract implements ServerInterface {
 	 */
 	public function registerService() {
 		$this->registerProvider();
-		$this->registerServerEventListener();
+		$this->registerServerEvent($this->getServer());
 	}
 
-	abstract protected function registerServerEventListener();
+	abstract protected function registerServerEvent($server);
 
 	protected function registerProvider() {
 		$reflect = new \ReflectionClass($this);

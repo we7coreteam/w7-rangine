@@ -22,6 +22,21 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	 */
 	public $server;
 	/**
+	 * 判断是否已经注册master类的事件
+	 * @var bool
+	 */
+	protected static $isRegisterMasterServerEvent;
+	/**
+	 * 判断是否已经注册server用户层类的事件
+	 * @var bool
+	 */
+	protected static $isRegisterServerCommonEvent;
+	/**
+	 * master服务类型,如 manager worker,task, 在注册事件时使用
+	 * @var array
+	 */
+	protected $masterServerType = ['manage', 'worker', 'task'];
+	/**
 	 * 配置
 	 * @var
 	 */
@@ -168,31 +183,53 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$this->setting['message_queue_key'] = '';
 	}
 
-	protected function registerServerEventListener() {
-		$eventTypes = ['manage', 'worker', $this->getType(), 'task'];
-		iloader()->get(ServerEvent::class)->register($eventTypes);
+	protected function registerServerEvent($server) {
+		$eventTypes = [];
+		/**
+		 * @var ServerEvent $eventRegister
+		 */
+		$eventRegister = iloader()->get(ServerEvent::class);
+
+		//注册master manager事件,这些事件只注册一次
+		if (!self::$isRegisterMasterServerEvent && $server instanceof Server) {
+			$eventTypes = $this->masterServerType;
+			$eventRegister->registerServerEvent($eventTypes);
+			self::$isRegisterMasterServerEvent = true;
+		}
+
+		//注册该服务的事件
+		$eventRegister->registerServerEvent($this->getType());
+
+		//注册server用户事件,只注册一次
+		if (!self::$isRegisterServerCommonEvent && $server instanceof Server) {
+			$eventRegister->registerServerUserEvent();
+			self::$isRegisterServerCommonEvent = true;
+		}
+
+		//注册server自定义事件，即在每个server目录下的事件
+		$eventRegister->registerServerCustomEvent($this->getType());
+		$eventTypes[] = $this->getType();
 
 		$swooleEvents = iloader()->get(ServerEvent::class)->getDefaultEvent();
 		foreach ($eventTypes as $name) {
 			$event = $swooleEvents[$name];
 			if (!empty($event)) {
-				$this->registerEvent($event);
+				$this->registerSwooleEvent($server, $event);
 			}
 		}
 	}
 
-	protected function registerEvent($event) {
+	protected function registerSwooleEvent($server, $event) {
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;
 			}
 			if ($eventName == ServerEvent::ON_REQUEST) {
-				$server = \W7\App::$server->server;
-				$this->server->on(ServerEvent::ON_REQUEST, function ($request, $response) use ($server) {
+				$server->on(ServerEvent::ON_REQUEST, function ($request, $response) use ($server) {
 					ieventDispatcher()->dispatch(ServerEvent::ON_REQUEST, [$server, $request, $response]);
 				});
 			} else {
-				$this->server->on($eventName, function () use ($eventName) {
+				$server->on($eventName, function () use ($eventName) {
 					ieventDispatcher()->dispatch($eventName, func_get_args());
 				});
 			}

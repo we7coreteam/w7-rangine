@@ -14,7 +14,6 @@ namespace W7\Http\Server;
 
 use Swoole\Http\Server as HttpServer;
 use W7\Core\Server\SwooleServerAbstract;
-use W7\Http\Listener\RequestListener;
 use W7\WebSocket\Server\Server as WebSocketServer;
 use W7\App;
 use W7\Core\Server\ServerEvent;
@@ -23,6 +22,13 @@ use W7\Core\Server\ServerEnum;
 class Server extends SwooleServerAbstract {
 	public function getType() {
 		return ServerEnum::TYPE_HTTP;
+	}
+
+	public function getServer() {
+		if (empty($this->server)) {
+			$this->server = new HttpServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
+		}
+		return $this->server;
 	}
 
 	public function start() {
@@ -42,29 +48,14 @@ class Server extends SwooleServerAbstract {
 		$this->server->start();
 	}
 
-	public function getServer() {
-		if (empty($this->server)) {
-			$this->server = new HttpServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
-		}
-		return $this->server;
-	}
-
 	/**
 	 * @var \Swoole\Server $server
 	 * 通过侦听端口的方法创建服务
 	 */
 	public function listener(\Swoole\Server $server) {
 		if (App::$server instanceof WebSocketServer) {
-			$this->registerProvider();
-
-			//按服务级别，http如果要和其他服务同时启动，当和websocket同时启动时，websocket本身有http request,只需要添加对应的回调即可
-			/**
-			 * @var ServerEvent $serverEvent
-			 */
-			$serverEvent = iloader()->get(ServerEvent::class);
-			$serverEvent->addServerEvents(ServerEnum::TYPE_WEBSOCKET, [
-				ServerEvent::ON_REQUEST => RequestListener::class
-			]);
+			$this->server = $server;
+			$this->registerService();
 		}
 	}
 }
