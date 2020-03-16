@@ -27,13 +27,18 @@ class Server extends ServerAbstract {
 		return ServerEnum::TYPE_FPM;
 	}
 
-	protected function registerServerEventListener() {
-		$eventTypes = [$this->getType()];
-		iloader()->get(ServerEvent::class)->register($eventTypes);
+	protected function registerServerEvent($server) {
+		/**
+		 * @var ServerEvent $eventRegister
+		 */
+		$eventRegister = iloader()->get(ServerEvent::class);
+		$eventRegister->registerServerUserEvent();
+		$eventRegister->registerServerCustomEvent($this->getType());
 	}
 
 	public function start() {
 		$this->registerService();
+
 		ievent(ServerEvent::ON_USER_BEFORE_START, [$this]);
 
 		$this->dispatch(Request::loadFromFpmRequest(), new \W7\Http\Message\Server\Response());
