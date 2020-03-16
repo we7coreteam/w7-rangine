@@ -21,8 +21,7 @@ use FastRoute\Dispatcher as RouteDispatcher;
 class Dispatcher extends RequestDispatcher {
 	protected function getRoute(ServerRequestInterface $request) {
 		$httpMethod = $request->getMethod();
-		$scriptName = $request->getServerParams()['SCRIPT_NAME'] ?? '';
-		if ($scriptName) {
+		if (isset($request->getServerParams()['PATH_INFO'])) {
 			$pathInfo = $request->getServerParams()['PATH_INFO'];
 			$url = empty($pathInfo) ? '/' : $pathInfo;
 		} else {
