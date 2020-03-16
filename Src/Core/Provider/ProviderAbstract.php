@@ -16,7 +16,7 @@ use Illuminate\Filesystem\Filesystem;
 use W7\Console\Application;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerEnum;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 use W7\Core\View\View;
 
 abstract class ProviderAbstract {
@@ -157,9 +157,9 @@ abstract class ProviderAbstract {
 	 */
 	protected function registerServerEvent($name, array $events, $cover = false) {
 		/**
-		 * @var SwooleEvent $event
+		 * @var ServerEvent $event
 		 */
-		$event = iloader()->get(SwooleEvent::class);
+		$event = iloader()->get(ServerEvent::class);
 		$event->addServerEvents($name, $events, $cover);
 	}
 

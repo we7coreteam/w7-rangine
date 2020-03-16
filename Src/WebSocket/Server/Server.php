@@ -13,11 +13,11 @@
 namespace W7\WebSocket\Server;
 
 use Swoole\WebSocket\Server as WebSocketServer;
-use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
+use W7\Core\Server\SwooleServerAbstract;
 
-class Server extends ServerAbstract {
+class Server extends SwooleServerAbstract {
 	public function getType() {
 		return ServerEnum::TYPE_WEBSOCKET;
 	}
@@ -37,7 +37,7 @@ class Server extends ServerAbstract {
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
-		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
+		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server]);
 
 		$this->server->start();
 	}

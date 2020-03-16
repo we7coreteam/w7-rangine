@@ -14,7 +14,7 @@ namespace W7\Core\Listener;
 
 use W7\Core\Message\MessageAbstract;
 use W7\Core\Message\TaskMessage;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 
 /**
  * onFinish(\Swoole\Server $serv, int $task_id, string $data)
@@ -41,6 +41,6 @@ class FinishListener implements ListenerInterface {
 			$task = iloader()->get($taskMessage->task);
 			call_user_func_array([$task, 'finish'], [$server, $task_id, $taskMessage->result, $taskMessage->params]);
 		}
-		ievent(SwooleEvent::ON_USER_TASK_FINISH, [$taskMessage->result]);
+		ievent(ServerEvent::ON_USER_TASK_FINISH, [$taskMessage->result]);
 	}
 }

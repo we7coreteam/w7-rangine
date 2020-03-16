@@ -12,21 +12,22 @@
 
 namespace W7\Core\Server;
 
-interface ServerInterface {
+interface SwooleServerInterface extends ServerInterface {
 	/**
-	 * 服务启动
-	 */
-	public function start();
-
-	/**
-	 * 获取服务对象
+	 * 服务停止
 	 * @return mixed
 	 */
-	public function getServer();
+	public function stop();
 
 	/**
-	 * 服务类型
+	 * 服务是否运行
 	 * @return mixed
 	 */
-	public function getType();
+	public function isRun();
+
+	/**
+	 * 获取服务状态
+	 * @return mixed
+	 */
+	public function getStatus();
 }

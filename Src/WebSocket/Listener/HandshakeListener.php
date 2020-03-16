@@ -16,7 +16,7 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 
@@ -46,10 +46,10 @@ class HandshakeListener extends ListenerAbstract {
 			App::getApp()->getContext()->setRequest($psr7Request);
 			App::getApp()->getContext()->setResponse($psr7Response);
 
-			if (ievent(SwooleEvent::ON_USER_BEFORE_HAND_SHAKE, [$psr7Request], true) === false) {
+			if (ievent(ServerEvent::ON_USER_BEFORE_HAND_SHAKE, [$psr7Request], true) === false) {
 				return false;
 			}
-			ievent(SwooleEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
+			ievent(ServerEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
 
 			$key = base64_encode(sha1(
 				$request->header['sec-websocket-key'] . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',

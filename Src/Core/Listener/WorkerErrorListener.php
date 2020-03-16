@@ -12,10 +12,10 @@
 
 namespace W7\Core\Listener;
 
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 
 class WorkerErrorListener implements ListenerInterface {
 	public function run(...$params) {
-		ievent(SwooleEvent::ON_USER_AFTER_WORKER_ERROR, $params);
+		ievent(ServerEvent::ON_USER_AFTER_WORKER_ERROR, $params);
 	}
 }

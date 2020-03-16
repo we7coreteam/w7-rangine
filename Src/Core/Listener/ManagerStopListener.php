@@ -12,10 +12,10 @@
 
 namespace W7\Core\Listener;
 
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 
 class ManagerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		ievent(SwooleEvent::ON_USER_AFTER_MANAGER_STOP, $params);
+		ievent(ServerEvent::ON_USER_AFTER_MANAGER_STOP, $params);
 	}
 }

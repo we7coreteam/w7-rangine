@@ -35,9 +35,8 @@ use W7\WebSocket\Listener\CloseListener as WebSocketCloseListener;
 use W7\WebSocket\Listener\HandshakeListener;
 use W7\WebSocket\Listener\MessageListener;
 use W7\WebSocket\Listener\OpenListener;
-use W7\Fpm\Listener\RequestListener as FpmRequestListener;
 
-class SwooleEvent {
+class ServerEvent {
 	/**
 	 * swoole 事件
 	 */
@@ -122,9 +121,6 @@ class SwooleEvent {
 			self::ON_WORKER_START => ProcessStartListener::class,
 			self::ON_WORKER_STOP => ProcessStopListener::class,
 			self::ON_MESSAGE => ProcessMessageListener::class
-		],
-		ServerEnum::TYPE_FPM => [
-			self::ON_REQUEST => FpmRequestListener::class
 		]
 	];
 

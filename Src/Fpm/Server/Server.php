@@ -13,24 +13,15 @@
 namespace W7\Fpm\Server;
 
 use FastRoute\Dispatcher\GroupCountBased;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
-use W7\App;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request;
 
 class Server extends ServerAbstract {
-	public static $masterServer = false;
 	public $worker_id;
-
-	public function __construct() {
-		!App::$server && App::$server = $this;
-		$this->server = $this;
-		$this->worker_id = getmypid();
-	}
 
 	public function getType() {
 		return ServerEnum::TYPE_FPM;
@@ -38,12 +29,12 @@ class Server extends ServerAbstract {
 
 	protected function registerServerEventListener() {
 		$eventTypes = [$this->getType()];
-		iloader()->get(SwooleEvent::class)->register($eventTypes);
+		iloader()->get(ServerEvent::class)->register($eventTypes);
 	}
 
 	public function start() {
-		//$this->registerService();
-		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this]);
+		$this->registerService();
+		ievent(ServerEvent::ON_USER_BEFORE_START, [$this]);
 
 		$response = $this->dispatch(Request::loadFromFpmRequest(), new \W7\Http\Message\Server\Response());
 

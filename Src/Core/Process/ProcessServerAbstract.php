@@ -16,10 +16,10 @@ use Swoole\Process\Pool as PoolManager;
 use W7\Core\Process\Pool\DependentPool;
 use W7\Core\Process\Pool\IndependentPool;
 use W7\Core\Process\Pool\PoolAbstract;
-use W7\Core\Server\ServerAbstract;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
+use W7\Core\Server\SwooleServerAbstract;
 
-abstract class ProcessServerAbstract extends ServerAbstract {
+abstract class ProcessServerAbstract extends SwooleServerAbstract {
 	public static $masterServer = false;
 	public static $onlyFollowMasterServer = false;
 	/**
@@ -63,7 +63,7 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 
 		$this->registerService();
 
-		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->pool]);
+		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->pool]);
 
 		return $this->pool->start();
 	}
@@ -76,9 +76,9 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 
 	protected function registerServerEventListener() {
 		$eventTypes = ['manage', $this->getType()];
-		iloader()->get(SwooleEvent::class)->register($eventTypes);
+		iloader()->get(ServerEvent::class)->register($eventTypes);
 
-		$swooleEvents = iloader()->get(SwooleEvent::class)->getDefaultEvent();
+		$swooleEvents = iloader()->get(ServerEvent::class)->getDefaultEvent();
 		foreach ($eventTypes as $name) {
 			$event = $swooleEvents[$name];
 			if (!empty($event)) {
@@ -92,7 +92,7 @@ abstract class ProcessServerAbstract extends ServerAbstract {
 			if (empty($class)) {
 				continue;
 			}
-			if (in_array($eventName, [SwooleEvent::ON_WORKER_START, SwooleEvent::ON_WORKER_STOP, SwooleEvent::ON_MESSAGE])) {
+			if (in_array($eventName, [ServerEvent::ON_WORKER_START, ServerEvent::ON_WORKER_STOP, ServerEvent::ON_MESSAGE])) {
 				$this->pool->on($eventName, function (PoolManager $pool, $workerId) use ($eventName) {
 					ieventDispatcher()->dispatch($eventName, [$this->getType(), $pool->getProcess(), $workerId, $this->pool->getProcessFactory(), $this->pool->getMqKey()]);
 				});

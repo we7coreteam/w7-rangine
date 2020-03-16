@@ -13,7 +13,7 @@
 namespace W7\Core\Listener;
 
 use W7\App;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 
 class ManagerStartListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -22,6 +22,6 @@ class ManagerStartListener extends ListenerAbstract {
 
 		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' manager process');
 
-		ievent(SwooleEvent::ON_USER_AFTER_MANAGER_START, $params);
+		ievent(ServerEvent::ON_USER_AFTER_MANAGER_START, $params);
 	}
 }
