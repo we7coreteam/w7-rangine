@@ -21,7 +21,7 @@ use W7\Core\Exception\Provider\ExceptionProvider;
 use W7\Reload\Process\ReloadProcess;
 
 class ProviderManager {
-	private static $providerMap = [
+	private $providerMap = [
 		ExceptionProvider::class,
 		CacheProvider::class,
 		DatabaseProvider::class,
@@ -34,7 +34,7 @@ class ProviderManager {
 	 */
 	public function register() {
 		$providerMap = $this->findProviders();
-		$this->registerProviders(array_merge(self::$providerMap, $providerMap));
+		$this->registerProviders(array_merge($this->providerMap, $providerMap));
 		return $this;
 	}
 
@@ -77,10 +77,10 @@ class ProviderManager {
 	}
 
 	public function autoFindProviders($dir, $namespace) {
-		if (!is_dir($dir)) {
-			return [];
-		}
 		$providers = [];
+		if (!is_dir($dir)) {
+			return $providers;
+		}
 
 		$files = Finder::create()
 			->in($dir)
