@@ -16,8 +16,17 @@ use Swoole\Server as TcpServer;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Server\SwooleServerAbstract;
+use W7\Core\View\Provider\ViewProvider;
+use W7\Tcp\Provider\ServiceProvider;
+use W7\Tcp\Session\Provider\SessionProvider;
 
 class Server extends SwooleServerAbstract {
+	protected $providerMap = [
+		ServiceProvider::class,
+		SessionProvider::class,
+		ViewProvider::class
+	];
+
 	public function getType() {
 		return ServerEnum::TYPE_TCP;
 	}

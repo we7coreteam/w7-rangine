@@ -17,13 +17,15 @@ use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
+use W7\Fpm\Session\Provider\SessionProvider;
 use W7\Http\Message\Server\Request;
-use W7\Http\Message\Base\Cookie;
 use W7\Http\Message\Outputer\FpmResponseOutputer;
-use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 
 class Server extends ServerAbstract {
+	protected $providerMap = [
+		SessionProvider::class
+	];
 	public $worker_id;
 
 	public function getType() {

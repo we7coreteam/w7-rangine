@@ -17,6 +17,7 @@ use W7\Core\Exception\CommandException;
 use W7\Core\Provider\ProviderManager;
 
 abstract class ServerAbstract implements ServerInterface {
+	protected $providerMap = [];
 	public $server;
 
 	/**
@@ -42,13 +43,10 @@ abstract class ServerAbstract implements ServerInterface {
 	abstract protected function registerServerEvent($server);
 
 	protected function registerProvider() {
-		$reflect = new \ReflectionClass($this);
-		$namespace = str_replace('\Server', '', $reflect->getNamespaceName());
-		$dir = dirname($reflect->getFileName(), 2);
 		/**
 		 * @var ProviderManager $providerManager
 		 */
 		$providerManager = iloader()->get(ProviderManager::class);
-		$providerManager->registerProviders($providerManager->autoFindProviders($dir, $namespace));
+		$providerManager->registerProviders($this->providerMap);
 	}
 }
