@@ -14,6 +14,7 @@ namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
 use W7\Console\Application;
+use W7\Core\Helper\StringHelper;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -21,7 +22,12 @@ use W7\Core\View\View;
 
 abstract class ProviderAbstract {
 	protected $name;
-	protected $namespace;
+
+	//composer包名
+	protected $packageName;
+	//composer包的namespace
+	protected $packageNamespace;
+
 	/**
 	 * @var \W7\Core\Config\Config
 	 */
@@ -45,9 +51,14 @@ abstract class ProviderAbstract {
 			$name = get_called_class();
 		}
 		$this->name = $name;
-		$reflect = new \ReflectionClass($this);
-		$this->namespace = $reflect->getNamespaceName();
-		$this->rootPath = dirname($reflect->getFileName(), 2);
+		if ($this->packageName) {
+			$this->rootPath = BASE_PATH . '/vendor/' . $this->packageName;
+			!$this->packageNamespace && $this->packageNamespace = str_replace('/', '\\', StringHelper::studly($this->packageName));
+		} else {
+			$reflect = new \ReflectionClass($this);
+			$this->packageNamespace = $reflect->getNamespaceName();
+			$this->rootPath = dirname($reflect->getFileName(), 2);
+		}
 
 		$this->config = iconfig();
 		$this->router = irouter();
@@ -87,7 +98,7 @@ abstract class ProviderAbstract {
 
 	protected function registerRoute($fileName) {
 		$this->router->group([
-			'namespace' => $this->namespace,
+			'namespace' => $this->packageNamespace,
 			'module' => $this->name
 		], function () use ($fileName) {
 			$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
@@ -138,11 +149,11 @@ abstract class ProviderAbstract {
 		 * @var  Application $application
 		 */
 		$application = iloader()->get(Application::class);
-		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->namespace, $namespace);
+		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->packageNamespace, $namespace);
 	}
 
 	protected function registerEvent() {
-		ieventDispatcher()->autoRegisterEvents($this->rootPath . '/src/Event/', $this->namespace);
+		ieventDispatcher()->autoRegisterEvents($this->rootPath . '/src/Event/', $this->packageNamespace);
 	}
 
 	protected function registerOpenBaseDir($dir) {
