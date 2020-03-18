@@ -15,8 +15,8 @@ namespace W7\Console\Command\Server;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
-use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
+use W7\Core\Server\SwooleServerAbstract;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
 	private $masterServers = [];
@@ -99,11 +99,11 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		return new $server();
 	}
 
-	private function addSubServer(ServerAbstract $server) {
+	private function addSubServer(SwooleServerAbstract $server) {
 		$lines = [];
 		foreach ($this->followServers as $key => $handle) {
 			/**
-			 * @var ServerAbstract $subServer
+			 * @var SwooleServerAbstract $subServer
 			 */
 			$subServer = new $handle();
 			if ($subServer->listener($server->getServer()) === false) {
@@ -123,7 +123,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	protected function start() {
 		/**
-		 * @var ServerAbstract $server
+		 * @var SwooleServerAbstract $server
 		 */
 		$server = $this->getMasterServer();
 		$this->saveStartServer($server->getType());

@@ -12,7 +12,6 @@
 
 namespace W7\Core\Server;
 
-use W7\App;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
@@ -35,9 +34,8 @@ use W7\WebSocket\Listener\CloseListener as WebSocketCloseListener;
 use W7\WebSocket\Listener\HandshakeListener;
 use W7\WebSocket\Listener\MessageListener;
 use W7\WebSocket\Listener\OpenListener;
-use W7\Fpm\Listener\RequestListener as FpmRequestListener;
 
-class SwooleEvent {
+class ServerEvent {
 	/**
 	 * swoole 事件
 	 */
@@ -122,9 +120,6 @@ class SwooleEvent {
 			self::ON_WORKER_START => ProcessStartListener::class,
 			self::ON_WORKER_STOP => ProcessStopListener::class,
 			self::ON_MESSAGE => ProcessMessageListener::class
-		],
-		ServerEnum::TYPE_FPM => [
-			self::ON_REQUEST => FpmRequestListener::class
 		]
 	];
 
@@ -152,9 +147,13 @@ class SwooleEvent {
 		];
 	}
 
-	private function registerSystemEvent($eventTypes) {
+	/**
+	 * 注册服务必须的事件
+	 * @param $eventTypes
+	 */
+	public function registerServerEvent($eventTypes) {
 		$swooleEvents = $this->getDefaultEvent();
-		foreach ($eventTypes as $name) {
+		foreach ((array)$eventTypes as $name) {
 			$events = $swooleEvents[$name] ?? [];
 			foreach ($events as $name => $event) {
 				ieventDispatcher()->listen($name, $event);
@@ -162,19 +161,29 @@ class SwooleEvent {
 		}
 	}
 
-	private function registerUserEvent() {
-		$startedServers = iconfig()->getUserAppConfig('setting')['started_servers'] ?? [App::$server->getType()];
+	/**
+	 * 注册服务用户层事件
+	 * @param $servers
+	 */
+	public function registerServerUserEvent() {
+		//注册用户层和系统的公共事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
 			ieventDispatcher()->listen($eventName, $listener);
 
-			//当多类型服务同时启动时，触发事件，要触发各自对应的事件
-			foreach ($startedServers as $server) {
-				$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly($server), ucfirst($eventName));
-				ieventDispatcher()->listen($eventName, $listener);
-			}
-
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
+			ieventDispatcher()->listen($eventName, $listener);
+		}
+	}
+
+	/**
+	 * 注册服务的自定义事件
+	 * @param $server
+	 */
+	public function registerServerCustomEvent($server) {
+		//注册server下的自定义事件
+		foreach ($this->getUserEvent() as $eventName) {
+			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly($server), ucfirst($eventName));
 			ieventDispatcher()->listen($eventName, $listener);
 		}
 	}
@@ -186,10 +195,5 @@ class SwooleEvent {
 			static::$event[$server] = static::$event[$server] ?? [];
 			static::$event[$server] = array_merge(static::$event[$server], $events);
 		}
-	}
-
-	public function register($eventTypes) {
-		$this->registerSystemEvent($eventTypes);
-		$this->registerUserEvent();
 	}
 }

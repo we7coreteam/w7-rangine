@@ -14,7 +14,7 @@ namespace W7\Core\Listener;
 
 use W7\App;
 use W7\Core\Log\LogManager;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 
 class StartListener implements ListenerInterface {
 	public function run(...$params) {
@@ -25,6 +25,6 @@ class StartListener implements ListenerInterface {
 
 		iloader()->get(LogManager::class)->cleanLogFile();
 
-		ievent(SwooleEvent::ON_USER_AFTER_START, $params);
+		ievent(ServerEvent::ON_USER_AFTER_START, $params);
 	}
 }

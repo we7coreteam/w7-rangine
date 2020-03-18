@@ -13,11 +13,20 @@
 namespace W7\WebSocket\Server;
 
 use Swoole\WebSocket\Server as WebSocketServer;
-use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
+use W7\Core\Server\SwooleServerAbstract;
+use W7\Core\View\Provider\ViewProvider;
+use W7\WebSocket\Provider\ServiceProvider;
+use W7\WebSocket\Session\Provider\SessionProvider;
 
-class Server extends ServerAbstract {
+class Server extends SwooleServerAbstract {
+	protected $providerMap = [
+		ServiceProvider::class,
+		SessionProvider::class,
+		ViewProvider::class
+	];
+
 	public function getType() {
 		return ServerEnum::TYPE_WEBSOCKET;
 	}
@@ -29,6 +38,20 @@ class Server extends ServerAbstract {
 		}
 	}
 
+	protected function getDefaultSetting(): array {
+		$setting = parent::getDefaultSetting();
+		$setting['dispatch_mode'] = 2;
+
+		return $setting;
+	}
+
+	public function getServer() {
+		if (empty($this->server)) {
+			$this->server = new WebSocketServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
+		}
+		return $this->server;
+	}
+
 	public function start() {
 		$this->server = $this->getServer();
 		$this->setting['open_websocket_close_frame'] = false;
@@ -37,7 +60,7 @@ class Server extends ServerAbstract {
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
-		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
+		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server]);
 
 		$this->server->start();
 	}
@@ -48,19 +71,5 @@ class Server extends ServerAbstract {
 	 */
 	public function listener(\Swoole\Server $server) {
 		throw new \RuntimeException('websocket server not support create by listener');
-	}
-
-	public function getServer() {
-		if (empty($this->server)) {
-			$this->server = new WebSocketServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
-		}
-		return $this->server;
-	}
-
-	protected function getDefaultSetting(): array {
-		$setting = parent::getDefaultSetting();
-		$setting['dispatch_mode'] = 2;
-
-		return $setting;
 	}
 }

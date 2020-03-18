@@ -13,7 +13,7 @@
 namespace W7\Tcp\Listener;
 
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 use W7\Tcp\Collector\CollectorManager;
 
 class CloseListener extends ListenerAbstract {
@@ -25,6 +25,6 @@ class CloseListener extends ListenerAbstract {
 		//删除数据绑定记录
 		iloader()->get(CollectorManager::class)->del($fd);
 
-		ievent(SwooleEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId]);
+		ievent(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId]);
 	}
 }

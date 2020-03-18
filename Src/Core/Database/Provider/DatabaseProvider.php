@@ -24,7 +24,6 @@ use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Fluent;
 use W7\App;
-use W7\Console\Application;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
@@ -37,11 +36,7 @@ use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
 	public function register() {
-		$this->registerOpenBaseDir(BASE_PATH . '/database');
 		$this->registerDb();
-
-		$application = iloader()->get(Application::class);
-		$application->autoRegisterCommands($this->rootPath . '/Command', 'W7\Core\Database');
 	}
 
 	/**

@@ -15,7 +15,7 @@ namespace W7\WebSocket\Listener;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Server;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 use W7\WebSocket\Collector\CollectorManager;
 use W7\Http\Message\Server\Request as Psr7Request;
 
@@ -34,6 +34,6 @@ class OpenListener extends ListenerAbstract {
 		//做数据绑定和记录
 		iloader()->get(CollectorManager::class)->set($psr7Request->getSwooleRequest()->fd, $psr7Request);
 
-		ievent(SwooleEvent::ON_USER_AFTER_OPEN, [$server, $psr7Request->getSwooleRequest()]);
+		ievent(ServerEvent::ON_USER_AFTER_OPEN, [$server, $psr7Request->getSwooleRequest()]);
 	}
 }

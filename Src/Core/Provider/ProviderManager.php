@@ -14,18 +14,26 @@ namespace W7\Core\Provider;
 
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use W7\Reload\Process\ReloadProcess;
+use W7\Core\Cache\Provider\CacheProvider;
+use W7\Core\Controller\ValidateProvider;
+use W7\Core\Database\Provider\DatabaseProvider;
+use W7\Core\Exception\Provider\ExceptionProvider;
 
 class ProviderManager {
-	private static $providers = [];
+	private $providerMap = [
+		ExceptionProvider::class,
+		CacheProvider::class,
+		DatabaseProvider::class,
+		ValidateProvider::class
+	];
+	private static $registerProviders = [];
 
 	/**
 	 * 扩展包注册
 	 */
 	public function register() {
 		$providerMap = $this->findProviders();
-		$this->checkRepeat($providerMap);
-		$this->registerProviders($providerMap);
+		$this->registerProviders(array_merge($this->providerMap, $providerMap));
 		return $this;
 	}
 
@@ -42,7 +50,7 @@ class ProviderManager {
 		if (is_string($provider)) {
 			$provider = $this->getProvider($provider, $name);
 		}
-		static::$providers[get_class($provider)] = $provider;
+		static::$registerProviders[get_class($provider)] = $provider;
 		$provider->register();
 	}
 
@@ -50,7 +58,7 @@ class ProviderManager {
 	 * 扩展包全部注册完成后执行
 	 */
 	public function boot() {
-		foreach (static::$providers as $provider => $obj) {
+		foreach (static::$registerProviders as $provider => $obj) {
 			$obj->boot();
 		}
 	}
@@ -60,15 +68,14 @@ class ProviderManager {
 	}
 
 	private function findProviders() {
-		$systemProviders = $this->autoFindProviders(dirname(__DIR__, 2), 'W7');
-		$vendorProviders = $this->findVendorProviders();
-		$appProvider = $this->autoFindProviders(BASE_PATH . '/app', 'W7/App');
-
-		return array_merge($systemProviders, $vendorProviders, $appProvider);
+		return $this->autoFindProviders(BASE_PATH . '/app/Provider', 'W7/App/Provider');
 	}
 
 	public function autoFindProviders($dir, $namespace) {
 		$providers = [];
+		if (!is_dir($dir)) {
+			return $providers;
+		}
 
 		$files = Finder::create()
 			->in($dir)
@@ -85,55 +92,5 @@ class ProviderManager {
 		}
 
 		return $providers;
-	}
-
-	private function findVendorProviders() {
-		ob_start();
-		require BASE_PATH . '/vendor/composer/installed.json';
-		$content = ob_get_clean();
-		$content = json_decode($content, true);
-
-		$providers = [];
-		foreach ($content as $item) {
-			if (!empty($item['extra']['rangine']['providers'])) {
-				$providers[str_replace('/', '.', $item['name'])] = $item['extra']['rangine']['providers'];
-				$this->addReloadPath($item);
-			}
-		}
-
-		return $providers;
-	}
-
-	private function addReloadPath($conf) {
-		if ((ENV & DEBUG) !== DEBUG) {
-			return '';
-		}
-
-		if ($conf[$conf['installation-source']]['type'] == 'path') {
-			$path = BASE_PATH . '/' . $conf[$conf['installation-source']]['url'];
-
-			$config = iconfig()->getUserConfig('app');
-			$config['setting']['basedir'] = (array)($config['setting']['basedir'] ?? []);
-			$config['setting']['basedir'][] = $path;
-			iconfig()->setUserConfig('app', $config);
-		} else {
-			$path = BASE_PATH . '/vendor/' . $conf['name'];
-		}
-		$path .= '/';
-
-		ReloadProcess::addDir($path);
-	}
-
-	private function checkRepeat($providerMap) {
-		$map = [];
-		foreach ($providerMap as $key => $providers) {
-			$providers = (array)$providers;
-			foreach ($providers as $provider) {
-				if (!empty($map[$provider])) {
-					throw new \RuntimeException('provider ' . $key . ' and ' . $map[$provider] . ' provider is repeat');
-				}
-				$map[$provider] = $key;
-			}
-		}
 	}
 }

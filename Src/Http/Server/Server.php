@@ -13,16 +13,29 @@
 namespace W7\Http\Server;
 
 use Swoole\Http\Server as HttpServer;
-use W7\Http\Listener\RequestListener;
+use W7\Core\Server\SwooleServerAbstract;
+use W7\Core\View\Provider\ViewProvider;
+use W7\Http\Session\Provider\SessionProvider;
 use W7\WebSocket\Server\Server as WebSocketServer;
 use W7\App;
-use W7\Core\Server\ServerAbstract;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 use W7\Core\Server\ServerEnum;
 
-class Server extends ServerAbstract {
+class Server extends SwooleServerAbstract {
+	protected $providerMap = [
+		SessionProvider::class,
+		ViewProvider::class
+	];
+
 	public function getType() {
 		return ServerEnum::TYPE_HTTP;
+	}
+
+	public function getServer() {
+		if (empty($this->server)) {
+			$this->server = new HttpServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
+		}
+		return $this->server;
 	}
 
 	public function start() {
@@ -37,16 +50,9 @@ class Server extends ServerAbstract {
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
-		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
+		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server]);
 
 		$this->server->start();
-	}
-
-	public function getServer() {
-		if (empty($this->server)) {
-			$this->server = new HttpServer($this->setting['host'], $this->setting['port'], $this->setting['mode'], $this->setting['sock_type']);
-		}
-		return $this->server;
 	}
 
 	/**
@@ -55,14 +61,8 @@ class Server extends ServerAbstract {
 	 */
 	public function listener(\Swoole\Server $server) {
 		if (App::$server instanceof WebSocketServer) {
-			//按服务级别，http如果要和其他服务同时启动，当和websocket同时启动时，websocket本身有http request,只需要添加对应的回调即可
-			/**
-			 * @var SwooleEvent $serverEvent
-			 */
-			$serverEvent = iloader()->get(SwooleEvent::class);
-			$serverEvent->addServerEvents(ServerEnum::TYPE_WEBSOCKET, [
-				SwooleEvent::ON_REQUEST => RequestListener::class
-			]);
+			$this->server = $server;
+			$this->registerService();
 		}
 	}
 }

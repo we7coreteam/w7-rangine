@@ -13,11 +13,20 @@
 namespace W7\Tcp\Server;
 
 use Swoole\Server as TcpServer;
-use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
+use W7\Core\Server\SwooleServerAbstract;
+use W7\Core\View\Provider\ViewProvider;
+use W7\Tcp\Provider\ServiceProvider;
+use W7\Tcp\Session\Provider\SessionProvider;
 
-class Server extends ServerAbstract {
+class Server extends SwooleServerAbstract {
+	protected $providerMap = [
+		ServiceProvider::class,
+		SessionProvider::class,
+		ViewProvider::class
+	];
+
 	public function getType() {
 		return ServerEnum::TYPE_TCP;
 	}
@@ -36,7 +45,7 @@ class Server extends ServerAbstract {
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
-		ievent(SwooleEvent::ON_USER_BEFORE_START, [$this->server]);
+		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server]);
 
 		$this->server->start();
 	}
@@ -53,22 +62,15 @@ class Server extends ServerAbstract {
 	 * 通过侦听端口的方法创建服务
 	 */
 	public function listener(\Swoole\Server $server) {
-		$tcpServer = $server->addListener($this->setting['host'], $this->setting['port'], $this->setting['sock_type']);
+		$this->server = $server->addListener($this->setting['host'], $this->setting['port'], $this->setting['sock_type']);
 		//tcp需要强制关闭其它协议支持，否则继续父服务
-		$tcpServer->set([
+		$this->server->set([
 			'open_http2_protocol' => false,
 			'open_http_protocol' => false,
 			'open_websocket_protocol' => false,
 		]);
 
-		$event = (new SwooleEvent())->getDefaultEvent()[$this->getType()];
-		foreach ($event as $eventName => $class) {
-			if (empty($class)) {
-				continue;
-			}
-			$object = \iloader()->get($class);
-			$tcpServer->on($eventName, [$object, 'run']);
-		}
+		$this->registerService();
 	}
 
 	protected function getDefaultSetting() : array {

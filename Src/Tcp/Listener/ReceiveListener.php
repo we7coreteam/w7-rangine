@@ -17,7 +17,7 @@ use W7\App;
 use Swoole\Coroutine;
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Server\SwooleEvent;
+use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 use W7\Tcp\Message\Message;
@@ -64,15 +64,16 @@ class ReceiveListener extends ListenerAbstract {
 		$psr7Request = $psr7Request->setSwooleRequest($swooleRequest->getSwooleRequest());
 		$psr7Response = new Response();
 
-		ievent(SwooleEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 		/**
 		 * @var RequestDispatcher $dispatcher
 		 */
 		$dispatcher = \iloader()->get(RequestDispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
+		//暂未做数据格式处理（需要处理）
 		$server->send($fd, $psr7Response->getBody()->getContents());
 
-		ievent(SwooleEvent::ON_USER_AFTER_REQUEST);
+		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
 		icontext()->destroy();
 	}
 }
