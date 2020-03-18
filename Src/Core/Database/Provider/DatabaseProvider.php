@@ -36,7 +36,6 @@ use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
 	public function register() {
-		$this->registerOpenBaseDir(BASE_PATH . '/database');
 		$this->registerDb();
 	}
 
