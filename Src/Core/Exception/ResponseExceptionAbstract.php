@@ -14,7 +14,6 @@ namespace W7\Core\Exception;
 
 use W7\App;
 use Psr\Http\Message\ResponseInterface;
-use W7\Http\Message\Server\Response;
 
 abstract class ResponseExceptionAbstract extends \LogicException {
 	/**
@@ -28,8 +27,9 @@ abstract class ResponseExceptionAbstract extends \LogicException {
 		parent::__construct($message, (int)$code, $previous);
 
 		$response = App::getApp()->getContext()->getResponse();
+
 		if (empty($response)) {
-			trigger_error("Invalid Http Response object.", E_USER_ERROR);
+			trigger_error(sprintf('%s : %s', $code, $message), E_USER_ERROR);
 		}
 
 		$this->response = $response;

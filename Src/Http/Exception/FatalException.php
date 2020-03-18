@@ -33,10 +33,10 @@ class FatalException extends FatalExceptionAbstract {
 			$content = ob_get_clean();
 		}
 
-		return $this->response->withStatus(500)->html($content);
+		return $this->response->withStatus(500)->withHeader('Content-Type', 'text/html')->withContent($content);
 	}
 
 	protected function release(): ResponseInterface {
-		return $this->response->withStatus(500)->withData(['error' => '系统内部错误']);
+		return $this->response->withStatus(500)->withHeader('Content-Type', 'text/html')->withContent(json_encode(['error' => '系统内部错误']));
 	}
 }

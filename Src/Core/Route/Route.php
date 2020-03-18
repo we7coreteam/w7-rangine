@@ -190,7 +190,7 @@ class Route {
 		}
 
 		$this->any($uri, function () use ($destination, $status) {
-			return App::getApp()->getContext()->getResponse()->redirect($destination, $status);
+			return App::getApp()->getContext()->getResponse()->withAddedHeader('Location', (string)$destination)->withStatus($status);
 		});
 	}
 
