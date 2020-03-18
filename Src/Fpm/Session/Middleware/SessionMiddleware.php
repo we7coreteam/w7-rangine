@@ -23,8 +23,6 @@ class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		$request->session = new Session();
 		$request->session->start($request);
-		$request->session->set('time', time());
-		$request->session->gc();
 
 		App::getApp()->getContext()->setResponse($request->session->replenishResponse(App::getApp()->getContext()->getResponse()));
 
