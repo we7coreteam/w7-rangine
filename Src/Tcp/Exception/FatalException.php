@@ -12,14 +12,14 @@
 
 namespace W7\Tcp\Exception;
 
-use Psr\Http\Message\ResponseInterface;
+use Throwable;
 use W7\Core\Exception\FatalExceptionAbstract;
 use Whoops\Exception\Inspector;
 use Whoops\Handler\PlainTextHandler;
 use Whoops\Run;
 
 class FatalException extends FatalExceptionAbstract {
-	protected function development(): ResponseInterface {
+	public function __construct($message = '', $code = 0, Throwable $previous = null) {
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
 			$content = 'message: ' . $this->getMessage() . ';    file: ' . $this->getPrevious()->getFile() . ';    line: ' . $this->getPrevious()->getLine();
 		} else {
@@ -32,10 +32,6 @@ class FatalException extends FatalExceptionAbstract {
 			$content = ob_get_clean();
 		}
 
-		return $this->response->withStatus(500)->withData($content);
-	}
-
-	protected function release(): ResponseInterface {
-		return $this->response->withStatus(500)->withData(['error' => '系统内部错误']);
+		parent::__construct($content, $code, $previous);
 	}
 }

@@ -12,31 +12,7 @@
 
 namespace W7\Fpm\Exception;
 
-use Psr\Http\Message\ResponseInterface;
-use W7\Core\Exception\FatalExceptionAbstract;
-use Whoops\Exception\Inspector;
-use Whoops\Handler\PrettyPageHandler;
-use Whoops\Run;
+use W7\Http\Exception\FatalException as SwooleHttpFatalException;
 
-class FatalException extends FatalExceptionAbstract {
-	protected function development(): ResponseInterface {
-		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$content = 'message: ' . $this->getMessage() . '<br/>file: ' . $this->getPrevious()->getFile() . '<br/>line: ' . $this->getPrevious()->getLine();
-		} else {
-			ob_start();
-			$render = new PrettyPageHandler();
-			$render->handleUnconditionally(true);
-			$render->setException($this->getPrevious());
-			$render->setInspector(new Inspector($this->getPrevious()));
-			$render->setRun(new Run());
-			$render->handle();
-			$content = ob_get_clean();
-		}
-
-		return $this->response->withStatus(500)->withHeader('Content-Type', 'text/html')->withContent($content);
-	}
-
-	protected function release(): ResponseInterface {
-		return $this->response->withStatus(500)->withData(['error' => '系统内部错误']);
-	}
+class FatalException extends SwooleHttpFatalException {
 }

@@ -12,31 +12,28 @@
 
 namespace W7\Http\Exception;
 
-use Psr\Http\Message\ResponseInterface;
+use Throwable;
 use W7\Core\Exception\FatalExceptionAbstract;
 use Whoops\Exception\Inspector;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;
 
 class FatalException extends FatalExceptionAbstract {
-	protected function development(): ResponseInterface {
+	public function __construct($message = '', $code = 0, Throwable $previous = null) {
+		$previous = $previous ?? $this->getPrevious();
+
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$content = 'message: ' . $this->getMessage() . '<br/>file: ' . $this->getPrevious()->getFile() . '<br/>line: ' . $this->getPrevious()->getLine();
+			$content = 'message: ' . $this->getMessage() . '<br/>file: ' . $previous->getFile() . '<br/>line: ' . $previous->getLine();
 		} else {
 			ob_start();
 			$render = new PrettyPageHandler();
 			$render->handleUnconditionally(true);
-			$render->setException($this->getPrevious());
-			$render->setInspector(new Inspector($this->getPrevious()));
+			$render->setException($previous);
+			$render->setInspector(new Inspector($previous));
 			$render->setRun(new Run());
 			$render->handle();
 			$content = ob_get_clean();
 		}
-
-		return $this->response->withStatus(500)->withHeader('Content-Type', 'text/html')->withContent($content);
-	}
-
-	protected function release(): ResponseInterface {
-		return $this->response->withStatus(500)->withHeader('Content-Type', 'text/html')->withContent(json_encode(['error' => '系统内部错误']));
+		parent::__construct($content, $code, $previous);
 	}
 }

@@ -12,10 +12,10 @@
 
 namespace W7\Core\Exception;
 
-use Psr\Http\Message\ResponseInterface;
+use Throwable;
 
 class RouteNotAllowException extends ResponseExceptionAbstract {
-	public function render(): ResponseInterface {
-		return $this->response->withStatus($this->getCode())->withData(['error' => $this->getMessage()]);
+	public function __construct($message = 'Route not allowed', $code = 405, Throwable $previous = null) {
+		parent::__construct($message, $code, $previous);
 	}
 }

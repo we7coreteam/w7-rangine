@@ -12,17 +12,5 @@
 
 namespace W7\Core\Exception;
 
-use Psr\Http\Message\ResponseInterface;
-
 abstract class FatalExceptionAbstract extends ResponseExceptionAbstract {
-	public function render() : ResponseInterface {
-		if ((ENV & DEBUG) === DEBUG) {
-			return $this->development();
-		} else {
-			return $this->release();
-		}
-	}
-
-	abstract protected function development() : ResponseInterface;
-	abstract protected function release() : ResponseInterface;
 }
