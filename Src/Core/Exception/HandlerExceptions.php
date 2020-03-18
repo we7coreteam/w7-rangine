@@ -16,8 +16,10 @@ use InvalidArgumentException;
 use W7\App;
 use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Exception\Handler\HandlerAbstract;
-use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
+use W7\Http\Message\Outputer\DefaultResponseOutputer;
+use W7\Http\Message\Server\Response;
+use W7\Http\Message\Server\Response as Psr7Response;
 
 class HandlerExceptions {
 	/**
@@ -33,6 +35,7 @@ class HandlerExceptions {
 	public function registerErrorHandle() {
 		set_error_handler([$this, 'handleError']);
 		set_exception_handler([$this, 'handleException']);
+
 		register_shutdown_function(function () {
 			$e = error_get_last();
 			if (!$e || !in_array($e['type'], [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE])) {
@@ -66,28 +69,8 @@ class HandlerExceptions {
 		return false;
 	}
 
-	/**
-	 * @param \Throwable $throwable
-	 */
 	public function handleException(\Throwable $throwable) {
 		return $this->handle($throwable);
-	}
-
-	public function handle(\Throwable $throwable, $serverType = null) {
-		if (!($throwable instanceof ResponseExceptionAbstract)) {
-			$serverType = $serverType ? $serverType : App::$server->getType();
-			$class = 'W7\\' . StringHelper::studly($serverType) . '\Exception\FatalException';
-			$throwable = new $class($throwable->getMessage(), $throwable->getCode(), $throwable);
-		}
-
-		$handler = $this->getHandler();
-		try {
-			$handler->report($throwable);
-		} catch (\Throwable $e) {
-			null;
-		}
-
-		return $handler->handle($throwable);
 	}
 
 	/**
@@ -105,5 +88,18 @@ class HandlerExceptions {
 	 */
 	public function setHandler(HandlerAbstract $handler) {
 		$this->handler = $handler;
+	}
+
+	public function handle(\Throwable $throwable, $serverType = null) {
+		$response = App::getApp()->getContext()->getResponse();
+		if (empty($response) || !($response instanceof Response)) {
+			$response = new Psr7Response();
+			$response->setOutputer(new DefaultResponseOutputer());
+		}
+		$handler = $this->getHandler();
+		$handler->setServerType($serverType ?? App::$server->getType());
+		$handler->setResponse($response);
+
+		return $handler->handle($throwable)->send();
 	}
 }
