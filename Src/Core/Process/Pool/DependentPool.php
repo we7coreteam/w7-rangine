@@ -31,7 +31,7 @@ class DependentPool extends PoolAbstract {
 			$swooleProcess = new Process(function (Process $worker) use ($i) {
 				//这里不能通过event触发
 				(new ProcessStartListener())->run($this->serverType, $worker, $i, $this->processFactory, $this->mqKey);
-			}, false, SOCK_DGRAM);
+			}, false, SOCK_DGRAM, true);
 
 			App::$server->getServer()->addProcess($swooleProcess);
 		}
