@@ -183,7 +183,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$this->setting['message_queue_key'] = '';
 	}
 
-	protected function registerServerEvent($server) {
+	protected function registerServerEvent($byListener) {
 		$eventTypes = [];
 		/**
 		 * @var ServerEvent $eventRegister
@@ -191,7 +191,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$eventRegister = iloader()->get(ServerEvent::class);
 
 		//注册master manager事件,这些事件只注册一次
-		if (!self::$isRegisterMasterServerEvent && $server instanceof Server) {
+		if (!$byListener && !self::$isRegisterMasterServerEvent) {
 			$eventTypes = $this->masterServerType;
 			$eventRegister->registerServerEvent($eventTypes);
 			self::$isRegisterMasterServerEvent = true;
@@ -201,7 +201,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$eventRegister->registerServerEvent($this->getType());
 
 		//注册server用户事件,只注册一次
-		if (!self::$isRegisterServerCommonEvent && $server instanceof Server) {
+		if (!$byListener && !self::$isRegisterServerCommonEvent) {
 			$eventRegister->registerServerUserEvent();
 			self::$isRegisterServerCommonEvent = true;
 		}
@@ -214,12 +214,13 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		foreach ($eventTypes as $name) {
 			$event = $swooleEvents[$name];
 			if (!empty($event)) {
-				$this->registerSwooleEvent($server, $event);
+				$this->registerSwooleEvent($event);
 			}
 		}
 	}
 
-	protected function registerSwooleEvent($server, $event) {
+	protected function registerSwooleEvent($event) {
+		$server = App::$server->getServer();
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;

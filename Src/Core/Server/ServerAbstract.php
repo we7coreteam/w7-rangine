@@ -35,12 +35,12 @@ abstract class ServerAbstract implements ServerInterface {
 	/**
 	 * //执行一些公共操作，注册事件,provider等
 	 */
-	public function registerService() {
+	public function registerService($byListener = false) {
 		$this->registerProvider();
-		$this->registerServerEvent($this->getServer());
+		$this->registerServerEvent($byListener);
 	}
 
-	abstract protected function registerServerEvent($server);
+	abstract protected function registerServerEvent($byListener);
 
 	protected function registerProvider() {
 		/**
