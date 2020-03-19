@@ -23,7 +23,7 @@ use W7\WebSocket\Session\Provider\SessionProvider;
 class Server extends SwooleServerAbstract {
 	protected $providerMap = [
 		ServiceProvider::class,
-		SessionProvider::class,
+		//SessionProvider::class,
 		ViewProvider::class
 	];
 
