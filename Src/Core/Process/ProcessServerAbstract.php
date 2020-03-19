@@ -78,7 +78,7 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 		return $this->pool->start();
 	}
 
-	protected function registerSwooleEvent($event) {
+	protected function registerSwooleEvent($server, $event) {
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;
