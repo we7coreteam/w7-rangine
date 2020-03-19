@@ -44,15 +44,15 @@ abstract class ControllerAbstract {
 	}
 
 	protected function responseRaw(string $data) {
-		return $this->response()->raw($data);
+		return $this->response()->withContent($data);
 	}
 
 	protected function responseJson($data) {
-		return $this->response()->json($data);
+		return $this->response()->withHeader('Content-Type', 'application/json')->withContent($data);
 	}
 
 	protected function responseHtml($data) {
-		return $this->response()->html($data);
+		return $this->response()->withHeader('Content-Type', 'text/html')->withContent($data);
 	}
 
 	protected function render($name, $context = []) {
