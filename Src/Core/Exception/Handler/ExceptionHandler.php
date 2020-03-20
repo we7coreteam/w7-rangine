@@ -26,9 +26,9 @@ class ExceptionHandler extends HandlerAbstract {
 		// ResponseExceptionAbstract 为特殊的异常，此异常不管何时都将反馈给客户端
 		if ($e instanceof ResponseExceptionAbstract) {
 			return $this->getResponse()->withStatus($e->getCode() ?? '500')->withHeader('Content-Type', 'text/html')->withContent(\json_encode(['error' => $e->getMessage()]));
-		} else {
-			return $this->getResponse()->withStatus(500)->withHeader('Content-Type', 'text/html')->withContent(\json_encode(['error' => '系统内部错误']));
 		}
+
+		return $this->getResponse()->withStatus(500)->withHeader('Content-Type', 'text/html')->withContent(\json_encode(['error' => '系统内部错误']));
 	}
 
 	/**
@@ -38,6 +38,10 @@ class ExceptionHandler extends HandlerAbstract {
 	 */
 	protected function handleDevelopment(\Throwable $e) : Response {
 		$this->log($e);
+
+		if ($e instanceof ResponseExceptionAbstract) {
+			return $this->getResponse()->withStatus($e->getCode() ?? '500')->withHeader('Content-Type', 'text/html')->withContent(\json_encode(['error' => $e->getMessage()]));
+		}
 
 		$class = $this->getServerFatalExceptionClass();
 		$error = new $class($e->getMessage(), $e->getCode(), $e);
