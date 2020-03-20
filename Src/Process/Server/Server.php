@@ -42,7 +42,7 @@ class Server extends ProcessServerAbstract {
 		//获取不在process配置列表中的process
 		$notSupportProcess = array_diff($processMap, array_intersect(array_keys($supportProcess), $processMap));
 		if ($notSupportProcess) {
-			throw new \RuntimeException('not support ' . implode(', ', $notSupportProcess) . ' process');
+			throw new \RuntimeException('process ' . implode(', ', $notSupportProcess) . ' not exist, please check the configuration in config/process.php');
 		}
 
 		//如果processMap为空，表示输入的指令是bin/server process start，将启动所有enable的process
@@ -61,7 +61,7 @@ class Server extends ProcessServerAbstract {
 
 		$this->setting['worker_num'] = $this->getWorkerNum();
 		if ($this->setting['worker_num'] == 0) {
-			throw new \RuntimeException('the list of started processes is empty');
+			throw new \RuntimeException('the list of started processes is empty, please check the configuration in config/process.php');
 		}
 
 		return parent::checkSetting();
