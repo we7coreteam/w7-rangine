@@ -16,12 +16,13 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use W7\Core\Middleware\MiddlewareAbstract;
-use W7\WebSocket\Collector\CollectorManager;
-use W7\WebSocket\Session\SessionCollector;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		$request->session = icontainer()->get(CollectorManager::class)->getCollector(SessionCollector::getName())->get($request->getFd());
+		//需要获取fd
+		$fd = 0;
+		$handShakeRequest = icontainer()->get('ws-client')[$fd][0];
+		$request->session = $handShakeRequest->session;
 		$request->session->set('time', time());
 		$request->session->gc();
 

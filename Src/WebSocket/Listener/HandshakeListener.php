@@ -38,7 +38,7 @@ class HandshakeListener extends ListenerAbstract {
 		if (0 === preg_match("/^[\+\/0-9A-Za-z]{21}[AQgw]==$/", $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
 			return false;
 		}
-		print_r($request->cookie);
+
 		try {
 			/**
 			 * @var Psr7Request $psr7Request
@@ -72,7 +72,6 @@ class HandshakeListener extends ListenerAbstract {
 
 		$psr7Request->session = new Session();
 		$psr7Request->session->start($psr7Request);
-		$psr7Request->session->gc();
 		$response = $psr7Request->session->replenishResponse($response);
 
 		icontainer()->append('ws-client', [

@@ -36,8 +36,7 @@ class MessageListener extends ListenerAbstract {
 
 		$collector = icontainer()->get('ws-client')[$frame->fd] ?? [];
 		if (empty($collector)) {
-			$server->push($frame->fd, 'Invalid Request or Response, please reconnect');
-			$server->disconnect();
+			$server->disconnect($frame->fd, 0, 'Invalid Request or Response, please reconnect');
 			return false;
 		}
 
@@ -47,9 +46,6 @@ class MessageListener extends ListenerAbstract {
 		$psr7Request = $collector[0];
 		$psr7Request = $psr7Request->loadFromWSFrame($frame);
 
-		echo $frame->fd;
-		echo PHP_EOL;
-		echo PHP_EOL;
 		/**
 		 * @var Psr7Response $psr7Response
 		 */
