@@ -49,7 +49,7 @@ class ControllerMiddleware extends MiddlewareAbstract {
 		//如果结果是一个response对象，则直接输出，否则按json输出
 		if ($response instanceof Response) {
 			return $response;
-		} elseif (is_array($response) || is_string($response)) {
+		} elseif (is_array($response) || is_string($response) || is_numeric($response) || is_bool($response) || is_null($response)) {
 			return App::getApp()->getContext()->getResponse()->withHeader('Content-Type', 'application/json')->withContent(\json_encode($response, JSON_UNESCAPED_UNICODE));
 		} else {
 			$type = 'unknown';

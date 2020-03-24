@@ -16,7 +16,7 @@ use Pimple\Container as PimpleContainer;
 use Pimple\Psr11\Container as PsrContainer;
 
 /**
- * ＠@mixin PimpleContainer
+ *
  */
 class Container {
 	private $container;
@@ -31,13 +31,17 @@ class Container {
 	 * @param $name
 	 * @param $handle
 	 * @param mixed ...$params
-	 * @return bool
+	 * @return void
 	 */
 	public function set($name, $handle, ...$params) {
 		if (is_string($handle)) {
-			$handle = function () use ($handle, $params) {
-				return new $handle(...$params);
-			};
+			if (class_exists($name)) {
+				$handle = function () use ($handle, $params) {
+					return new $handle(...$params);
+				};
+			} else {
+				$handle = null;
+			}
 		}
 		$this->container[$name] = $handle;
 	}
@@ -68,6 +72,36 @@ class Container {
 		return $this->psrContainer->get($instanceKey);
 	}
 
+	/**
+	 * 往键值上追回数据，只允许往数组和对象上追加。
+	 * 键值不存的时候新建一个空数组
+	 *
+	 * 对象上追回等于设置属性
+	 * @param $dataKey
+	 * @param $value
+	 * @param array $default
+	 * @return void
+	 */
+	public function append($dataKey, array $value, $default = []) {
+		if (!$this->has($dataKey)) {
+			$this->set($dataKey, $default);
+		}
+		$data = $this->get($dataKey);
+
+		if (is_object($data)) {
+			foreach ($value as $key => $value) {
+				$data->$key = $value;
+			}
+		} elseif (is_array($data)) {
+			foreach ($value as $key => $value) {
+				$data[$key] = $value;
+			}
+		} else {
+			throw new \RuntimeException('Only append data to array and object');
+		}
+		$this->set($dataKey, $data);
+	}
+
 	public function has($name) {
 		return $this->psrContainer->has($name);
 	}
@@ -79,12 +113,13 @@ class Container {
 	}
 
 	/**
-	 * @deprecated
+	 * 语义上的别名，用于处理单例对象
 	 * @param $name
+	 * @param array $params
 	 * @return mixed
 	 */
-	public function singleton($name) {
-		return $this->get($name);
+	public function singleton($name, array $params = []) {
+		return $this->get($name, $params);
 	}
 
 	public function clear() {

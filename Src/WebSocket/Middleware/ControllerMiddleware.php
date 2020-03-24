@@ -12,16 +12,7 @@
 
 namespace W7\WebSocket\Middleware;
 
-use W7\App;
 use W7\Core\Middleware\ControllerMiddleware as ControllerMiddlewareAbstract;
-use W7\WebSocket\Message\Message;
 
 class ControllerMiddleware extends ControllerMiddlewareAbstract {
-	protected function parseResponse($response) {
-		if ($response instanceof Message) {
-			$response = App::getApp()->getContext()->getResponse()->withData($response);
-		}
-
-		parent::parseResponse($response);
-	}
 }

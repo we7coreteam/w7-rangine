@@ -18,8 +18,8 @@ use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Fpm\Session\Provider\SessionProvider;
-use W7\Http\Message\Server\Request;
 use W7\Http\Message\Outputer\FpmResponseOutputer;
+use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 
 class Server extends ServerAbstract {
@@ -49,7 +49,7 @@ class Server extends ServerAbstract {
 		$response = new Psr7Response();
 		$response->setOutputer(new FpmResponseOutputer());
 
-		$response = $this->dispatch(Request::loadFromFpmRequest(), $response);
+		$response = $this->dispatch(Psr7Request::loadFromFpmRequest(), $response);
 		$response->send();
 	}
 

@@ -19,7 +19,6 @@ use Swoole\Http\Response;
 use Swoole\Http\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEvent;
-use W7\Http\Message\Formatter\ResponseFormatterInterface;
 use W7\Http\Message\Outputer\SwooleResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
