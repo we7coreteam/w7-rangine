@@ -17,12 +17,10 @@ use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Server\SwooleServerAbstract;
 use W7\Core\View\Provider\ViewProvider;
-use W7\WebSocket\Provider\ServiceProvider;
 use W7\WebSocket\Session\Provider\SessionProvider;
 
 class Server extends SwooleServerAbstract {
 	protected $providerMap = [
-		ServiceProvider::class,
 		//SessionProvider::class,
 		ViewProvider::class
 	];
