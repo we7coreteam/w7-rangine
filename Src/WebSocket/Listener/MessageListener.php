@@ -35,10 +35,6 @@ class MessageListener extends ListenerAbstract {
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 
 		$collector = icontainer()->get('ws-client')[$frame->fd] ?? [];
-		if (empty($collector)) {
-			$server->disconnect($frame->fd, 0, 'Invalid Request or Response, please reconnect');
-			return false;
-		}
 
 		/**
 		 * @var Psr7Request $psr7Request
