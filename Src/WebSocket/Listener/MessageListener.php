@@ -29,12 +29,17 @@ class MessageListener extends ListenerAbstract {
 		$this->onMessage($server, $frame);
 	}
 
-	private function onMessage(Server $server, SwooleFrame $frame): void {
+	private function onMessage(Server $server, SwooleFrame $frame): bool {
 		$context = App::getApp()->getContext();
 		$context->setContextDataByKey('workid', $server->worker_id);
 		$context->setContextDataByKey('coid', Coroutine::getuid());
 
-		$collector = iloader()->get('ws:fd:' . $frame->fd);
+		$collector = icontainer()->get('ws-client')[$frame->fd] ?? [];
+		if (empty($collector)) {
+			$server->push($frame->fd, 'Invalid Request or Response, please reconnect');
+			$server->disconnect();
+			return false;
+		}
 
 		/**
 		 * @var Psr7Request $psr7Request
@@ -43,7 +48,6 @@ class MessageListener extends ListenerAbstract {
 		$psr7Request = $psr7Request->loadFromWSFrame($frame);
 
 		echo $frame->fd;
-
 		echo PHP_EOL;
 		echo PHP_EOL;
 		/**
@@ -58,11 +62,12 @@ class MessageListener extends ListenerAbstract {
 
 		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
 
-		$dispatcher = \iloader()->get(Dispatcher::class);
+		$dispatcher = icontainer()->singleton(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
 		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
 		icontext()->destroy();
+		return true;
 	}
 }

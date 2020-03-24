@@ -14,18 +14,19 @@ namespace W7\WebSocket\Listener;
 
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
-use W7\WebSocket\Collector\CollectorManager;
-use W7\WebSocket\Collector\SwooleRequestCollector;
 
 class AfterWorkerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		/**
-		 * @var CollectorManager $collectManager
-		 */
-		$collectManager = iloader()->get(CollectorManager::class);
-		$requestCollect = $collectManager->getCollector(SwooleRequestCollector::getName());
-		foreach ($requestCollect->all() as $fd => $request) {
+		$clientCollector = icontainer()->get('ws-client') ?? [];
+		if (empty($clientCollector)) {
+			return true;
+		}
+
+		foreach ($clientCollector as $fd => $client) {
+			echo $fd . PHP_EOL;
 			App::$server->getServer()->isEstablished($fd) && App::$server->getServer()->disconnect($fd, 0, '');
 		}
+
+		icontainer()->delete('ws-client');
 	}
 }
