@@ -27,7 +27,7 @@ class TaskListener implements ListenerInterface {
 		/**
 		 * @var TaskDispatcher $taskDispatcher
 		 */
-		$taskDispatcher = iloader()->get(TaskDispatcher::class);
+		$taskDispatcher = icontainer()->get(TaskDispatcher::class);
 		try {
 			$result = $taskDispatcher->dispatch($server, $task->id, $task->worker_id, $task->data);
 		} catch (\Throwable $exception) {

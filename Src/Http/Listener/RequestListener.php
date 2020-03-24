@@ -49,7 +49,7 @@ class RequestListener extends ListenerAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = \iloader()->get(Dispatcher::class);
+		$dispatcher = \icontainer()->get(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 

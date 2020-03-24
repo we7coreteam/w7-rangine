@@ -1,11 +1,16 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-11-24 下午9:54
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Message;
-
 
 /**
  * 投递一个任务时的消息结构
@@ -94,7 +99,7 @@ class TaskMessage extends MessageAbstract {
 			return false;
 		}
 
-		$object = iloader()->get($callback[0]);
+		$object = icontainer()->get($callback[0]);
 		if (!method_exists($object, $callback[1])) {
 			return false;
 		}

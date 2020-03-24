@@ -54,13 +54,13 @@ class ReceiveListener extends ListenerAbstract {
 		/**
 		 * @var  Message $message
 		 */
-		$message = iloader()->get(PackerInterface::class)->unpack($data);
+		$message = icontainer()->get(PackerInterface::class)->unpack($data);
 		$psr7Request = new Request('POST', $message->getCmd());
 		$psr7Request = $psr7Request->withQueryParams(parse_query($psr7Request->getUri()->getQuery()))->withParsedBody($message->getData());
 		/**
 		 * @var \W7\Http\Message\Server\Request $swooleRequest
 		 */
-		$swooleRequest = iloader()->get(CollectorManager::class)->getCollector(SwooleRequestCollector::getName())->get($fd);
+		$swooleRequest = icontainer()->get(CollectorManager::class)->getCollector(SwooleRequestCollector::getName())->get($fd);
 		$psr7Request = $psr7Request->setSwooleRequest($swooleRequest->getSwooleRequest());
 		$psr7Response = new Response();
 
@@ -68,7 +68,7 @@ class ReceiveListener extends ListenerAbstract {
 		/**
 		 * @var RequestDispatcher $dispatcher
 		 */
-		$dispatcher = \iloader()->get(RequestDispatcher::class);
+		$dispatcher = \icontainer()->get(RequestDispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		//暂未做数据格式处理（需要处理）
 		$server->send($fd, $psr7Response->getBody()->getContents());

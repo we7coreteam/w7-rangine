@@ -117,7 +117,7 @@ abstract class ProcessAbstract {
 		try {
 			$callback();
 		} catch (\Throwable $throwable) {
-			iloader()->get(HandlerExceptions::class)->handle($throwable, $this->serverType);
+			icontainer()->get(HandlerExceptions::class)->handle($throwable, $this->serverType);
 		}
 	}
 

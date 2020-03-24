@@ -101,7 +101,7 @@ class TaskDispatcher extends DispatcherAbstract {
 			return false;
 		}
 
-		$task = iloader()->get($message->task);
+		$task = icontainer()->get($message->task);
 		if (method_exists($task, 'finish')) {
 			$message->hasFinishCallback = true;
 		}

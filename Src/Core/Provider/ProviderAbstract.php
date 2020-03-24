@@ -123,13 +123,13 @@ abstract class ProviderAbstract {
 	}
 
 	public function getView() {
-		if (!iloader()->has(View::class)) {
+		if (!icontainer()->has(View::class)) {
 			throw new \RuntimeException('instance ' . View::class . ' not exists');
 		}
 		/**
 		 * @var View $view
 		 */
-		$view = iloader()->get(View::class);
+		$view = icontainer()->get(View::class);
 		return $view;
 	}
 
@@ -138,7 +138,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerProvider($provider) {
-		iloader()->get(ProviderManager::class)->registerProvider($provider);
+		icontainer()->get(ProviderManager::class)->registerProvider($provider);
 	}
 
 	protected function registerCommand($namespace = '') {
@@ -148,7 +148,7 @@ abstract class ProviderAbstract {
 		/**
 		 * @var  Application $application
 		 */
-		$application = iloader()->get(Application::class);
+		$application = icontainer()->get(Application::class);
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->packageNamespace, $namespace);
 	}
 
@@ -177,7 +177,7 @@ abstract class ProviderAbstract {
 		/**
 		 * @var ServerEvent $event
 		 */
-		$event = iloader()->get(ServerEvent::class);
+		$event = icontainer()->get(ServerEvent::class);
 		$event->addServerEvents($name, $events, $cover);
 	}
 
@@ -205,7 +205,7 @@ abstract class ProviderAbstract {
 			/**
 			 * @var RouteMapping $routeMapping
 			 */
-			$routeMapping = iloader()->get(RouteMapping::class);
+			$routeMapping = icontainer()->get(RouteMapping::class);
 			$routeConfig = $routeMapping->getRouteConfig();
 			$routeConfig[] = $config;
 			$routeMapping->setRouteConfig($routeConfig);

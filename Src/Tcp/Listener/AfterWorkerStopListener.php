@@ -22,7 +22,7 @@ class AfterWorkerStopListener extends ListenerAbstract {
 		/**
 		 * @var CollectorManager $collectManager
 		 */
-		$collectManager = iloader()->get(CollectorManager::class);
+		$collectManager = icontainer()->get(CollectorManager::class);
 		$requestCollect = $collectManager->getCollector(SwooleRequestCollector::getName());
 		foreach ($requestCollect->all() as $fd => $request) {
 			App::$server->getServer()->exists($fd) && App::$server->getServer()->close($fd, true);

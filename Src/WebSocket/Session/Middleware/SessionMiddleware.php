@@ -21,7 +21,7 @@ use W7\WebSocket\Session\SessionCollector;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		$request->session = iloader()->get(CollectorManager::class)->getCollector(SessionCollector::getName())->get($request->getFd());
+		$request->session = icontainer()->get(CollectorManager::class)->getCollector(SessionCollector::getName())->get($request->getFd());
 		$request->session->set('time', time());
 		$request->session->gc();
 

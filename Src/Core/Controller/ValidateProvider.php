@@ -26,24 +26,24 @@ class ValidateProvider extends ProviderAbstract {
 	}
 
 	public function registerLoader() {
-		iloader()->set('validate.loader', function () {
+		icontainer()->set('validate.loader', function () {
 			return new ArrayLoader();
 		});
 	}
 
 	public function registerTranslator() {
-		iloader()->set('validate.translator', function () {
+		icontainer()->set('validate.translator', function () {
 			$config = iconfig()->getUserAppConfig('setting');
-			return new Translator(iloader()->get('validate.loader'), $config['lang'] ?? 'zh-CN');
+			return new Translator(icontainer()->get('validate.loader'), $config['lang'] ?? 'zh-CN');
 		});
 	}
 
 	public function registerFactory() {
-		iloader()->set(Factory::class, function () {
+		icontainer()->set(Factory::class, function () {
 			/**
 			 * @var Translator $translator
 			 */
-			$translator = iloader()->get('validate.translator');
+			$translator = icontainer()->get('validate.translator');
 			$validate = new Factory($translator);
 			$validate->setPresenceVerifier(new DatabasePresenceVerifier(idb()));
 			return $validate;

@@ -30,7 +30,7 @@ if (!function_exists('ieventDispatcher')) {
 		/**
 		 * @var EventDispatcher $dispatcher
 		 */
-		$dispatcher = iloader()->get(EventDispatcher::class);
+		$dispatcher = icontainer()->get(EventDispatcher::class);
 		return $dispatcher;
 	}
 }
@@ -66,7 +66,7 @@ if (!function_exists('itask')) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = iloader()->get(TaskDispatcher::class);
+		$dispatcherMaker = icontainer()->get(TaskDispatcher::class);
 		return $dispatcherMaker->register($taskMessage);
 	}
 
@@ -80,7 +80,7 @@ if (!function_exists('itask')) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = iloader()->get(TaskDispatcher::class);
+		$dispatcherMaker = icontainer()->get(TaskDispatcher::class);
 		return $dispatcherMaker->registerCo($taskMessage);
 	}
 }
@@ -123,7 +123,7 @@ if (!function_exists('ioutputer')) {
 	 * @return W7\Console\Io\Output
 	 */
 	function ioutputer() {
-		return iloader()->get(Output::class);
+		return icontainer()->get(Output::class);
 	}
 }
 
@@ -181,7 +181,7 @@ if (!function_exists('irouter')) {
 	 * @return \W7\Core\Route\Route
 	 */
 	function irouter() {
-		return iloader()->get(Route::class);
+		return icontainer()->get(Route::class);
 	}
 }
 
@@ -384,7 +384,7 @@ if (!function_exists('ivalidate')) {
 }
 if (!function_exists('ivalidator')) {
 	function ivalidator() : Factory {
-		$validator = iloader()->get(Factory::class);
+		$validator = icontainer()->get(Factory::class);
 		return $validator;
 	}
 }

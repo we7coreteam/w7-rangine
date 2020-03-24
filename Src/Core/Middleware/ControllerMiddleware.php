@@ -29,7 +29,7 @@ class ControllerMiddleware extends MiddlewareAbstract {
 			$controllerHandler = $route['controller'];
 		} else {
 			$method = StringHelper::studly($route['method']);
-			$classObj = iloader()->get($route['controller']);
+			$classObj = icontainer()->get($route['controller']);
 			$controllerHandler = [$classObj, $method];
 		}
 

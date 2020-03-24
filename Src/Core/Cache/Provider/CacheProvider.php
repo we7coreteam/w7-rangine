@@ -20,7 +20,7 @@ class CacheProvider extends ProviderAbstract {
 		$config = iconfig()->getUserAppConfig('cache');
 		$channels = array_keys($config);
 		foreach ($channels as $key => $channel) {
-			iloader()->set('cache-' . $channel, function () use ($channel) {
+			icontainer()->set('cache-' . $channel, function () use ($channel) {
 				if ($channel === 'default') {
 					return icache();
 				}

@@ -30,14 +30,14 @@ abstract class CacheAbstract implements CacheInterface {
 		if (empty($name)) {
 			throw new \RuntimeException('Invalid cache channel name');
 		}
-		if (!iloader()->has('cache-' . $name)) {
+		if (!icontainer()->has('cache-' . $name)) {
 			throw new \RuntimeException('cache not support the channel');
 		}
-		return iloader()->get('cache-' . $name);
+		return icontainer()->get('cache-' . $name);
 	}
 
 	protected function getConnection() {
-		$this->manager = iloader()->get(ConnectorManager::class);
+		$this->manager = icontainer()->get(ConnectorManager::class);
 		return $this->manager->connect($this->channelName);
 	}
 

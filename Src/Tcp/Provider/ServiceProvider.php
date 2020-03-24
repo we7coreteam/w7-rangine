@@ -25,11 +25,11 @@ class ServiceProvider extends ProviderAbstract {
 	}
 
 	private function registerCollector() {
-		iloader()->get(CollectorManager::class)->addCollect(new SwooleRequestCollector());
+		icontainer()->get(CollectorManager::class)->addCollect(new SwooleRequestCollector());
 	}
 
 	private function registerDataPacker() {
-		iloader()->set(PackerInterface::class, function () {
+		icontainer()->set(PackerInterface::class, function () {
 			return new JsonPacker();
 		});
 	}

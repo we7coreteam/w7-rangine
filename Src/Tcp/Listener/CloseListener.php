@@ -23,7 +23,7 @@ class CloseListener extends ListenerAbstract {
 		$reactorId = $params[2];
 
 		//删除数据绑定记录
-		iloader()->get(CollectorManager::class)->del($fd);
+		icontainer()->get(CollectorManager::class)->del($fd);
 
 		ievent(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId]);
 	}

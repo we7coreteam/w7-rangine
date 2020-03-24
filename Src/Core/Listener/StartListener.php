@@ -23,7 +23,7 @@ class StartListener implements ListenerInterface {
 
 		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' master process');
 
-		iloader()->get(LogManager::class)->cleanLogFile();
+		icontainer()->get(LogManager::class)->cleanLogFile();
 
 		ievent(ServerEvent::ON_USER_AFTER_START, $params);
 	}

@@ -27,6 +27,6 @@ class ProcessStopListener extends ListenerAbstract {
 			ilogger()->debug('stop process fail with error ' . $e->getMessage());
 		}
 
-		iloader()->clear();
+		icontainer()->clear();
 	}
 }

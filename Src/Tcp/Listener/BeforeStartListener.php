@@ -26,8 +26,8 @@ class BeforeStartListener extends ListenerAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = iloader()->get(Dispatcher::class);
-		$routeInfo = iloader()->get(RouteMapping::class)->getMapping();
+		$dispatcher = icontainer()->get(Dispatcher::class);
+		$routeInfo = icontainer()->get(RouteMapping::class)->getMapping();
 		$dispatcher->setRouter(new GroupCountBased($routeInfo));
 	}
 }

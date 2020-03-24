@@ -22,7 +22,7 @@ use W7\Tcp\Session\SessionCollector;
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		$fd = icontext()->getContextDataByKey('fd');
-		$request->session = iloader()->get(CollectorManager::class)->getCollector(SessionCollector::getName())->get($fd);
+		$request->session = icontainer()->get(CollectorManager::class)->getCollector(SessionCollector::getName())->get($fd);
 		$request->session->set('time', time());
 		$request->session->gc();
 
