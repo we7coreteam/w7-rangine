@@ -98,11 +98,21 @@ if (!function_exists('iuuid')) {
 }
 
 if (!function_exists('iloader')) {
+
 	/**
-	 * 获取加载器
+	 * 别名
+	 * @deprecated
 	 * @return \W7\Core\Container\Container
 	 */
 	function iloader() {
+		return icontainer();
+	}
+
+	/**
+	 * 获取容器
+	 * @return \W7\Core\Container\Container
+	 */
+	function icontainer() {
 		return App::getApp()->getContainer();
 	}
 }
