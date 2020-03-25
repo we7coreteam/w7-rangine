@@ -88,7 +88,7 @@ class HandlerExceptions {
 		} else {
 			$handler = DefaultExceptionHandler::class;
 		}
-		$handlers[] = new $handler();
+		$handlers[] = icontainer()->singleton($handler);
 		if ($this->userExceptionHandler) {
 			$handlers[] = $this->userExceptionHandler;
 		}
