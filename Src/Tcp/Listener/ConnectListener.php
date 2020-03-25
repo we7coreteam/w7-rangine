@@ -13,6 +13,7 @@
 namespace W7\Tcp\Listener;
 
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request;
 use W7\Tcp\Collector\CollectorManager;
 
@@ -21,5 +22,7 @@ class ConnectListener extends ListenerAbstract {
 		$request = new Request('POST', '/');
 		$request = $request->setSwooleRequest(new \Swoole\Http\Request());
 		icontainer()->singleton(CollectorManager::class)->set($params[1], $request);
+
+		ievent(ServerEvent::ON_USER_AFTER_OPEN, [$params[0], $params[1], $request]);
 	}
 }

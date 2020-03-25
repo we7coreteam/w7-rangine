@@ -28,6 +28,6 @@ class OpenListener extends ListenerAbstract {
 	 * @param Psr7Request $psr7Request
 	 */
 	private function onOpen(Server $server, Psr7Request $psr7Request): void {
-		ievent(ServerEvent::ON_USER_AFTER_OPEN, [$server, $psr7Request->getSwooleRequest()]);
+		ievent(ServerEvent::ON_USER_AFTER_OPEN, [$server, $psr7Request->getSwooleRequest()->fd, $psr7Request->getSwooleRequest()]);
 	}
 }
