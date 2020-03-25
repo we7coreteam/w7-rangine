@@ -12,7 +12,6 @@
 
 namespace W7\Core\Exception\Handler;
 
-use W7\Core\Exception\ResponseExceptionAbstract;
 use W7\Http\Message\Server\Response;
 
 class ExceptionHandler extends HandlerAbstract {
@@ -21,14 +20,7 @@ class ExceptionHandler extends HandlerAbstract {
 	 * @return Response
 	 */
 	protected function handleRelease(\Throwable $e) : Response {
-		$this->log($e);
-
-		// ResponseExceptionAbstract 为特殊的异常，此异常不管何时都将反馈给客户端
-		if ($e instanceof ResponseExceptionAbstract) {
-			return $this->getResponse()->withStatus($e->getCode() ?? '500')->withHeader('Content-Type', 'text/html')->withContent(\json_encode(['error' => $e->getMessage()]));
-		}
-
-		return $this->getResponse()->withStatus(500)->withHeader('Content-Type', 'text/html')->withContent(\json_encode(['error' => '系统内部错误']));
+		return $this->getResponse()->withStatus(500)->withContent(\json_encode(['error' => '系统内部错误']));
 	}
 
 	/**
@@ -37,14 +29,8 @@ class ExceptionHandler extends HandlerAbstract {
 	 * @return Response
 	 */
 	protected function handleDevelopment(\Throwable $e) : Response {
-		$this->log($e);
-
-		if ($e instanceof ResponseExceptionAbstract) {
-			return $this->getResponse()->withStatus($e->getCode() ?? '500')->withHeader('Content-Type', 'text/html')->withContent(\json_encode(['error' => $e->getMessage()]));
-		}
-
 		$class = $this->getServerFatalExceptionClass();
 		$error = new $class($e->getMessage(), $e->getCode(), $e);
-		return $this->getResponse()->withStatus(500)->withHeader('Content-Type', 'text/html')->withContent($error->getMessage());
+		return $this->getResponse()->withStatus(500)->withContent($error->getMessage());
 	}
 }

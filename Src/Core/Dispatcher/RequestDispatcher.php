@@ -15,6 +15,7 @@ namespace W7\Core\Dispatcher;
 use W7\App;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
+use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Exception\RouteNotAllowException;
 use W7\Core\Exception\RouteNotFoundException;
 use W7\Core\Middleware\MiddlewareHandler;
@@ -54,27 +55,31 @@ class RequestDispatcher extends DispatcherAbstract {
 	}
 
 	public function dispatch(...$params) {
-		/**
-		 * @var Request $psr7Request
-		 * @var Response $psr7Response
-		 */
-		$psr7Request = $params[0];
-		$psr7Response = $params[1];
-		$contextObj = App::getApp()->getContext();
-		$contextObj->setRequest($psr7Request);
-		$contextObj->setResponse($psr7Response);
-		$contextObj->setContextDataByKey('server-type', $this->serverType);
+		try {
+			/**
+			 * @var Request $psr7Request
+			 * @var Response $psr7Response
+			 */
+			$psr7Request = $params[0];
+			$psr7Response = $params[1];
+			$contextObj = App::getApp()->getContext();
+			$contextObj->setRequest($psr7Request);
+			$contextObj->setResponse($psr7Response);
+			$contextObj->setContextDataByKey('server-type', $this->serverType);
 
-		//根据router配置，获取到匹配的controller信息
-		//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
-		$route = $this->getRoute($psr7Request);
-		ievent(new RouteMatchedEvent($route, $psr7Request));
-		$psr7Request = $psr7Request->withAttribute('route', $route);
-		$contextObj->setRequest($psr7Request);
+			//根据router配置，获取到匹配的controller信息
+			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
+			$route = $this->getRoute($psr7Request);
+			ievent(new RouteMatchedEvent($route, $psr7Request));
+			$psr7Request = $psr7Request->withAttribute('route', $route);
+			$contextObj->setRequest($psr7Request);
 
-		$middleWares = $this->middlewareMapping->getRouteMiddleWares($route);
-		$middlewareHandler = new MiddlewareHandler($middleWares);
-		return $middlewareHandler->handle($psr7Request);
+			$middleWares = $this->middlewareMapping->getRouteMiddleWares($route);
+			$middlewareHandler = new MiddlewareHandler($middleWares);
+			return $middlewareHandler->handle($psr7Request);
+		} catch (\Throwable $e) {
+			return icontainer()->singleton(HandlerExceptions::class)->handle($e);
+		}
 	}
 
 	protected function getRoute(ServerRequestInterface $request) {

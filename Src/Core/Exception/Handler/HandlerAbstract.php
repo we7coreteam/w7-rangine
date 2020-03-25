@@ -13,6 +13,7 @@
 namespace W7\Core\Exception\Handler;
 
 use W7\Core\Exception\FatalExceptionAbstract;
+use W7\Core\Exception\ResponseExceptionAbstract;
 use W7\Core\Helper\StringHelper;
 use W7\Http\Message\Server\Response;
 
@@ -40,7 +41,7 @@ abstract class HandlerAbstract {
 		return $this->response;
 	}
 
-	protected function log(\Throwable $throwable) {
+	public function report(\Throwable $throwable) {
 		if ($throwable instanceof FatalExceptionAbstract) {
 			$throwable = $throwable->getPrevious();
 		}
@@ -68,6 +69,11 @@ abstract class HandlerAbstract {
 	 * @return Response
 	 */
 	public function handle(\Throwable $e) : Response {
+		// ResponseExceptionAbstract 为特殊的异常，此异常不管何时都将反馈给客户端
+		if ($e instanceof ResponseExceptionAbstract) {
+			return $this->getResponse()->withStatus($e->getCode() ?? '500')->withContent($e->getMessage());
+		}
+
 		if ((ENV & DEBUG) === DEBUG) {
 			return $this->handleDevelopment($e);
 		} else {

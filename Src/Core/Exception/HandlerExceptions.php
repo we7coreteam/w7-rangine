@@ -100,6 +100,12 @@ class HandlerExceptions {
 		$handler->setServerType($serverType ?? App::$server->getType());
 		$handler->setResponse($response);
 
-		return $handler->handle($throwable)->send();
+		try {
+			$handler->report($throwable);
+		} catch (\Throwable $e) {
+			null;
+		}
+
+		return $handler->handle($throwable);
 	}
 }
