@@ -16,17 +16,10 @@ use InvalidArgumentException;
 use W7\App;
 use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Exception\Handler\HandlerAbstract;
+use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
-use W7\Http\Message\Outputer\DefaultResponseOutputer;
-use W7\Http\Message\Server\Response;
-use W7\Http\Message\Server\Response as Psr7Response;
 
 class HandlerExceptions {
-	/**
-	 * @var HandlerAbstract
-	 */
-	private $handler;
-
 	/**
 	 * Register system error handle
 	 *
@@ -73,39 +66,59 @@ class HandlerExceptions {
 		return $this->handle($throwable);
 	}
 
-	/**
-	 * @return HandlerAbstract
-	 */
-	public function getHandler(): HandlerAbstract {
-		if (!$this->handler) {
-			$this->handler = new ExceptionHandler();
-		}
-		return $this->handler;
+	protected function getServerExceptionHandlerClass($serverType) {
+		return sprintf('W7\\%s\\Handler\\ExceptionHandler', StringHelper::studly($serverType));
 	}
 
 	/**
-	 * @param HandlerAbstract $handler
+	 * @param $serverType
+	 * @return HandlerAbstract
 	 */
-	public function setHandler(HandlerAbstract $handler) {
-		$this->handler = $handler;
+	public function getHandlers($serverType): HandlerAbstract {
+		if ($serverType) {
+			$handler = $this->getServerExceptionHandlerClass($serverType);
+		} else {
+			$handler = ExceptionHandler::class;
+		}
+
+		return new $handler();
+	}
+
+	public function report(\Throwable $throwable) {
+		if ($throwable instanceof ResponseExceptionAbstract) {
+			if (!$throwable->isLoggable) {
+				return true;
+			}
+		}
+		if ($throwable instanceof FatalExceptionAbstract) {
+			$throwable = $throwable->getPrevious();
+		}
+
+		$errorMessage = sprintf(
+			'Uncaught Exception %s: "%s" at %s line %s',
+			get_class($throwable),
+			$throwable->getMessage(),
+			$throwable->getFile(),
+			$throwable->getLine()
+		);
+
+		$context = [];
+		if ((ENV & BACKTRACE) === BACKTRACE) {
+			$context = array('exception' => $throwable);
+		}
+
+		ilogger()->debug($errorMessage, $context);
 	}
 
 	public function handle(\Throwable $throwable, $serverType = null) {
-		$response = App::getApp()->getContext()->getResponse();
-		if (empty($response) || !($response instanceof Response)) {
-			$response = new Psr7Response();
-			$response->setOutputer(new DefaultResponseOutputer());
-		}
-		$handler = $this->getHandler();
-		$handler->setServerType($serverType ?? App::$server->getType());
-		$handler->setResponse($response);
-
 		try {
-			$handler->report($throwable);
+			$this->report($throwable);
 		} catch (\Throwable $e) {
 			null;
 		}
 
+		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
+		$handler = $this->getHandlers($serverType);
 		return $handler->handle($throwable);
 	}
 }

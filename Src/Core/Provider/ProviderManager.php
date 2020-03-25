@@ -17,11 +17,9 @@ use Symfony\Component\Finder\SplFileInfo;
 use W7\Core\Cache\Provider\CacheProvider;
 use W7\Core\Controller\ValidateProvider;
 use W7\Core\Database\Provider\DatabaseProvider;
-use W7\Core\Exception\Provider\ExceptionProvider;
 
 class ProviderManager {
 	private $providerMap = [
-		ExceptionProvider::class,
 		CacheProvider::class,
 		DatabaseProvider::class,
 		ValidateProvider::class

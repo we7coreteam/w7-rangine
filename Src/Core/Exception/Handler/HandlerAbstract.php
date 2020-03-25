@@ -12,15 +12,13 @@
 
 namespace W7\Core\Exception\Handler;
 
-use W7\Core\Exception\FatalExceptionAbstract;
 use W7\Core\Exception\ResponseExceptionAbstract;
 use W7\Core\Helper\StringHelper;
 use W7\Http\Message\Server\Response;
 
 abstract class HandlerAbstract {
-	private $serverType;
-
-	private $response;
+	protected $serverType;
+	protected $response;
 
 	public function setServerType($serverType): void {
 		$this->serverType = $serverType;
@@ -38,28 +36,13 @@ abstract class HandlerAbstract {
 	 * @return Response
 	 */
 	public function getResponse() {
+		if (!$this->response) {
+			$this->response = icontext()->getResponse();
+			if (!$this->response) {
+				$this->response = new Response();
+			}
+		}
 		return $this->response;
-	}
-
-	public function report(\Throwable $throwable) {
-		if ($throwable instanceof FatalExceptionAbstract) {
-			$throwable = $throwable->getPrevious();
-		}
-
-		$errorMessage = sprintf(
-			'Uncaught Exception %s: "%s" at %s line %s',
-			get_class($throwable),
-			$throwable->getMessage(),
-			$throwable->getFile(),
-			$throwable->getLine()
-		);
-
-		$context = [];
-		if ((ENV & BACKTRACE) === BACKTRACE) {
-			$context = array('exception' => $throwable);
-		}
-
-		ilogger()->debug($errorMessage, $context);
 	}
 
 	/**
@@ -90,12 +73,19 @@ abstract class HandlerAbstract {
 	 * @param \Throwable $e
 	 * @return Response
 	 */
-	abstract protected function handleDevelopment(\Throwable $e) : Response;
+	protected function handleRelease(\Throwable $e) : Response {
+		return $this->getResponse()->withStatus(500)->withContent(\json_encode(['error' => '系统内部错误']));
+	}
 
 	/**
 	 * 用于处理开发环境的错误返回
+	 * 处理异常时将按照服务各自定义的FatalException异常来再次包装错误信息
 	 * @param \Throwable $e
 	 * @return Response
 	 */
-	abstract protected function handleRelease(\Throwable $e) : Response;
+	protected function handleDevelopment(\Throwable $e) : Response {
+		$class = $this->getServerFatalExceptionClass();
+		$error = new $class($e->getMessage(), $e->getCode(), $e);
+		return $this->getResponse()->withStatus(500)->withContent($error->getMessage());
+	}
 }

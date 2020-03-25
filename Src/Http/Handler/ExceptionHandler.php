@@ -10,13 +10,9 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Exception;
+namespace W7\Http\Handler;
 
-/**
- * idd抛出的异常
- * Class DumpException
- * @package W7\Core\Exception
- */
-class DumpException extends ResponseExceptionAbstract {
-	public $isLoggable = false;
+use W7\Core\Exception\Handler\HandlerAbstract;
+
+class ExceptionHandler extends HandlerAbstract {
 }

@@ -15,22 +15,9 @@ namespace W7\Core\Exception\Handler;
 use W7\Http\Message\Server\Response;
 
 class ExceptionHandler extends HandlerAbstract {
-	/**
-	 * @param \Throwable $e
-	 * @return Response
-	 */
-	protected function handleRelease(\Throwable $e) : Response {
-		return $this->getResponse()->withStatus(500)->withContent(\json_encode(['error' => '系统内部错误']));
-	}
-
-	/**
-	 * 处理异常时将按照服务各自定义的FatalException异常来再次包装错误信息
-	 * @param \Throwable $e
-	 * @return Response
-	 */
-	protected function handleDevelopment(\Throwable $e) : Response {
-		$class = $this->getServerFatalExceptionClass();
-		$error = new $class($e->getMessage(), $e->getCode(), $e);
-		return $this->getResponse()->withStatus(500)->withContent($error->getMessage());
+	public function handle(\Throwable $e): Response {
+		$message = 'message: ' . $e->getMessage() . "\n" . 'file: ' . $e->getFile() . "\n" . 'line: ' . $e->getLine();
+		ioutputer()->error($message);
+		return $this->getResponse();
 	}
 }
