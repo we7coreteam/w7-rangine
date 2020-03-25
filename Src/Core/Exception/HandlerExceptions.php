@@ -119,6 +119,7 @@ class HandlerExceptions {
 		 */
 		foreach ($handlers as $handler) {
 			try {
+				$handler->setServerType($serverType);
 				$handler->setResponse($response);
 				$response = $handler->handle($throwable);
 				icontext()->setResponse($response);
