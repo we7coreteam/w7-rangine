@@ -58,7 +58,7 @@ class MiddlewareHandler implements RequestHandlerInterface {
 			throw new \InvalidArgumentException($handler . ' Handler not found.');
 		}
 
-		$handler = icontainer()->get($handler);
+		$handler = icontainer()->singleton($handler);
 		if (!$handler instanceof MiddlewareInterface) {
 			throw new \InvalidArgumentException('Invalid Handler. It must be an instance of MiddlewareInterface');
 		}

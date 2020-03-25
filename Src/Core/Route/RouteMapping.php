@@ -30,7 +30,7 @@ class RouteMapping {
 	private static $isInitRouteByConfig = false;
 
 	public function __construct() {
-		$this->middlewareMapping = icontainer()->get(MiddlewareMapping::class);
+		$this->middlewareMapping = icontainer()->singleton(MiddlewareMapping::class);
 		if (!self::$isInitRouteByConfig) {
 			//在多个服务同时启动的时候，防止重复注册
 			$this->routeConfig = \iconfig()->getRouteConfig();

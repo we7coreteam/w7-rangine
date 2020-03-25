@@ -18,7 +18,7 @@ use W7\Core\View\View;
 
 class ViewProvider extends ProviderAbstract {
 	public function register() {
-		ReloadProcess::addType(icontainer()->get(View::class)->getSuffix());
+		ReloadProcess::addType(icontainer()->singleton(View::class)->getSuffix());
 		//用户自定义目录
 		$userTemplatePath = (array)(iconfig()->getUserAppConfig('view')['template_path'] ?? []);
 		foreach ($userTemplatePath as $path) {

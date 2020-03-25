@@ -37,7 +37,7 @@ abstract class CacheAbstract implements CacheInterface {
 	}
 
 	protected function getConnection() {
-		$this->manager = icontainer()->get(ConnectorManager::class);
+		$this->manager = icontainer()->singleton(ConnectorManager::class);
 		return $this->manager->connect($this->channelName);
 	}
 

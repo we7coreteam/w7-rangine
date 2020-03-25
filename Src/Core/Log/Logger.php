@@ -23,7 +23,7 @@ class Logger extends \Monolog\Logger {
 		/**
 		 * @var LogManager $logManager
 		 */
-		$logManager = icontainer()->get(LogManager::class);
+		$logManager = icontainer()->singleton(LogManager::class);
 		return $logManager->getChannel($name);
 	}
 

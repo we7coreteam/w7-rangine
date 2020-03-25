@@ -36,7 +36,7 @@ class Server extends ServerAbstract {
 		/**
 		 * @var ServerEvent $eventRegister
 		 */
-		$eventRegister = icontainer()->get(ServerEvent::class);
+		$eventRegister = icontainer()->singleton(ServerEvent::class);
 		$eventRegister->registerServerUserEvent();
 		$eventRegister->registerServerCustomEvent($this->getType());
 	}
@@ -67,11 +67,11 @@ class Server extends ServerAbstract {
 	 * @return \Psr\Http\Message\ResponseInterface|void
 	 */
 	private function dispatch($request, $response) {
-		$routeInfo = icontainer()->get(RouteMapping::class)->getMapping();
+		$routeInfo = icontainer()->singleton(RouteMapping::class)->getMapping();
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = \icontainer()->get(Dispatcher::class);
+		$dispatcher = \icontainer()->singleton(Dispatcher::class);
 		$dispatcher->setRouter(new GroupCountBased($routeInfo));
 
 		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response]);

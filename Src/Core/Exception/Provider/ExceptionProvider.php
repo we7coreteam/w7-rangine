@@ -22,7 +22,7 @@ class ExceptionProvider extends ProviderAbstract {
 		if (class_exists($userHandler)) {
 			$handler = new $userHandler();
 			if ($handler instanceof HandlerAbstract) {
-				icontainer()->get(HandlerExceptions::class)->setUserHandler($handler);
+				icontainer()->singleton(HandlerExceptions::class)->setUserHandler($handler);
 			}
 		}
 	}

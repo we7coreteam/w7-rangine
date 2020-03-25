@@ -20,6 +20,6 @@ class ConnectListener extends ListenerAbstract {
 	public function run(...$params) {
 		$request = new Request('POST', '/');
 		$request = $request->setSwooleRequest(new \Swoole\Http\Request());
-		icontainer()->get(CollectorManager::class)->set($params[1], $request);
+		icontainer()->singleton(CollectorManager::class)->set($params[1], $request);
 	}
 }

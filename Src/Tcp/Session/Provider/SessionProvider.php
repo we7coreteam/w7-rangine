@@ -25,14 +25,14 @@ class SessionProvider extends ProviderAbstract {
 	}
 
 	private function registerCollector() {
-		icontainer()->get(CollectorManager::class)->addCollect(new SessionCollector());
+		icontainer()->singleton(CollectorManager::class)->addCollect(new SessionCollector());
 	}
 
 	private function registerMiddleware() {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = icontainer()->get(Dispatcher::class);
+		$dispatcher = icontainer()->singleton(Dispatcher::class);
 		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class);
 	}
 }

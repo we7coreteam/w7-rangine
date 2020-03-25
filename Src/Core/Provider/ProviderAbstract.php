@@ -129,7 +129,7 @@ abstract class ProviderAbstract {
 		/**
 		 * @var View $view
 		 */
-		$view = icontainer()->get(View::class);
+		$view = icontainer()->singleton(View::class);
 		return $view;
 	}
 
@@ -138,7 +138,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerProvider($provider) {
-		icontainer()->get(ProviderManager::class)->registerProvider($provider);
+		icontainer()->singleton(ProviderManager::class)->registerProvider($provider);
 	}
 
 	protected function registerCommand($namespace = '') {
@@ -148,7 +148,7 @@ abstract class ProviderAbstract {
 		/**
 		 * @var  Application $application
 		 */
-		$application = icontainer()->get(Application::class);
+		$application = icontainer()->singleton(Application::class);
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->packageNamespace, $namespace);
 	}
 
@@ -177,7 +177,7 @@ abstract class ProviderAbstract {
 		/**
 		 * @var ServerEvent $event
 		 */
-		$event = icontainer()->get(ServerEvent::class);
+		$event = icontainer()->singleton(ServerEvent::class);
 		$event->addServerEvents($name, $events, $cover);
 	}
 
@@ -205,7 +205,7 @@ abstract class ProviderAbstract {
 			/**
 			 * @var RouteMapping $routeMapping
 			 */
-			$routeMapping = icontainer()->get(RouteMapping::class);
+			$routeMapping = icontainer()->singleton(RouteMapping::class);
 			$routeConfig = $routeMapping->getRouteConfig();
 			$routeConfig[] = $config;
 			$routeMapping->setRouteConfig($routeConfig);

@@ -99,7 +99,7 @@ abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	}
 
 	public static function instance() {
-		return icontainer()->get(static::class);
+		return icontainer()->singleton(static::class);
 	}
 
 	/**
