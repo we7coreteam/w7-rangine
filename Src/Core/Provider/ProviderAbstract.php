@@ -84,7 +84,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function publishConfig($sourceFileName, $targetFileName = null, $group = null) {
-		if (PHP_SAPI !== 'cli') {
+		if (!isCli()) {
 			return false;
 		}
 
@@ -142,7 +142,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerCommand($namespace = '') {
-		if (PHP_SAPI !== 'cli') {
+		if (!isCli()) {
 			return false;
 		}
 		/**

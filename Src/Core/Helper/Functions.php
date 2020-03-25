@@ -418,3 +418,8 @@ if (!function_exists('itimeAfter')) {
 		});
 	}
 }
+if (!function_exists('isCli')) {
+	function isCli() {
+		return PHP_SAPI == 'cli';
+	}
+}

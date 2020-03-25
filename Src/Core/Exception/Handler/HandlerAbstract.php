@@ -12,6 +12,7 @@
 
 namespace W7\Core\Exception\Handler;
 
+use W7\Core\Exception\FatalExceptionAbstract;
 use W7\Core\Exception\ResponseExceptionAbstract;
 use W7\Core\Helper\StringHelper;
 use W7\Http\Message\Server\Response;
@@ -36,13 +37,33 @@ abstract class HandlerAbstract {
 	 * @return Response
 	 */
 	public function getResponse() {
-		if (!$this->response) {
-			$this->response = icontext()->getResponse();
-			if (!$this->response) {
-				$this->response = new Response();
+		return $this->response;
+	}
+
+	public function report(\Throwable $throwable) {
+		if ($throwable instanceof ResponseExceptionAbstract) {
+			if (!$throwable->isLoggable) {
+				return true;
 			}
 		}
-		return $this->response;
+		if ($throwable instanceof FatalExceptionAbstract) {
+			$throwable = $throwable->getPrevious();
+		}
+
+		$errorMessage = sprintf(
+			'Uncaught Exception %s: "%s" at %s line %s',
+			get_class($throwable),
+			$throwable->getMessage(),
+			$throwable->getFile(),
+			$throwable->getLine()
+		);
+
+		$context = [];
+		if ((ENV & BACKTRACE) === BACKTRACE) {
+			$context = array('exception' => $throwable);
+		}
+
+		ilogger()->debug($errorMessage, $context);
 	}
 
 	/**

@@ -14,12 +14,19 @@ namespace W7\Core\Exception;
 
 use InvalidArgumentException;
 use W7\App;
-use W7\Core\Exception\Handler\ExceptionHandler;
+use W7\Core\Exception\Handler\DefaultExceptionHandler;
 use W7\Core\Exception\Handler\HandlerAbstract;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
+use W7\Http\Message\Server\Response;
 
 class HandlerExceptions {
+	protected $userExceptionHandler;
+
+	public function setUserHandler(HandlerAbstract $userExceptionHandler) {
+		$this->userExceptionHandler = $userExceptionHandler;
+	}
+
 	/**
 	 * Register system error handle
 	 *
@@ -72,53 +79,54 @@ class HandlerExceptions {
 
 	/**
 	 * @param $serverType
-	 * @return HandlerAbstract
+	 * @return array
 	 */
-	public function getHandlers($serverType): HandlerAbstract {
+	public function getHandlers($serverType) : array {
+		$handlers = [];
 		if ($serverType) {
 			$handler = $this->getServerExceptionHandlerClass($serverType);
 		} else {
-			$handler = ExceptionHandler::class;
+			$handler = DefaultExceptionHandler::class;
+		}
+		$handlers[] = new $handler();
+		if ($this->userExceptionHandler) {
+			$handlers[] = $this->userExceptionHandler;
 		}
 
-		return new $handler();
-	}
-
-	public function report(\Throwable $throwable) {
-		if ($throwable instanceof ResponseExceptionAbstract) {
-			if (!$throwable->isLoggable) {
-				return true;
-			}
-		}
-		if ($throwable instanceof FatalExceptionAbstract) {
-			$throwable = $throwable->getPrevious();
-		}
-
-		$errorMessage = sprintf(
-			'Uncaught Exception %s: "%s" at %s line %s',
-			get_class($throwable),
-			$throwable->getMessage(),
-			$throwable->getFile(),
-			$throwable->getLine()
-		);
-
-		$context = [];
-		if ((ENV & BACKTRACE) === BACKTRACE) {
-			$context = array('exception' => $throwable);
-		}
-
-		ilogger()->debug($errorMessage, $context);
+		return $handlers;
 	}
 
 	public function handle(\Throwable $throwable, $serverType = null) {
+		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
+		$handlers = $this->getHandlers($serverType);
+		/**
+		 * @var HandlerAbstract $lastHandler
+		 */
+		$lastHandler = end($handlers);
+		reset($handlers);
 		try {
-			$this->report($throwable);
+			$lastHandler->report($throwable);
 		} catch (\Throwable $e) {
 			null;
 		}
 
-		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
-		$handler = $this->getHandlers($serverType);
-		return $handler->handle($throwable);
+		$response = icontext()->getResponse();
+		if (!$response) {
+			$response = new Response();
+		}
+		/**
+		 * @var HandlerAbstract $handler
+		 */
+		foreach ($handlers as $handler) {
+			try {
+				$handler->setResponse($response);
+				$response = $handler->handle($throwable);
+				icontext()->setResponse($response);
+			} catch (\Throwable $e) {
+				null;
+			}
+		}
+
+		return $response;
 	}
 }

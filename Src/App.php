@@ -44,7 +44,7 @@ class App {
 		$this->registerRuntimeEnv();
 		$this->registerErrorHandler();
 		$this->registerProvider();
-//		$this->registerSecurityDir();
+		$this->registerSecurityDir();
 	}
 
 	private function registerRuntimeEnv() {

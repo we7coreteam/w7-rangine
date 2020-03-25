@@ -14,10 +14,15 @@ namespace W7\Core\Exception\Handler;
 
 use W7\Http\Message\Server\Response;
 
-class ExceptionHandler extends HandlerAbstract {
+class DefaultExceptionHandler extends HandlerAbstract {
 	public function handle(\Throwable $e): Response {
 		$message = 'message: ' . $e->getMessage() . "\n" . 'file: ' . $e->getFile() . "\n" . 'line: ' . $e->getLine();
-		ioutputer()->error($message);
+		if (isCli()) {
+			ioutputer()->error($message);
+		} else {
+			trigger_error($message);
+		}
+
 		return $this->getResponse();
 	}
 }
