@@ -34,7 +34,7 @@ class ConnectorManager {
 	 */
 	public function connect(array $config) {
 		//未设置连接池时，直接返回数据连接对象
-		if (empty($this->poolConfig[$config['name']]) || empty($this->poolConfig[$config['name']]['enable'])) {
+		if (!isCo() || empty($this->poolConfig[$config['name']]) || empty($this->poolConfig[$config['name']]['enable'])) {
 			return $this->getDefaultConnection($config);
 		}
 		$pool = $this->getPool($config['name'], $config);
