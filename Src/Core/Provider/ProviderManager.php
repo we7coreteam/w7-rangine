@@ -30,8 +30,14 @@ class ProviderManager {
 	 * 扩展包注册
 	 */
 	public function register() {
-		$providers = (array)iconfig()->getUserConfig('provider');
-		$this->registerProviders(array_merge($this->providerMap, $providers));
+		//包插件会自动发现用户和composer包的provider,并写入到以下的配置文件中
+		$userProviders = [];
+		$configPath = BASE_PATH . '/vendor/composer/rangine/config/provider.php';
+		if (file_exists($configPath)) {
+			$userProviders = include_once $configPath;
+		}
+
+		$this->registerProviders(array_merge($this->providerMap, $userProviders));
 		return $this;
 	}
 
