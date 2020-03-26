@@ -12,8 +12,6 @@
 
 namespace W7\Core\Provider;
 
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 use W7\Core\Cache\Provider\CacheProvider;
 use W7\Core\Controller\ValidateProvider;
 use W7\Core\Database\Provider\DatabaseProvider;
@@ -32,8 +30,8 @@ class ProviderManager {
 	 * 扩展包注册
 	 */
 	public function register() {
-		$providerMap = $this->findProviders();
-		$this->registerProviders(array_merge($this->providerMap, $providerMap));
+		$providers = (array)iconfig()->getUserConfig('provider');
+		$this->registerProviders(array_merge($this->providerMap, $providers));
 		return $this;
 	}
 
@@ -65,35 +63,5 @@ class ProviderManager {
 
 	private function getProvider($provider, $name) : ProviderAbstract {
 		return new $provider($name);
-	}
-
-	private function findProviders() {
-		$appProviders = $this->autoFindProviders(BASE_PATH . '/app/Provider', 'W7/App/Provider');
-		$vendorProviders = (array)iconfig()->getUserConfig('provider');
-
-		return array_merge($vendorProviders, $appProviders);
-	}
-
-	public function autoFindProviders($dir, $namespace) {
-		$providers = [];
-		if (!is_dir($dir)) {
-			return $providers;
-		}
-
-		$files = Finder::create()
-			->in($dir)
-			->files()
-			->ignoreDotFiles(true)
-			->name('/^[\w\W\d]+Provider.php$/');
-
-		/**
-		 * @var SplFileInfo $file
-		 */
-		foreach ($files as $file) {
-			$path = str_replace([$dir, '.php', '/'], [$namespace, '', '\\'], $file->getRealPath());
-			$providers[$path] = $path;
-		}
-
-		return $providers;
 	}
 }
