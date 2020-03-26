@@ -61,7 +61,7 @@ class Server extends SwooleServerAbstract {
 	 */
 	public function listener(\Swoole\Server $server) {
 		if (App::$server instanceof WebSocketServer) {
-			if ($server->setting['port'] != $this->setting['port']) {
+			if ($server->port != $this->setting['port']) {
 				$this->server = $server->addListener($this->setting['host'], $this->setting['port'], $this->setting['sock_type']);
 				//tcp需要强制关闭其它协议支持，否则继续父服务
 				$this->server->set([
