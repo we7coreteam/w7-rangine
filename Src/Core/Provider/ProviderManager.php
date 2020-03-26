@@ -68,7 +68,10 @@ class ProviderManager {
 	}
 
 	private function findProviders() {
-		return $this->autoFindProviders(BASE_PATH . '/app/Provider', 'W7/App/Provider');
+		$appProviders = $this->autoFindProviders(BASE_PATH . '/app/Provider', 'W7/App/Provider');
+		$vendorProviders = (array)iconfig()->getUserConfig('provider');
+
+		return array_merge($vendorProviders, $appProviders);
 	}
 
 	public function autoFindProviders($dir, $namespace) {
