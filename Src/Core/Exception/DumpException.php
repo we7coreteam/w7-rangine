@@ -12,6 +12,8 @@
 
 namespace W7\Core\Exception;
 
+use Throwable;
+
 /**
  * idd抛出的异常
  * Class DumpException
@@ -19,4 +21,8 @@ namespace W7\Core\Exception;
  */
 class DumpException extends ResponseExceptionAbstract {
 	public $isLoggable = false;
+
+	public function __construct($message = '', $code = 200, Throwable $previous = null) {
+		parent::__construct($message, $code, $previous);
+	}
 }
