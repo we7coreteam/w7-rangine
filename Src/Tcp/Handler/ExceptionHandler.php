@@ -10,12 +10,12 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Http\Handler;
+namespace W7\Tcp\Handler;
 
 use W7\Core\Exception\Handler\HandlerAbstract;
 use W7\Http\Message\Server\Response;
 use Whoops\Exception\Inspector;
-use Whoops\Handler\PrettyPageHandler;
+use Whoops\Handler\PlainTextHandler;
 use Whoops\Run;
 
 class ExceptionHandler extends HandlerAbstract {
@@ -23,11 +23,10 @@ class ExceptionHandler extends HandlerAbstract {
 		$previous = !empty($e->getPrevious()) ? $e->getPrevious() : $e;
 
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$content = 'message: ' . $e->getMessage() . '<br/>file: ' . $previous->getFile() . '<br/>line: ' . $previous->getLine();
+			$content = 'message: ' . $e->getMessage() . ';    file: ' . $previous->getFile() . ';    line: ' . $previous->getLine();
 		} else {
 			ob_start();
-			$render = new PrettyPageHandler();
-			$render->handleUnconditionally(true);
+			$render = new PlainTextHandler();
 			$render->setException($previous);
 			$render->setInspector(new Inspector($previous));
 			$render->setRun(new Run());

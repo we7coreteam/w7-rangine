@@ -14,7 +14,6 @@ namespace W7\Core\Exception\Handler;
 
 use W7\Core\Exception\FatalExceptionAbstract;
 use W7\Core\Exception\ResponseExceptionAbstract;
-use W7\Core\Helper\StringHelper;
 use W7\Http\Message\Server\Response;
 
 abstract class HandlerAbstract {
@@ -85,10 +84,6 @@ abstract class HandlerAbstract {
 		}
 	}
 
-	protected function getServerFatalExceptionClass() {
-		return sprintf('W7\\%s\\Exception\\FatalException', StringHelper::studly($this->getServerType()));
-	}
-
 	/**
 	 * 用于处理正式环境的错误返回
 	 * @param \Throwable $e
@@ -105,8 +100,6 @@ abstract class HandlerAbstract {
 	 * @return Response
 	 */
 	protected function handleDevelopment(\Throwable $e) : Response {
-		$class = $this->getServerFatalExceptionClass();
-		$error = new $class($e->getMessage(), $e->getCode(), $e);
-		return $this->getResponse()->withStatus(500)->withContent($error->getMessage());
+		return $this->getResponse()->withStatus(500)->withContent($e->getMessage());
 	}
 }

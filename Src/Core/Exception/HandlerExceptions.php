@@ -124,6 +124,9 @@ class HandlerExceptions {
 				$response = $handler->handle($throwable);
 				icontext()->setResponse($response);
 			} catch (\Throwable $e) {
+				var_dump($e->getMessage());
+				var_dump($e->getLine());
+				var_dump($e->getFile());
 				null;
 			}
 		}

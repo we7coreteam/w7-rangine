@@ -12,7 +12,7 @@
 
 namespace W7\Fpm\Handler;
 
-use W7\Core\Exception\Handler\HandlerAbstract;
+use W7\Http\Handler\ExceptionHandler as HandlerAbstract;
 use W7\Http\Message\Outputer\FpmResponseOutputer;
 use W7\Http\Message\Server\Response;
 use W7\Http\Message\Server\Response as Psr7Response;
