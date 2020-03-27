@@ -18,6 +18,7 @@
 		"w7/rangine-lang": "*",
 		"w7/rangine-cache-model": "~2.0",
 		"w7/rangine-command": "*",
+		"w7/rangine-package-plugin": "*",
 		"illuminate/database": "~5.8",
 		"illuminate/events": "~5.8",
 		"illuminate/validation": "~5.8",
