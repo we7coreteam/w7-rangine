@@ -164,6 +164,10 @@ abstract class ProviderAbstract {
 		ServerEnum::registerServer($name, $class);
 	}
 
+	protected function registerEvent($event, $listener) {
+		ieventDispatcher()->listen($event, $listener);
+	}
+
 	/**
 	 * @param $name
 	 * @param array $events
