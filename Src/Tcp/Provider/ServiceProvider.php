@@ -29,7 +29,7 @@ class ServiceProvider extends ProviderAbstract {
 	}
 
 	private function registerDataPacker() {
-		icontainer()->get(PackerInterface::class, function () {
+		icontainer()->set(PackerInterface::class, function () {
 			return new JsonPacker();
 		});
 	}

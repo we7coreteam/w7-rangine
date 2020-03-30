@@ -68,7 +68,7 @@ class HandshakeListener extends ListenerAbstract {
 			$headers['Sec-WebSocket-Protocol'] = $psr7Request->getHeader('sec-websocket-protocol')[0] ?? '';
 		}
 
-		$response = $psr7Response->withHeaders($headers)->withStatus(101)->withContent('success');
+		$response = $psr7Response->withHeaders($headers)->withStatus(101);
 
 		$psr7Request->session = new Session();
 		$psr7Request->session->start($psr7Request);
