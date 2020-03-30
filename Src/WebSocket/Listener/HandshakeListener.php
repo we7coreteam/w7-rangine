@@ -76,11 +76,15 @@ class HandshakeListener extends ListenerAbstract {
 		$psr7Request->session->start($psr7Request);
 		$response = $psr7Request->session->replenishResponse($response);
 
+		try {
+			ievent(ServerEnum::TYPE_WEBSOCKET . ':' . ServerEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
+		} catch (\Exception $e) {
+			return false;
+		}
+
 		icontainer()->append('ws-client', [
 			$request->fd => [$psr7Request, $response]
 		], []);
-
-		ievent(ServerEnum::TYPE_WEBSOCKET . ':' . ServerEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
 
 		$response->send();
 		return true;
