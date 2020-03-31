@@ -78,18 +78,18 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 		return $this->pool->start();
 	}
 
-	protected function registerSwooleEvent($server, $event) {
+	protected function registerSwooleEvent($server, $event, $eventType) {
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;
 			}
 			if (in_array($eventName, [ServerEvent::ON_WORKER_START, ServerEvent::ON_WORKER_STOP, ServerEvent::ON_MESSAGE])) {
-				$this->pool->on($eventName, function (PoolManager $pool, $workerId) use ($eventName) {
-					ieventDispatcher()->dispatch($this->getServerEventRealName($eventName), [$this->getType(), $pool->getProcess(), $workerId, $this->pool->getProcessFactory(), $this->pool->getMqKey()]);
+				$this->pool->on($eventName, function (PoolManager $pool, $workerId) use ($eventName, $eventType) {
+					ieventDispatcher()->dispatch($this->getServerEventRealName($eventName, $eventType), [$this->getType(), $pool->getProcess(), $workerId, $this->pool->getProcessFactory(), $this->pool->getMqKey()]);
 				});
 			} else {
-				$this->pool->on($eventName, function () use ($eventName) {
-					ieventDispatcher()->dispatch($this->getServerEventRealName($eventName), func_get_args());
+				$this->pool->on($eventName, function () use ($eventName, $eventType) {
+					ieventDispatcher()->dispatch($this->getServerEventRealName($eventName, $eventType), func_get_args());
 				});
 			}
 		}
