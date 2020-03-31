@@ -337,7 +337,7 @@ if (!function_exists('ienv')) {
 			$value = constant($value);
 		}
 
-		if (($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {
+		if (is_string($value) && ($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {
 			return substr($value, 1, -1);
 		}
 
