@@ -227,14 +227,18 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 			}
 			if ($eventName == ServerEvent::ON_REQUEST) {
 				$server->on(ServerEvent::ON_REQUEST, function ($request, $response) use ($masterServer) {
-					ieventDispatcher()->dispatch(ServerEvent::ON_REQUEST, [$masterServer, $request, $response]);
+					ieventDispatcher()->dispatch($this->getServerEventRealName(ServerEvent::ON_REQUEST), [$masterServer, $request, $response]);
 				});
 			} else {
 				$server->on($eventName, function () use ($eventName) {
-					ieventDispatcher()->dispatch($eventName, func_get_args());
+					ieventDispatcher()->dispatch($this->getServerEventRealName($eventName), func_get_args());
 				});
 			}
 		}
+	}
+
+	protected function getServerEventRealName($eventName) {
+		return $this->getType() . ':' . $eventName;
 	}
 
 	protected function getDefaultSetting() : array {

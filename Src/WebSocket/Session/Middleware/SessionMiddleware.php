@@ -19,7 +19,6 @@ use W7\Core\Middleware\MiddlewareAbstract;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		$request->session->set('time', time());
 		$request->session->gc();
 
 		return $handler->handle($request);

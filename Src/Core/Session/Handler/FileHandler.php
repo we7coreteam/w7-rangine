@@ -33,7 +33,7 @@ class FileHandler extends HandlerAbstract {
 
 	private function setPath() {
 		$this->directory = $this->getUserSessionSavePath();
-		$this->ensureCacheDirectoryExists($this->directory);
+		$this->ensureSessionDirectoryExists($this->directory);
 		if (!$this->filesystem->isWritable($this->directory) || !$this->filesystem->isReadable($this->directory)) {
 			throw new \RuntimeException('session path ' . $this->directory . ' not exist or no permission');
 		}
@@ -71,14 +71,14 @@ class FileHandler extends HandlerAbstract {
 		return ($seconds === null || $seconds === 0) ? 9999999999 : ($seconds + time());
 	}
 
-	private function ensureCacheDirectoryExists($path) {
+	private function ensureSessionDirectoryExists($path) {
 		if (!$this->filesystem->exists($path)) {
 			$this->filesystem->makeDirectory($path, 0777, true, true);
 		}
 	}
 
 	public function write($session_id, $session_data) {
-		$this->ensureCacheDirectoryExists(dirname($path = $this->getPath($session_id)));
+		$this->ensureSessionDirectoryExists(dirname($path = $this->getPath($session_id)));
 		$result = $this->filesystem->put(
 			$path,
 			$this->expiration($this->getExpires()).$session_data,

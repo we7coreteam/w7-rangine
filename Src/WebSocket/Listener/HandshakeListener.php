@@ -14,7 +14,9 @@ namespace W7\WebSocket\Listener;
 
 use Swoole\Http\Request;
 use Swoole\Http\Response;
+use W7\App;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Session\Session;
 use W7\Http\Message\Outputer\SwooleResponseOutputer;
@@ -73,6 +75,12 @@ class HandshakeListener extends ListenerAbstract {
 		$psr7Request->session = new Session();
 		$psr7Request->session->start($psr7Request);
 		$response = $psr7Request->session->replenishResponse($response);
+
+		try {
+			ievent(ServerEnum::TYPE_WEBSOCKET . ':' . ServerEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
+		} catch (\Exception $e) {
+			return false;
+		}
 
 		icontainer()->append('ws-client', [
 			$request->fd => [$psr7Request, $response]

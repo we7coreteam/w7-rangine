@@ -152,10 +152,6 @@ abstract class ProviderAbstract {
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->packageNamespace, $namespace);
 	}
 
-	protected function registerEvent() {
-		ieventDispatcher()->autoRegisterEvents($this->rootPath . '/src/Event/', $this->packageNamespace);
-	}
-
 	protected function registerOpenBaseDir($dir) {
 		$dir = (array)$dir;
 		$config = iconfig()->getUserConfig('app');
@@ -166,6 +162,10 @@ abstract class ProviderAbstract {
 
 	protected function registerServer($name, $class) {
 		ServerEnum::registerServer($name, $class);
+	}
+
+	protected function registerEvent($event, $listener) {
+		ieventDispatcher()->listen($event, $listener);
 	}
 
 	/**

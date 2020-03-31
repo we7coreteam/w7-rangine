@@ -153,10 +153,10 @@ class ServerEvent {
 	 */
 	public function registerServerEvent($eventTypes) {
 		$swooleEvents = $this->getDefaultEvent();
-		foreach ((array)$eventTypes as $name) {
-			$events = $swooleEvents[$name] ?? [];
+		foreach ((array)$eventTypes as $eventType) {
+			$events = $swooleEvents[$eventType] ?? [];
 			foreach ($events as $name => $event) {
-				ieventDispatcher()->listen($name, $event);
+				ieventDispatcher()->listen($eventType . ':' . $name, $event);
 			}
 		}
 	}
