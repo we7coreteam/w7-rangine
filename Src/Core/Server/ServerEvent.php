@@ -27,7 +27,6 @@ use W7\Http\Listener\RequestListener;
 use W7\Tcp\Listener\CloseListener;
 use W7\Tcp\Listener\ConnectListener;
 use W7\Tcp\Listener\ReceiveListener;
-use W7\Core\Listener\ProcessMessageListener;
 use W7\Core\Listener\ProcessStartListener;
 use W7\Core\Listener\ProcessStopListener;
 use W7\WebSocket\Listener\CloseListener as WebSocketCloseListener;
@@ -118,8 +117,7 @@ class ServerEvent {
 		],
 		ServerEnum::TYPE_PROCESS => [
 			self::ON_WORKER_START => ProcessStartListener::class,
-			self::ON_WORKER_STOP => ProcessStopListener::class,
-			self::ON_MESSAGE => ProcessMessageListener::class
+			self::ON_WORKER_STOP => ProcessStopListener::class
 		]
 	];
 
