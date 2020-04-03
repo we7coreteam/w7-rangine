@@ -13,19 +13,12 @@
 namespace W7\Tcp\Session\Provider;
 
 use W7\Core\Provider\ProviderAbstract;
-use W7\Tcp\Collector\CollectorManager;
 use W7\Tcp\Server\Dispatcher;
 use W7\Tcp\Session\Middleware\SessionMiddleware;
-use W7\Tcp\Session\SessionCollector;
 
 class SessionProvider extends ProviderAbstract {
 	public function register() {
-		$this->registerCollector();
 		$this->registerMiddleware();
-	}
-
-	private function registerCollector() {
-		icontainer()->singleton(CollectorManager::class)->addCollect(new SessionCollector());
 	}
 
 	private function registerMiddleware() {

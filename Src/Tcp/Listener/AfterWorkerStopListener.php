@@ -14,18 +14,18 @@ namespace W7\Tcp\Listener;
 
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Tcp\Collector\CollectorManager;
-use W7\Tcp\Collector\SwooleRequestCollector;
 
 class AfterWorkerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		/**
-		 * @var CollectorManager $collectManager
-		 */
-		$collectManager = icontainer()->singleton(CollectorManager::class);
-		$requestCollect = $collectManager->getCollector(SwooleRequestCollector::getName());
-		foreach ($requestCollect->all() as $fd => $request) {
-			App::$server->getServer()->exists($fd) && App::$server->getServer()->close($fd, true);
+		$clientCollector = icontainer()->get('tcp-client') ?? [];
+		if (empty($clientCollector)) {
+			return true;
 		}
+
+		foreach ($clientCollector as $fd => $client) {
+			App::$server->getServer()->exists($fd) && App::$server->getServer()->close($fd);
+		}
+
+		icontainer()->delete('tcp-client');
 	}
 }

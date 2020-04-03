@@ -12,19 +12,21 @@
 
 namespace W7\Tcp\Listener;
 
+use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEvent;
-use W7\Tcp\Collector\CollectorManager;
 
 class CloseListener extends ListenerAbstract {
 	public function run(...$params) {
-		$server = $params[0];
-		$fd = $params[1];
-		$reactorId = $params[2];
+		list($server, $fd, $reactorId) = $params;
+		$this->onClose($server, $fd, $reactorId);
+	}
 
+	private function onClose(Server $server, int $fd, int $reactorId): void {
 		//删除数据绑定记录
-		icontainer()->singleton(CollectorManager::class)->del($fd);
-
+		icontainer()->append('tcp-client', [
+			$fd => []
+		], []);
 		ievent(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId]);
 	}
 }
