@@ -19,11 +19,6 @@ use W7\Core\Middleware\MiddlewareAbstract;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		//需要获取fd
-		$fd = 0;
-		$handShakeRequest = icontainer()->get('tcp-client')[$fd][0];
-		$request->session = $handShakeRequest->session;
-		$request->session->set('time', time());
 		$request->session->gc();
 
 		return $handler->handle($request);

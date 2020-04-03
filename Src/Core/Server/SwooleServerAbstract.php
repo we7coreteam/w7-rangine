@@ -211,34 +211,34 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$eventTypes[] = $this->getType();
 
 		$swooleEvents = icontainer()->singleton(ServerEvent::class)->getDefaultEvent();
-		foreach ($eventTypes as $name) {
-			$event = $swooleEvents[$name];
+		foreach ($eventTypes as $eventType) {
+			$event = $swooleEvents[$eventType];
 			if (!empty($event)) {
-				$this->registerSwooleEvent($server, $event);
+				$this->registerSwooleEvent($server, $event, $eventType);
 			}
 		}
 	}
 
-	protected function registerSwooleEvent($server, $event) {
+	protected function registerSwooleEvent($server, $event, $eventType) {
 		$masterServer = App::$server->getServer();
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;
 			}
 			if ($eventName == ServerEvent::ON_REQUEST) {
-				$server->on(ServerEvent::ON_REQUEST, function ($request, $response) use ($masterServer) {
-					ieventDispatcher()->dispatch($this->getServerEventRealName(ServerEvent::ON_REQUEST), [$masterServer, $request, $response]);
+				$server->on(ServerEvent::ON_REQUEST, function ($request, $response) use ($masterServer, $eventType) {
+					ieventDispatcher()->dispatch($this->getServerEventRealName(ServerEvent::ON_REQUEST, $eventType), [$masterServer, $request, $response]);
 				});
 			} else {
-				$server->on($eventName, function () use ($eventName) {
-					ieventDispatcher()->dispatch($this->getServerEventRealName($eventName), func_get_args());
+				$server->on($eventName, function () use ($eventName, $eventType) {
+					ieventDispatcher()->dispatch($this->getServerEventRealName($eventName, $eventType), func_get_args());
 				});
 			}
 		}
 	}
 
-	protected function getServerEventRealName($eventName) {
-		return $this->getType() . ':' . $eventName;
+	protected function getServerEventRealName($eventName, $eventType) {
+		return $eventType . ':' . $eventName;
 	}
 
 	protected function getDefaultSetting() : array {

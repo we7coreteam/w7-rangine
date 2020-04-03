@@ -11,7 +11,7 @@
 	],
 	"require": {
 		"php": ">=7.2",
-		"ext-swoole": ">=4.3.0",
+		"ext-swoole": ">=4.4.0",
 		"ext-json": "*",
 		"w7/rangine-http-message": "*",
 		"w7/rangine-database-tool": "*",

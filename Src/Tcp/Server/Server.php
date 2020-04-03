@@ -21,7 +21,7 @@ use W7\Tcp\Session\Provider\SessionProvider;
 
 class Server extends SwooleServerAbstract {
 	protected $providerMap = [
-		//SessionProvider::class,
+		SessionProvider::class,
 		ViewProvider::class
 	];
 
