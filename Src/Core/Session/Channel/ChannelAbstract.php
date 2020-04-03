@@ -38,7 +38,8 @@ abstract class ChannelAbstract {
 	}
 
 	protected function generateId() {
-		return \session_create_id();
+		$sessionId = session_id();
+		return !empty($sessionId) ? $sessionId : \session_create_id();
 	}
 
 	final public function getSessionId() {
