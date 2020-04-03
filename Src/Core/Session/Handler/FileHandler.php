@@ -28,7 +28,7 @@ class FileHandler extends HandlerAbstract {
 	}
 
 	public function getUserSessionSavePath() {
-		return empty($this->config['save_path']) ? '/tmp/session' : $this->config['save_path'];
+		return empty($this->config['save_path']) ? '/tmp/rangine-server/session' : $this->config['save_path'];
 	}
 
 	private function setPath() {
