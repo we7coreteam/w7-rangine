@@ -12,17 +12,36 @@
 
 namespace W7\Tcp\Listener;
 
+use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEvent;
-use W7\Http\Message\Server\Request;
-use W7\Tcp\Collector\CollectorManager;
+use W7\Core\Session\Session;
+use W7\Http\Message\Outputer\TcpResponseOutputer;
+use W7\Http\Message\Server\Request as Psr7Request;
+use W7\Http\Message\Server\Response as Psr7Response;
 
 class ConnectListener extends ListenerAbstract {
 	public function run(...$params) {
-		$request = new Request('POST', '/');
-		$request = $request->setSwooleRequest(new \Swoole\Http\Request());
-		icontainer()->singleton(CollectorManager::class)->set($params[1], $request);
+		list($server, $fd, $reactorId) = $params;
+		return $this->onConnect($server, $fd, $reactorId);
+	}
 
-		ievent(ServerEvent::ON_USER_AFTER_OPEN, [$params[0], $params[1], $request]);
+	private function onConnect(Server $server, $fd, $reactorId) {
+		/**
+		 * @var Psr7Request $psr7Request
+		 */
+		$psr7Request = new Psr7Request('', '');
+		$psr7Response = new Psr7Response();
+		$psr7Response->setOutputer(new TcpResponseOutputer($server, $fd));
+
+		//tcp session保证此次连接中是共享数据，Response没办法下放sessionid，不存在两次连接共用数据
+		$psr7Request->session = new Session();
+		$psr7Request->session->start($psr7Request);
+
+		icontainer()->append('tcp-client', [
+			$fd => [$psr7Request, $psr7Response]
+		], []);
+
+		ievent(ServerEvent::ON_USER_AFTER_OPEN, [$server, $fd, $psr7Request]);
 	}
 }

@@ -16,14 +16,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use W7\Core\Middleware\MiddlewareAbstract;
-use W7\Tcp\Collector\CollectorManager;
-use W7\Tcp\Session\SessionCollector;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		$fd = icontext()->getContextDataByKey('fd');
-		$request->session = icontainer()->singleton(CollectorManager::class)->getCollector(SessionCollector::getName())->get($fd);
-		$request->session->set('time', time());
 		$request->session->gc();
 
 		return $handler->handle($request);

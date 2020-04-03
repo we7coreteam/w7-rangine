@@ -95,7 +95,6 @@ abstract class HandlerAbstract {
 
 	/**
 	 * 用于处理开发环境的错误返回
-	 * 处理异常时将按照服务各自定义的FatalException异常来再次包装错误信息
 	 * @param \Throwable $e
 	 * @return Response
 	 */

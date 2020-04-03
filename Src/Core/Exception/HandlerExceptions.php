@@ -12,7 +12,6 @@
 
 namespace W7\Core\Exception;
 
-use InvalidArgumentException;
 use W7\App;
 use W7\Core\Exception\Handler\DefaultExceptionHandler;
 use W7\Core\Exception\Handler\HandlerAbstract;
@@ -29,8 +28,6 @@ class HandlerExceptions {
 
 	/**
 	 * Register system error handle
-	 *
-	 * @throws InvalidArgumentException
 	 */
 	public function registerErrorHandle() {
 		set_error_handler([$this, 'handleError']);
@@ -82,13 +79,15 @@ class HandlerExceptions {
 	 * @return array
 	 */
 	public function getHandlers($serverType) : array {
-		$handlers = [];
+		$serverExceptionHandler = '';
 		if ($serverType) {
-			$handler = $this->getServerExceptionHandlerClass($serverType);
-		} else {
-			$handler = DefaultExceptionHandler::class;
+			$serverExceptionHandler = $this->getServerExceptionHandlerClass($serverType);
 		}
-		$handlers[] = icontainer()->singleton($handler);
+		if (!$serverExceptionHandler || !class_exists($serverExceptionHandler)) {
+			$serverExceptionHandler = DefaultExceptionHandler::class;
+		}
+
+		$handlers[] = icontainer()->singleton($serverExceptionHandler);
 		if ($this->userExceptionHandler) {
 			$handlers[] = $this->userExceptionHandler;
 		}
