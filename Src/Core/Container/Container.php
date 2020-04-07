@@ -86,7 +86,7 @@ class Container {
 		if (!$this->has($dataKey)) {
 			$this->set($dataKey, $default);
 		}
-		$data = $this->get($dataKey);
+		$data = $this->get($dataKey) ?? [];
 
 		if (is_object($data)) {
 			foreach ($value as $key => $item) {
