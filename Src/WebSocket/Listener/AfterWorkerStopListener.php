@@ -23,7 +23,6 @@ class AfterWorkerStopListener extends ListenerAbstract {
 		}
 
 		foreach ($clientCollector as $fd => $client) {
-			echo $fd . PHP_EOL;
 			App::$server->getServer()->isEstablished($fd) && App::$server->getServer()->disconnect($fd, 0, '');
 		}
 
