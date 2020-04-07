@@ -39,7 +39,7 @@ class RedisHandler extends HandlerAbstract {
 	}
 
 	public function set($key, $value, $ttl = null) {
-		$this->redis->set($key, $value, $ttl);
+		return $this->redis->set($key, $value, $ttl);
 	}
 
 	public function get($key, $default = null) {
