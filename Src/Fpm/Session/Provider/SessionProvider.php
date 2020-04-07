@@ -26,9 +26,7 @@ class SessionProvider extends ProviderAbstract {
 	private function initSessionConfig() {
 		$appConfig = $this->config->getUserConfig('app');
 		$sessionConfig = $appConfig['session'] ?? [];
-		if (!empty($sessionConfig['save_path'])) {
-			session_save_path($sessionConfig['save_path']);
-		} else {
+		if (empty($sessionConfig['save_path'])) {
 			//如果没设置，使用php默认的session目录
 			$sessionConfig['save_path'] = session_save_path();
 		}
@@ -44,6 +42,7 @@ class SessionProvider extends ProviderAbstract {
 		if (!empty($sessionConfig['expires'])) {
 			ini_set('session.gc_maxlifetime', $sessionConfig['expires']);
 		}
+		ini_set('session.auto_start', 'Off');
 
 		$appConfig['session'] = $sessionConfig;
 		iconfig()->setUserConfig('app', $appConfig);

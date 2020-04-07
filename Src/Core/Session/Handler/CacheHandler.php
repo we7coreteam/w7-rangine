@@ -30,7 +30,7 @@ class CacheHandler extends HandlerAbstract {
 	}
 
 	public function read($session_id) {
-		return $this->getCache()->get($session_id);
+		return $this->getCache()->get($session_id, '');
 	}
 
 	public function gc($maxlifetime) {
