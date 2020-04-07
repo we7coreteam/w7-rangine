@@ -78,6 +78,10 @@ class FileHandler extends HandlerAbstract {
 	}
 
 	public function write($session_id, $session_data) {
+		if (!$session_data) {
+			return true;
+		}
+
 		$this->ensureSessionDirectoryExists(dirname($path = $this->getPath($session_id)));
 		$result = $this->filesystem->put(
 			$path,
@@ -97,7 +101,7 @@ class FileHandler extends HandlerAbstract {
 			return $this->filesystem->delete($file);
 		}
 
-		return false;
+		return true;
 	}
 
 	public function gc($maxlifetime) {
@@ -110,5 +114,7 @@ class FileHandler extends HandlerAbstract {
 		foreach ($files as $file) {
 			$this->filesystem->delete($file->getRealPath());
 		}
+
+		return true;
 	}
 }

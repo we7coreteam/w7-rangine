@@ -22,6 +22,10 @@ class CacheHandler extends HandlerAbstract {
 	}
 
 	public function write($session_id, $session_data) {
+		if (!$session_data) {
+			return true;
+		}
+
 		return $this->getCache()->set($session_id, $session_data, $this->getExpires());
 	}
 

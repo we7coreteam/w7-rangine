@@ -32,6 +32,9 @@ class SessionProvider extends ProviderAbstract {
 			//如果没设置，使用php默认的session目录
 			$sessionConfig['save_path'] = session_save_path();
 		}
+		if (!empty($sessionConfig['name'])) {
+			session_name($sessionConfig['name']);
+		}
 		if (!empty($sessionConfig['gc_divisor'])) {
 			ini_set('session.gc_divisor', $sessionConfig['gc_divisor']);
 		}

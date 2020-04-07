@@ -40,9 +40,11 @@ abstract class HandlerAbstract implements \SessionHandlerInterface {
 		return unserialize($data);
 	}
 
-	final public function open($save_path, $name) {
+	public function open($save_path, $name) {
+		return true;
 	}
 
-	final public function close() {
+	public function close() {
+		return true;
 	}
 }

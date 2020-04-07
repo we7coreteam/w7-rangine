@@ -22,9 +22,11 @@ use W7\Core\Session\Session;
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		$request->session = new Session();
-		//执行session_start才能触发php默认的gc
-		session_start();
 		$request->session->start($request);
+
+		//执行session_start才能触发php默认的gc
+		session_set_save_handler($request->session->getHandler(), true);
+		session_start();
 
 		App::getApp()->getContext()->setResponse($request->session->replenishResponse(App::getApp()->getContext()->getResponse()));
 

@@ -57,6 +57,10 @@ class Session implements SessionInterface {
 		self::$handler = $handler;
 	}
 
+	public function getHandler() {
+		return self::$handler;
+	}
+
 	private function getHandlerClass() {
 		$handler = $this->config['handler'] ?? 'file';
 		$class = sprintf('\\W7\\Core\\Session\\Handler\\%sHandler', ucfirst($handler));
