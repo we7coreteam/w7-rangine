@@ -187,6 +187,7 @@ use W7\Core\Cache\Handler\HandlerAbstract;
  */
 class Cache extends CacheAbstract {
 	public function set($key, $value, $ttl = null) {
+		$ttl = (int)$ttl;
 		return $this->call(function (HandlerAbstract $handler) use ($key, $value, $ttl) {
 			$value = $handler->pack($value);
 			return $handler->set($key, $value, $ttl);
@@ -211,6 +212,7 @@ class Cache extends CacheAbstract {
 	}
 
 	public function setMultiple($values, $ttl = null) {
+		$ttl = (int)$ttl;
 		return $this->call(function (HandlerAbstract $handler) use ($values, $ttl) {
 			$values = (array)$values;
 			foreach ($values as $key => &$value) {
