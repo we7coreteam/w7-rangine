@@ -122,8 +122,8 @@ abstract class ProviderAbstract {
 	}
 
 	public function getView() {
-		if (!icontainer()->has(View::class)) {
-			throw new \RuntimeException('instance ' . View::class . ' not exists');
+		if (!class_exists(View::class)) {
+			throw new \RuntimeException('class ' . View::class . ' not exists');
 		}
 		/**
 		 * @var View $view
