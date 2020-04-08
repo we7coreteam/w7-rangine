@@ -34,14 +34,10 @@ class Container {
 	 * @return void
 	 */
 	public function set($name, $handle, ...$params) {
-		if (is_string($handle)) {
-			if (class_exists($name)) {
-				$handle = function () use ($handle, $params) {
-					return new $handle(...$params);
-				};
-			} else {
-				$handle = null;
-			}
+		if (is_string($handle) && class_exists($handle)) {
+			$handle = function () use ($handle, $params) {
+				return new $handle(...$params);
+			};
 		}
 		$this->container[$name] = $handle;
 	}

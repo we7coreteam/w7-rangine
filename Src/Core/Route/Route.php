@@ -153,7 +153,7 @@ class Route {
 			$path = $config['common']['document_root'] ?? BASE_PATH . '/public';
 			if ($enableStatic && $path) {
 				$module = $this->getModule() === $this->defaultModule ? '' : '/' . $this->getModule();
-				$path = rtrim($path, '/') . $module . '/' . ltrim($resource);
+				$path = rtrim($path, '/') . '/' . $module . '/' . ltrim($resource, '/');
 				return file_exists($path);
 			}
 		}
