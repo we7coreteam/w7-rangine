@@ -17,7 +17,11 @@ use W7\Core\Listener\ListenerAbstract;
 
 class AfterWorkerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		$clientCollector = icontainer()->get('tcp-client') ?? [];
+		if (icontainer()->has('tcp-client')) {
+			$clientCollector = icontainer()->get('tcp-client') ?? [];
+		} else {
+			$clientCollector = [];
+		}
 		if (empty($clientCollector)) {
 			return true;
 		}
