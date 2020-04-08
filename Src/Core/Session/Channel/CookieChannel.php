@@ -12,6 +12,7 @@
 
 namespace W7\Core\Session\Channel;
 
+use W7\Http\Message\Base\Cookie;
 use W7\Http\Message\Server\Response;
 
 class CookieChannel extends ChannelAbstract {
@@ -21,6 +22,19 @@ class CookieChannel extends ChannelAbstract {
 
 	public function replenishResponse(Response $response) : Response {
 		//如果用户自定义channel,在这里要通过响应的data中携带sessionid的话,暂不支持
-		return $response->withCookie($this->getSessionName(), $this->getSessionId());
+
+		// websocket 需要使用 header Set-Cookie 下发 Cookie
+		$sessionCookie = Cookie::create(
+			$this->getSessionName(),
+			$this->getSessionId(),
+			0,
+			null,
+			null,
+			null,
+			null,
+			false,
+			''
+		);
+		return $response->withHeader('Set-Cookie', $sessionCookie->__toString())->withCookie($this->getSessionName(), $this->getSessionId());
 	}
 }
