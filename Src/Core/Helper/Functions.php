@@ -212,9 +212,9 @@ if (!function_exists('getClientIp')) {
 		} elseif (!empty($serverParams['REMOTE_ADDR'])) {
 			$ip = $serverParams['REMOTE_ADDR'];
 		} elseif ($request->getHeader('X-Forwarded-For')) {
-			$ip = $request->getHeader('X-Forwarded-For');
+			$ip = $request->getHeader('X-Forwarded-For')[0];
 		} elseif ($request->getHeader('X-Real-IP')) {
-			$ip = $request->getHeader('X-Real-IP');
+			$ip = $request->getHeader('X-Real-IP')[0];
 		} else {
 			$ip = $request->getSwooleRequest()->server['remote_addr'];
 		}
