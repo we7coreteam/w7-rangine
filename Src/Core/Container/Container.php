@@ -82,16 +82,14 @@ class Container {
 		if (!$this->has($dataKey)) {
 			$this->set($dataKey, $default);
 		}
-		$data = $this->get($dataKey) ?? [];
+		$data = $this->get($dataKey);
 
 		if (is_object($data)) {
 			foreach ($value as $key => $item) {
 				$data->$key = $item;
 			}
 		} elseif (is_array($data)) {
-			foreach ($value as $key => $item) {
-				$data[$key] = $item;
-			}
+			$data = array_merge($data, $value);
 		} else {
 			throw new \RuntimeException('Only append data to array and object');
 		}
