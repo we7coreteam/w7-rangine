@@ -15,7 +15,6 @@ namespace W7\Core\Provider;
 use Illuminate\Filesystem\Filesystem;
 use W7\Console\Application;
 use W7\Core\Helper\StringHelper;
-use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\View\View;
@@ -197,19 +196,11 @@ abstract class ProviderAbstract {
 
 	/**
 	 * Load the given routes file
+	 * 不支持配置文件的路由配置方式
 	 * @param $path
 	 */
 	protected function loadRouteFrom($path) {
-		$config = include $path;
-		if (is_array($config)) {
-			/**
-			 * @var RouteMapping $routeMapping
-			 */
-			$routeMapping = icontainer()->singleton(RouteMapping::class);
-			$routeConfig = $routeMapping->getRouteConfig();
-			$routeConfig[] = $config;
-			$routeMapping->setRouteConfig($routeConfig);
-		}
+		include $path;
 	}
 
 	/**
