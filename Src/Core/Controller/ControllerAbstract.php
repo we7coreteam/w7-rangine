@@ -12,7 +12,6 @@
 
 namespace W7\Core\Controller;
 
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use W7\App;
 use W7\Core\Exception\ValidatorException;
 use W7\Core\View\View;
@@ -63,18 +62,7 @@ abstract class ControllerAbstract {
 		if (empty($request)) {
 			throw new ValidatorException('Request object not found');
 		}
-		$requestData = array_merge([], $request->getQueryParams(), $request->post());
-
-		//如果有上传文件，需要转化为laravel上传对象附加到requestData中
-		$uploadFile = $request->getUploadedFiles();
-		if (!empty($uploadFile)) {
-			/**
-			 * @var \W7\Http\Message\Upload\UploadedFile $file
-			 */
-			foreach ($uploadFile as $name => $file) {
-				$requestData[$name] = new UploadedFile($file->getTmpFile(), $file->getClientFilename(), $file->getClientMediaType(), $file->getError());
-			}
-		}
+		$requestData = array_merge([], $request->getQueryParams(), $request->post(), $request->getUploadedFiles());
 		return ivalidate($requestData, $rules, $messages, $customAttributes);
 	}
 }
