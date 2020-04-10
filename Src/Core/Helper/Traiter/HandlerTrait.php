@@ -16,7 +16,7 @@ trait HandlerTrait {
 	public function getHandlerClassByType($type, $handlerName) {
 		$config = iconfig()->getUserConfig('handler')[$type] ?? [];
 		$handlerClass = $config[$handlerName] ?? '';
-		if (!$handlerClass || $handlerClass && !class_exists($handlerClass)) {
+		if (!$handlerClass || !class_exists($handlerClass)) {
 			throw new \RuntimeException($type . ' handler ' . $handlerName . ' is not support');
 		}
 
