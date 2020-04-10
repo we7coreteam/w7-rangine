@@ -20,9 +20,8 @@ class EventDispatcher extends Dispatcher {
 	}
 
 	public function register() {
-		//该方法通过插件生成文件，自动加到autoload文件中
-		$userEvents = iautoLoadConfig('event');
-		foreach ($userEvents as $event => $listeners) {
+		$events = iconfig()->getUserConfig('event');
+		foreach ($events as $event => $listeners) {
 			$listeners = (array)$listeners;
 			foreach ($listeners as $listener) {
 				$this->listen($event, $listener);

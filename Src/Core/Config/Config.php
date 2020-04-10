@@ -29,13 +29,13 @@ class Config {
 		$env->load();
 		unset($env);
 
+		//加载所有的配置到内存中
+		$this->loadAutoLoadConfig();
+		$this->loadUserConfig('config');
 		$this->initUserConst();
 	}
 
 	private function initUserConst() {
-		//加载所有的配置到内存中
-		$this->loadConfig('config');
-
 		$setting = $this->getUserAppConfig('setting');
 		!defined('ENV') && define('ENV', $setting['env'] ?? DEVELOPMENT);
 
@@ -93,14 +93,14 @@ class Config {
 	}
 
 	public function getRouteConfig() {
-		$this->loadConfig('route');
+		$this->loadUserConfig('route');
 		return $this->config['route'];
 	}
 
 	/**
 	 * 加载所有的配置文件到内存中
 	 */
-	private function loadConfig($section) {
+	private function loadUserConfig($section) {
 		$allowSection = [
 			'route',
 			'config',
@@ -110,22 +110,28 @@ class Config {
 			throw new \RuntimeException('Path not allowed');
 		}
 
-		if (!empty($this->config) && !empty($this->config[$section])) {
-			return $this->config[$section];
-		}
-		$this->config[$section] = [];
+		$this->loadConfig(BASE_PATH, $section);
+	}
 
-		$configFileTree = glob(BASE_PATH . '/' . $section . '/*.php');
+	private function loadAutoLoadConfig() {
+		$this->loadConfig(BASE_PATH . '/vendor/composer/rangine/autoload', 'config');
+	}
+
+	private function loadConfig($configDir, $section) {
+		$config = [];
+		$configFileTree = glob($configDir . '/' . $section . '/*.php');
 		if (empty($configFileTree)) {
-			return [];
+			return $config;
 		}
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
 			$appConfig = include $path;
 			if (is_array($appConfig)) {
-				$this->config[$section][$key] = $appConfig;
+				$this->config[$section][$key] = $this->config[$section][$key] ?? [];
+				$this->config[$section][$key] = array_merge($this->config[$section][$key], $appConfig);
 			}
 		}
-		return $this->config;
+
+		return $config;
 	}
 }
