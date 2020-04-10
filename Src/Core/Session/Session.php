@@ -188,9 +188,9 @@ class Session implements SessionInterface {
 		return $this->readSession();
 	}
 
-	public function destroy() {
+	public function destroy($sureDestroy = true) {
 		$this->cache = null;
-		return self::$handler->destroy($this->prefix . $this->getId());
+		return self::$handler->destroy($this->prefix . $this->getId(), $sureDestroy);
 	}
 
 	public function gc() {

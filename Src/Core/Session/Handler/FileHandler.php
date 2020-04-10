@@ -96,7 +96,11 @@ class FileHandler extends HandlerAbstract {
 		return $this->getPayload($session_id);
 	}
 
-	public function destroy($session_id) {
+	public function destroy($session_id, $sureDestroy = true) {
+		if (!$sureDestroy) {
+			return true;
+		}
+
 		if ($this->filesystem->exists($file = $this->getPath($session_id))) {
 			return $this->filesystem->delete($file);
 		}
