@@ -25,11 +25,13 @@ class CloseListener extends ListenerAbstract {
 
 	private function onClose(Server $server, int $fd, int $reactorId): void {
 		$collector = icontainer()->get('ws-client')[$fd] ?? [];
-		/**
-		 * @var Psr7Request $psr7Request
-		 */
-		$psr7Request = $collector[0];
-		$psr7Request->session->destroy(SESSION_WEBSOCKET_CLOSE);
+		if ($collector) {
+			/**
+			 * @var Psr7Request $psr7Request
+			 */
+			$psr7Request = $collector[0];
+			$psr7Request->session->destroy(SESSION_WEBSOCKET_CLOSE);
+		}
 
 		//删除数据绑定记录
 		icontainer()->append('ws-client', [
