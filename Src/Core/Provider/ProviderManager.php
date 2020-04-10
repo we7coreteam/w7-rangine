@@ -30,12 +30,8 @@ class ProviderManager {
 	 * 扩展包注册
 	 */
 	public function register() {
-		$userProviders = [];
 		//该方法通过插件生成文件，自动加到autoload文件中
-		if (function_exists('iUserProviders')) {
-			$userProviders = iUserProviders();
-		}
-
+		$userProviders = iautoLoadConfig('provider');
 		$this->registerProviders(array_merge($this->providerMap, $userProviders));
 		return $this;
 	}

@@ -20,12 +20,8 @@ class EventDispatcher extends Dispatcher {
 	}
 
 	public function register() {
-		$userEvents = [];
 		//该方法通过插件生成文件，自动加到autoload文件中
-		if (function_exists('iUserEvents')) {
-			$userEvents = iUserEvents();
-		}
-
+		$userEvents = iautoLoadConfig('event');
 		foreach ($userEvents as $event => $listeners) {
 			$listeners = (array)$listeners;
 			foreach ($listeners as $listener) {
