@@ -82,7 +82,12 @@ class HandshakeListener extends ListenerAbstract {
 			return false;
 		}
 
+		$localIps = swoole_get_local_ip();
 		$psr7Request->session->set('fd', $request->fd);
+		$psr7Request->session->set('server', [
+			'ip' => array_values($localIps)[0] ?? '',
+			'mac' => swoole_get_local_mac()[array_keys($localIps)[0] ?? 0] ?? ''
+		]);
 		icontainer()->append('ws-client', [
 			$request->fd => [$psr7Request, $response]
 		], []);
