@@ -12,6 +12,7 @@
 
 namespace W7\Core\Session;
 
+use W7\Core\Helper\Traiter\HandlerTrait;
 use W7\Core\Session\Channel\ChannelAbstract;
 use W7\Core\Session\Event\SessionStartEvent;
 use W7\Core\Session\Handler\HandlerAbstract;
@@ -20,6 +21,8 @@ use W7\Http\Message\Server\Response;
 use W7\Http\Message\Contract\Session as SessionInterface;
 
 class Session implements SessionInterface {
+	use HandlerTrait;
+
 	private $config;
 	private $prefix;
 	private static $gcCondition;
@@ -49,29 +52,22 @@ class Session implements SessionInterface {
 			return true;
 		}
 
-		$handler = $this->getHandlerClass();
-		$handler = new $handler($this->config);
+		$handlerClass = $this->getHandlerClass();
+		$handler = new $handlerClass($this->config);
 		if (!($handler instanceof HandlerAbstract)) {
 			throw new \RuntimeException('session handler must instance of HandlerAbstract');
 		}
 		self::$handler = $handler;
 	}
 
-	public function getHandler() {
-		return self::$handler;
-	}
-
 	private function getHandlerClass() {
 		$handler = $this->config['handler'] ?? 'file';
-		$class = sprintf('\\W7\\Core\\Session\\Handler\\%sHandler', ucfirst($handler));
-		if (!class_exists($class)) {
-			$class = sprintf('\\W7\\App\\Handler\\Session\\%sHandler', ucfirst($handler));
-		}
-		if (!class_exists($class)) {
-			throw new \RuntimeException('session handler ' . $handler . ' is not support');
-		}
 
-		return $class;
+		return $this->getHandlerClassByType('session', $handler);
+	}
+
+	public function getHandler() {
+		return self::$handler;
 	}
 
 	private function initChannel(Request $request) {

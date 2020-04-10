@@ -118,11 +118,12 @@ class Config {
 	}
 
 	private function loadConfig($configDir, $section) {
-		$config = [];
+		$this->config[$section] = $this->config[$section] ?? [];
 		$configFileTree = glob($configDir . '/' . $section . '/*.php');
 		if (empty($configFileTree)) {
-			return $config;
+			return $this->config[$section];
 		}
+
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
 			$appConfig = include $path;
@@ -132,6 +133,6 @@ class Config {
 			}
 		}
 
-		return $config;
+		return $this->config[$section];
 	}
 }

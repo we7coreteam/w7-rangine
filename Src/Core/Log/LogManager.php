@@ -13,12 +13,15 @@
 namespace W7\Core\Log;
 
 use Monolog\Logger as MonoLogger;
+use W7\Core\Helper\Traiter\HandlerTrait;
 use W7\Core\Log\Handler\BufferHandler;
 use W7\Core\Log\Handler\HandlerAbstract;
 use W7\Core\Log\Handler\HandlerInterface;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 class LogManager {
+	use HandlerTrait;
+
 	private $channel = [];
 	private $config;
 	private $commonProcessor = [];
@@ -51,15 +54,8 @@ class LogManager {
 		return $config;
 	}
 
-	private function checkHandler($handler) {
-		$handlerClass = sprintf('\\W7\\Core\\Log\\Handler\\%sHandler', ucfirst($handler));
-		if (!class_exists($handlerClass)) {
-			//用户自定义的handler
-			$handlerClass = sprintf('\\W7\\App\\Handler\\Log\\%sHandler', ucfirst($handler));
-		}
-		if (!class_exists($handlerClass)) {
-			throw new \RuntimeException('log handler ' . $handler . ' is not supported');
-		}
+	private function getHandlerClass($handler) {
+		$handlerClass = $this->getHandlerClassByType('log', $handler);
 
 		$reflectClass = new \ReflectionClass($handlerClass);
 		if (!in_array(HandlerInterface::class, array_keys($reflectClass->getInterfaces()))) {
@@ -127,7 +123,7 @@ class LogManager {
 		/**
 		 * @var HandlerAbstract $handlerClass
 		 */
-		$handlerClass = $this->checkHandler($driver);
+		$handlerClass = $this->getHandlerClass($driver);
 
 		$bufferLimit = $options['buffer_limit'] ?? 1;
 		$handler = new BufferHandler($handlerClass::getHandler($options), $bufferLimit, $options['level'], true, true);

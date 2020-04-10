@@ -16,8 +16,11 @@ use Psr\SimpleCache\CacheInterface;
 use W7\Core\Cache\Event\MakeConnectionEvent;
 use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\Pool;
+use W7\Core\Helper\Traiter\HandlerTrait;
 
 class ConnectorManager {
+	use HandlerTrait;
+
 	private $config;
 	private $pool;
 
@@ -39,7 +42,7 @@ class ConnectorManager {
 			/**
 			 * @var HandlerAbstract $handlerClass
 			 */
-			$handlerClass = $this->checkHandler($config['driver']);
+			$handlerClass = $this->getHandlerClass($config['driver']);
 			$handler = $handlerClass::getHandler($config);
 
 			ievent(new MakeConnectionEvent($name, $handler));
@@ -73,28 +76,21 @@ class ConnectorManager {
 
 		$pool = new Pool($name);
 		$pool->setConfig($config);
-		$pool->setCreator($this->checkHandler($config['driver']));
+		$pool->setCreator($this->getHandlerClass($config['driver']));
 		$pool->setMaxCount($poolConfig['max'] ?? 1);
 
 		$this->pool[$name] = $pool;
 		return $this->pool[$name];
 	}
 
-	private function checkHandler($handler) {
-		$className = sprintf('\\W7\\Core\\Cache\\Handler\\%sHandler', ucfirst($handler));
-		if (!class_exists($className)) {
-			//处理自定义的handler
-			$className = sprintf('\\W7\\App\\Handler\\Cache\\%sHandler', ucfirst($handler));
-		}
-		if (!class_exists($className)) {
-			throw new \RuntimeException('cache handler ' . $handler . ' is not supported');
-		}
+	private function getHandlerClass($handler) {
+		$handlerClass = $this->getHandlerClassByType('cache', $handler);
 
-		$reflectClass = new \ReflectionClass($className);
+		$reflectClass = new \ReflectionClass($handlerClass);
 		if (!in_array(CacheInterface::class, array_keys($reflectClass->getInterfaces()))) {
 			throw new \RuntimeException('please implements Psr\SimpleCache\CacheInterface');
 		}
 
-		return $className;
+		return $handlerClass;
 	}
 }

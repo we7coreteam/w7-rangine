@@ -12,9 +12,12 @@
 
 namespace W7\Core\View;
 
+use W7\Core\Helper\Traiter\HandlerTrait;
 use W7\Core\View\Handler\HandlerAbstract;
 
 class View {
+	use HandlerTrait;
+
 	private $config;
 	private $handlerClass;
 	private $customFunctions = [];
@@ -54,14 +57,7 @@ class View {
 	private function getHandlerClass() {
 		if (!$this->handlerClass) {
 			$handler = $this->config['handler'] ?? 'twig';
-			$class = sprintf('\\W7\\Core\\View\\Handler\\%sHandler', ucfirst($handler));
-			if (!class_exists($class)) {
-				$class = sprintf('\\W7\\App\\Handler\\View\\%sHandler', ucfirst($handler));
-			}
-			if (!class_exists($class)) {
-				throw new \RuntimeException('view handler ' . $handler . ' is not support');
-			}
-			$this->handlerClass = $class;
+			$this->handlerClass = $this->getHandlerClassByType('view', $handler);
 		}
 
 		return $this->handlerClass;
