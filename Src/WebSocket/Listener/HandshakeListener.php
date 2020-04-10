@@ -82,6 +82,7 @@ class HandshakeListener extends ListenerAbstract {
 			return false;
 		}
 
+		$psr7Request->session->set('fd', $request->fd);
 		icontainer()->append('ws-client', [
 			$request->fd => [$psr7Request, $response]
 		], []);
