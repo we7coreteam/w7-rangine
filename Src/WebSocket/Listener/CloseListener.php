@@ -29,7 +29,7 @@ class CloseListener extends ListenerAbstract {
 		 * @var Psr7Request $psr7Request
 		 */
 		$psr7Request = $collector[0];
-		$psr7Request->session->destroy(false);
+		$psr7Request->session->destroy(SESSION_WEBSOCKET_CLOSE);
 
 		//删除数据绑定记录
 		icontainer()->append('ws-client', [

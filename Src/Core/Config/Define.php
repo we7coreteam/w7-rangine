@@ -15,3 +15,7 @@
 !defined('CLEAR_LOG') && define('CLEAR_LOG', 2);
 !defined('BACKTRACE') && define('BACKTRACE', 4);
 !defined('DEVELOPMENT') && define('DEVELOPMENT', DEBUG | CLEAR_LOG | BACKTRACE);
+
+!defined('SESSION_DESTROY') && define('SESSION_DESTROY', 1);
+!defined('SESSION_WEBSOCKET_CLOSE') && define('SESSION_WEBSOCKET_CLOSE', 2);
+!defined('SESSION_TCP_CLOSE') && define('SESSION_TCP_CLOSE', 4);
