@@ -12,28 +12,8 @@
 
 namespace W7\WebSocket\Handler;
 
-use W7\Core\Exception\Handler\HandlerAbstract;
-use W7\Http\Message\Server\Response;
-use Whoops\Exception\Inspector;
-use Whoops\Handler\PlainTextHandler;
-use Whoops\Run;
+use W7\Tcp\Handler\ExceptionHandler as HandlerAbstract;
 
 class ExceptionHandler extends HandlerAbstract {
-	protected function handleDevelopment(\Throwable $e): Response {
-		$previous = !empty($e->getPrevious()) ? $e->getPrevious() : $e;
 
-		if ((ENV & BACKTRACE) !== BACKTRACE) {
-			$content = 'message: ' . $e->getMessage() . ';    file: ' . $previous->getFile() . ';    line: ' . $previous->getLine();
-		} else {
-			ob_start();
-			$render = new PlainTextHandler();
-			$render->setException($previous);
-			$render->setInspector(new Inspector($previous));
-			$render->setRun(new Run());
-			$render->handle();
-			$content = ob_get_clean();
-		}
-
-		return $this->getResponse()->withStatus(500)->withContent($content);
-	}
 }
