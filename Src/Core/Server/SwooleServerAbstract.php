@@ -242,13 +242,17 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	}
 
 	protected function getDefaultSetting() : array {
+		$logLevel = SWOOLE_LOG_TRACE;
+		if (SWOOLE_VERSION <= '4.4.16') {
+			$logLevel = SWOOLE_LOG_INFO;
+		}
 		return [
 			'pname' => 'w7-rangine',
 			'daemonize' => 0,
 			'dispatch_mode' => 3,
 			'worker_num' => swoole_cpu_num(),
 			'log_file' => RUNTIME_PATH . '/logs/run.log',
-			'log_level' => 0,
+			'log_level' => $logLevel,
 			'request_slowlog_timeout' => 2,
 			'request_slowlog_file' => RUNTIME_PATH . '/logs/slow.log',
 			'trace_event_worker' => true,
