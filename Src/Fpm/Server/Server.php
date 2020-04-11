@@ -26,7 +26,6 @@ class Server extends ServerAbstract {
 	protected $providerMap = [
 		SessionProvider::class
 	];
-	public $worker_id;
 
 	public function getType() {
 		return ServerEnum::TYPE_FPM;
