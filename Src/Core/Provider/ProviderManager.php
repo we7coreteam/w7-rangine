@@ -46,6 +46,9 @@ class ProviderManager {
 
 	public function registerProvider($provider, $name = null) {
 		if (is_string($provider)) {
+			if ((ENV & DEBUG) === DEBUG && !class_exists($provider)) {
+				return false;
+			}
 			$provider = $this->getProvider($provider, $name);
 		}
 		static::$registerProviders[get_class($provider)] = $provider;

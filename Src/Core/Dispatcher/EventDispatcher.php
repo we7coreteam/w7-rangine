@@ -29,7 +29,7 @@ class EventDispatcher extends Dispatcher {
 		}
 	}
 
-	public function listen($events, $listener) {
+	public function listen($event, $listener) {
 		if (is_string($listener)) {
 			$listener = function () use ($listener) {
 				if (class_exists($listener)) {
@@ -38,7 +38,7 @@ class EventDispatcher extends Dispatcher {
 				return null;
 			};
 		}
-		parent::listen($events, $listener);
+		parent::listen($event, $listener);
 	}
 
 	public function setContainer($container) {
