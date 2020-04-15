@@ -48,35 +48,5 @@ abstract class HandlerAbstract implements \SessionHandlerInterface {
 		return true;
 	}
 
-	/**
-	 * @param string $session_id
-	 * @param int $flag
-	 * <table>
-	 * destroy flag constants and bit values
-	 * <tr valign="top">
-	 * <td>value</td>
-	 * <td>constant</td>
-	 * </tr>
-	 * <tr valign="top">
-	 * <td>1</td>
-	 * <td>
-	 * SESSION_DESTROY
-	 * </td>
-	 * </tr>
-	 * <tr valign="top">
-	 * <td>2</td>
-	 * <td>
-	 * SESSION_WEBSOCKET_CLOSE
-	 * </td>
-	 * </tr>
-	 * <tr valign="top">
-	 * <td>3</td>
-	 * <td>
-	 * SESSION_TCP_CLOSE
-	 * </td>
-	 * </tr>
-	 * </table>
-	 * @return bool
-	 */
-	abstract public function destroy($session_id, $flag = SESSION_DESTROY);
+	abstract public function destroy($session_id);
 }

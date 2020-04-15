@@ -184,13 +184,13 @@ class Session implements SessionInterface {
 		return $this->readSession();
 	}
 
-	/**
-	 * @param int $flag
-	 * @return bool
-	 */
-	public function destroy($flag = SESSION_DESTROY) {
+	public function destroy() {
 		$this->cache = null;
-		return self::$handler->destroy($this->prefix . $this->getId(), $flag);
+		return self::$handler->destroy($this->prefix . $this->getId());
+	}
+
+	public function close() {
+		return self::$handler->close();
 	}
 
 	public function gc() {

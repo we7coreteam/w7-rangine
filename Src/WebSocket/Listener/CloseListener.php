@@ -31,7 +31,7 @@ class CloseListener extends ListenerAbstract {
 				 * @var Psr7Request $psr7Request
 				 */
 				$psr7Request = $collector[0];
-				$psr7Request->session->destroy(SESSION_WEBSOCKET_CLOSE);
+				$psr7Request->session->close();
 			}
 		}
 

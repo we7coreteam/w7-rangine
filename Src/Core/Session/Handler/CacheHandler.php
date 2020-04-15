@@ -17,11 +17,7 @@ class CacheHandler extends HandlerAbstract {
 		return icache()->channel($this->config['cache_channel'] ?? 'default');
 	}
 
-	public function destroy($session_id, $flag = SESSION_DESTROY) {
-		if (!($flag & SESSION_DESTROY)) {
-			return true;
-		}
-
+	public function destroy($session_id) {
 		return $this->getCache()->delete($session_id);
 	}
 
