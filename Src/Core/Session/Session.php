@@ -190,7 +190,7 @@ class Session implements SessionInterface {
 	}
 
 	public function close() {
-		return self::$handler->close();
+		return self::$handler->close($this->getRealId());
 	}
 
 	public function gc() {
