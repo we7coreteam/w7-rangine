@@ -31,6 +31,8 @@ class CloseListener extends ListenerAbstract {
 				 * @var Psr7Request $psr7Request
 				 */
 				$psr7Request = $collector[0];
+				icontext()->setRequest($psr7Request);
+				icontext()->setResponse($collector[1]);
 				$psr7Request->session->close();
 			}
 		}
@@ -39,6 +41,9 @@ class CloseListener extends ListenerAbstract {
 		icontainer()->append('ws-client', [
 			$fd => []
 		], []);
+
 		ievent(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId]);
+
+		icontext()->destroy();
 	}
 }
