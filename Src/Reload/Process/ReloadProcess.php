@@ -47,8 +47,6 @@ class ReloadProcess extends ProcessAbstract {
 		$reloadConfig = \iconfig()->getUserConfig('reload');
 		self::$watchDir = array_merge(self::$watchDir, $reloadConfig['path'] ?? []);
 		self::$fileTypes = array_merge(self::$fileTypes, $reloadConfig['type'] ?? []);
-
-		$this->md5File = $this->getWatchDirMd5();
 	}
 
 	public static function addDir(string $dir) {
@@ -68,6 +66,8 @@ class ReloadProcess extends ProcessAbstract {
 	}
 
 	protected function run(Process $process) {
+		$this->md5File = $this->getWatchDirMd5();
+
 		$server = App::$server;
 		itimeTick(1000, function () use ($server) {
 			$md5File = $this->getWatchDirMd5();
