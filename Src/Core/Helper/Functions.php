@@ -347,10 +347,11 @@ if (!function_exists('ienv')) {
 if (!function_exists('igo')) {
 	function igo(Closure $callback) {
 		$coId = icontext()->getCoroutineId();
-		Coroutine::create(function () use ($callback, $coId) {
+		$result = null;
+		Coroutine::create(function () use ($callback, $coId, &$result) {
 			icontext()->fork($coId);
 			try {
-				$callback();
+				$result = $callback();
 			} catch (Throwable $throwable) {
 				ilogger()->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
@@ -359,6 +360,7 @@ if (!function_exists('igo')) {
 				icontext()->destroy();
 			});
 		});
+		return $result;
 	}
 }
 if (!function_exists('ivalidate')) {
