@@ -129,7 +129,7 @@ class Config {
 			$appConfig = include $path;
 			if (is_array($appConfig)) {
 				$this->config[$section][$key] = $this->config[$section][$key] ?? [];
-				$this->config[$section][$key] = array_merge($this->config[$section][$key], $appConfig);
+				$this->config[$section][$key] = array_merge_recursive($this->config[$section][$key], $appConfig);
 			}
 		}
 
