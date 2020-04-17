@@ -13,12 +13,17 @@
 namespace W7\Core\Exception\Handler;
 
 use W7\Core\Exception\FatalExceptionAbstract;
+use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
 use W7\Core\Exception\ResponseExceptionAbstract;
 use W7\Http\Message\Server\Response;
 
-abstract class HandlerAbstract {
+class ExceptionHandler {
 	protected $serverType;
 	protected $response;
+	/**
+	 * @var ExceptionFormatterInterface
+	 */
+	protected $exceptionFormatter;
 
 	public function setServerType($serverType): void {
 		$this->serverType = $serverType;
@@ -30,6 +35,10 @@ abstract class HandlerAbstract {
 
 	public function setResponse(Response $response): void {
 		$this->response = $response;
+	}
+
+	public function setExceptionFormatter(ExceptionFormatterInterface $exceptionFormatter) {
+		$this->exceptionFormatter = $exceptionFormatter;
 	}
 
 	/**
@@ -90,7 +99,7 @@ abstract class HandlerAbstract {
 	 * @return Response
 	 */
 	protected function handleRelease(\Throwable $e) : Response {
-		return $this->getResponse()->withStatus(500)->withContent(\json_encode(['error' => '系统内部错误']));
+		return $this->getResponse()->withStatus(500)->withContent($this->exceptionFormatter->formatReleaseException($e));
 	}
 
 	/**
@@ -99,6 +108,6 @@ abstract class HandlerAbstract {
 	 * @return Response
 	 */
 	protected function handleDevelopment(\Throwable $e) : Response {
-		return $this->getResponse()->withStatus(500)->withContent($e->getMessage());
+		return $this->getResponse()->withStatus(500)->withContent($this->exceptionFormatter->formatDevelopmentException($e));
 	}
 }
