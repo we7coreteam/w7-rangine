@@ -19,6 +19,10 @@ use W7\Http\Message\Server\Response;
 abstract class HandlerAbstract {
 	protected $serverType;
 	protected $response;
+	/**
+	 * @var HandlerAbstract
+	 */
+	protected $beforeHandler;
 
 	public function setServerType($serverType): void {
 		$this->serverType = $serverType;
@@ -26,6 +30,10 @@ abstract class HandlerAbstract {
 
 	protected function getServerType() {
 		return $this->serverType;
+	}
+
+	public function setBeforeHandler(HandlerAbstract $handler) {
+		$this->beforeHandler = $handler;
 	}
 
 	public function setResponse(Response $response): void {
@@ -90,15 +98,22 @@ abstract class HandlerAbstract {
 	 * @return Response
 	 */
 	protected function handleRelease(\Throwable $e) : Response {
+		if ($this->beforeHandler) {
+			return $this->beforeHandler->handleRelease($e);
+		}
 		return $this->getResponse()->withStatus(500)->withContent(\json_encode(['error' => '系统内部错误']));
 	}
 
 	/**
 	 * 用于处理开发环境的错误返回
+	 * 处理异常时将按照服务各自定义的FatalException异常来再次包装错误信息
 	 * @param \Throwable $e
 	 * @return Response
 	 */
 	protected function handleDevelopment(\Throwable $e) : Response {
+		if ($this->beforeHandler) {
+			return $this->beforeHandler->handleDevelopment($e);
+		}
 		return $this->getResponse()->withStatus(500)->withContent($e->getMessage());
 	}
 }

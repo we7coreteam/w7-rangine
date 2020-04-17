@@ -97,36 +97,31 @@ class HandlerExceptions {
 
 	public function handle(\Throwable $throwable, $serverType = null) {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
+		$response = icontext()->getResponse();
+		if (!$response) {
+			$response = new Response();
+		}
+
 		$handlers = $this->getHandlers($serverType);
+		for ($i = 0; $i < count($handlers); $i++) {
+			$handlers[$i]->setServerType($serverType);
+			$handlers[$i]->setResponse($response);
+			//如果存在用户自定义handler,把server层的handler设置到用户层，作为真正执行develop,release的handler
+			if ($i >= 1) {
+				$handlers[$i]->setBeforeHandler($handlers[$i - 1]);
+			}
+		}
+
 		/**
 		 * @var HandlerAbstract $lastHandler
 		 */
 		$lastHandler = end($handlers);
-		reset($handlers);
 		try {
 			$lastHandler->report($throwable);
 		} catch (\Throwable $e) {
 			null;
 		}
 
-		$response = icontext()->getResponse();
-		if (!$response) {
-			$response = new Response();
-		}
-		/**
-		 * @var HandlerAbstract $handler
-		 */
-		foreach ($handlers as $handler) {
-			try {
-				$handler->setServerType($serverType);
-				$handler->setResponse($response);
-				$response = $handler->handle($throwable);
-				icontext()->setResponse($response);
-			} catch (\Throwable $e) {
-				null;
-			}
-		}
-
-		return $response;
+		return  $lastHandler->handle($throwable);
 	}
 }

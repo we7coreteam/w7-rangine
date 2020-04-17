@@ -13,21 +13,6 @@
 namespace W7\Fpm\Handler;
 
 use W7\Http\Handler\ExceptionHandler as HandlerAbstract;
-use W7\Http\Message\Outputer\FpmResponseOutputer;
-use W7\Http\Message\Server\Response;
 
 class ExceptionHandler extends HandlerAbstract {
-	public function handle(\Throwable $e): Response {
-		$response = parent::handle($e);
-
-		if (!icontext()->getResponse()) {
-			//表示在未进dispatcher流程就出错
-			$fpmResponse = new Response();
-			$fpmResponse->setOutputer(new FpmResponseOutputer());
-			$fpmResponse = $fpmResponse->withStatus($response->getStatusCode())->withContent($response->getBody()->getContents());
-			$fpmResponse->send();
-		}
-
-		return $response;
-	}
 }
