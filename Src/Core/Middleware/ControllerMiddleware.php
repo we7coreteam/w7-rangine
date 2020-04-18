@@ -47,20 +47,12 @@ class ControllerMiddleware extends MiddlewareAbstract {
 
 	protected function parseResponse($response) {
 		//如果结果是一个response对象，则直接输出，否则按json输出
-		if (is_string($response) || is_numeric($response) || is_bool($response) || is_null($response)) {
-			$response = ['data' => $response];
-		}
-
 		if ($response instanceof Response) {
 			return $response;
-		} elseif (is_array($response)) {
-			return App::getApp()->getContext()->getResponse()->withHeader('Content-Type', 'application/json')->withContent(\json_encode($response, JSON_UNESCAPED_UNICODE));
-		} else {
-			$type = 'unknown';
-			if (is_object($response)) {
-				$type = get_class($response);
-			}
-			throw new \RuntimeException('Illegal type of ' . $type . ', Must be a W7\Http\Message\Server\Response object, an array, or a string');
+		} elseif (is_object($response)) {
+			$response = 'Illegal type ' . get_class($response) . ', Must be a response object, an array, or a string';
 		}
+
+		return App::getApp()->getContext()->getResponse()->json($response);
 	}
 }
