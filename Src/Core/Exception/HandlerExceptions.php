@@ -79,10 +79,11 @@ class HandlerExceptions {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
 		if (!$serverType) {
 			if (isCli()) {
-				ioutputer()->error($throwable->getMessage());
+				ioutputer()->error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
 			} else {
 				trigger_error($throwable->getMessage());
 			}
+			return false;
 		}
 
 		/**
