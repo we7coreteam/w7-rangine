@@ -99,7 +99,7 @@ class ExceptionHandler {
 	 * @return Response
 	 */
 	protected function handleRelease(\Throwable $e) : Response {
-		return $this->getResponse()->withStatus(500)->withContent($this->exceptionFormatter->formatReleaseException($e));
+		return $this->getResponse()->withStatus(500)->withContent($this->exceptionFormatter->formatReleaseExceptionToString($e));
 	}
 
 	/**
@@ -108,6 +108,6 @@ class ExceptionHandler {
 	 * @return Response
 	 */
 	protected function handleDevelopment(\Throwable $e) : Response {
-		return $this->getResponse()->withStatus(500)->withContent($this->exceptionFormatter->formatDevelopmentException($e));
+		return $this->getResponse()->withStatus(500)->withContent($this->exceptionFormatter->formatDevelopmentExceptionToString($e));
 	}
 }
