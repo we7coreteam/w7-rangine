@@ -12,7 +12,6 @@
 
 namespace W7\Core\Exception\Provider;
 
-use W7\Core\Exception\Handler\HandlerAbstract;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Provider\ProviderAbstract;
 
@@ -20,10 +19,7 @@ class ExceptionProvider extends ProviderAbstract {
 	public function register() {
 		$userHandler = 'W7\App\Handler\Exception\ExceptionHandler';
 		if (class_exists($userHandler)) {
-			$handler = new $userHandler();
-			if ($handler instanceof HandlerAbstract) {
-				icontainer()->singleton(HandlerExceptions::class)->setUserHandler($handler);
-			}
+			icontainer()->singleton(HandlerExceptions::class)->setHandler($userHandler);
 		}
 	}
 }

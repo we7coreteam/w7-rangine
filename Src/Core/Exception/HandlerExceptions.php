@@ -13,17 +13,17 @@
 namespace W7\Core\Exception;
 
 use W7\App;
-use W7\Core\Exception\Handler\DefaultExceptionHandler;
-use W7\Core\Exception\Handler\HandlerAbstract;
+use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
+use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Response;
 
 class HandlerExceptions {
-	protected $userExceptionHandler;
+	protected $exceptionHandler = ExceptionHandler::class;
 
-	public function setUserHandler(HandlerAbstract $userExceptionHandler) {
-		$this->userExceptionHandler = $userExceptionHandler;
+	public function setHandler($exceptionHandler) {
+		$this->exceptionHandler = $exceptionHandler;
 	}
 
 	/**
@@ -70,41 +70,28 @@ class HandlerExceptions {
 		return $this->handle($throwable);
 	}
 
-	protected function getServerExceptionHandlerClass($serverType) {
-		return sprintf('W7\\%s\\Handler\\ExceptionHandler', StringHelper::studly($serverType));
-	}
-
-	/**
-	 * @param $serverType
-	 * @return array
-	 */
-	public function getHandlers($serverType) : array {
-		$serverExceptionHandler = '';
-		if ($serverType) {
-			$serverExceptionHandler = $this->getServerExceptionHandlerClass($serverType);
-		}
-		if (!$serverExceptionHandler || !class_exists($serverExceptionHandler)) {
-			$serverExceptionHandler = DefaultExceptionHandler::class;
-		}
-
-		$handlers[] = icontainer()->singleton($serverExceptionHandler);
-		if ($this->userExceptionHandler) {
-			$handlers[] = $this->userExceptionHandler;
-		}
-
-		return $handlers;
+	protected function getServerExceptionFormatter($serverType) : ExceptionFormatterInterface {
+		$class = sprintf('W7\\%s\\Exception\\Formatter\\ExceptionFormatter', StringHelper::studly($serverType));
+		return new $class();
 	}
 
 	public function handle(\Throwable $throwable, $serverType = null) {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
-		$handlers = $this->getHandlers($serverType);
+		if (!$serverType) {
+			if (isCli()) {
+				ioutputer()->error($throwable->getMessage());
+			} else {
+				trigger_error($throwable->getMessage());
+			}
+		}
+
 		/**
-		 * @var HandlerAbstract $lastHandler
+		 * @var ExceptionHandler $handler
 		 */
-		$lastHandler = end($handlers);
-		reset($handlers);
+		$handler = $this->exceptionHandler;
+		$handler = new $handler();
 		try {
-			$lastHandler->report($throwable);
+			$handler->report($throwable);
 		} catch (\Throwable $e) {
 			null;
 		}
@@ -113,20 +100,10 @@ class HandlerExceptions {
 		if (!$response) {
 			$response = new Response();
 		}
-		/**
-		 * @var HandlerAbstract $handler
-		 */
-		foreach ($handlers as $handler) {
-			try {
-				$handler->setServerType($serverType);
-				$handler->setResponse($response);
-				$response = $handler->handle($throwable);
-				icontext()->setResponse($response);
-			} catch (\Throwable $e) {
-				null;
-			}
-		}
 
-		return $response;
+		$handler->setServerType($serverType);
+		$handler->setExceptionFormatter($this->getServerExceptionFormatter($serverType));
+		$handler->setResponse($response);
+		return $handler->handle($throwable);
 	}
 }
