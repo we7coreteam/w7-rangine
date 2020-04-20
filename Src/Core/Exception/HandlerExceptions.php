@@ -70,7 +70,7 @@ class HandlerExceptions {
 		return $this->handle($throwable);
 	}
 
-	protected function getServerExceptionHandlerFormatter($serverType) : ExceptionFormatterInterface {
+	protected function getServerExceptionFormatter($serverType) : ExceptionFormatterInterface {
 		$class = sprintf('W7\\%s\\Exception\\Formatter\\ExceptionFormatter', StringHelper::studly($serverType));
 		return new $class();
 	}
@@ -102,7 +102,7 @@ class HandlerExceptions {
 		}
 
 		$handler->setServerType($serverType);
-		$handler->setExceptionFormatter($this->getServerExceptionHandlerFormatter($serverType));
+		$handler->setExceptionFormatter($this->getServerExceptionFormatter($serverType));
 		$handler->setResponse($response);
 		return $handler->handle($throwable);
 	}
