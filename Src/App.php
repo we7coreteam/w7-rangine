@@ -48,7 +48,8 @@ class App {
 	}
 
 	private function registerRuntimeEnv() {
-		date_default_timezone_set('Asia/Shanghai');
+		$defaultTimezone = iconfig()->getUserAppConfig('setting')['timezone'] ?? 'Asia/Shanghai';
+		date_default_timezone_set($defaultTimezone);
 
 		if (!is_dir(RUNTIME_PATH)) {
 			mkdir(RUNTIME_PATH, 0777, true);
