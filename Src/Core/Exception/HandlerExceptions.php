@@ -26,6 +26,10 @@ class HandlerExceptions {
 		$this->exceptionHandler = $exceptionHandler;
 	}
 
+	public static function isIgnoreErrorTypes($errorType) {
+		return !in_array($errorType, [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE]);
+	}
+
 	/**
 	 * Register system error handle
 	 */
@@ -35,7 +39,7 @@ class HandlerExceptions {
 
 		register_shutdown_function(function () {
 			$e = error_get_last();
-			if (!$e || !in_array($e['type'], [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE])) {
+			if (!$e || self::isIgnoreErrorTypes($e['type'])) {
 				return;
 			}
 

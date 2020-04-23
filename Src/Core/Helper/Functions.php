@@ -344,25 +344,6 @@ if (!function_exists('ienv')) {
 		return $value;
 	}
 }
-if (!function_exists('igo')) {
-	function igo(Closure $callback) {
-		$coId = icontext()->getCoroutineId();
-		$result = null;
-		Coroutine::create(function () use ($callback, $coId, &$result) {
-			icontext()->fork($coId);
-			try {
-				$result = $callback();
-			} catch (Throwable $throwable) {
-				ilogger()->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
-			}
-
-			Coroutine::defer(function () {
-				icontext()->destroy();
-			});
-		});
-		return $result;
-	}
-}
 if (!function_exists('ivalidate')) {
 	function ivalidate(array $data, array $rules, array $messages = [], array $customAttributes = []) {
 		try {
@@ -388,6 +369,42 @@ if (!function_exists('ivalidator')) {
 	function ivalidator() : Factory {
 		$validator = icontainer()->singleton(Factory::class);
 		return $validator;
+	}
+}
+if (!function_exists('igo')) {
+	function igo(Closure $callback) {
+		if (!isCo()) {
+			$generatorFunc = function () use ($callback) {
+				yield $callback();
+			};
+			icontainer()->singleton(\W7\Core\Helper\Compate\Coroutine::class)->add($generatorFunc());
+			return true;
+		}
+
+		$coId = icontext()->getCoroutineId();
+		$result = null;
+		Coroutine::create(function () use ($callback, $coId, &$result) {
+			icontext()->fork($coId);
+			try {
+				$result = $callback();
+			} catch (Throwable $throwable) {
+				ilogger()->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+			}
+
+			Coroutine::defer(function () {
+				icontext()->destroy();
+			});
+		});
+		return $result;
+	}
+}
+if (!function_exists('isleep')) {
+	function isleep($seconds) {
+		if (!isCo()) {
+			sleep($seconds);
+			return true;
+		}
+		\Swoole\Coroutine\System::sleep($seconds);
 	}
 }
 if (!function_exists('itimeTick')) {
