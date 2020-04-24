@@ -43,7 +43,7 @@ class Server extends ServerAbstract {
 	public function start() {
 		$this->registerService();
 
-		ievent(ServerEvent::ON_USER_BEFORE_START, [$this]);
+		ievent(ServerEvent::ON_USER_BEFORE_START, [$this, $this->getType()]);
 
 		$response = new Psr7Response();
 		$response->setOutputer(new FpmResponseOutputer());
@@ -54,6 +54,7 @@ class Server extends ServerAbstract {
 
 	public function getServer() {
 		if (!$this->server) {
+			$this->worker_id = getmypid();
 			$this->server = $this;
 		}
 		return $this->server;
