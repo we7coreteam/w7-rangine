@@ -24,7 +24,7 @@ class SessionMiddleware extends MiddlewareAbstract {
 		$request->session = new Session();
 		$request->session->start($request);
 
-		//第二个参数表示shudown后，保存session数据并执行close
+		//第二个参数表示shudown后，保存session数据并执行close，释放session锁，不释放会导致同一个sessionid的请求处于等待状态(session_start被调用的时候，该文件是被锁住的)
 		session_set_save_handler($request->session->getHandler(), true);
 		//执行session_start才能触发php默认的gc
 		//启动”session_start” 会自动执行,open,read函数，然后页面执行完，会执行shutdown函数，最后会把session写入进去，然后执行close关闭文件
