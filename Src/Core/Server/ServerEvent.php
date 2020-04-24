@@ -80,7 +80,7 @@ class ServerEvent {
 	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
 	const ON_USER_AFTER_REQUEST = 'afterRequest';
 	const ON_USER_TASK_FINISH = 'afterTaskFinish';
-	const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandshake';
+	const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandShake';
 	const ON_USER_AFTER_OPEN = 'afterOpen';
 	const ON_USER_AFTER_CLOSE = 'afterClose';
 
