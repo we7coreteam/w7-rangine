@@ -30,7 +30,7 @@ use W7\Tcp\Listener\ReceiveListener;
 use W7\Core\Listener\ProcessStartListener;
 use W7\Core\Listener\ProcessStopListener;
 use W7\WebSocket\Listener\CloseListener as WebSocketCloseListener;
-use W7\WebSocket\Listener\HandshakeListener;
+use W7\WebSocket\Listener\HandShakeListener;
 use W7\WebSocket\Listener\MessageListener;
 use W7\WebSocket\Listener\OpenListener;
 
@@ -110,7 +110,7 @@ class ServerEvent {
 			self::ON_CLOSE => CloseListener::class
 		],
 		ServerEnum::TYPE_WEBSOCKET => [
-			self::ON_HAND_SHAKE => HandshakeListener::class,
+			self::ON_HAND_SHAKE => HandShakeListener::class,
 			self::ON_OPEN => OpenListener::class,
 			self::ON_CLOSE => WebSocketCloseListener::class,
 			self::ON_MESSAGE => MessageListener::class

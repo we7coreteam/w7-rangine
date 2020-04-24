@@ -23,7 +23,7 @@ use W7\Http\Message\Outputer\SwooleResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 
-class HandshakeListener extends ListenerAbstract {
+class HandShakeListener extends ListenerAbstract {
 	public function run(...$params) {
 		list($request, $response) = $params;
 		$this->handshake($request, $response);
