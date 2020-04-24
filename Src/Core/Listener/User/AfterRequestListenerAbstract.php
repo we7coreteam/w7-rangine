@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\Core\Listener\User;
 
-abstract class ListenerAbstract implements ListenerInterface {
+abstract class AfterRequestListenerAbstract extends RequestListenerAbstract {
 }

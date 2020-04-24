@@ -14,6 +14,7 @@ namespace W7\Tcp\Listener;
 
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 
 class CloseListener extends ListenerAbstract {
@@ -27,6 +28,6 @@ class CloseListener extends ListenerAbstract {
 		icontainer()->append('tcp-client', [
 			$fd => []
 		], []);
-		ievent(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId]);
+		ievent(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_TCP]);
 	}
 }

@@ -14,6 +14,7 @@ namespace W7\Tcp\Listener;
 
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Session\Session;
 use W7\Http\Message\Outputer\TcpResponseOutputer;
@@ -42,6 +43,6 @@ class ConnectListener extends ListenerAbstract {
 			$fd => [$psr7Request, $psr7Response]
 		], []);
 
-		ievent(ServerEvent::ON_USER_AFTER_OPEN, [$server, $fd, $psr7Request]);
+		ievent(ServerEvent::ON_USER_AFTER_OPEN, [$server, $fd, $psr7Request, ServerEnum::TYPE_TCP]);
 	}
 }

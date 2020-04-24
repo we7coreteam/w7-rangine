@@ -15,6 +15,7 @@ namespace W7\WebSocket\Listener;
 use Swoole\Coroutine;
 use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
@@ -52,13 +53,13 @@ class MessageListener extends ListenerAbstract {
 		App::getApp()->getContext()->setResponse($psr7Response);
 		App::getApp()->getContext()->setRequest($psr7Request);
 
-		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 
 		$dispatcher = icontainer()->singleton(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
-		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
+		ievent(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 		icontext()->destroy();
 		return true;
 	}

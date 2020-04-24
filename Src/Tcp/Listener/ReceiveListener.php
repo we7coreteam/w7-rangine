@@ -16,6 +16,7 @@ use W7\App;
 use Swoole\Coroutine;
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
@@ -51,7 +52,7 @@ class ReceiveListener extends ListenerAbstract {
 		App::getApp()->getContext()->setResponse($psr7Response);
 		App::getApp()->getContext()->setRequest($psr7Request);
 
-		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
 
 		/**
 		 * @var RequestDispatcher $dispatcher
@@ -61,7 +62,7 @@ class ReceiveListener extends ListenerAbstract {
 
 		$psr7Response->send();
 
-		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
+		ievent(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
 		icontext()->destroy();
 	}
 }

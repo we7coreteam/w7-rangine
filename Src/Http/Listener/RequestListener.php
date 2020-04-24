@@ -18,6 +18,7 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Outputer\SwooleResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
@@ -45,7 +46,7 @@ class RequestListener extends ListenerAbstract {
 		$psr7Response = new Psr7Response();
 		$psr7Response->setOutputer(new SwooleResponseOutputer($response));
 
-		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_HTTP]);
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
@@ -53,7 +54,7 @@ class RequestListener extends ListenerAbstract {
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
-		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
+		ievent(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_HTTP]);
 		icontext()->destroy();
 	}
 }

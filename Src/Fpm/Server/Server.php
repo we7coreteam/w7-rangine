@@ -73,11 +73,11 @@ class Server extends ServerAbstract {
 		$dispatcher = \icontainer()->singleton(Dispatcher::class);
 		$dispatcher->setRouter(new GroupCountBased($routeInfo));
 
-		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response]);
+		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response, $this->getType()]);
 
 		$response = $dispatcher->dispatch($request, $response);
 
-		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
+		ievent(ServerEvent::ON_USER_AFTER_REQUEST, [$request, $response, $this->getType()]);
 
 		return $response;
 	}

@@ -14,6 +14,7 @@ namespace W7\WebSocket\Listener;
 
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 
@@ -40,6 +41,6 @@ class CloseListener extends ListenerAbstract {
 			$fd => []
 		], []);
 
-		ievent(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId]);
+		ievent(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_WEBSOCKET]);
 	}
 }

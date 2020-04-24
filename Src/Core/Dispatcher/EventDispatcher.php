@@ -33,7 +33,7 @@ class EventDispatcher extends Dispatcher {
 		if (is_string($listener)) {
 			$listener = function () use ($listener) {
 				if (class_exists($listener)) {
-					return (new $listener)->run(...func_get_args());
+					return (new $listener(...func_get_args()))->run(...func_get_args());
 				}
 				return null;
 			};

@@ -50,7 +50,7 @@ class Server extends SwooleServerAbstract {
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
-		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server]);
+		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
 
 		$this->server->start();
 	}
