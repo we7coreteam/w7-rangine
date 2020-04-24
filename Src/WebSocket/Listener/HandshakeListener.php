@@ -77,17 +77,19 @@ class HandshakeListener extends ListenerAbstract {
 		$response = $psr7Request->session->replenishResponse($response);
 
 		try {
+			$localIps = swoole_get_local_ip();
+			$psr7Request->session->set('fd', $request->fd);
+			$psr7Request->session->set('server', [
+				'ip' => array_values($localIps)[0] ?? '',
+				'mac' => swoole_get_local_mac()[array_keys($localIps)[0] ?? 0] ?? ''
+			]);
+
 			ievent(ServerEnum::TYPE_WEBSOCKET . ':' . ServerEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
-		} catch (\Exception $e) {
+		} catch (\Throwable $e) {
+			ilogger()->debug($e->getMessage(), ['exception' => $e]);
 			return false;
 		}
 
-		$localIps = swoole_get_local_ip();
-		$psr7Request->session->set('fd', $request->fd);
-		$psr7Request->session->set('server', [
-			'ip' => array_values($localIps)[0] ?? '',
-			'mac' => swoole_get_local_mac()[array_keys($localIps)[0] ?? 0] ?? ''
-		]);
 		icontainer()->append('ws-client', [
 			$request->fd => [$psr7Request, $response]
 		], []);
