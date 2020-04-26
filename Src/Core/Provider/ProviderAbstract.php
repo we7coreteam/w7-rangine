@@ -103,7 +103,7 @@ abstract class ProviderAbstract {
 		];
 		$routeConfig = array_merge($routeConfig, $options);
 
-		$this->router->group($routeConfig, function () use ($fileName) {
+		$this->router->middleware($routeConfig['middleware'] ?? [])->group($routeConfig, function () use ($fileName) {
 			$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
 		});
 	}
