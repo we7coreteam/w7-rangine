@@ -95,8 +95,12 @@ abstract class ProviderAbstract {
 		], $group);
 	}
 
-	protected function registerRoute($fileName) {
+	protected function registerRoute($fileName, $group = null) {
+		if (!isset($group)) {
+			$group = $this->name;
+		}
 		$this->router->group([
+			'prefix' => $group,
 			'namespace' => $this->packageNamespace,
 			'module' => $this->name
 		], function () use ($fileName) {
