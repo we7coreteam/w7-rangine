@@ -375,7 +375,11 @@ if (!function_exists('igo')) {
 	function igo(Closure $callback) {
 		if (!isCo()) {
 			$generatorFunc = function () use ($callback) {
-				yield $callback();
+				try {
+					yield $callback();
+				} catch (Throwable $e) {
+					ilogger()->debug($e->getMessage(), ['exception' => $e]);
+				}
 			};
 			icontainer()->singleton(\W7\Core\Helper\Compate\Coroutine::class)->add($generatorFunc());
 			return true;
