@@ -13,7 +13,6 @@
 namespace W7\Core\Provider;
 
 use W7\Core\Cache\Provider\CacheProvider;
-use W7\Core\Controller\ValidateProvider;
 use W7\Core\Database\Provider\DatabaseProvider;
 use W7\Core\Exception\Provider\ExceptionProvider;
 

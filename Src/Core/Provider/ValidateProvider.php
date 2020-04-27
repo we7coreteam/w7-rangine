@@ -10,13 +10,12 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Controller;
+namespace W7\Core\Provider;
 
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\DatabasePresenceVerifier;
 use Illuminate\Validation\Factory;
-use W7\Core\Provider\ProviderAbstract;
 
 class ValidateProvider extends ProviderAbstract {
 	public function register() {
