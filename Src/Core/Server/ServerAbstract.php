@@ -13,7 +13,6 @@
 namespace W7\Core\Server;
 
 use W7\App;
-use W7\Core\Exception\CommandException;
 use W7\Core\Provider\ProviderManager;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -22,7 +21,6 @@ abstract class ServerAbstract implements ServerInterface {
 
 	/**
 	 * ServerAbstract constructor.
-	 * @throws CommandException
 	 */
 	public function __construct() {
 		!App::$server && App::$server = $this;
