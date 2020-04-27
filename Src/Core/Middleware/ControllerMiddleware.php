@@ -28,7 +28,7 @@ class ControllerMiddleware extends MiddlewareAbstract {
 		if ($route['controller'] instanceof \Closure) {
 			$controllerHandler = $route['controller'];
 		} else {
-			$method = lcfirst(StringHelper::studly($route['method']));
+			$method = StringHelper::studly($route['method']);
 			$classObj = icontainer()->singleton($route['controller']);
 			$controllerHandler = [$classObj, $method];
 		}
