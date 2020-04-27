@@ -99,11 +99,12 @@ abstract class ProviderAbstract {
 		$routeConfig = [
 			'prefix' => '/' . ltrim($this->name, '/'),
 			'namespace' => $this->packageNamespace,
-			'module' => $this->name
+			'module' => $this->name,
+			'name' => $this->name
 		];
 		$routeConfig = array_merge($routeConfig, $options);
 
-		$this->router->middleware($routeConfig['middleware'] ?? [])->group($routeConfig, function () use ($fileName) {
+		$this->router->name($routeConfig['name'])->middleware($routeConfig['middleware'] ?? [])->group($routeConfig, function () use ($fileName) {
 			$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
 		});
 	}
