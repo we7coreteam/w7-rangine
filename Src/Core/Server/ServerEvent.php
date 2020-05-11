@@ -77,6 +77,7 @@ class ServerEvent {
 	const ON_USER_AFTER_WORKER_STOP = 'afterWorkerStop';
 	const ON_USER_AFTER_WORKER_SHUTDOWN = 'afterWorkerShutDown';
 	const ON_USER_AFTER_WORKER_ERROR = 'afterWorkerError';
+	const ON_USER_AFTER_PIPE_MESSAGE = 'afterPipeMessage';
 	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
 	const ON_USER_AFTER_REQUEST = 'afterRequest';
 	const ON_USER_TASK_FINISH = 'afterTaskFinish';
@@ -136,6 +137,7 @@ class ServerEvent {
 			self::ON_USER_AFTER_WORKER_START,
 			self::ON_USER_AFTER_WORKER_STOP,
 			self::ON_WORKER_SHUTDOWN,
+			self::ON_USER_AFTER_PIPE_MESSAGE,
 			self::ON_USER_BEFORE_REQUEST,
 			self::ON_USER_AFTER_REQUEST,
 			self::ON_USER_TASK_FINISH,
