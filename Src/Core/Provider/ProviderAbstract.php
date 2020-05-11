@@ -158,10 +158,9 @@ abstract class ProviderAbstract {
 
 	protected function registerOpenBaseDir($dir) {
 		$dir = (array)$dir;
-		$config = iconfig()->getUserConfig('app');
-		$config['setting']['basedir'] = (array)($config['setting']['basedir'] ?? []);
-		$config['setting']['basedir'] = array_merge($config['setting']['basedir'], $dir);
-		iconfig()->setUserConfig('app', $config);
+		$appBasedir = $this->config->get('app.setting.basedir', []);
+		$appBasedir = array_merge($appBasedir, $dir);
+		$this->config->set('app.setting.basedir', $appBasedir);
 	}
 
 	protected function registerServer($name, $class) {
