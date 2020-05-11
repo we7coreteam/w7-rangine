@@ -12,6 +12,8 @@
 
 namespace W7\Core\Config;
 
+use Illuminate\Support\Arr;
+
 class Config {
 	const VERSION = '2.2.3';
 
@@ -95,6 +97,14 @@ class Config {
 	public function getRouteConfig() {
 		$this->loadUserConfig('route');
 		return $this->config['route'];
+	}
+
+	public function get($key, $default = null) {
+		return Arr::get($this->config['config'], $key, $default);
+	}
+
+	public function set($key, $value) {
+		return Arr::set($this->config['config'], $key, $value);
 	}
 
 	/**
