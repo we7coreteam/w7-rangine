@@ -56,6 +56,7 @@ class Dispatcher extends RequestDispatcher {
 			'controller' => $controller,
 			'args' => $route[2],
 			'middleware' => $route[1]['middleware']['before'],
+			'defaults' => $route[1]['defaults']
 		];
 	}
 }

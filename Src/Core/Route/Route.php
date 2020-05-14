@@ -217,10 +217,11 @@ class Route {
 	 * @param $uri
 	 * @param $handler
 	 * @param string $name
+	 * @param array $defaults
 	 * @return bool
 	 * @throws \ErrorException
 	 */
-	public function add($methods, $uri, $handler, $name = '') {
+	public function add($methods, $uri, $handler, $name = '', $defaults = []) {
 		$handler = $this->checkHandler($handler);
 
 		if (empty($methods)) {
@@ -244,7 +245,8 @@ class Route {
 				'before' => [],
 				'after' => []
 			],
-			'uri' => $this->routerCollector->getCurrentGroupPrefix() . $uri
+			'uri' => $this->routerCollector->getCurrentGroupPrefix() . $uri,
+			'defaults' => $defaults
 		];
 
 		if (!$name) {

@@ -38,6 +38,9 @@ class ControllerMiddleware extends MiddlewareAbstract {
 		if (is_array($route['args'])) {
 			$funArgs = array_merge($funArgs, $route['args']);
 		}
+		if (!empty($route['defaults'])) {
+			$funArgs = array_merge($funArgs, $route['defaults']);
+		}
 
 		$response = call_user_func_array($controllerHandler, $funArgs);
 		App::getApp()->getContext()->setResponse($this->parseResponse($response));
