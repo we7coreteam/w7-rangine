@@ -12,7 +12,8 @@
 
 namespace W7\Fpm\Server;
 
-use FastRoute\Dispatcher\GroupCountBased;
+use function FastRoute\cachedDispatcher;
+use W7\Core\Route\RouteCollector;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
@@ -40,8 +41,25 @@ class Server extends ServerAbstract {
 		$eventRegister->registerServerCustomEvent($this->getType());
 	}
 
+	protected function registerRoute() {
+		/**
+		 * @var Dispatcher $dispatcher
+		 */
+		$dispatcher = icontainer()->singleton(Dispatcher::class);
+		$routeDispatcher = cachedDispatcher(function (RouteCollector $r) {
+			irouter()->setRouterCollector($r);
+			icontainer()->singleton(RouteMapping::class)->getMapping();
+		}, [
+			'routeCollector' => RouteCollector::class,
+			'cacheFile' => __DIR__ . '/route.cache', /* required */
+			'cacheDisabled' => true,     /* optional, enabled by default */
+		]);
+		$dispatcher->setRouter($routeDispatcher);
+	}
+
 	public function start() {
 		$this->registerService();
+		$this->registerRoute();
 
 		ievent(ServerEvent::ON_USER_BEFORE_START, [$this, $this->getType()]);
 
@@ -67,12 +85,10 @@ class Server extends ServerAbstract {
 	 * @return \Psr\Http\Message\ResponseInterface|void
 	 */
 	private function dispatch($request, $response) {
-		$routeInfo = icontainer()->singleton(RouteMapping::class)->getMapping();
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
 		$dispatcher = \icontainer()->singleton(Dispatcher::class);
-		$dispatcher->setRouter(new GroupCountBased($routeInfo));
 
 		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response, $this->getType()]);
 

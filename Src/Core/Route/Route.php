@@ -29,7 +29,7 @@ class Route {
 	const METHOD_OPTIONS = 'OPTIONS';
 	const METHOD_ALL = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 
-	private $router;
+	private $routerCollector;
 
 	private $groupStack = [];
 
@@ -43,12 +43,19 @@ class Route {
 
 	private $name = '';
 
-	public function __construct() {
-		$this->router = new RouteCollector(new Std(), new GroupCountBased());
+	public function __construct(\FastRoute\RouteCollector $collector = null) {
+		if (!$collector) {
+			$collector = new RouteCollector(new Std(), new GroupCountBased());
+		}
+		$this->routerCollector = $collector;
 	}
 
-	public function getRouter() {
-		return $this->router;
+	public function getRouterCollector() {
+		return $this->routerCollector;
+	}
+
+	public function setRouterCollector(\FastRoute\RouteCollector $collector) {
+		$this->routerCollector = $collector;
 	}
 
 	private function parseGroupOption($option) {
@@ -74,7 +81,7 @@ class Route {
 	public function group($option, callable $callback) {
 		$option = $this->parseGroupOption($option);
 
-		$this->router->addGroup($option['prefix'], function (RouteCollector $route) use ($callback, $option) {
+		$this->routerCollector->addGroup($option['prefix'], function (RouteCollector $route) use ($callback, $option) {
 			$groupInfo = [];
 			$groupInfo['prefix'] = $option['prefix'];
 			$groupInfo['namespace'] = $option['namespace'];
@@ -237,7 +244,7 @@ class Route {
 				'before' => [],
 				'after' => []
 			],
-			'uri' => $this->router->getCurrentGroupPrefix() . $uri
+			'uri' => $this->routerCollector->getCurrentGroupPrefix() . $uri
 		];
 
 		if (!$name) {
@@ -265,7 +272,7 @@ class Route {
 		$this->currentMiddleware = [];
 
 		try {
-			$this->router->addRoute($methods, $uri, $routeHandler);
+			$this->routerCollector->addRoute($methods, $uri, $routeHandler);
 		} catch (\Throwable $e) {
 			$dispatcher = new RouteDispatcher($this->getData());
 			foreach ($methods as $method) {
@@ -322,7 +329,7 @@ class Route {
 	 * @return array
 	 */
 	public function getData() {
-		return $this->router->getData();
+		return $this->routerCollector->getData();
 	}
 
 	private function checkHandler($handler) {

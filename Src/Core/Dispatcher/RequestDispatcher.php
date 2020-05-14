@@ -23,7 +23,6 @@ use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\Event\RouteMatchedEvent;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
-use FastRoute\Dispatcher\GroupCountBased;
 
 class RequestDispatcher extends DispatcherAbstract {
 	/**
@@ -32,7 +31,7 @@ class RequestDispatcher extends DispatcherAbstract {
 	protected $middlewareMapping;
 	protected $serverType;
 	/**
-	 * @var GroupCountBased
+	 * @var Dispatcher
 	 */
 	protected $router;
 
@@ -46,7 +45,7 @@ class RequestDispatcher extends DispatcherAbstract {
 		$this->serverType = $type;
 	}
 
-	public function setRouter(GroupCountBased $router) {
+	public function setRouter(Dispatcher $router) {
 		$this->router = $router;
 	}
 
