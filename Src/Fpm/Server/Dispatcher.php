@@ -16,7 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Dispatcher\RequestDispatcher;
 use W7\Core\Exception\RouteNotAllowException;
 use W7\Core\Exception\RouteNotFoundException;
-use FastRoute\Dispatcher as RouteDispatcher;
+use W7\Core\Route\RouteDispatcher;
 
 class Dispatcher extends RequestDispatcher {
 	protected function getRoute(ServerRequestInterface $request) {
@@ -29,7 +29,7 @@ class Dispatcher extends RequestDispatcher {
 			$url = $pathInfo;
 		}
 
-		$route = $this->router->dispatch($httpMethod, $url);
+		$route = $this->routerDispatcher->dispatch($httpMethod, $url);
 
 		$controller = $method = '';
 		switch ($route[0]) {

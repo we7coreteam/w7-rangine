@@ -13,7 +13,6 @@
 namespace W7\Core\Dispatcher;
 
 use W7\App;
-use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Exception\RouteNotAllowException;
@@ -21,6 +20,7 @@ use W7\Core\Exception\RouteNotFoundException;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\Event\RouteMatchedEvent;
+use W7\Core\Route\RouteDispatcher;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 
@@ -31,9 +31,9 @@ class RequestDispatcher extends DispatcherAbstract {
 	protected $middlewareMapping;
 	protected $serverType;
 	/**
-	 * @var Dispatcher
+	 * @var RouteDispatcher
 	 */
-	protected $router;
+	protected $routerDispatcher;
 
 	public function __construct() {
 		//当不同类型的server一起启动时，需要区分middleware
@@ -45,8 +45,8 @@ class RequestDispatcher extends DispatcherAbstract {
 		$this->serverType = $type;
 	}
 
-	public function setRouter(Dispatcher $router) {
-		$this->router = $router;
+	public function setRouterDispatcher(RouteDispatcher $routeDispatcher) {
+		$this->routerDispatcher = $routeDispatcher;
 	}
 
 	public function getMiddlewareMapping() {
@@ -85,17 +85,17 @@ class RequestDispatcher extends DispatcherAbstract {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
 
-		$route = $this->router->dispatch($httpMethod, $url);
+		$route = $this->routerDispatcher->dispatch($httpMethod, $url);
 
 		$controller = $method = '';
 		switch ($route[0]) {
-			case Dispatcher::NOT_FOUND:
+			case RouteDispatcher::NOT_FOUND:
 				throw new RouteNotFoundException('Route not found, ' . $url, 404);
 				break;
-			case Dispatcher::METHOD_NOT_ALLOWED:
+			case RouteDispatcher::METHOD_NOT_ALLOWED:
 				throw new RouteNotAllowException('Route not allowed, ' . $url, 405);
 				break;
-			case Dispatcher::FOUND:
+			case RouteDispatcher::FOUND:
 				if ($route[1]['handler'] instanceof \Closure) {
 					$controller = $route[1]['handler'];
 					$method = '';

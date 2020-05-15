@@ -32,29 +32,18 @@ class RouteMapping {
 
 	public function __construct() {
 		$this->middlewareMapping = icontainer()->singleton(MiddlewareMapping::class);
-		if (!self::$isInitRouteByConfig) {
-			//在多个服务同时启动的时候，防止重复注册
-			$this->routeConfig = \iconfig()->getRouteConfig();
-			self::$isInitRouteByConfig = true;
-		}
 		$this->router = irouter();
-		/**
-		 * @todo 增加引入扩展机制的路由
-		 */
-	}
-
-	public function setRouteConfig($routeConfig) {
-		$this->routeConfig = $routeConfig;
-	}
-
-	public function getRouteConfig() {
-		return $this->routeConfig;
 	}
 
 	/**
 	 * @return array|mixed
 	 */
 	public function getMapping() {
+		if (!self::$isInitRouteByConfig) {
+			//在多个服务同时启动的时候，防止重复注册
+			$this->routeConfig = \iconfig()->getRouteConfig();
+			self::$isInitRouteByConfig = true;
+		}
 		foreach ($this->routeConfig as $index => $routeConfig) {
 			$this->initRouteByConfig($routeConfig);
 		}
