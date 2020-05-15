@@ -16,7 +16,7 @@ use FastRoute\Dispatcher\GroupCountBased;
 use W7\Core\Server\ServerEnum;
 
 class RouteDispatcher extends GroupCountBased {
-	protected static $routeCacheFileName = 'route.cache';
+	public static $routeCacheFileName = 'route.cache';
 
 	public static function getCachedRoutePath() {
 		return BASE_PATH . '/bootstrap/cache/';

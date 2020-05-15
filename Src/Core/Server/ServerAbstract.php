@@ -16,6 +16,9 @@ use W7\App;
 use W7\Core\Provider\ProviderManager;
 
 abstract class ServerAbstract implements ServerInterface {
+	//表示当前服务是主服务
+	public static $masterServer = true;
+
 	protected $providerMap = [];
 	public $server;
 

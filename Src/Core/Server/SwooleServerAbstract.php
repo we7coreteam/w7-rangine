@@ -42,8 +42,6 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	 */
 	public $setting;
 
-	//表示当前服务是主服务
-	public static $masterServer = true;
 	//表示该服务只能跟随主服务启动
 	public static $onlyFollowMasterServer = false;
 	//表示该服务可以单独启动
