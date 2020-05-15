@@ -14,7 +14,6 @@ namespace W7\Core\Route;
 
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
-use FastRoute\Dispatcher\GroupCountBased as RouteDispatcher;
 
 class Route {
 	const METHOD_POST = 'POST';
