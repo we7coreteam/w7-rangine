@@ -15,8 +15,8 @@ namespace W7\Core\Route;
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher\GroupCountBased as RouteDispatcher;
-use W7\App;
-use W7\Http\Message\File\File;
+use W7\Core\Controller\RedirectController;
+use W7\Core\Controller\StaticResourceController;
 
 class Route {
 	const METHOD_POST = 'POST';
@@ -105,10 +105,13 @@ class Route {
 	 * 注册一个允许所有协议的路由
 	 * @param $uri
 	 * @param $handler
+	 * @param string $name
+	 * @param array $defaults
 	 * @return bool
+	 * @throws \ErrorException
 	 */
-	public function any($uri, $handler) {
-		return $this->add(self::METHOD_ALL, $uri, $handler);
+	public function any($uri, $handler, $name = '', $defaults = []) {
+		return $this->add(self::METHOD_ALL, $uri, $handler, $name, $defaults);
 	}
 
 	public function all($uri, $handler) {
@@ -196,9 +199,7 @@ class Route {
 			}
 		}
 
-		$this->any($uri, function () use ($destination, $status) {
-			return App::getApp()->getContext()->getResponse()->withAddedHeader('Location', (string)$destination)->withStatus($status);
-		});
+		$this->any($uri, [RedirectController::class, 'index']);
 	}
 
 	/**
@@ -343,9 +344,7 @@ class Route {
 				throw new \ErrorException('static file can\'t be empty, ' . $staticPath . $uri, 500);
 			}
 
-			$handler = function () use ($uri) {
-				return App::getApp()->getContext()->getResponse()->withFile(new File(BASE_PATH . '/public' . $uri));
-			};
+			$handler = [StaticResourceController::class, 'index'];
 		}
 
 		if ($handler instanceof \Closure) {

@@ -12,6 +12,7 @@
 
 namespace W7\Core\Route;
 
+use W7\Core\Controller\FaviconController;
 use W7\Core\Middleware\MiddlewareMapping;
 
 class RouteMapping {
@@ -193,9 +194,7 @@ class RouteMapping {
 	//如果用户自定义了系统路由，则按照用户的路由走
 	public function registerSystemRoute() {
 		try {
-			$this->router->get('/favicon.ico', function () {
-				return icontext()->getResponse()->withContent('');
-			});
+			$this->router->get('/favicon.ico', [FaviconController::class, 'index']);
 		} catch (\Throwable $e) {
 			null;
 		}
