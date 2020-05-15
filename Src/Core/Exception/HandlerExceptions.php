@@ -81,7 +81,7 @@ class HandlerExceptions {
 
 	public function handle(\Throwable $throwable, $serverType = null) {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
-		if (!$serverType) {
+		if (!$serverType || !icontext()->getResponse()) {
 			if (isCli()) {
 				ioutputer()->error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
 			} else {
