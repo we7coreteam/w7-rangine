@@ -73,6 +73,7 @@ class App {
 			'/tmp',
 			sys_get_temp_dir(),
 			APP_PATH,
+			BASE_PATH . '/bootstrap',
 			BASE_PATH . '/config',
 			BASE_PATH . '/route',
 			BASE_PATH . '/public',
