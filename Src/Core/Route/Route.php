@@ -15,8 +15,6 @@ namespace W7\Core\Route;
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher\GroupCountBased as RouteDispatcher;
-use W7\Core\Controller\RedirectController;
-use W7\Core\Controller\StaticResourceController;
 
 class Route {
 	const METHOD_POST = 'POST';
@@ -199,7 +197,7 @@ class Route {
 			}
 		}
 
-		$this->any($uri, [RedirectController::class, 'index']);
+		$this->any($uri, ['\W7\Core\Controller\RedirectController', 'index'], '', [$destination, $status]);
 	}
 
 	/**
@@ -223,6 +221,17 @@ class Route {
 	 * @throws \ErrorException
 	 */
 	public function add($methods, $uri, $handler, $name = '', $defaults = []) {
+		if ($this->isStaticResource($handler)) {
+			$uri = $this->getStaticResourcePath($handler);
+			$config = iconfig()->getServer();
+			$staticPath = rtrim($config['common']['document_root'] ?? BASE_PATH . '/public', '/');
+			if (filesize($staticPath . $uri) <= 0) {
+				throw new \ErrorException('static file can\'t be empty, ' . $staticPath . $uri, 500);
+			}
+
+			$handler = ['\W7\Core\Controller\StaticResourceController', 'index'];
+			$defaults = [$uri];
+		}
 		$handler = $this->checkHandler($handler);
 
 		if (empty($methods)) {
@@ -336,17 +345,6 @@ class Route {
 	}
 
 	private function checkHandler($handler) {
-		if ($this->isStaticResource($handler)) {
-			$uri = $this->getStaticResourcePath($handler);
-			$config = iconfig()->getServer();
-			$staticPath = rtrim($config['common']['document_root'] ?? BASE_PATH . '/public', '/');
-			if (filesize($staticPath . $uri) <= 0) {
-				throw new \ErrorException('static file can\'t be empty, ' . $staticPath . $uri, 500);
-			}
-
-			$handler = [StaticResourceController::class, 'index'];
-		}
-
 		if ($handler instanceof \Closure) {
 			return $handler;
 		}

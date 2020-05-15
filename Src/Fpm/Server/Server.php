@@ -52,7 +52,7 @@ class Server extends ServerAbstract {
 		}, [
 			'routeCollector' => RouteCollector::class,
 			'cacheFile' => __DIR__ . '/route.cache', /* required */
-			'cacheDisabled' => true,     /* optional, enabled by default */
+			'cacheDisabled' => false,     /* optional, enabled by default */
 		]);
 		$dispatcher->setRouter($routeDispatcher);
 	}
