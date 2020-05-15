@@ -19,7 +19,7 @@ class RouteDispatcher extends GroupCountBased {
 	public static $routeCacheFileName = 'route.cache';
 
 	public static function getCachedRoutePath() {
-		return BASE_PATH . '/bootstrap/cache/';
+		return BASE_PATH . '/bootstrap/cache/route/';
 	}
 
 	public static function getDispatcherWithRouteMapping(RouteMapping $routeMapping, $routeCacheGroup = ServerEnum::TYPE_HTTP) {
