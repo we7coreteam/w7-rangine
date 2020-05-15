@@ -32,7 +32,7 @@ abstract class ProviderAbstract {
 	 */
 	protected $config;
 	/**
-	 * @var \W7\Core\Route\Route
+	 * @var \W7\Core\Route\Router
 	 */
 	protected $router;
 	/**

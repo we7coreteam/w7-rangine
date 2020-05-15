@@ -19,7 +19,7 @@ class RouteMapping {
 	protected $routeConfig = [];
 	protected $routeKeyWords = ['prefix', 'method', 'middleware', 'name', 'namespace', 'uri', 'handler'];
 	/**
-	 * @var Route
+	 * @var Router
 	 */
 	protected $router;
 
@@ -152,7 +152,7 @@ class RouteMapping {
 			}
 
 			if (empty($route['method'])) {
-				$route['method'] = Route::METHOD_BOTH_GP;
+				$route['method'] = Router::METHOD_BOTH_GP;
 			}
 
 			if (is_string($route['method'])) {

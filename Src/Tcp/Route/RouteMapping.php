@@ -12,7 +12,7 @@
 
 namespace W7\Tcp\Route;
 
-use W7\Core\Route\Route;
+use W7\Core\Route\Router;
 use W7\Core\Route\RouteMapping as RouteMappingAbstract;
 
 class RouteMapping extends RouteMappingAbstract {
@@ -21,7 +21,7 @@ class RouteMapping extends RouteMappingAbstract {
 	 */
 	public function getMapping() {
 		$routes = parent::getMapping();
-		$this->router = new Route();
+		$this->router = new Router();
 		$this->processRoutes($routes);
 
 		return $this->router->getData();

@@ -22,7 +22,7 @@ use W7\Core\Exception\ValidatorException;
 use W7\Console\Io\Output;
 use W7\Core\Message\TaskMessage;
 use Illuminate\Database\Eloquent\Model;
-use W7\Core\Route\Route;
+use W7\Core\Route\Router;
 use Swoole\Timer;
 
 if (!function_exists('ieventDispatcher')) {
@@ -178,10 +178,10 @@ if (!function_exists('icache')) {
 
 if (!function_exists('irouter')) {
 	/**
-	 * @return \W7\Core\Route\Route
+	 * @return \W7\Core\Route\Router
 	 */
 	function irouter() {
-		return icontainer()->singleton(Route::class);
+		return icontainer()->singleton(Router::class);
 	}
 }
 
