@@ -255,7 +255,7 @@ class Router {
 				'after' => []
 			],
 			'uri' => $this->routerCollector->getCurrentGroupPrefix() . $uri,
-			'defaults' => $defaults
+			'defaults' => (array)$defaults
 		];
 
 		if (!$name) {
