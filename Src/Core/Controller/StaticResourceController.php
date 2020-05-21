@@ -17,6 +17,6 @@ use W7\Http\Message\Server\Request;
 
 class StaticResourceController extends ControllerAbstract {
 	public function index(Request $request, ...$params) {
-		return $this->response()->withFile(new File(BASE_PATH . '/public' . $params[0]));
+		return $this->response()->withFile(new File($params[0]));
 	}
 }

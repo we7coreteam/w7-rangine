@@ -221,15 +221,15 @@ class Router {
 	 */
 	public function add($methods, $uri, $handler, $name = '', $defaults = []) {
 		if ($this->isStaticResource($handler)) {
-			$uri = $this->getStaticResourcePath($handler);
+			$handler = $this->getStaticResourcePath($handler);
 			$config = iconfig()->getServer();
 			$staticPath = rtrim($config['common']['document_root'] ?? BASE_PATH . '/public', '/');
-			if (filesize($staticPath . $uri) <= 0) {
-				throw new \ErrorException('static file can\'t be empty, ' . $staticPath . $uri, 500);
+			if (filesize($staticPath . $handler) <= 0) {
+				throw new \ErrorException('static file can\'t be empty, ' . $staticPath . $handler, 500);
 			}
 
+			$defaults = [$staticPath . $handler];
 			$handler = ['\W7\Core\Controller\StaticResourceController', 'index'];
-			$defaults = [$uri];
 		}
 		$handler = $this->checkHandler($handler);
 
