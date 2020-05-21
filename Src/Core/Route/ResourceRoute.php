@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Router;
+namespace W7\Core\Route;
 
 class ResourceRoute {
 	private $register;
