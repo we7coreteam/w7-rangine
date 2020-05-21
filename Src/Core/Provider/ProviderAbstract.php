@@ -27,19 +27,6 @@ abstract class ProviderAbstract {
 	//composer包的namespace
 	protected $packageNamespace;
 
-	/**
-	 * @var \W7\Core\Config\Config
-	 */
-	protected $config;
-	/**
-	 * @var \W7\Core\Route\Router
-	 */
-	protected $router;
-	/**
-	 * @var \W7\Core\Log\Logger
-	 */
-	protected $logger;
-
 	protected $defer;
 	public static $publishes = [];
 	public static $publishGroups = [];
@@ -58,10 +45,6 @@ abstract class ProviderAbstract {
 			$this->packageNamespace = $reflect->getNamespaceName();
 			$this->rootPath = dirname($reflect->getFileName(), 2);
 		}
-
-		$this->config = iconfig();
-		$this->router = irouter();
-		$this->logger = ilogger();
 	}
 
 	/**
@@ -104,19 +87,19 @@ abstract class ProviderAbstract {
 		];
 		$routeConfig = array_merge($routeConfig, $options);
 
-		$this->router->name($routeConfig['name'])->middleware($routeConfig['middleware'] ?? [])->group($routeConfig, function () use ($fileName) {
+		$this->getRouter()->name($routeConfig['name'])->middleware($routeConfig['middleware'] ?? [])->group($routeConfig, function () use ($fileName) {
 			$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
 		});
 	}
 
 	protected function registerStaticResource() {
-		$config = $this->config->getServer();
+		$config = $this->getConfigger()->getServer();
 		if (empty($config['common']['document_root'])) {
 			throw new \RuntimeException("please set server['common']['document_root']");
 		}
 
 		$filesystem = new Filesystem();
-		$config = $this->config->getServer();
+		$config = $this->getConfigger()->getServer();
 		$config['common']['document_root'] = rtrim($config['common']['document_root'], '/');
 		$flagFilePath = $config['common']['document_root'] . '/' . $this->name . '/resource.lock';
 
@@ -126,23 +109,12 @@ abstract class ProviderAbstract {
 		}
 	}
 
-	public function getView() {
-		if (!class_exists(View::class)) {
-			throw new \RuntimeException('class ' . View::class . ' not exists');
-		}
-		/**
-		 * @var View $view
-		 */
-		$view = icontainer()->singleton(View::class);
-		return $view;
-	}
-
 	protected function registerView($namespace) {
 		$this->getView()->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
 	}
 
 	protected function registerProvider($provider) {
-		icontainer()->singleton(ProviderManager::class)->registerProvider($provider);
+		$this->getContainer()->singleton(ProviderManager::class)->registerProvider($provider);
 	}
 
 	protected function registerCommand($namespace = '') {
@@ -152,15 +124,15 @@ abstract class ProviderAbstract {
 		/**
 		 * @var  Application $application
 		 */
-		$application = icontainer()->singleton(Application::class);
+		$application = $this->getContainer()->singleton(Application::class);
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->packageNamespace, $namespace);
 	}
 
 	protected function registerOpenBaseDir($dir) {
 		$dir = (array)$dir;
-		$appBasedir = $this->config->get('app.setting.basedir', []);
+		$appBasedir = $this->getConfigger()->get('app.setting.basedir', []);
 		$appBasedir = array_merge($appBasedir, $dir);
-		$this->config->set('app.setting.basedir', $appBasedir);
+		$this->getConfigger()->set('app.setting.basedir', $appBasedir);
 	}
 
 	protected function registerServer($name, $class) {
@@ -180,7 +152,7 @@ abstract class ProviderAbstract {
 		/**
 		 * @var ServerEvent $event
 		 */
-		$event = icontainer()->singleton(ServerEvent::class);
+		$event = $this->getContainer()->singleton(ServerEvent::class);
 		$event->addServerEvents($name, $events, $cover);
 	}
 
@@ -194,8 +166,8 @@ abstract class ProviderAbstract {
 	 * @param $key
 	 */
 	protected function mergeConfigFrom($path, $key) {
-		$config = $this->config->getUserConfig($key);
-		$this->config->setUserConfig($key, array_merge(require $path, $config));
+		$config = $this->getConfigger()->getUserConfig($key);
+		$this->getConfigger()->setUserConfig($key, array_merge(require $path, $config));
 	}
 
 	/**
@@ -299,5 +271,32 @@ abstract class ProviderAbstract {
 			return array_intersect_key(static::$publishes[$provider], static::$publishGroups[$group]);
 		}
 		return [];
+	}
+
+	protected function getContainer() {
+		return icontainer();
+	}
+
+	protected function getConfigger() {
+		return iconfig();
+	}
+
+	protected function getRouter() {
+		return irouter();
+	}
+
+	protected function getLogger() {
+		return ilogger();
+	}
+
+	protected function getView() {
+		if (!class_exists(View::class)) {
+			throw new \RuntimeException('class ' . View::class . ' not exists');
+		}
+		/**
+		 * @var View $view
+		 */
+		$view = $this->getContainer()->singleton(View::class);
+		return $view;
 	}
 }

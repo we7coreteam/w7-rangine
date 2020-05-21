@@ -26,7 +26,7 @@ class View {
 	private $isTransform;
 
 	public function __construct() {
-		$this->config = iconfig()->getUserAppConfig('view');
+		$this->config = iconfig()->get('app.view');
 		$this->config['suffix'] = empty($this->config['suffix']) ? 'html' : $this->config['suffix'];
 	}
 

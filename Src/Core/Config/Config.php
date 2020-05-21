@@ -38,8 +38,8 @@ class Config {
 	}
 
 	private function initUserConst() {
-		$setting = $this->getUserAppConfig('setting');
-		!defined('ENV') && define('ENV', $setting['env'] ?? DEVELOPMENT);
+		$env = $this->get('app.setting.env', DEVELOPMENT);
+		!defined('ENV') && define('ENV', $env);
 
 		$this->checkSetting();
 	}
@@ -75,6 +75,7 @@ class Config {
 
 	/**
 	 * 获取config/app.php中用户的配置
+	 * @deprecated
 	 * @param $name
 	 * @return array
 	 */

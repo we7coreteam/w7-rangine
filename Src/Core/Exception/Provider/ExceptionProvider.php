@@ -19,7 +19,7 @@ class ExceptionProvider extends ProviderAbstract {
 	public function register() {
 		$userHandler = 'W7\App\Handler\Exception\ExceptionHandler';
 		if (class_exists($userHandler)) {
-			icontainer()->singleton(HandlerExceptions::class)->setHandler($userHandler);
+			$this->getContainer()->singleton(HandlerExceptions::class)->setHandler($userHandler);
 		}
 	}
 }

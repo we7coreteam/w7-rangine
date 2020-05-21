@@ -33,7 +33,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	private function parseServer() {
-		$servers = trim(iconfig()->getUserAppConfig('setting')['server']);
+		$servers = trim(iconfig()->get('app.setting.server'));
 		if (!$servers) {
 			throw new CommandException('please set the server to start');
 		}
