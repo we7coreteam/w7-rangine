@@ -45,7 +45,7 @@ class RouteMapping {
 	public function getMapping() {
 		if (!self::$isInitRouteByConfig) {
 			//在多个服务同时启动的时候，防止重复注册
-			$this->routeConfig = \iconfig()->getRouteConfig();
+			$this->routeConfig = empty($this->routeConfig) ? \iconfig()->getRouteConfig() : $this->routeConfig;
 			self::$isInitRouteByConfig = true;
 		}
 		foreach ($this->routeConfig as $index => $routeConfig) {
