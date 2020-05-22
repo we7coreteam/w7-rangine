@@ -24,7 +24,7 @@ class ConnectorManager {
 	private $connectorObjs = [];
 
 	public function __construct() {
-		$this->poolConfig = \iconfig()->getUserAppConfig('pool')['database'] ?? [];
+		$this->poolConfig = \iconfig()->get('app.pool.database', []);
 	}
 
 	/**

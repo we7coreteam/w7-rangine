@@ -33,7 +33,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	private function parseServer() {
-		$servers = trim(iconfig()->getUserAppConfig('setting')['server']);
+		$servers = trim(iconfig()->get('app.setting.server'));
 		if (!$servers) {
 			throw new CommandException('please set the server to start');
 		}
@@ -178,15 +178,12 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	private function saveStartServer($type) {
-		$config = iconfig()->getUserConfig('app');
-		$config['setting']['started_servers'] = $config['setting']['started_servers'] ?? [];
-		$config['setting']['started_servers'][] = $type;
-		iconfig()->setUserConfig('app', $config);
+		$serverConfig = iconfig()->get('app.setting.started_servers', []);
+		$serverConfig[] = $type;
+		iconfig()->set('app.setting.started_servers', $serverConfig);
 	}
 
 	private function clearStartServer() {
-		$config = iconfig()->getUserConfig('app');
-		$config['setting']['started_servers'] = [];
-		iconfig()->setUserConfig('app', $config);
+		iconfig()->set('app.setting.started_servers', []);
 	}
 }

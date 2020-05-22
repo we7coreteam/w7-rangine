@@ -12,7 +12,7 @@
 
 namespace W7\Fpm\Server;
 
-use FastRoute\Dispatcher\GroupCountBased;
+use W7\Core\Route\RouteDispatcher;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
@@ -67,12 +67,11 @@ class Server extends ServerAbstract {
 	 * @return \Psr\Http\Message\ResponseInterface|void
 	 */
 	private function dispatch($request, $response) {
-		$routeInfo = icontainer()->singleton(RouteMapping::class)->getMapping();
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
 		$dispatcher = \icontainer()->singleton(Dispatcher::class);
-		$dispatcher->setRouter(new GroupCountBased($routeInfo));
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(icontainer()->singleton(RouteMapping::class), $this->getType()));
 
 		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response, $this->getType()]);
 

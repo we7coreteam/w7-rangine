@@ -34,7 +34,7 @@ class Server extends ProcessServerAbstract {
 		//获取要启动的process
 		$processConfig = iconfig()->getUserConfig('process');
 		$supportProcess = $processConfig['process'] ?? [];
-		$servers = trim(iconfig()->getUserAppConfig('setting')['server']);
+		$servers = trim(iconfig()->get('app.setting.server'));
 		$servers = explode('|', $servers);
 
 		//获取需要启动的process

@@ -38,7 +38,7 @@ class Session implements SessionInterface {
 	private $cache;
 
 	public function __construct() {
-		$this->config = iconfig()->getUserAppConfig('session');
+		$this->config = iconfig()->get('app.session');
 
 		$this->initPrefix();
 	}

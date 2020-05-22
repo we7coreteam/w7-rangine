@@ -26,8 +26,8 @@ class ConnectorManager {
 
 	public function __construct() {
 		$this->pool = [];
-		$this->config['connection'] = \iconfig()->getUserAppConfig('cache') ?? [];
-		$this->config['pool'] = \iconfig()->getUserAppConfig('pool')['cache'] ?? [];
+		$this->config['connection'] = \iconfig()->get('app.cache', []);
+		$this->config['pool'] = \iconfig()->get('app.pool.cache', []);
 	}
 
 	public function connect($name = 'default') : CacheInterface {

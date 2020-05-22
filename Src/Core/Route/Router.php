@@ -14,11 +14,8 @@ namespace W7\Core\Route;
 
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
-use FastRoute\Dispatcher\GroupCountBased as RouteDispatcher;
-use W7\App;
-use W7\Http\Message\File\File;
 
-class Route {
+class Router {
 	const METHOD_POST = 'POST';
 	const METHOD_GET = 'GET';
 	const METHOD_BOTH_GP = 'POST,GET';
@@ -29,7 +26,7 @@ class Route {
 	const METHOD_OPTIONS = 'OPTIONS';
 	const METHOD_ALL = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 
-	private $router;
+	private $routerCollector;
 
 	private $groupStack = [];
 
@@ -43,12 +40,19 @@ class Route {
 
 	private $name = '';
 
-	public function __construct() {
-		$this->router = new RouteCollector(new Std(), new GroupCountBased());
+	public function __construct(\FastRoute\RouteCollector $collector = null) {
+		if (!$collector) {
+			$collector = new RouteCollector(new Std(), new GroupCountBased());
+		}
+		$this->routerCollector = $collector;
 	}
 
-	public function getRouter() {
-		return $this->router;
+	public function getRouterCollector() {
+		return $this->routerCollector;
+	}
+
+	public function setRouterCollector(\FastRoute\RouteCollector $collector) {
+		$this->routerCollector = $collector;
 	}
 
 	private function parseGroupOption($option) {
@@ -74,7 +78,7 @@ class Route {
 	public function group($option, callable $callback) {
 		$option = $this->parseGroupOption($option);
 
-		$this->router->addGroup($option['prefix'], function (RouteCollector $route) use ($callback, $option) {
+		$this->routerCollector->addGroup($option['prefix'], function (RouteCollector $route) use ($callback, $option) {
 			$groupInfo = [];
 			$groupInfo['prefix'] = $option['prefix'];
 			$groupInfo['namespace'] = $option['namespace'];
@@ -98,10 +102,13 @@ class Route {
 	 * 注册一个允许所有协议的路由
 	 * @param $uri
 	 * @param $handler
+	 * @param string $name
+	 * @param array $defaults
 	 * @return bool
+	 * @throws \ErrorException
 	 */
-	public function any($uri, $handler) {
-		return $this->add(self::METHOD_ALL, $uri, $handler);
+	public function any($uri, $handler, $name = '', $defaults = []) {
+		return $this->add(self::METHOD_ALL, $uri, $handler, $name, $defaults);
 	}
 
 	public function all($uri, $handler) {
@@ -189,9 +196,7 @@ class Route {
 			}
 		}
 
-		$this->any($uri, function () use ($destination, $status) {
-			return App::getApp()->getContext()->getResponse()->withAddedHeader('Location', (string)$destination)->withStatus($status);
-		});
+		$this->any($uri, ['\W7\Core\Controller\RedirectController', 'index'], '', [$destination, $status]);
 	}
 
 	/**
@@ -210,10 +215,22 @@ class Route {
 	 * @param $uri
 	 * @param $handler
 	 * @param string $name
+	 * @param array $defaults
 	 * @return bool
 	 * @throws \ErrorException
 	 */
-	public function add($methods, $uri, $handler, $name = '') {
+	public function add($methods, $uri, $handler, $name = '', $defaults = []) {
+		if ($this->isStaticResource($handler)) {
+			$handler = $this->getStaticResourcePath($handler);
+			$config = iconfig()->getServer();
+			$staticPath = rtrim($config['common']['document_root'] ?? BASE_PATH . '/public', '/');
+			if (filesize($staticPath . $handler) <= 0) {
+				throw new \ErrorException('static file can\'t be empty, ' . $staticPath . $handler, 500);
+			}
+
+			$defaults = [$staticPath . $handler];
+			$handler = ['\W7\Core\Controller\StaticResourceController', 'index'];
+		}
 		$handler = $this->checkHandler($handler);
 
 		if (empty($methods)) {
@@ -237,7 +254,8 @@ class Route {
 				'before' => [],
 				'after' => []
 			],
-			'uri' => $this->router->getCurrentGroupPrefix() . $uri
+			'uri' => $this->routerCollector->getCurrentGroupPrefix() . $uri,
+			'defaults' => (array)$defaults
 		];
 
 		if (!$name) {
@@ -265,7 +283,7 @@ class Route {
 		$this->currentMiddleware = [];
 
 		try {
-			$this->router->addRoute($methods, $uri, $routeHandler);
+			$this->routerCollector->addRoute($methods, $uri, $routeHandler);
 		} catch (\Throwable $e) {
 			$dispatcher = new RouteDispatcher($this->getData());
 			foreach ($methods as $method) {
@@ -322,23 +340,10 @@ class Route {
 	 * @return array
 	 */
 	public function getData() {
-		return $this->router->getData();
+		return $this->routerCollector->getData();
 	}
 
 	private function checkHandler($handler) {
-		if ($this->isStaticResource($handler)) {
-			$uri = $this->getStaticResourcePath($handler);
-			$config = iconfig()->getServer();
-			$staticPath = rtrim($config['common']['document_root'] ?? BASE_PATH . '/public', '/');
-			if (filesize($staticPath . $uri) <= 0) {
-				throw new \ErrorException('static file can\'t be empty, ' . $staticPath . $uri, 500);
-			}
-
-			$handler = function () use ($uri) {
-				return App::getApp()->getContext()->getResponse()->withFile(new File(BASE_PATH . '/public' . $uri));
-			};
-		}
-
 		if ($handler instanceof \Closure) {
 			return $handler;
 		}

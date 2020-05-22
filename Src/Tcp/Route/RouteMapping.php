@@ -12,7 +12,7 @@
 
 namespace W7\Tcp\Route;
 
-use W7\Core\Route\Route;
+use W7\Core\Route\Router;
 use W7\Core\Route\RouteMapping as RouteMappingAbstract;
 
 class RouteMapping extends RouteMappingAbstract {
@@ -21,7 +21,7 @@ class RouteMapping extends RouteMappingAbstract {
 	 */
 	public function getMapping() {
 		$routes = parent::getMapping();
-		$this->router = new Route();
+		$this->router = new Router();
 		$this->processRoutes($routes);
 
 		return $this->router->getData();
@@ -32,7 +32,7 @@ class RouteMapping extends RouteMappingAbstract {
 		foreach ($routeMap[0] as $method => $routes) {
 			foreach ($routes as $key => $route) {
 				if (!in_array($route['uri'], $registerRoutes)) {
-					$this->router->getRouter()->addRoute('POST', $route['uri'], $route);
+					$this->router->getRouterCollector()->addRoute('POST', $route['uri'], $route);
 				}
 				$registerRoutes[] = $route['uri'];
 			}
@@ -43,7 +43,7 @@ class RouteMapping extends RouteMappingAbstract {
 				foreach ($routes['routeMap'] as $route) {
 					$route = $route[0];
 					if (!in_array($route['uri'], $registerRoutes)) {
-						$this->router->getRouter()->addRoute('POST', $route['uri'], $route);
+						$this->router->getRouterCollector()->addRoute('POST', $route['uri'], $route);
 					}
 				}
 			}

@@ -106,13 +106,9 @@ class DatabaseProvider extends ProviderAbstract {
 		});
 
 		$container->instance('events', $dbDispatch);
-
-		//添加配置信息到容器
-		$dbconfig = \iconfig()->getUserAppConfig('database');
-
 		$container->instance('config', new Fluent());
 		$container['config']['database.default'] = 'default';
-		$container['config']['database.connections'] = $dbconfig;
+		$container['config']['database.connections'] = $this->getConfigger()->get('app.database');
 		$factory = new ConnectionFactory($container);
 		$dbManager = new DatabaseManager($container, $factory);
 

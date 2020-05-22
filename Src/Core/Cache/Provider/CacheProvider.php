@@ -17,10 +17,10 @@ use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
 	public function register() {
-		$config = iconfig()->getUserAppConfig('cache');
+		$config = $this->getConfigger()->get('app.cache');
 		$channels = array_keys($config);
 		foreach ($channels as $key => $channel) {
-			icontainer()->set('cache-' . $channel, function () use ($channel) {
+			$this->getContainer()->set('cache-' . $channel, function () use ($channel) {
 				if ($channel === 'default') {
 					return icache();
 				}

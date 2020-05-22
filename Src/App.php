@@ -48,7 +48,7 @@ class App {
 	}
 
 	private function registerRuntimeEnv() {
-		$defaultTimezone = iconfig()->getUserAppConfig('setting')['timezone'] ?? 'Asia/Shanghai';
+		$defaultTimezone = iconfig()->get('app.setting.timezone', 'Asia/Shanghai');
 		date_default_timezone_set($defaultTimezone);
 
 		if (!is_dir(RUNTIME_PATH)) {
@@ -64,7 +64,7 @@ class App {
 
 	private function registerSecurityDir() {
 		//设置安全限制目录
-		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?? [];
+		$openBaseDirConfig = iconfig()->get('app.setting.basedir', []);
 		if (is_array($openBaseDirConfig)) {
 			$openBaseDirConfig = implode(':', $openBaseDirConfig);
 		}
@@ -73,6 +73,7 @@ class App {
 			'/tmp',
 			sys_get_temp_dir(),
 			APP_PATH,
+			BASE_PATH . '/bootstrap',
 			BASE_PATH . '/config',
 			BASE_PATH . '/route',
 			BASE_PATH . '/public',
@@ -88,7 +89,7 @@ class App {
 
 	private function registerErrorHandler() {
 		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
-		$setting = iconfig()->getUserAppConfig('setting');
+		$setting = iconfig()->get('app.setting');
 		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
 		error_reporting($errorLevel);
 

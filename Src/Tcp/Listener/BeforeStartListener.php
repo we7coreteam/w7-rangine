@@ -13,7 +13,8 @@
 namespace W7\Tcp\Listener;
 
 use W7\Core\Listener\ListenerAbstract;
-use FastRoute\Dispatcher\GroupCountBased;
+use W7\Core\Route\RouteDispatcher;
+use W7\Core\Server\ServerEnum;
 use W7\Tcp\Route\RouteMapping;
 use W7\Tcp\Server\Dispatcher;
 
@@ -27,7 +28,6 @@ class BeforeStartListener extends ListenerAbstract {
 		 * @var Dispatcher $dispatcher
 		 */
 		$dispatcher = icontainer()->singleton(Dispatcher::class);
-		$routeInfo = icontainer()->singleton(RouteMapping::class)->getMapping();
-		$dispatcher->setRouter(new GroupCountBased($routeInfo));
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(icontainer()->singleton(RouteMapping::class), ServerEnum::TYPE_TCP));
 	}
 }

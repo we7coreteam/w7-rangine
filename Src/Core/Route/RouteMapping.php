@@ -12,13 +12,14 @@
 
 namespace W7\Core\Route;
 
+use W7\Core\Controller\FaviconController;
 use W7\Core\Middleware\MiddlewareMapping;
 
 class RouteMapping {
 	protected $routeConfig = [];
 	protected $routeKeyWords = ['prefix', 'method', 'middleware', 'name', 'namespace', 'uri', 'handler'];
 	/**
-	 * @var Route
+	 * @var Router
 	 */
 	protected $router;
 
@@ -31,29 +32,22 @@ class RouteMapping {
 
 	public function __construct() {
 		$this->middlewareMapping = icontainer()->singleton(MiddlewareMapping::class);
-		if (!self::$isInitRouteByConfig) {
-			//在多个服务同时启动的时候，防止重复注册
-			$this->routeConfig = \iconfig()->getRouteConfig();
-			self::$isInitRouteByConfig = true;
-		}
 		$this->router = irouter();
-		/**
-		 * @todo 增加引入扩展机制的路由
-		 */
 	}
 
 	public function setRouteConfig($routeConfig) {
 		$this->routeConfig = $routeConfig;
 	}
 
-	public function getRouteConfig() {
-		return $this->routeConfig;
-	}
-
 	/**
 	 * @return array|mixed
 	 */
 	public function getMapping() {
+		if (!self::$isInitRouteByConfig) {
+			//在多个服务同时启动的时候，防止重复注册
+			$this->routeConfig = empty($this->routeConfig) ? \iconfig()->getRouteConfig() : $this->routeConfig;
+			self::$isInitRouteByConfig = true;
+		}
 		foreach ($this->routeConfig as $index => $routeConfig) {
 			$this->initRouteByConfig($routeConfig);
 		}
@@ -162,7 +156,7 @@ class RouteMapping {
 			}
 
 			if (empty($route['method'])) {
-				$route['method'] = Route::METHOD_BOTH_GP;
+				$route['method'] = Router::METHOD_BOTH_GP;
 			}
 
 			if (is_string($route['method'])) {
@@ -193,9 +187,7 @@ class RouteMapping {
 	//如果用户自定义了系统路由，则按照用户的路由走
 	public function registerSystemRoute() {
 		try {
-			$this->router->get('/favicon.ico', function () {
-				return icontext()->getResponse()->withContent('');
-			});
+			$this->router->get('/favicon.ico', [FaviconController::class, 'index']);
 		} catch (\Throwable $e) {
 			null;
 		}

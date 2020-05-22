@@ -12,6 +12,8 @@
 
 namespace W7\Core\Config;
 
+use Illuminate\Support\Arr;
+
 class Config {
 	const VERSION = '2.2.3';
 
@@ -36,8 +38,8 @@ class Config {
 	}
 
 	private function initUserConst() {
-		$setting = $this->getUserAppConfig('setting');
-		!defined('ENV') && define('ENV', $setting['env'] ?? DEVELOPMENT);
+		$env = $this->get('app.setting.env', DEVELOPMENT);
+		!defined('ENV') && define('ENV', $env);
 
 		$this->checkSetting();
 	}
@@ -73,6 +75,7 @@ class Config {
 
 	/**
 	 * 获取config/app.php中用户的配置
+	 * @deprecated
 	 * @param $name
 	 * @return array
 	 */
@@ -95,6 +98,14 @@ class Config {
 	public function getRouteConfig() {
 		$this->loadUserConfig('route');
 		return $this->config['route'];
+	}
+
+	public function get($key, $default = null) {
+		return Arr::get($this->config['config'], $key, $default);
+	}
+
+	public function set($key, $value) {
+		return Arr::set($this->config['config'], $key, $value);
 	}
 
 	/**

@@ -18,7 +18,7 @@ use W7\Core\Server\ServerEvent;
 class WorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
 		$this->log($params[1]);
-		$startedServers = iconfig()->getUserAppConfig('setting')['started_servers'] ?? [App::$server->getType()];
+		$startedServers = iconfig()->get('app.setting.started_servers', [App::$server->getType()]);
 		foreach ($startedServers as $startedServer) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst($startedServer), ucfirst(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN));
 			ieventDispatcher()->listen(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $listener);

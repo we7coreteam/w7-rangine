@@ -46,25 +46,12 @@ abstract class CommandAbstract extends Command {
 			if (strpos($option, 'config') !== false) {
 				$option = explode('-', $option);
 				array_shift($option);
+				//这里count>2的原因是保证option的结构中至少有配置分组
 				if (count($option) >= 2) {
-					$name = array_shift($option);
-					$config = iconfig()->getUserConfig($name);
-
-					$childConfig = &$config;
-					while (count($option) > 1) {
-						$key = array_shift($option);
-						if (! isset($childConfig[$key]) || ! is_array($childConfig[$key])) {
-							$childConfig[$key] = [];
-						}
-
-						$childConfig = &$childConfig[$key];
-					}
-
-					$key = array_shift($option);
+					$key = implode('.', $option);
 					putenv($key . '=' . Env\Loader::parseValue($value));
-					$childConfig[$key] = ienv($key);
 
-					iconfig()->setUserConfig($name, $config);
+					iconfig()->set($key, ienv($key));
 				}
 			}
 		}
