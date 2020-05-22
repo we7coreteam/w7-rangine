@@ -168,6 +168,18 @@ class App {
 		return $cache;
 	}
 
+	public function bootstrapPath($path = '') {
+		return BASE_PATH . DIRECTORY_SEPARATOR . 'bootstrap' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+	}
+
+	public function getRouteCachePath() {
+		return $this->bootstrapPath('cache/route/');
+	}
+
+	public function getConfigCachePath() {
+		return $this->bootstrapPath('cache/config/');
+	}
+
 	public function exit() {
 		$this->container->clear();
 	}

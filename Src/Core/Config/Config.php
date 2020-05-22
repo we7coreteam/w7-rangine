@@ -13,6 +13,7 @@
 namespace W7\Core\Config;
 
 use Illuminate\Support\Arr;
+use W7\App;
 use W7\Core\Config\Env\Env;
 
 class Config {
@@ -23,16 +24,10 @@ class Config {
 		$this->payload = $payload;
 	}
 
-	public static function getCachePath() {
-		return BASE_PATH . '/bootstrap/cache/config/';
-	}
-
 	public function load() {
-		$loadDir = BASE_PATH . '/config';
-
-		if (file_exists(self::getCachePath())) {
-			$loadDir = self::getCachePath();
-		} else {
+		$loadDir = App::getApp()->getConfigCachePath();
+		if (!file_exists($loadDir)) {
+			$loadDir = BASE_PATH . '/config';
 			(new Env(BASE_PATH))->load();
 		}
 
