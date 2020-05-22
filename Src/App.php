@@ -169,15 +169,15 @@ class App {
 	}
 
 	public function bootstrapCachePath($path = '') {
-		return BASE_PATH . DIRECTORY_SEPARATOR . 'bootstrap' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+		return BASE_PATH . DIRECTORY_SEPARATOR . 'bootstrap/cache' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
 	}
 
 	public function getRouteCachePath() {
-		return $this->bootstrapCachePath('cache/route/');
+		return $this->bootstrapCachePath('route/');
 	}
 
 	public function getConfigCachePath() {
-		return $this->bootstrapCachePath('cache/config/');
+		return $this->bootstrapCachePath('config/');
 	}
 
 	public function exit() {
