@@ -10,11 +10,10 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Config;
+namespace W7\Core\Config\Env;
 
 use Dotenv\Dotenv;
 use Dotenv\Environment\DotenvFactory;
-use W7\Core\Config\Env\Loader;
 
 class Env {
 	private $envPath = '';
