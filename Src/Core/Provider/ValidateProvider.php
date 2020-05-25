@@ -25,24 +25,24 @@ class ValidateProvider extends ProviderAbstract {
 	}
 
 	public function registerLoader() {
-		$this->getContainer()->set('validate.loader', function () {
+		$this->container->set('validate.loader', function () {
 			return new ArrayLoader();
 		});
 	}
 
 	public function registerTranslator() {
-		$this->getContainer()->set('validate.translator', function () {
-			$config = $this->getConfigger()->get('app.setting');
-			return new Translator($this->getContainer()->get('validate.loader'), $config['lang'] ?? 'zh-CN');
+		$this->container->set('validate.translator', function () {
+			$config = $this->config->get('app.setting');
+			return new Translator($this->container->get('validate.loader'), $config['lang'] ?? 'zh-CN');
 		});
 	}
 
 	public function registerFactory() {
-		$this->getContainer()->set(Factory::class, function () {
+		$this->container->set(Factory::class, function () {
 			/**
 			 * @var Translator $translator
 			 */
-			$translator = $this->getContainer()->get('validate.translator');
+			$translator = $this->container->get('validate.translator');
 			$validate = new Factory($translator);
 			$validate->setPresenceVerifier(new DatabasePresenceVerifier(idb()));
 			return $validate;

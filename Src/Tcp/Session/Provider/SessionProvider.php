@@ -25,7 +25,7 @@ class SessionProvider extends ProviderAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
+		$dispatcher = $this->container->singleton(Dispatcher::class);
 		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class);
 	}
 }
