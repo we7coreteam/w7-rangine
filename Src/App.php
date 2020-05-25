@@ -24,6 +24,8 @@ use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
 
 class App {
+	const VERSION = '2.2.3';
+
 	private static $self;
 	/**
 	 * 服务器对象
@@ -40,7 +42,7 @@ class App {
 		self::$self = $this;
 
 		//初始化配置
-		iconfig();
+		iconfig()->load();
 		$this->registerRuntimeEnv();
 		$this->registerErrorHandler();
 		$this->registerProvider();
@@ -59,6 +61,12 @@ class App {
 		}
 		if (!is_writeable(RUNTIME_PATH)) {
 			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no write permission');
+		}
+
+		$env = $this->getConfigger()->get('app.setting.env', DEVELOPMENT);
+		!defined('ENV') && define('ENV', $env);
+		if (!is_numeric(ENV) || ((RELEASE|DEVELOPMENT) & ENV) !== ENV) {
+			throw new \RuntimeException("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
 		}
 	}
 
@@ -158,6 +166,18 @@ class App {
 		 */
 		$cache = $this->getContainer()->get(Cache::class);
 		return $cache;
+	}
+
+	public function bootstrapCachePath($path = '') {
+		return BASE_PATH . DIRECTORY_SEPARATOR . 'bootstrap/cache' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+	}
+
+	public function getRouteCachePath() {
+		return $this->bootstrapCachePath('route/');
+	}
+
+	public function getConfigCachePath() {
+		return $this->bootstrapCachePath('config/');
 	}
 
 	public function exit() {

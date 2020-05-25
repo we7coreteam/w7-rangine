@@ -21,6 +21,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use W7\App;
 
 class Application extends SymfontApplication {
 	public function __construct() {
@@ -145,7 +146,7 @@ __      _______ _______                   _
 	}
 
 	private function version() {
-		$frameworkVersion = \iconfig()::VERSION;
+		$frameworkVersion = App::VERSION;
 		$phpVersion = PHP_VERSION;
 		$swooleVersion = SWOOLE_VERSION;
 		$version = "framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion";

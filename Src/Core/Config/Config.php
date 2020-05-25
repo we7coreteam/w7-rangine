@@ -13,41 +13,26 @@
 namespace W7\Core\Config;
 
 use Illuminate\Support\Arr;
+use W7\App;
+use W7\Core\Config\Env\Env;
 
 class Config {
-	const VERSION = '2.2.3';
-
 	private $server;
-	private $defaultServer = [];
+	private $payload = [];
 
-	private $config = [];
-
-	public function __construct() {
-		//初始化evn配置数据
-		/**
-		 * @var Env $env
-		 */
-		$env = new Env(BASE_PATH);
-		$env->load();
-		unset($env);
-
-		//加载所有的配置到内存中
-		$this->loadAutoLoadConfig();
-		$this->loadUserConfig('config');
-		$this->initUserConst();
+	public function __construct(array $payload = []) {
+		$this->payload = $payload;
 	}
 
-	private function initUserConst() {
-		$env = $this->get('app.setting.env', DEVELOPMENT);
-		!defined('ENV') && define('ENV', $env);
-
-		$this->checkSetting();
-	}
-
-	private function checkSetting() {
-		if (!is_numeric(ENV) || ((RELEASE|DEVELOPMENT) & ENV) !== ENV) {
-			throw new \RuntimeException("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
+	public function load() {
+		$loadDir = App::getApp()->getConfigCachePath();
+		if (!file_exists($loadDir)) {
+			$loadDir = BASE_PATH . '/config';
+			(new Env(BASE_PATH))->load();
 		}
+
+		$this->loadConfig(BASE_PATH . '/vendor/composer/rangine/autoload/config');
+		$this->loadConfig($loadDir);
 	}
 
 	/**
@@ -57,8 +42,15 @@ class Config {
 		if (!empty($this->server)) {
 			return $this->server;
 		}
-		$this->server = array_merge([], $this->defaultServer, $this->getUserConfig('server'));
+		$this->server = $this->getUserConfig('server');
 		return $this->server;
+	}
+
+	public function setUserConfig($name, $data) {
+		if ($name === 'server') {
+			$this->server = [];
+		}
+		$this->payload[$name] = $data;
 	}
 
 	/**
@@ -67,8 +59,8 @@ class Config {
 	 * @return mixed|null
 	 */
 	public function getUserConfig($type) {
-		if (!empty($this->config['config'][$type])) {
-			return $this->config['config'][$type];
+		if (!empty($this->payload[$type])) {
+			return $this->payload[$type];
 		}
 		return [];
 	}
@@ -80,70 +72,32 @@ class Config {
 	 * @return array
 	 */
 	public function getUserAppConfig($name) {
-		$commonConfig = $this->getUserConfig('app');
-		if (isset($commonConfig[$name])) {
-			return $commonConfig[$name];
-		} else {
-			return [];
-		}
-	}
-
-	public function setUserConfig($name, $data) {
-		if ($name === 'server') {
-			$this->server = [];
-		}
-		$this->config['config'][$name] = $data;
-	}
-
-	public function getRouteConfig() {
-		$this->loadUserConfig('route');
-		return $this->config['route'];
+		return $this->get('app.' . $name, []);
 	}
 
 	public function get($key, $default = null) {
-		return Arr::get($this->config['config'], $key, $default);
+		return Arr::get($this->payload, $key, $default);
 	}
 
 	public function set($key, $value) {
-		return Arr::set($this->config['config'], $key, $value);
+		return Arr::set($this->payload, $key, $value);
 	}
 
-	/**
-	 * 加载所有的配置文件到内存中
-	 */
-	private function loadUserConfig($section) {
-		$allowSection = [
-			'route',
-			'config',
-		];
-
-		if (!in_array($section, $allowSection)) {
-			throw new \RuntimeException('Path not allowed');
-		}
-
-		$this->loadConfig(BASE_PATH, $section);
-	}
-
-	private function loadAutoLoadConfig() {
-		$this->loadConfig(BASE_PATH . '/vendor/composer/rangine/autoload', 'config');
-	}
-
-	private function loadConfig($configDir, $section) {
-		$this->config[$section] = $this->config[$section] ?? [];
-		$configFileTree = glob($configDir . '/' . $section . '/*.php');
+	protected function loadConfig($configDir) {
+		$configFileTree = glob($configDir . '/*.php');
 		if (empty($configFileTree)) {
-			return $this->config[$section];
+			return $this->payload;
 		}
 
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
 			$appConfig = include $path;
 			if (is_array($appConfig)) {
-				$this->config[$section][$key] = $this->config[$section][$key] ?? [];
-				$this->config[$section][$key] = array_merge_recursive($this->config[$section][$key], $appConfig);
+				$this->payload[$key] = $this->payload[$key] ?? [];
+				$this->payload[$key] = array_merge_recursive($this->payload[$key], $appConfig);
 			}
 		}
 
-		return $this->config[$section];
+		return $this->payload;
 	}
 }

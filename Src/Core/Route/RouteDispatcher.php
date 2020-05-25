@@ -13,17 +13,14 @@
 namespace W7\Core\Route;
 
 use FastRoute\Dispatcher\GroupCountBased;
+use W7\App;
 use W7\Core\Server\ServerEnum;
 
 class RouteDispatcher extends GroupCountBased {
-	public static $routeCacheFileName = 'route.cache';
-
-	public static function getCachedRoutePath() {
-		return BASE_PATH . '/bootstrap/cache/route/';
-	}
+	public static $routeCacheFileName = 'route.php';
 
 	public static function getDispatcherWithRouteMapping(RouteMapping $routeMapping, $routeCacheGroup = ServerEnum::TYPE_HTTP) {
-		$routeCacheFile = self::getCachedRoutePath() . $routeCacheGroup . '.' . self::$routeCacheFileName;
+		$routeCacheFile = App::getApp()->getRouteCachePath() . $routeCacheGroup . '.' . self::$routeCacheFileName;
 		if (file_exists($routeCacheFile)) {
 			$routeDefinitions = require $routeCacheFile;
 			if (!is_array($routeDefinitions)) {

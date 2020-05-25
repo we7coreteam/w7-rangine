@@ -13,7 +13,6 @@
 namespace W7\Core\Route;
 
 use W7\Core\Controller\FaviconController;
-use W7\Core\Middleware\MiddlewareMapping;
 
 class RouteMapping {
 	protected $routeConfig = [];
@@ -23,15 +22,9 @@ class RouteMapping {
 	 */
 	protected $router;
 
-	/**
-	 * @var MiddlewareMapping
-	 */
-	private $middlewareMapping;
-
 	private static $isInitRouteByConfig = false;
 
 	public function __construct() {
-		$this->middlewareMapping = icontainer()->singleton(MiddlewareMapping::class);
 		$this->router = irouter();
 	}
 
@@ -45,7 +38,7 @@ class RouteMapping {
 	public function getMapping() {
 		if (!self::$isInitRouteByConfig) {
 			//在多个服务同时启动的时候，防止重复注册
-			$this->routeConfig = empty($this->routeConfig) ? \iconfig()->getRouteConfig() : $this->routeConfig;
+			$this->routeConfig = empty($this->routeConfig) ? $this->getRouteConfig() : $this->routeConfig;
 			self::$isInitRouteByConfig = true;
 		}
 		foreach ($this->routeConfig as $index => $routeConfig) {
@@ -53,6 +46,24 @@ class RouteMapping {
 		}
 		$this->registerSystemRoute();
 		return $this->router->getData();
+	}
+
+	protected function getRouteConfig() {
+		$routeConfigs = [];
+		$configFileTree = glob(BASE_PATH . '/route/*.php');
+		if (empty($configFileTree)) {
+			return $routeConfigs;
+		}
+
+		foreach ($configFileTree as $path) {
+			$key = pathinfo($path, PATHINFO_FILENAME);
+			$routeConfig = include $path;
+			if (is_array($routeConfig)) {
+				$routeConfigs[$key] = $routeConfig;
+			}
+		}
+
+		return $routeConfigs;
 	}
 
 	protected function initRouteByConfig($config) {
