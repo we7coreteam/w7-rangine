@@ -17,7 +17,7 @@ use W7\App;
 use W7\Core\Server\ServerEnum;
 
 class RouteDispatcher extends GroupCountBased {
-	public static $routeCacheFileName = 'route.cache';
+	public static $routeCacheFileName = 'route.php';
 
 	public static function getDispatcherWithRouteMapping(RouteMapping $routeMapping, $routeCacheGroup = ServerEnum::TYPE_HTTP) {
 		$routeCacheFile = App::getApp()->getRouteCachePath() . $routeCacheGroup . '.' . self::$routeCacheFileName;
