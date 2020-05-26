@@ -41,19 +41,19 @@ class Router {
 
 	private $name = '';
 
-	public function __construct(RouteCollector $collector = null) {
-		if (!$collector) {
-			$collector = new RouteCollector(new Std(), new GroupCountBased());
+	public function __construct(RouteCollector $routeCollector = null) {
+		if (!$routeCollector) {
+			$routeCollector = new RouteCollector(new Std(), new GroupCountBased());
 		}
-		$this->routerCollector = $collector;
+		$this->routerCollector = $routeCollector;
 	}
 
 	public function getRouterCollector() {
 		return $this->routerCollector;
 	}
 
-	public function setRouterCollector(\FastRoute\RouteCollector $collector) {
-		$this->routerCollector = $collector;
+	public function setRouterCollector(RouteCollector $routeCollector) {
+		$this->routerCollector = $routeCollector;
 	}
 
 	public function registerValidator(ValidatorInterface $validator) {
@@ -83,7 +83,7 @@ class Router {
 	public function group($option, callable $callback) {
 		$option = $this->parseGroupOption($option);
 
-		$this->routerCollector->addGroup($option['prefix'], function (RouteCollector $route) use ($callback, $option) {
+		$this->routerCollector->addGroup($option['prefix'], function (RouteCollector $routeCollector) use ($callback, $option) {
 			$groupInfo = [];
 			$groupInfo['prefix'] = $option['prefix'];
 			$groupInfo['namespace'] = $option['namespace'];
