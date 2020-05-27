@@ -19,7 +19,7 @@ class FileLoader {
 
 	public function __construct($loadDir = BASE_PATH) {
 		$this->loadDir = $loadDir;
-		$this->loadRules = iconfig()->get('app.setting.file_load_rule', []);
+		$this->loadRules = iconfig()->get('app.setting.file_ignore_rule', []);
 	}
 
 	public function getIgnoreFiles() {
@@ -39,8 +39,16 @@ class FileLoader {
 			}
 			if (substr($loadRule, 0, 1) == '!') {
 				$loadRule = substr($loadRule, 1);
-				$files = array_diff(glob("$loadDir/*"), glob("$loadDir/$loadRule"));
-			} else {                                    # normal glob
+
+				//!route/test.php 只会处理route目录下的包含关系
+				$parentDir = dirname($loadRule);
+				$parentLoadRule = $loadDir;
+				if ($parentDir != '.' && $parentDir != '..') {
+					$parentLoadRule .= '/' . $parentDir;
+				}
+
+				$files = array_diff(glob("$parentLoadRule/*"), glob("$loadDir/$loadRule"));
+			} else {
 				$files = glob("$loadDir/$loadRule");
 			}
 			$matches = array_merge($matches, $files);
