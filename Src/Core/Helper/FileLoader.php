@@ -57,7 +57,7 @@ class FileLoader {
 		return $this->ignoreFiles = $matches;
 	}
 
-	public function load($file) {
+	public function loadFile($file) {
 		$ignoreFiles = $this->getIgnoreFiles();
 		if (in_array($file, $ignoreFiles)) {
 			return null;

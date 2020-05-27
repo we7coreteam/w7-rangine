@@ -58,7 +58,7 @@ class RouteMapping {
 
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
-			$routeConfig = icontainer()->singleton(FileLoader::class)->load($path);
+			$routeConfig = icontainer()->singleton(FileLoader::class)->loadFile($path);
 			if (is_array($routeConfig)) {
 				$routeConfigs[$key] = $routeConfig;
 			}
