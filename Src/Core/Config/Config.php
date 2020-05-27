@@ -15,6 +15,7 @@ namespace W7\Core\Config;
 use Illuminate\Support\Arr;
 use W7\App;
 use W7\Core\Config\Env\Env;
+use W7\Core\Helper\FileLoader;
 
 class Config {
 	private $server;
@@ -91,10 +92,8 @@ class Config {
 
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
-			$appConfig = include $path;
-			if (is_array($appConfig)) {
-				$this->payload[$key] = $this->payload[$key] ?? [];
-				$this->payload[$key] = array_merge_recursive($this->payload[$key], $appConfig);
+			if ($config = icontainer()->singleton(FileLoader::class)->load($path)) {
+				$this->payload[$key] = $config;
 			}
 		}
 

@@ -13,6 +13,7 @@
 namespace W7\Core\Route;
 
 use W7\Core\Controller\FaviconController;
+use W7\Core\Helper\FileLoader;
 
 class RouteMapping {
 	protected $routeConfig = [];
@@ -57,8 +58,7 @@ class RouteMapping {
 
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
-			$routeConfig = include $path;
-			if (is_array($routeConfig)) {
+			if ($routeConfig = icontainer()->singleton(FileLoader::class)->load($path)) {
 				$routeConfigs[$key] = $routeConfig;
 			}
 		}
