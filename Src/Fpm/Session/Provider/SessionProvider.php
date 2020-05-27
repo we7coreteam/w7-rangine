@@ -24,7 +24,7 @@ class SessionProvider extends ProviderAbstract {
 
 	//把用户设置的session配置起作用到php.ini中
 	private function initSessionConfig() {
-		$sessionConfig = $this->getConfigger()->get('app.session', []);
+		$sessionConfig = $this->config->get('app.session', []);
 		if (empty($sessionConfig['save_path'])) {
 			//如果没设置，使用php默认的session目录
 			$sessionConfig['save_path'] = session_save_path();
@@ -43,14 +43,14 @@ class SessionProvider extends ProviderAbstract {
 		}
 		ini_set('session.auto_start', 'Off');
 
-		$this->getConfigger()->set('app.session', $sessionConfig);
+		$this->config->set('app.session', $sessionConfig);
 	}
 
 	private function registerMiddleware() {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
+		$dispatcher = $this->container->singleton(Dispatcher::class);
 		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class);
 	}
 }

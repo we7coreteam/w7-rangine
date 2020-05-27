@@ -14,11 +14,23 @@ namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
 use W7\Console\Application;
+use W7\Core\Config\Config;
+use W7\Core\Container\Container;
 use W7\Core\Helper\StringHelper;
+use W7\Core\Log\Logger;
+use W7\Core\Route\Router;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\View\View;
 
+/**
+ * Class ProviderAbstract
+ * @package W7\Core\Provider
+ * @property-read Config $config
+ * @property-read Router $router
+ * @property-read Container $container
+ * @property-read Logger $logger
+ */
 abstract class ProviderAbstract {
 	protected $name;
 
@@ -80,7 +92,6 @@ abstract class ProviderAbstract {
 
 	protected function registerRoute($fileName, $options = []) {
 		$routeConfig = [
-			'prefix' => '/' . ltrim($this->name, '/'),
 			'namespace' => $this->packageNamespace,
 			'module' => $this->name,
 			'name' => $this->name
@@ -93,13 +104,13 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerStaticResource() {
-		$config = $this->getConfigger()->getServer();
+		$config = $this->config->getServer();
 		if (empty($config['common']['document_root'])) {
 			throw new \RuntimeException("please set server['common']['document_root']");
 		}
 
 		$filesystem = new Filesystem();
-		$config = $this->getConfigger()->getServer();
+		$config = $this->config->getServer();
 		$config['common']['document_root'] = rtrim($config['common']['document_root'], '/');
 		$flagFilePath = $config['common']['document_root'] . '/' . $this->name . '/resource.lock';
 
@@ -130,9 +141,9 @@ abstract class ProviderAbstract {
 
 	protected function registerOpenBaseDir($dir) {
 		$dir = (array)$dir;
-		$appBasedir = $this->getConfigger()->get('app.setting.basedir', []);
+		$appBasedir = $this->config->get('app.setting.basedir', []);
 		$appBasedir = array_merge($appBasedir, $dir);
-		$this->getConfigger()->set('app.setting.basedir', $appBasedir);
+		$this->config->set('app.setting.basedir', $appBasedir);
 	}
 
 	protected function registerServer($name, $class) {
@@ -166,8 +177,8 @@ abstract class ProviderAbstract {
 	 * @param $key
 	 */
 	protected function mergeConfigFrom($path, $key) {
-		$config = $this->getConfigger()->getUserConfig($key);
-		$this->getConfigger()->setUserConfig($key, array_merge(require $path, $config));
+		$config = $this->config->getUserConfig($key);
+		$this->config->setUserConfig($key, array_merge(require $path, $config));
 	}
 
 	/**
@@ -277,7 +288,7 @@ abstract class ProviderAbstract {
 		return icontainer();
 	}
 
-	protected function getConfigger() {
+	protected function getConfig() {
 		return iconfig();
 	}
 
@@ -298,5 +309,14 @@ abstract class ProviderAbstract {
 		 */
 		$view = $this->getContainer()->singleton(View::class);
 		return $view;
+	}
+
+	public function __get($name) {
+		$method = 'get' . ucfirst($name);
+		if (method_exists($this, $method)) {
+			return $this->$method();
+		}
+
+		throw new \RuntimeException('property ' . $name . ' not exists');
 	}
 }
