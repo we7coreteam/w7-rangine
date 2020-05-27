@@ -19,7 +19,7 @@ class FileLoader {
 
 	public function __construct($loadDir = BASE_PATH) {
 		$this->loadDir = $loadDir;
-		$this->loadRules = iconfig()->get('app.setting.file_ignore_rule', []);
+		$this->loadRules = iconfig()->get('app.setting.file_ignore', []);
 	}
 
 	public function getIgnoreFiles() {
