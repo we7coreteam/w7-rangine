@@ -97,7 +97,6 @@ abstract class ProviderAbstract {
 
 	protected function registerRoute($fileName, $options = []) {
 		$routeConfig = [
-			'prefix' => '/' . ltrim($this->name, '/'),
 			'namespace' => $this->packageNamespace,
 			'module' => $this->name,
 			'name' => $this->name

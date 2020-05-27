@@ -15,7 +15,7 @@ namespace W7\Core\Config;
 use Illuminate\Support\Arr;
 
 class Config {
-	const VERSION = '2.2.3';
+	const VERSION = '2.2.5';
 
 	private $server;
 	private $defaultServer = [];
