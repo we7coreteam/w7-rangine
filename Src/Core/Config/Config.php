@@ -91,10 +91,10 @@ class Config {
 
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
-			$appConfig = include $path;
-			if (is_array($appConfig)) {
+			$config = include $path;
+			if (is_array($config)) {
 				$this->payload[$key] = $this->payload[$key] ?? [];
-				$this->payload[$key] = array_merge_recursive($this->payload[$key], $appConfig);
+				$this->payload[$key] = array_merge_recursive($this->payload[$key], $config);
 			}
 		}
 
