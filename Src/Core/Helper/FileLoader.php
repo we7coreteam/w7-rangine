@@ -46,7 +46,6 @@ class FileLoader {
 				if ($parentDir != '.' && $parentDir != '..') {
 					$parentLoadRule .= '/' . $parentDir;
 				}
-
 				$files = array_diff(glob("$parentLoadRule/*"), glob("$loadDir/$loadRule"));
 			} else {
 				$files = glob("$loadDir/$loadRule");
@@ -59,8 +58,10 @@ class FileLoader {
 
 	public function isIgnoreFile($file) {
 		$ignoreFiles = $this->getIgnoreFiles();
-		if (in_array($file, $ignoreFiles)) {
-			return true;
+		foreach ($ignoreFiles as $ignoreFile) {
+			if ($file == $ignoreFile || strpos($file, $ignoreFile) === 0) {
+				return true;
+			}
 		}
 
 		return false;
