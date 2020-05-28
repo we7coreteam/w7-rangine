@@ -29,7 +29,7 @@ class ProviderManager {
 	 * 扩展包注册
 	 */
 	public function register() {
-		$providers = iconfig()->getUserConfig('provider');
+		$providers = iconfig()->get('provider');
 		$this->registerProviders(array_merge($this->providerMap, $providers));
 		return $this;
 	}

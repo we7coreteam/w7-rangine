@@ -20,7 +20,7 @@ class EventDispatcher extends Dispatcher {
 	}
 
 	public function register() {
-		$events = iconfig()->getUserConfig('event');
+		$events = iconfig()->get('event');
 		foreach ($events as $event => $listeners) {
 			$listeners = (array)$listeners;
 			foreach ($listeners as $listener) {

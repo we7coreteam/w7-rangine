@@ -43,7 +43,7 @@ class LogManager {
 			return $this->config;
 		}
 
-		$config = iconfig()->getUserConfig('log');
+		$config = iconfig()->get('log');
 		if (!empty($this->config['channel'])) {
 			foreach ($this->config['channel'] as $name => &$setting) {
 				if (!empty($setting['level'])) {

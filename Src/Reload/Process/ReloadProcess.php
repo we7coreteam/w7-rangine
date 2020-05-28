@@ -44,7 +44,7 @@ class ReloadProcess extends ProcessAbstract {
 	public function __construct($name, $num = 1, Process $process = null) {
 		parent::__construct($name, $num, $process);
 
-		$reloadConfig = \iconfig()->getUserConfig('reload');
+		$reloadConfig = \iconfig()->get('reload');
 		self::$watchDir = array_merge(self::$watchDir, $reloadConfig['path'] ?? []);
 		self::$fileTypes = array_merge(self::$fileTypes, $reloadConfig['type'] ?? []);
 	}

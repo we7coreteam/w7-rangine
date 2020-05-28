@@ -14,7 +14,7 @@ namespace W7\Core\Helper\Traiter;
 
 trait HandlerTrait {
 	public function getHandlerClassByType($type, $handlerName) {
-		$config = iconfig()->getUserConfig('handler')[$type] ?? [];
+		$config = iconfig()->get("handler.$type", []);
 		$handlerClass = $config[$handlerName] ?? '';
 		if (!$handlerClass || !class_exists($handlerClass)) {
 			throw new \RuntimeException($type . ' handler ' . $handlerName . ' is not support');

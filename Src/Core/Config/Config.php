@@ -42,7 +42,7 @@ class Config {
 		if (!empty($this->server)) {
 			return $this->server;
 		}
-		$this->server = $this->getUserConfig('server');
+		$this->server = $this->get('server');
 		return $this->server;
 	}
 
@@ -57,6 +57,7 @@ class Config {
 	 * 获取config目录下配置文件
 	 * @param $type
 	 * @return mixed|null
+	 * @deprecated
 	 */
 	public function getUserConfig($type) {
 		if (!empty($this->payload[$type])) {

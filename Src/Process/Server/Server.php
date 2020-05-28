@@ -18,7 +18,7 @@ use W7\Core\Server\ServerEnum;
 class Server extends ProcessServerAbstract {
 	public function __construct() {
 		//添加process 到server.php中
-		$processConfig = iconfig()->getUserConfig($this->getType());
+		$processConfig = iconfig()->get($this->getType());
 		$supportServers = iconfig()->getServer();
 		$supportServers[$this->getType()] = $processConfig['setting'] ?? [];
 		iconfig()->setUserConfig('server', $supportServers);
@@ -32,8 +32,7 @@ class Server extends ProcessServerAbstract {
 
 	protected function checkSetting() {
 		//获取要启动的process
-		$processConfig = iconfig()->getUserConfig('process');
-		$supportProcess = $processConfig['process'] ?? [];
+		$supportProcess = iconfig()->get('process.process', []);
 		$servers = trim(iconfig()->get('app.setting.server'));
 		$servers = explode('|', $servers);
 
@@ -56,8 +55,7 @@ class Server extends ProcessServerAbstract {
 			//如果是全部启动的话，enable和配置中的值保持一致
 			$supportProcess[$processName]['enable'] = $startAll ? ($supportProcess[$processName]['enable'] ?? true) : true;
 		}
-		$processConfig['process'] = $supportProcess;
-		iconfig()->setUserConfig('process', $processConfig);
+		iconfig()->set('process.process', $supportProcess);
 
 		$this->setting['worker_num'] = $this->getWorkerNum();
 		if ($this->setting['worker_num'] == 0) {
@@ -69,8 +67,7 @@ class Server extends ProcessServerAbstract {
 
 	private function getWorkerNum() {
 		$workerNum = 0;
-		$config = iconfig()->getUserConfig('process');
-		$configProcess = $config['process'] ?? [];
+		$configProcess = iconfig()->get('process.process', []);
 		foreach ($configProcess as $key => $process) {
 			if (empty($process['enable'])) {
 				continue;
@@ -82,8 +79,7 @@ class Server extends ProcessServerAbstract {
 	}
 
 	protected function register() {
-		$config = iconfig()->getUserConfig('process');
-		$configProcess = $config['process'] ?? [];
+		$configProcess = iconfig()->get('process.process', []);
 		foreach ($configProcess as $name => $process) {
 			if (empty($process['enable'])) {
 				continue;

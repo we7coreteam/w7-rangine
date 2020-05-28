@@ -29,7 +29,7 @@ class ProcessStartListener extends ListenerAbstract {
 		$userProcess->setServerType($serverType);
 		$name = $userProcess->getName();
 
-		$mqKey = iconfig()->getUserConfig('process')['process'][$name]['message_queue_key'] ?? $mqKey;
+		$mqKey = iconfig()->get("process.process.$name.message_queue_key", $mqKey);
 		$mqKey = (int)$mqKey;
 		$userProcess->setMq($mqKey);
 
