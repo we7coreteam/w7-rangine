@@ -14,9 +14,7 @@ namespace W7\Core\Log;
 
 use Monolog\Logger as MonoLogger;
 use W7\Core\Helper\Traiter\HandlerTrait;
-use W7\Core\Log\Handler\BufferHandler;
 use W7\Core\Log\Handler\HandlerAbstract;
-use W7\Core\Log\Handler\HandlerInterface;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 class LogManager {
@@ -52,17 +50,6 @@ class LogManager {
 			}
 		}
 		return $config;
-	}
-
-	private function getHandlerClass($handler) {
-		$handlerClass = $this->getHandlerClassByType('log', $handler);
-
-		$reflectClass = new \ReflectionClass($handlerClass);
-		if (!in_array(HandlerInterface::class, array_keys($reflectClass->getInterfaces()))) {
-			throw new \RuntimeException('please implements ' . HandlerInterface::class);
-		}
-
-		return $handlerClass;
 	}
 
 	/**
@@ -120,13 +107,13 @@ class LogManager {
 
 	public function addChannel($name, $driver, $options = []) {
 		$this->config['channel'][$name] = array_merge($options, ['driver' => $driver]);
+
 		/**
 		 * @var HandlerAbstract $handlerClass
 		 */
-		$handlerClass = $this->getHandlerClass($driver);
-
+		$handlerClass = $this->getHandlerClassByTypeAndName('log', $driver);
 		$bufferLimit = $options['buffer_limit'] ?? 1;
-		$handler = new BufferHandler($handlerClass::getHandler($options), $bufferLimit, $options['level'], true, true);
+		$handler = new LogBuffer($handlerClass::getHandler($options), $bufferLimit, $options['level'], true, true);
 
 		$logger = null;
 		if (!is_null($handler)) {

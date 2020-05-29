@@ -49,18 +49,15 @@ class View {
 	}
 
 	private function getHandler() : HandlerAbstract {
-		$class = $this->getHandlerClass();
 		$this->transformConfig();
-		return new $class($this->config);
-	}
 
-	private function getHandlerClass() {
-		if (!$this->handlerClass) {
-			$handler = $this->config['handler'] ?? 'twig';
-			$this->handlerClass = $this->getHandlerClassByType('view', $handler);
+		$class = $this->getHandlerClassByTypeAndName('view', $this->config['handler'] ?? 'twig');
+		$handler = new $class($this->config);
+		if (!($handler instanceof HandlerAbstract)) {
+			throw new \RuntimeException('view handler must instance of HandlerAbstract');
 		}
 
-		return $this->handlerClass;
+		return $handler;
 	}
 
 	public function getSuffix() {
