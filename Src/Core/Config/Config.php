@@ -35,8 +35,35 @@ class Config {
 		$this->loadConfig($loadDir);
 	}
 
+	public function get($key, $default = null) {
+		return Arr::get($this->payload, $key, $default);
+	}
+
+	public function set($key, $value) {
+		return Arr::set($this->payload, $key, $value);
+	}
+
+	protected function loadConfig($configDir) {
+		$configFileTree = glob($configDir . '/*.php');
+		if (empty($configFileTree)) {
+			return $this->payload;
+		}
+
+		foreach ($configFileTree as $path) {
+			$key = pathinfo($path, PATHINFO_FILENAME);
+			$config = include $path;
+			if (is_array($config)) {
+				$this->payload[$key] = $this->payload[$key] ?? [];
+				$this->payload[$key] = array_merge_recursive($this->payload[$key], $config);
+			}
+		}
+
+		return $this->payload;
+	}
+
 	/**
 	 * @return array
+	 * @deprecated
 	 */
 	public function getServer() {
 		if (!empty($this->server)) {
@@ -46,6 +73,11 @@ class Config {
 		return $this->server;
 	}
 
+	/**
+	 * @param $name
+	 * @param $data
+	 * @deprecated
+	 */
 	public function setUserConfig($name, $data) {
 		if ($name === 'server') {
 			$this->server = [];
@@ -74,31 +106,5 @@ class Config {
 	 */
 	public function getUserAppConfig($name) {
 		return $this->get('app.' . $name, []);
-	}
-
-	public function get($key, $default = null) {
-		return Arr::get($this->payload, $key, $default);
-	}
-
-	public function set($key, $value) {
-		return Arr::set($this->payload, $key, $value);
-	}
-
-	protected function loadConfig($configDir) {
-		$configFileTree = glob($configDir . '/*.php');
-		if (empty($configFileTree)) {
-			return $this->payload;
-		}
-
-		foreach ($configFileTree as $path) {
-			$key = pathinfo($path, PATHINFO_FILENAME);
-			$config = include $path;
-			if (is_array($config)) {
-				$this->payload[$key] = $this->payload[$key] ?? [];
-				$this->payload[$key] = array_merge_recursive($this->payload[$key], $config);
-			}
-		}
-
-		return $this->payload;
 	}
 }

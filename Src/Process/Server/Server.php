@@ -18,10 +18,8 @@ use W7\Core\Server\ServerEnum;
 class Server extends ProcessServerAbstract {
 	public function __construct() {
 		//添加process 到server.php中
-		$processConfig = iconfig()->get($this->getType());
-		$supportServers = iconfig()->getServer();
-		$supportServers[$this->getType()] = $processConfig['setting'] ?? [];
-		iconfig()->setUserConfig('server', $supportServers);
+		$processSetting = iconfig()->get($this->getType() . '.setting', []);
+		iconfig()->set('server.' . $this->getType(), $processSetting);
 
 		parent::__construct();
 	}

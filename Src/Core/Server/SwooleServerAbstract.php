@@ -44,7 +44,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 
 	public function __construct() {
 		parent::__construct();
-		$setting = \iconfig()->getServer();
+		$setting = \iconfig()->get('server');
 		if (!isset($setting[$this->getType()])) {
 			throw new \RuntimeException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
