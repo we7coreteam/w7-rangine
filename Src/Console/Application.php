@@ -26,7 +26,7 @@ use W7\App;
 class Application extends SymfontApplication {
 	public function __construct() {
 		$version = $this->version();
-		parent::__construct('w7-rangine', $version);
+		parent::__construct(App::NAME, $version);
 
 		$this->setAutoExit(false);
 		$this->registerCommands();

@@ -24,6 +24,7 @@ use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
 
 class App {
+	const NAME = 'w7-rangine';
 	const VERSION = '2.2.6';
 
 	private static $self;
