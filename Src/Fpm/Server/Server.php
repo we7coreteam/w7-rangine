@@ -23,6 +23,8 @@ use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 
 class Server extends ServerAbstract {
+	public $worker_id;
+
 	protected $providerMap = [
 		SessionProvider::class
 	];
