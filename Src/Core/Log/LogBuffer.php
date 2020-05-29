@@ -10,11 +10,12 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Log\Handler;
+namespace W7\Core\Log;
 
 use Monolog\Handler\BufferHandler as MonologBufferHandler;
+use W7\Core\Log\Handler\HandlerInterface;
 
-class BufferHandler extends MonologBufferHandler {
+class LogBuffer extends MonologBufferHandler {
 	/**
 	 * @var HandlerInterface
 	 */

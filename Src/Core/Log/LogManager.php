@@ -14,7 +14,6 @@ namespace W7\Core\Log;
 
 use Monolog\Logger as MonoLogger;
 use W7\Core\Helper\Traiter\HandlerTrait;
-use W7\Core\Log\Handler\BufferHandler;
 use W7\Core\Log\Handler\HandlerAbstract;
 use W7\Core\Log\Handler\HandlerInterface;
 use W7\Core\Log\Processor\SwooleProcessor;
@@ -126,7 +125,7 @@ class LogManager {
 		$handlerClass = $this->getHandlerClass($driver);
 
 		$bufferLimit = $options['buffer_limit'] ?? 1;
-		$handler = new BufferHandler($handlerClass::getHandler($options), $bufferLimit, $options['level'], true, true);
+		$handler = new LogBuffer($handlerClass::getHandler($options), $bufferLimit, $options['level'], true, true);
 
 		$logger = null;
 		if (!is_null($handler)) {
