@@ -124,10 +124,6 @@ abstract class ProviderAbstract {
 		$this->getView()->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
 	}
 
-	protected function registerProvider($provider) {
-		$this->getContainer()->singleton(ProviderManager::class)->registerProvider($provider);
-	}
-
 	protected function registerCommand($namespace = '') {
 		if (!isCli()) {
 			return false;
