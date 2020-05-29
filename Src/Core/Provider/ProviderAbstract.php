@@ -319,4 +319,8 @@ abstract class ProviderAbstract {
 
 		throw new \RuntimeException('property ' . $name . ' not exists');
 	}
+
+	public static function providers() : array {
+		return [];
+	}
 }

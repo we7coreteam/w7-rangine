@@ -15,16 +15,24 @@ namespace W7\Core\Container;
 use Pimple\Container as PimpleContainer;
 use Pimple\Psr11\Container as PsrContainer;
 
-/**
- *
- */
 class Container {
+	private $userLoaders = [];
 	private $container;
 	private $psrContainer;
 
 	public function __construct() {
 		$this->container = new PimpleContainer();
 		$this->psrContainer = new PsrContainer($this->container);
+	}
+
+	public function registerUserLoader(\Closure $loader) {
+		$this->userLoaders[] = $loader;
+	}
+
+	public function triggerUserLoaders($name) {
+		foreach ($this->userLoaders as $loader) {
+			$loader($name);
+		}
 	}
 
 	/**
@@ -48,6 +56,8 @@ class Container {
 	 * @return mixed
 	 */
 	public function get($name, array $params = []) {
+		$this->triggerUserLoaders($name);
+
 		$support = true;
 		foreach ($params as $param) {
 			if (!is_scalar($param) && !is_array($param)) {

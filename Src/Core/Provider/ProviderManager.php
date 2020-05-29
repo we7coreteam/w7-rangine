@@ -29,8 +29,17 @@ class ProviderManager {
 	 * 扩展包注册
 	 */
 	public function register() {
-		$providers = iconfig()->get('provider');
+		$providers = iconfig()->get('provider.providers', []);
 		$this->registerProviders(array_merge($this->providerMap, $providers));
+
+		$deferredProviders = iconfig()->get('provider.deferred', []);
+		icontainer()->registerUserLoader(function ($name) use ($deferredProviders) {
+			if (!empty($deferredProviders[$name])) {
+				$provider = $this->registerProvider($deferredProviders[$name]);
+				$provider && $this->bootProvider($provider);
+			}
+		});
+
 		return $this;
 	}
 
@@ -52,6 +61,8 @@ class ProviderManager {
 		}
 		static::$registerProviders[get_class($provider)] = $provider;
 		$provider->register();
+
+		return $provider;
 	}
 
 	/**
@@ -59,8 +70,12 @@ class ProviderManager {
 	 */
 	public function boot() {
 		foreach (static::$registerProviders as $provider => $obj) {
-			$obj->boot();
+			$this->bootProvider($obj);
 		}
+	}
+
+	public function bootProvider(ProviderAbstract $provider) {
+		$provider->boot();
 	}
 
 	private function getProvider($provider, $name) : ProviderAbstract {
