@@ -32,8 +32,9 @@ class ProviderManager {
 		$providers = iconfig()->get('provider.providers', []);
 		$this->registerProviders(array_merge($this->providerMap, $providers));
 
+		//如果有延迟加载的provider，向container中注册自定义加载器
 		$deferredProviders = iconfig()->get('provider.deferred', []);
-		icontainer()->registerUserLoader(function ($name) use ($deferredProviders) {
+		$deferredProviders && icontainer()->registerUserLoader(function ($name) use ($deferredProviders) {
 			if (!empty($deferredProviders[$name])) {
 				$provider = $this->registerProvider($deferredProviders[$name]);
 				$provider && $this->bootProvider($provider);
