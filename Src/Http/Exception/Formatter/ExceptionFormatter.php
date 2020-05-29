@@ -38,6 +38,6 @@ class ExceptionFormatter implements ExceptionFormatterInterface {
 	}
 
 	public function formatReleaseExceptionToString(\Throwable $e): string {
-		return \json_encode(['error' => '系统内部错误']);
+		return \json_encode(['error' => '系统内部错误'], JSON_UNESCAPED_UNICODE);
 	}
 }
