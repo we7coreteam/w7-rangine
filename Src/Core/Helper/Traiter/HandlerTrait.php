@@ -13,12 +13,19 @@
 namespace W7\Core\Helper\Traiter;
 
 trait HandlerTrait {
-	public function getHandlerClassByType($type, $handlerName) {
+	public static $classCache = [];
+
+	public function getHandlerClassByTypeAndName($type, $handlerName) {
+		if (!empty(self::$classCache[$type][$handlerName])) {
+			return self::$classCache[$type][$handlerName];
+		}
+
 		$config = iconfig()->get("handler.$type", []);
 		$handlerClass = $config[$handlerName] ?? '';
 		if (!$handlerClass || !class_exists($handlerClass)) {
 			throw new \RuntimeException($type . ' handler ' . $handlerName . ' is not support');
 		}
+		self::$classCache[$type][$handlerName] = $handlerClass;
 
 		return $handlerClass;
 	}

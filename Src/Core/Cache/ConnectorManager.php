@@ -42,7 +42,7 @@ class ConnectorManager {
 			/**
 			 * @var HandlerAbstract $handlerClass
 			 */
-			$handlerClass = $this->getHandlerClass($config['driver']);
+			$handlerClass = $this->getHandlerClassByTypeAndName('cache', $config['driver']);
 			$handler = $handlerClass::getHandler($config);
 
 			ievent(new MakeConnectionEvent($name, $handler));
@@ -76,21 +76,10 @@ class ConnectorManager {
 
 		$pool = new Pool($name);
 		$pool->setConfig($config);
-		$pool->setCreator($this->getHandlerClass($config['driver']));
+		$pool->setCreator($this->getHandlerClassByTypeAndName('cache', $config['driver']));
 		$pool->setMaxCount($poolConfig['max'] ?? 1);
 
 		$this->pool[$name] = $pool;
 		return $this->pool[$name];
-	}
-
-	private function getHandlerClass($handler) {
-		$handlerClass = $this->getHandlerClassByType('cache', $handler);
-
-		$reflectClass = new \ReflectionClass($handlerClass);
-		if (!in_array(CacheInterface::class, array_keys($reflectClass->getInterfaces()))) {
-			throw new \RuntimeException('please implements Psr\SimpleCache\CacheInterface');
-		}
-
-		return $handlerClass;
 	}
 }
