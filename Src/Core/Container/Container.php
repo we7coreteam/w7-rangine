@@ -15,6 +15,7 @@ namespace W7\Core\Container;
 use Pimple\Container as PimpleContainer;
 use Pimple\Psr11\Container as PsrContainer;
 use W7\Core\Container\Event\AttributeNotExistsEvent;
+use W7\Core\Dispatcher\EventDispatcher;
 
 class Container {
 	private $container;
@@ -61,7 +62,7 @@ class Container {
 		}
 		if (!$this->has($name)) {
 			//如果要获取的实例不存在,触发实例未注册事件
-			ievent(new AttributeNotExistsEvent($name));
+			$this->has(EventDispatcher::class) && ievent(new AttributeNotExistsEvent($name));
 		}
 		if (!$this->has($instanceKey)) {
 			//如果说这里的name不是类名的话，无法使用

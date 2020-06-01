@@ -44,7 +44,7 @@ abstract class ProviderAbstract {
 	public static $publishGroups = [];
 	protected $rootPath;
 
-	public function __construct($name = null) {
+	final public function __construct($name = null) {
 		if (!$name) {
 			$name = get_called_class();
 		}
@@ -316,7 +316,7 @@ abstract class ProviderAbstract {
 		throw new \RuntimeException('property ' . $name . ' not exists');
 	}
 
-	public static function providers() : array {
+	public function providers() : array {
 		return [];
 	}
 }
