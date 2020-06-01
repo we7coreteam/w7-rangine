@@ -20,11 +20,9 @@ class Server extends ProcessServerAbstract {
 	public static $onlyFollowMasterServer = true;
 
 	public function __construct() {
-		$config = iconfig()->getServer();
-		$config[$this->getType()] = [
+		iconfig()->set('server.' . $this->getType(), [
 			'worker_num' => 1
-		];
-		iconfig()->setUserConfig('server', $config);
+		]);
 
 		parent::__construct();
 	}

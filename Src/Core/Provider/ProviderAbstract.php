@@ -104,18 +104,16 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerStaticResource() {
-		$config = $this->config->getServer();
-		if (empty($config['common']['document_root'])) {
+		$documentRoot = $this->config->get('server.common.document_root');
+		if (!$documentRoot) {
 			throw new \RuntimeException("please set server['common']['document_root']");
 		}
 
 		$filesystem = new Filesystem();
-		$config = $this->config->getServer();
-		$config['common']['document_root'] = rtrim($config['common']['document_root'], '/');
-		$flagFilePath = $config['common']['document_root'] . '/' . $this->name . '/resource.lock';
-
+		$documentRoot = rtrim($documentRoot, '/');
+		$flagFilePath = $documentRoot . '/' . $this->name . '/resource.lock';
 		if ($filesystem->exists($this->rootPath . '/resource') && !$filesystem->exists($flagFilePath)) {
-			$filesystem->copyDirectory($this->rootPath . '/resource', $config['common']['document_root'] . '/' . $this->name);
+			$filesystem->copyDirectory($this->rootPath . '/resource', $documentRoot . '/' . $this->name);
 			$filesystem->put($flagFilePath, '');
 		}
 	}
@@ -174,7 +172,7 @@ abstract class ProviderAbstract {
 	 */
 	protected function mergeConfigFrom($path, $key) {
 		$config = $this->config->get($key);
-		$this->config->setUserConfig($key, array_merge(require $path, $config));
+		$this->config->set($key, array_merge(require $path, $config));
 	}
 
 	/**

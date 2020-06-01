@@ -30,6 +30,9 @@ class ControllerMiddleware extends MiddlewareAbstract {
 		} else {
 			$method = StringHelper::studly($route['method']);
 			$classObj = icontainer()->singleton($route['controller']);
+			if (!method_exists($classObj, $method)) {
+				throw new \BadMethodCallException("method {$method} not available at class {$route['controller']}");
+			}
 			$controllerHandler = [$classObj, $method];
 		}
 

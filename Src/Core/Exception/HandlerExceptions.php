@@ -22,8 +22,13 @@ use W7\Http\Message\Server\Response;
 class HandlerExceptions {
 	protected $exceptionHandler = ExceptionHandler::class;
 
-	public function setHandler($exceptionHandler) {
+	public function setHandler(string $exceptionHandler) {
 		$this->exceptionHandler = $exceptionHandler;
+	}
+
+	public function getHandler() : ExceptionHandler {
+		$handler = $this->exceptionHandler;
+		return new $handler();
 	}
 
 	public static function isIgnoreErrorTypes($errorType) {
@@ -90,11 +95,7 @@ class HandlerExceptions {
 			return false;
 		}
 
-		/**
-		 * @var ExceptionHandler $handler
-		 */
-		$handler = $this->exceptionHandler;
-		$handler = new $handler();
+		$handler = $this->getHandler();
 		try {
 			$handler->report($throwable);
 		} catch (\Throwable $e) {
