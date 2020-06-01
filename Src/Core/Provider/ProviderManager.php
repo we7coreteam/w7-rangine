@@ -13,10 +13,8 @@
 namespace W7\Core\Provider;
 
 use W7\Core\Cache\Provider\CacheProvider;
-use W7\Core\Container\Event\AttributeNotExistsEvent;
 use W7\Core\Database\Provider\DatabaseProvider;
 use W7\Core\Exception\Provider\ExceptionProvider;
-use W7\Core\Provider\Listener\AttributeNotExistsListener;
 
 class ProviderManager {
 	private $providerMap = [
@@ -48,7 +46,16 @@ class ProviderManager {
 		$this->registerProviders(array_merge($this->providerMap, $providers));
 
 		if ($this->deferredProviders = iconfig()->get('provider.deferred', [])) {
-			ieventDispatcher()->listen(AttributeNotExistsEvent::class, AttributeNotExistsListener::class);
+			icontainer()->registerDeferredService(array_keys($this->deferredProviders));
+			icontainer()->registerDeferredServiceLoader(function ($service) {
+				$providers = $this->deferredProviders[$service] ?? [];
+				foreach ($providers as $provider) {
+					if (!$this->hasRegister($provider)) {
+						$provider = $this->registerProvider($provider);
+						$provider && $this->bootProvider($provider);
+					}
+				}
+			});
 		}
 
 		return $this;

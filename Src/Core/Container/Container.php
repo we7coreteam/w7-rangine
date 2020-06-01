@@ -14,16 +14,35 @@ namespace W7\Core\Container;
 
 use Pimple\Container as PimpleContainer;
 use Pimple\Psr11\Container as PsrContainer;
-use W7\Core\Container\Event\AttributeNotExistsEvent;
-use W7\Core\Dispatcher\EventDispatcher;
 
 class Container {
 	private $container;
 	private $psrContainer;
+	private $deferredServices = [];
+	private $deferredServiceLoaders = [];
 
 	public function __construct() {
 		$this->container = new PimpleContainer();
 		$this->psrContainer = new PsrContainer($this->container);
+	}
+
+	public function registerDeferredService($services) {
+		$services = (array)$services;
+		$this->deferredServices = array_merge($this->deferredServices, $services);
+	}
+
+	public function registerDeferredServiceLoader(\Closure $loader) {
+		$this->deferredServiceLoaders[] = $loader;
+	}
+
+	public function loadDeferredService($service) {
+		if (in_array($service, $this->deferredServices)) {
+			//如果触发过一次后，不再进行下次触发
+			unset($this->deferredServices[array_search($service, $this->deferredServices)]);
+			foreach ($this->deferredServiceLoaders as $loader) {
+				$loader($service);
+			}
+		}
 	}
 
 	/**
@@ -60,10 +79,10 @@ class Container {
 		if ($support && $params) {
 			$instanceKey = md5($instanceKey . json_encode($params));
 		}
-		if (!$this->has($name)) {
-			//如果要获取的实例不存在,触发实例未注册事件
-			$this->has(EventDispatcher::class) && ievent(new AttributeNotExistsEvent($name));
-		}
+
+		//检测是否为延迟加载服务，并触发加载器
+		$this->loadDeferredService($name);
+
 		if (!$this->has($instanceKey)) {
 			//如果说这里的name不是类名的话，无法使用
 			$this->set($instanceKey, $name, ...$params);

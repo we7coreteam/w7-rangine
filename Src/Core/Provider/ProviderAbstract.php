@@ -39,7 +39,6 @@ abstract class ProviderAbstract {
 	//composer包的namespace
 	protected $packageNamespace;
 
-	protected $defer;
 	public static $publishes = [];
 	public static $publishGroups = [];
 	protected $rootPath;
