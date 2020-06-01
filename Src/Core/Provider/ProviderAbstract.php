@@ -171,7 +171,7 @@ abstract class ProviderAbstract {
 	 * @param $key
 	 */
 	protected function mergeConfigFrom($path, $key) {
-		$config = $this->config->get($key);
+		$config = $this->config->get($key, []);
 		$this->config->set($key, array_merge(require $path, $config));
 	}
 
