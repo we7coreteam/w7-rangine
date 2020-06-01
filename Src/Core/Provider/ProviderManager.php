@@ -13,8 +13,10 @@
 namespace W7\Core\Provider;
 
 use W7\Core\Cache\Provider\CacheProvider;
+use W7\Core\Container\Event\AttributeNotExistsEvent;
 use W7\Core\Database\Provider\DatabaseProvider;
 use W7\Core\Exception\Provider\ExceptionProvider;
+use W7\Core\Provider\Listener\AttributeNotExistsListener;
 
 class ProviderManager {
 	private $providerMap = [
@@ -23,7 +25,20 @@ class ProviderManager {
 		DatabaseProvider::class,
 		ValidateProvider::class
 	];
-	private static $registerProviders = [];
+	private $deferredProviders = [];
+	private $registeredProviders = [];
+
+	public function getDependDeferredProvider($name) {
+		return $this->deferredProviders[$name] ?? '';
+	}
+
+	public function hasRegister($provider) {
+		if (is_object($provider)) {
+			$provider = get_class($provider);
+		}
+
+		return empty($this->registeredProviders[$provider]) ? false : true;
+	}
 
 	/**
 	 * 扩展包注册
@@ -32,16 +47,20 @@ class ProviderManager {
 		$providers = iconfig()->get('provider.providers', []);
 		$this->registerProviders(array_merge($this->providerMap, $providers));
 
-		//如果有延迟加载的provider，向container中注册自定义加载器
-		$deferredProviders = iconfig()->get('provider.deferred', []);
-		$deferredProviders && icontainer()->registerUserLoader(function ($name) use ($deferredProviders) {
-			if (!empty($deferredProviders[$name])) {
-				$provider = $this->registerProvider($deferredProviders[$name]);
-				$provider && $this->bootProvider($provider);
-			}
-		});
+		if ($this->deferredProviders = iconfig()->get('provider.deferred', [])) {
+			ieventDispatcher()->listen(AttributeNotExistsEvent::class, AttributeNotExistsListener::class);
+		}
 
 		return $this;
+	}
+
+	/**
+	 * 扩展包全部注册完成后执行
+	 */
+	public function boot() {
+		foreach ($this->registeredProviders as $name => $provider) {
+			$this->bootProvider($provider);
+		}
 	}
 
 	public function registerProviders(array $providerMap) {
@@ -54,32 +73,27 @@ class ProviderManager {
 	}
 
 	public function registerProvider($provider, $name = null) {
+		if ($this->hasRegister($provider)) {
+			return false;
+		}
+
 		if (is_string($provider)) {
 			if ((ENV & DEBUG) === DEBUG && !class_exists($provider)) {
 				return false;
 			}
-			$provider = $this->getProvider($provider, $name);
+			$provider = new $provider($name);
 		}
-		static::$registerProviders[get_class($provider)] = $provider;
+
+		/**
+		 * @var ProviderAbstract $provider
+		 */
 		$provider->register();
+		$this->registeredProviders[get_class($provider)] = $provider;
 
 		return $provider;
 	}
 
-	/**
-	 * 扩展包全部注册完成后执行
-	 */
-	public function boot() {
-		foreach (static::$registerProviders as $provider => $obj) {
-			$this->bootProvider($obj);
-		}
-	}
-
 	public function bootProvider(ProviderAbstract $provider) {
 		$provider->boot();
-	}
-
-	private function getProvider($provider, $name) : ProviderAbstract {
-		return new $provider($name);
 	}
 }

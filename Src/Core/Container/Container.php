@@ -14,25 +14,15 @@ namespace W7\Core\Container;
 
 use Pimple\Container as PimpleContainer;
 use Pimple\Psr11\Container as PsrContainer;
+use W7\Core\Container\Event\AttributeNotExistsEvent;
 
 class Container {
-	private $userLoaders = [];
 	private $container;
 	private $psrContainer;
 
 	public function __construct() {
 		$this->container = new PimpleContainer();
 		$this->psrContainer = new PsrContainer($this->container);
-	}
-
-	public function registerUserLoader(\Closure $loader) {
-		$this->userLoaders[] = $loader;
-	}
-
-	public function triggerUserLoaders($name) {
-		foreach ($this->userLoaders as $loader) {
-			$loader($name);
-		}
 	}
 
 	/**
@@ -56,8 +46,6 @@ class Container {
 	 * @return mixed
 	 */
 	public function get($name, array $params = []) {
-		$this->triggerUserLoaders($name);
-
 		$support = true;
 		foreach ($params as $param) {
 			if (!is_scalar($param) && !is_array($param)) {
@@ -71,7 +59,12 @@ class Container {
 		if ($support && $params) {
 			$instanceKey = md5($instanceKey . json_encode($params));
 		}
+		if (!$this->has($name)) {
+			//如果要获取的实例不存在,触发实例未注册事件
+			ievent(new AttributeNotExistsEvent($name));
+		}
 		if (!$this->has($instanceKey)) {
+			//如果说这里的name不是类名的话，无法使用
 			$this->set($instanceKey, $name, ...$params);
 		}
 
