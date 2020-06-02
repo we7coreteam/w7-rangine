@@ -3,7 +3,7 @@
 /**
  * This file is part of Rangine
  *
- * (c) We7Team 2019 <https://www.rangine.com>
+ * (c) We7Team 2019 <https://www.rangine.com/>
  *
  * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
  *
@@ -91,6 +91,7 @@ abstract class HandlerAbstract {
 
 	protected function registerSystemObject() {
 		$this->registerObject('irequest', App::getApp()->getContext()->getRequest());
+		$this->registerObject('iconfig', iconfig());
 		$this->registerObject('icache', icache());
 	}
 
