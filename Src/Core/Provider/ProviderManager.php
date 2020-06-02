@@ -18,10 +18,10 @@ use W7\Core\Exception\Provider\ExceptionProvider;
 
 class ProviderManager {
 	private $providerMap = [
-		ExceptionProvider::class,
-		CacheProvider::class,
-		DatabaseProvider::class,
-		ValidateProvider::class
+		'exception' => ExceptionProvider::class,
+		'validate' => ValidateProvider::class,
+		'cache' => CacheProvider::class,
+		'database' => DatabaseProvider::class
 	];
 	private $deferredProviders = [];
 	private $registeredProviders = [];
@@ -86,7 +86,7 @@ class ProviderManager {
 			if ((ENV & DEBUG) === DEBUG && !class_exists($provider)) {
 				return false;
 			}
-			$provider = new $provider($name);
+			$provider = icontainer()->get($provider, [$name]);
 		}
 
 		/**

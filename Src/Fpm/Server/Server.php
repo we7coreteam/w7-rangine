@@ -26,7 +26,7 @@ class Server extends ServerAbstract {
 	public $worker_id;
 
 	protected $providerMap = [
-		SessionProvider::class
+		'fpm-session' => SessionProvider::class
 	];
 
 	public function getType() {
