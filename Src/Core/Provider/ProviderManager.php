@@ -86,7 +86,8 @@ class ProviderManager {
 			if ((ENV & DEBUG) === DEBUG && !class_exists($provider)) {
 				return false;
 			}
-			$provider = icontainer()->get($provider, [$name]);
+			$params = isset($name) ? [$name] : [];
+			$provider = icontainer()->get($provider, $params);
 		}
 
 		/**
