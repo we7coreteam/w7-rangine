@@ -21,8 +21,8 @@ use W7\WebSocket\Session\Provider\SessionProvider;
 
 class Server extends SwooleServerAbstract {
 	protected $providerMap = [
-		SessionProvider::class,
-		ViewProvider::class
+		'websocket-session' => SessionProvider::class,
+		'websocket-view' => ViewProvider::class
 	];
 
 	public function getType() {

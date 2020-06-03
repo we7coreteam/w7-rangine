@@ -39,12 +39,11 @@ abstract class ProviderAbstract {
 	//composer包的namespace
 	protected $packageNamespace;
 
-	protected $defer;
 	public static $publishes = [];
 	public static $publishGroups = [];
 	protected $rootPath;
 
-	public function __construct($name = null) {
+	final public function __construct($name = null) {
 		if (!$name) {
 			$name = get_called_class();
 		}
@@ -120,10 +119,6 @@ abstract class ProviderAbstract {
 
 	protected function registerView($namespace) {
 		$this->getView()->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
-	}
-
-	protected function registerProvider($provider) {
-		$this->getContainer()->singleton(ProviderManager::class)->registerProvider($provider);
 	}
 
 	protected function registerCommand($namespace = '') {
@@ -316,5 +311,9 @@ abstract class ProviderAbstract {
 		}
 
 		throw new \RuntimeException('property ' . $name . ' not exists');
+	}
+
+	public function providers() : array {
+		return [];
 	}
 }
