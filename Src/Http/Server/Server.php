@@ -23,8 +23,8 @@ use W7\Core\Server\ServerEnum;
 
 class Server extends SwooleServerAbstract {
 	protected $providerMap = [
-		SessionProvider::class,
-		ViewProvider::class
+		'http-session' => SessionProvider::class,
+		'http-view' => ViewProvider::class
 	];
 
 	public function getType() {

@@ -24,6 +24,10 @@ class Config {
 		$this->payload = $payload;
 	}
 
+	public function getBuiltInConfigPath() {
+		return BASE_PATH . '/vendor/composer/rangine/autoload/config';
+	}
+
 	public function load() {
 		$loadDir = App::getApp()->getConfigCachePath();
 		if (!file_exists($loadDir)) {
@@ -31,7 +35,7 @@ class Config {
 			(new Env(BASE_PATH))->load();
 		}
 
-		$this->loadConfig(BASE_PATH . '/vendor/composer/rangine/autoload/config');
+		$this->loadConfig($this->getBuiltInConfigPath());
 		$this->loadConfig($loadDir);
 	}
 

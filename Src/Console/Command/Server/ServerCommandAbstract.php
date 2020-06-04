@@ -96,7 +96,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			$server = array_values($this->aloneServers)[0];
 		}
 
-		return new $server();
+		return icontainer()->singleton($server);
 	}
 
 	private function addSubServer(SwooleServerAbstract $server) {
@@ -105,7 +105,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			/**
 			 * @var SwooleServerAbstract $subServer
 			 */
-			$subServer = new $handle();
+			$subServer = icontainer()->singleton($handle);
 			if ($subServer->listener($server->getServer()) === false) {
 				continue;
 			}

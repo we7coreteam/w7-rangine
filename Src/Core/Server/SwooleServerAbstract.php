@@ -118,7 +118,6 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 			unlink($this->setting['pid_file']);
 		}
 
-		App::$server = null;
 		return $result;
 	}
 
