@@ -108,7 +108,7 @@ class DatabaseProvider extends ProviderAbstract {
 		$container->instance('events', $dbDispatch);
 		$container->instance('config', new Fluent());
 		$container['config']['database.default'] = 'default';
-		$container['config']['database.connections'] = $this->config->get('app.database');
+		$container['config']['database.connections'] = $this->config->get('app.database', []);
 		$factory = new ConnectionFactory($container);
 		$dbManager = new DatabaseManager($container, $factory);
 
