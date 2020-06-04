@@ -12,7 +12,6 @@
 
 namespace W7\Core\Exception\Handler;
 
-use W7\Core\Exception\FatalExceptionAbstract;
 use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
 use W7\Core\Exception\ResponseExceptionAbstract;
 use W7\Http\Message\Server\Response;
@@ -53,9 +52,6 @@ class ExceptionHandler {
 			if (!$throwable->isLoggable) {
 				return true;
 			}
-		}
-		if ($throwable instanceof FatalExceptionAbstract) {
-			$throwable = $throwable->getPrevious();
 		}
 
 		$errorMessage = sprintf(
