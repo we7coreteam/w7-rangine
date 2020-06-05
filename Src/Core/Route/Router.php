@@ -221,7 +221,7 @@ class Router {
 	public function add($methods, $uri, $handler, $name = '', $defaults = []) {
 		if ($this->isStaticResource($handler)) {
 			$handler = $this->getStaticResourcePath($handler);
-			$documentRoot = iconfig()->get('server.common.document_root', BASE_PATH . '/public', '/');
+			$documentRoot = rtrim(iconfig()->get('server.common.document_root', BASE_PATH . '/public'), '/');
 
 			$defaults = [$documentRoot . $handler];
 			$handler = ['\W7\Core\Controller\StaticResourceController', 'index'];
