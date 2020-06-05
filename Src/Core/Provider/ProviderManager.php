@@ -26,10 +26,6 @@ class ProviderManager {
 	private $deferredProviders = [];
 	private $registeredProviders = [];
 
-	public function getDependDeferredProvider($name) {
-		return $this->deferredProviders[$name] ?? '';
-	}
-
 	public function hasRegister($provider) {
 		if (is_object($provider)) {
 			$provider = get_class($provider);
