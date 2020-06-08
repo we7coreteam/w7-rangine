@@ -48,10 +48,8 @@ class ProviderManager {
 			icontainer()->registerDeferredServiceLoader(function ($service) {
 				$providers = $this->deferredProviders[$service] ?? [];
 				foreach ($providers as $provider) {
-					if (!$this->hasRegister($provider)) {
-						$provider = $this->registerProvider($provider, $provider, true);
-						$provider && $this->bootProvider($provider);
-					}
+					$provider = $this->registerProvider($provider, $provider, true);
+					$provider && $this->bootProvider($provider);
 				}
 			});
 		}
@@ -78,6 +76,10 @@ class ProviderManager {
 	}
 
 	public function registerProvider($provider, $name = null, $force = false) {
+		if ($this->hasRegister($provider)) {
+			return false;
+		}
+
 		if (is_string($provider)) {
 			if ((ENV & DEBUG) === DEBUG && !class_exists($provider)) {
 				return false;

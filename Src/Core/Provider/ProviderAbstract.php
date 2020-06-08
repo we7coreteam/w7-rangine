@@ -72,6 +72,10 @@ abstract class ProviderAbstract {
 	public function boot() {
 	}
 
+	protected function registerProvider($provider) {
+		$this->getContainer()->singleton(ProviderManager::class)->registerProvider($provider);
+	}
+
 	protected function registerConfig($fileName, $key) {
 		$this->mergeConfigFrom($this->rootPath . '/config/' . $fileName, $key);
 	}
