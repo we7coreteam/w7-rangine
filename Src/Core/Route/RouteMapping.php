@@ -12,7 +12,6 @@
 
 namespace W7\Core\Route;
 
-use W7\Core\Controller\FaviconController;
 use W7\Core\Helper\FileLoader;
 
 class RouteMapping {
@@ -199,7 +198,7 @@ class RouteMapping {
 	//如果用户自定义了系统路由，则按照用户的路由走
 	public function registerSystemRoute() {
 		try {
-			$this->router->get('/favicon.ico', [FaviconController::class, 'index']);
+			$this->router->get('/favicon.ico', ['\W7\Core\Controller\FaviconController', 'index']);
 		} catch (\Throwable $e) {
 			null;
 		}
