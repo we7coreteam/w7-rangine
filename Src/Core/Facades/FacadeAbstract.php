@@ -38,7 +38,7 @@ abstract class FacadeAbstract {
 			return static::$resolvedInstance[$name];
 		}
 
-		return static::$resolvedInstance[$name] = App::getApp()->getContainer()->get($name);
+		return static::$resolvedInstance[$name] = self::getContainer()->get($name);
 	}
 
 	/**
@@ -48,6 +48,10 @@ abstract class FacadeAbstract {
 	 */
 	public static function getFacadeRoot() {
 		return static::resolveFacadeInstance(static::getFacadeAccessor());
+	}
+
+	public static function getContainer() {
+		return App::getApp()->getContainer();
 	}
 
 	/**

@@ -12,6 +12,8 @@
 
 namespace W7\Core\Listener;
 
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Event;
 use W7\Core\Message\MessageAbstract;
 use W7\Core\Message\TaskMessage;
 use W7\Core\Server\ServerEvent;
@@ -38,9 +40,9 @@ class FinishListener implements ListenerInterface {
 		}
 
 		if ($taskMessage->hasFinishCallback) {
-			$task = icontainer()->get($taskMessage->task);
+			$task = Container::get($taskMessage->task);
 			call_user_func_array([$task, 'finish'], [$server, $task_id, $taskMessage->result, $taskMessage->params]);
 		}
-		ievent(ServerEvent::ON_USER_TASK_FINISH, [$taskMessage->result]);
+		Event::dispatch(ServerEvent::ON_USER_TASK_FINISH, [$taskMessage->result]);
 	}
 }

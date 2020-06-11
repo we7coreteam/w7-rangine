@@ -12,6 +12,8 @@
 
 namespace W7\Core\Message;
 
+use W7\Core\Facades\Container;
+
 /**
  * 投递一个任务时的消息结构
  */
@@ -99,7 +101,7 @@ class TaskMessage extends MessageAbstract {
 			return false;
 		}
 
-		$object = icontainer()->get($callback[0]);
+		$object = Container::get($callback[0]);
 		if (!method_exists($object, $callback[1])) {
 			return false;
 		}

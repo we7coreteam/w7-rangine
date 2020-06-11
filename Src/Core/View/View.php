@@ -15,7 +15,7 @@ namespace W7\Core\View;
 use W7\Core\Helper\Traiter\HandlerTrait;
 use W7\Core\View\Handler\HandlerAbstract;
 
-class View {
+class View implements ViewInterface {
 	use HandlerTrait;
 
 	private $config;
@@ -23,53 +23,33 @@ class View {
 	private $customFunctions = [];
 	private $customConsts = [];
 	private $customObjs = [];
-	private $isTransform;
 
-	public function __construct() {
-		$this->config = iconfig()->get('app.view');
-		$this->config['suffix'] = empty($this->config['suffix']) ? 'html' : $this->config['suffix'];
+	public function __construct($config = []) {
+		$this->config = $config;
+		$this->pretreatmentConfig();
 	}
 
-	private function transformConfig() {
-		if ($this->isTransform) {
-			return false;
-		}
+	private function pretreatmentConfig() {
+		$this->config['suffix'] = empty($this->config['suffix']) ? 'html' : $this->config['suffix'];
 
-		$this->config['debug'] = (ENV & DEBUG) === DEBUG;
-
-		$this->config['provider_template_path'] = (array)($this->config['provider_template_path'] ?? []);
 		$userTemplatePath = (array)($this->config['template_path'] ?? []);
+		$this->config['template_path'] = [];
 		foreach ($userTemplatePath as $namespace => $paths) {
 			$paths = (array)$paths;
 			$namespace = is_numeric($namespace) ? HandlerAbstract::DEFAULT_NAMESPACE : $namespace;
-			$this->config['provider_template_path'][$namespace] = $this->config['provider_template_path'][$namespace] ?? [];
-			$this->config['provider_template_path'][$namespace] = array_merge($this->config['provider_template_path'][$namespace], $paths);
+			$this->config['template_path'][$namespace] = $paths;
 		}
-		$this->isTransform = true;
 	}
 
-	private function getHandler() : HandlerAbstract {
-		$this->transformConfig();
-
-		$class = $this->getHandlerClassByTypeAndName('view', $this->config['handler'] ?? 'twig');
-		$handler = new $class($this->config);
-		if (!($handler instanceof HandlerAbstract)) {
-			throw new \RuntimeException('view handler must instance of HandlerAbstract');
-		}
-
-		return $handler;
+	public function addTemplatePath(string $namespace, string $path) {
+		$this->config['template_path'][$namespace][] = $path;
 	}
 
-	public function getSuffix() {
+	public function getViewSuffix() {
 		return $this->config['suffix'];
 	}
 
-	public function addProviderTemplatePath(string $namespace, string $path) {
-		$this->config['provider_template_path'] = (array)($this->config['provider_template_path'] ?? []);
-		$this->config['provider_template_path'][$namespace][] = $path;
-	}
-
-	public function registerFunction($name, $callback) {
+	public function registerFunction($name, \Closure $callback) {
 		$this->customFunctions[$name] = $callback;
 	}
 
@@ -79,6 +59,16 @@ class View {
 
 	public function registerObject($name, $object) {
 		$this->customObjs[$name] = $object;
+	}
+
+	private function getHandler() : HandlerAbstract {
+		$class = $this->getHandlerClassByTypeAndName('view', $this->config['handler'] ?? 'twig');
+		$handler = new $class($this->config);
+		if (!($handler instanceof HandlerAbstract)) {
+			throw new \RuntimeException('view handler must instance of HandlerAbstract');
+		}
+
+		return $handler;
 	}
 
 	private function addResourceToHandler(HandlerAbstract $handler) {
@@ -93,7 +83,7 @@ class View {
 		}
 	}
 
-	private function parseName($name) {
+	private function parseViewName($name) {
 		if (isset($name[0]) && '@' == $name[0]) {
 			if (false === $pos = strpos($name, '/')) {
 				throw new \RuntimeException(sprintf('Malformed namespaced template name "%s" (expecting "@namespace/template_name").', $name));
@@ -108,10 +98,10 @@ class View {
 		return [HandlerAbstract::DEFAULT_NAMESPACE, $name];
 	}
 
-	public function render($name, $context = []) {
+	public function render($name, $context = []) : string {
 		$handler = $this->getHandler();
 		$this->addResourceToHandler($handler);
-		[$namespace, $name] = $this->parseName($name);
-		return $handler->render($namespace, $name . '.'. $this->getSuffix(), $context);
+		[$namespace, $name] = $this->parseViewName($name);
+		return $handler->render($namespace, $name . '.'. $this->getViewSuffix(), $context);
 	}
 }

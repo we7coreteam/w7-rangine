@@ -14,6 +14,8 @@ namespace W7\Core\Dispatcher;
 
 use W7\App;
 use W7\Core\Exception\TaskException;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
 use W7\Core\Message\Message;
 use W7\Core\Message\TaskMessage;
 
@@ -89,9 +91,8 @@ class TaskDispatcher extends DispatcherAbstract {
 
 		$message = Message::unpack($data);
 
-		$context = App::getApp()->getContext();
-		$context->setContextDataByKey('workid', $workId);
-		$context->setContextDataByKey('coid', $taskId);
+		Context::setContextDataByKey('workid', $workId);
+		Context::setContextDataByKey('coid', $taskId);
 
 		if (!class_exists($message->task)) {
 			$message->task = 'W7\\App\\Task\\'. ucfirst($message->task);
@@ -101,7 +102,7 @@ class TaskDispatcher extends DispatcherAbstract {
 			throw new \RuntimeException('task ' . $message->task . ' not exists');
 		}
 
-		$task = icontainer()->get($message->task);
+		$task = Container::get($message->task);
 		if (method_exists($task, 'finish')) {
 			$message->hasFinishCallback = true;
 		}

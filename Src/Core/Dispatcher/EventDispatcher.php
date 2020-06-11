@@ -13,6 +13,7 @@
 namespace W7\Core\Dispatcher;
 
 use Illuminate\Events\Dispatcher;
+use W7\Core\Facades\Config;
 
 class EventDispatcher extends Dispatcher {
 	public function __construct() {
@@ -20,7 +21,7 @@ class EventDispatcher extends Dispatcher {
 	}
 
 	public function register() {
-		$events = iconfig()->get('event');
+		$events = Config::get('event');
 		foreach ($events as $event => $listeners) {
 			$listeners = (array)$listeners;
 			foreach ($listeners as $listener) {

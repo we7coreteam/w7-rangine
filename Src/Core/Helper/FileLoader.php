@@ -12,6 +12,8 @@
 
 namespace W7\Core\Helper;
 
+use W7\Core\Facades\Config;
+
 class FileLoader {
 	protected $ignoreFiles;
 	protected $loadRules;
@@ -19,7 +21,7 @@ class FileLoader {
 
 	public function __construct($loadDir = BASE_PATH) {
 		$this->loadDir = $loadDir;
-		$this->loadRules = iconfig()->get('app.setting.file_ignore', []);
+		$this->loadRules = Config::get('app.setting.file_ignore', []);
 	}
 
 	public function getIgnoreFiles() {

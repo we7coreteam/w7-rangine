@@ -13,11 +13,12 @@
 namespace W7\Core\Listener;
 
 use W7\App;
+use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEvent;
 
 class WorkerStopListener implements ListenerInterface {
 	public function run(...$params) {
-		ievent(ServerEvent::ON_USER_AFTER_WORKER_STOP, $params);
+		Event::dispatch(ServerEvent::ON_USER_AFTER_WORKER_STOP, $params);
 
 		App::getApp()->exit();
 	}

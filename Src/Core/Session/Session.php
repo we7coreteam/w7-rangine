@@ -12,13 +12,13 @@
 
 namespace W7\Core\Session;
 
+use W7\Core\Facades\Event;
 use W7\Core\Helper\Traiter\HandlerTrait;
 use W7\Core\Session\Channel\ChannelAbstract;
 use W7\Core\Session\Event\SessionStartEvent;
 use W7\Core\Session\Handler\HandlerAbstract;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
-use W7\Http\Message\Contract\Session as SessionInterface;
 
 class Session implements SessionInterface {
 	use HandlerTrait;
@@ -37,8 +37,8 @@ class Session implements SessionInterface {
 	private static $handler;
 	private $cache;
 
-	public function __construct() {
-		$this->config = iconfig()->get('app.session');
+	public function __construct($config = []) {
+		$this->config = $config;
 
 		$this->initPrefix();
 	}
@@ -135,7 +135,7 @@ class Session implements SessionInterface {
 		$this->initChannel($request);
 		$this->initHandler();
 
-		ievent(new SessionStartEvent($this));
+		Event::dispatch(new SessionStartEvent($this));
 	}
 
 	public function set($key, $value) {

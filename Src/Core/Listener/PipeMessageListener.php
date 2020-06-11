@@ -13,6 +13,7 @@
 namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
+use W7\Core\Facades\Event;
 use W7\Core\Message\Message;
 use W7\Core\Server\ServerEvent;
 
@@ -32,6 +33,6 @@ class PipeMessageListener extends ListenerAbstract {
 			}
 		}
 
-		ievent(ServerEvent::ON_USER_AFTER_PIPE_MESSAGE, [$server, $workId, $message, $data]);
+		Event::dispatch(ServerEvent::ON_USER_AFTER_PIPE_MESSAGE, [$server, $workId, $message, $data]);
 	}
 }

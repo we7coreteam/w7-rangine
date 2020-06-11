@@ -16,6 +16,8 @@ use Swoole\Event;
 use Swoole\Process;
 use W7\App;
 use W7\Core\Exception\HandlerExceptions;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Logger;
 
 abstract class ProcessAbstract {
 	protected $name = 'process';
@@ -117,7 +119,7 @@ abstract class ProcessAbstract {
 		try {
 			$callback();
 		} catch (\Throwable $throwable) {
-			icontainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
+			Container::singleton(HandlerExceptions::class)->getHandler()->report($throwable);
 		}
 	}
 
@@ -140,6 +142,6 @@ abstract class ProcessAbstract {
 	}
 
 	public function onStop() {
-		ilogger()->debug('process ' . $this->getProcessName() . ' exit');
+		Logger::debug('process ' . $this->getProcessName() . ' exit');
 	}
 }

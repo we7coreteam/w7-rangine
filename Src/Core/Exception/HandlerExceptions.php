@@ -15,6 +15,8 @@ namespace W7\Core\Exception;
 use W7\App;
 use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
 use W7\Core\Exception\Handler\ExceptionHandler;
+use W7\Core\Facades\Context;
+use W7\Core\Facades\Event;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Response;
@@ -50,8 +52,8 @@ class HandlerExceptions {
 
 			$throwable = new ShutDownException($e['message'], 0, $e['type'], $e['file'], $e['line']);
 			if (App::$server && App::$server->server) {
-				ievent(ServerEvent::ON_WORKER_SHUTDOWN, [App::$server->getServer(), $throwable]);
-				ievent(ServerEvent::ON_WORKER_STOP, [App::$server->getServer(), App::$server->getServer()->worker_id]);
+				Event::dispatch(ServerEvent::ON_WORKER_SHUTDOWN, [App::$server->getServer(), $throwable]);
+				Event::dispatch(ServerEvent::ON_WORKER_STOP, [App::$server->getServer(), App::$server->getServer()->worker_id]);
 			} else {
 				throw $throwable;
 			}
@@ -86,7 +88,7 @@ class HandlerExceptions {
 
 	public function handle(\Throwable $throwable, $serverType = null) {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
-		if (!$serverType || !icontext()->getResponse()) {
+		if (!$serverType || !Context::getResponse()) {
 			if (isCli()) {
 				ioutputer()->error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
 			} else {
@@ -102,7 +104,7 @@ class HandlerExceptions {
 			null;
 		}
 
-		$response = icontext()->getResponse();
+		$response = Context::getResponse();
 		if (!$response) {
 			$response = new Response();
 		}

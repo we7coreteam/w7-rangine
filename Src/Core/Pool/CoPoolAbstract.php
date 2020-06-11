@@ -14,6 +14,7 @@ namespace W7\Core\Pool;
 
 use Swoole\Coroutine;
 use Swoole\Coroutine\Channel;
+use W7\Core\Facades\Event;
 use W7\Core\Pool\Event\MakeConnectionEvent;
 use W7\Core\Pool\Event\PopConnectionEvent;
 use W7\Core\Pool\Event\PushConnectionEvent;
@@ -73,7 +74,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 			//等待进程数++
 			$this->waitCount++;
 
-			ievent(new SuspendConnectionEvent($this->type, $this->poolName, $this));
+			Event::dispatch(new SuspendConnectionEvent($this->type, $this->poolName, $this));
 
 			if ($this->suspendCurrentCo() == false) {
 				//挂起失败时，抛出异常，恢复等待数
@@ -81,11 +82,11 @@ abstract class CoPoolAbstract implements PoolInterface {
 				throw new \RuntimeException('Reach max connections! Cann\'t pending fetch!');
 			}
 			//回收连接时，恢复了协程，则从空闲中取出连接继续执行
-			ievent(new ResumeConnectionEvent($this->type, $this->poolName, $this));
+			Event::dispatch(new ResumeConnectionEvent($this->type, $this->poolName, $this));
 		}
 
 		if ($this->getIdleCount() > 0) {
-			ievent(new PopConnectionEvent($this->type, $this->poolName, $this));
+			Event::dispatch(new PopConnectionEvent($this->type, $this->poolName, $this));
 
 			$connect = $this->getConnectionFromPool();
 			$this->busyCount++;
@@ -95,7 +96,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 		$connect = $this->createConnection();
 		$this->busyCount++;
 
-		ievent(new MakeConnectionEvent($this->type, $this->poolName, $this));
+		Event::dispatch(new MakeConnectionEvent($this->type, $this->poolName, $this));
 
 		return $connect;
 	}
@@ -104,7 +105,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 		$this->busyCount--;
 		if ($this->getIdleCount() < $this->getMaxCount()) {
 			$this->setConnectionFormPool($connection);
-			ievent(new PushConnectionEvent($this->type, $this->poolName, $this));
+			Event::dispatch(new PushConnectionEvent($this->type, $this->poolName, $this));
 
 			if ($this->waitCount > 0) {
 				$this->waitCount--;

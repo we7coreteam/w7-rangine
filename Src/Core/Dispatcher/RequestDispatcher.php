@@ -12,11 +12,13 @@
 
 namespace W7\Core\Dispatcher;
 
-use W7\App;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Exception\RouteNotAllowException;
 use W7\Core\Exception\RouteNotFoundException;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
+use W7\Core\Facades\Event;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\Event\RouteMatchedEvent;
@@ -61,23 +63,22 @@ class RequestDispatcher extends DispatcherAbstract {
 			 */
 			$psr7Request = $params[0];
 			$psr7Response = $params[1];
-			$contextObj = App::getApp()->getContext();
-			$contextObj->setRequest($psr7Request);
-			$contextObj->setResponse($psr7Response);
-			$contextObj->setContextDataByKey('server-type', $this->serverType);
+			Context::setRequest($psr7Request);
+			Context::setResponse($psr7Response);
+			Context::setContextDataByKey('server-type', $this->serverType);
 
 			//根据router配置，获取到匹配的controller信息
 			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
 			$route = $this->getRoute($psr7Request);
-			ievent(new RouteMatchedEvent($route, $psr7Request));
+			Event::dispatch(new RouteMatchedEvent($route, $psr7Request));
 			$psr7Request = $psr7Request->withAttribute('route', $route);
-			$contextObj->setRequest($psr7Request);
+			Context::setRequest($psr7Request);
 
 			$middleWares = $this->middlewareMapping->getRouteMiddleWares($route);
 			$middlewareHandler = new MiddlewareHandler($middleWares);
 			return $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $e) {
-			return icontainer()->singleton(HandlerExceptions::class)->handle($e, $this->serverType);
+			return Container::singleton(HandlerExceptions::class)->handle($e, $this->serverType);
 		}
 	}
 

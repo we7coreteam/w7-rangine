@@ -12,8 +12,9 @@
 
 namespace W7\Core\Controller;
 
-use W7\App;
 use W7\Core\Exception\ValidatorException;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
 use W7\Core\View\View;
 use W7\Http\Message\Server\Request;
 
@@ -23,7 +24,7 @@ abstract class ControllerAbstract {
 	 * @return null|\W7\Http\Message\Server\Response
 	 */
 	protected function response() {
-		$response = App::getApp()->getContext()->getResponse();
+		$response = Context::getResponse();
 		if (empty($response)) {
 			throw new \RuntimeException('There are no response objects in this context');
 		}
@@ -35,7 +36,7 @@ abstract class ControllerAbstract {
 	 * @return null|Request
 	 */
 	protected function request() {
-		$request = App::getApp()->getContext()->getRequest();
+		$request = Context::getRequest();
 		if (empty($request)) {
 			throw new \RuntimeException('There are no request objects in this context');
 		}
@@ -55,7 +56,7 @@ abstract class ControllerAbstract {
 	}
 
 	protected function render($name, $context = []) {
-		return $this->responseHtml(icontainer()->singleton(View::class)->render($name, $context));
+		return $this->responseHtml(Container::singleton(View::class)->render($name, $context));
 	}
 
 	public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = []) {

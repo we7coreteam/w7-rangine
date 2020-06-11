@@ -16,6 +16,7 @@ use Psr\SimpleCache\CacheInterface;
 use W7\Core\Cache\Event\MakeConnectionEvent;
 use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\Pool;
+use W7\Core\Facades\Event;
 use W7\Core\Helper\Traiter\HandlerTrait;
 
 class ConnectorManager {
@@ -24,10 +25,10 @@ class ConnectorManager {
 	private $config;
 	private $pool;
 
-	public function __construct() {
+	public function __construct($connectionConfig = [], $poolConfig = []) {
 		$this->pool = [];
-		$this->config['connection'] = \iconfig()->get('app.cache', []);
-		$this->config['pool'] = \iconfig()->get('app.pool.cache', []);
+		$this->config['connection'] = $connectionConfig;
+		$this->config['pool'] = $poolConfig;
 	}
 
 	public function connect($name = 'default') : CacheInterface {
@@ -45,7 +46,7 @@ class ConnectorManager {
 			$handlerClass = $this->getHandlerClassByTypeAndName('cache', $config['driver']);
 			$handler = $handlerClass::getHandler($config);
 
-			ievent(new MakeConnectionEvent($name, $handler));
+			Event::dispatch(new MakeConnectionEvent($name, $handler));
 
 			return $handler;
 		}

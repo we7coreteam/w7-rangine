@@ -13,6 +13,7 @@
 namespace W7\Tcp\Server;
 
 use Swoole\Server as TcpServer;
+use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Server\SwooleServerAbstract;
@@ -43,7 +44,7 @@ class Server extends SwooleServerAbstract {
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
-		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
 
 		$this->server->start();
 	}

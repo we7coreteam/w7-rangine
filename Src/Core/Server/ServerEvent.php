@@ -12,6 +12,7 @@
 
 namespace W7\Core\Server;
 
+use W7\Core\Facades\Event;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
@@ -156,7 +157,7 @@ class ServerEvent {
 		foreach ((array)$eventTypes as $eventType) {
 			$events = $swooleEvents[$eventType] ?? [];
 			foreach ($events as $name => $event) {
-				ieventDispatcher()->listen($eventType . ':' . $name, $event);
+				Event::listen($eventType . ':' . $name, $event);
 			}
 		}
 	}
@@ -169,10 +170,10 @@ class ServerEvent {
 		//注册用户层和系统的公共事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
-			ieventDispatcher()->listen($eventName, $listener);
+			Event::listen($eventName, $listener);
 
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
-			ieventDispatcher()->listen($eventName, $listener);
+			Event::listen($eventName, $listener);
 		}
 	}
 
@@ -184,7 +185,7 @@ class ServerEvent {
 		//注册server下的自定义事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly($server), ucfirst($eventName));
-			ieventDispatcher()->listen($eventName, $listener);
+			Event::listen($eventName, $listener);
 		}
 	}
 

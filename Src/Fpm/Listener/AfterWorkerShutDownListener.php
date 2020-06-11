@@ -14,13 +14,14 @@ namespace W7\Fpm\Listener;
 
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Facades\Context as ContextFacade;
 
 class AfterWorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
-		$contexts = icontext()->all();
+		$contexts = ContextFacade::all();
 		foreach ($contexts as $id => $context) {
 			if (!empty($context[Context::RESPONSE_KEY]) && !empty($context['data']['server-type']) && $context['data']['server-type'] == 'fpm') {
-				echo '发生致命错误，请在日志中查看错误原因，workid：' . ($context['data']['workid'] ?? '') . '，coid：' . icontext()->getLastCoId() . '。';
+				echo '发生致命错误，请在日志中查看错误原因，workid：' . ($context['data']['workid'] ?? '') . '，coid：' . ContextFacade::getLastCoId() . '。';
 			}
 		}
 	}

@@ -12,6 +12,8 @@
 
 namespace W7\Core\Helper\Traiter;
 
+use W7\Core\Facades\Config;
+
 trait HandlerTrait {
 	public static $classCache = [];
 
@@ -20,7 +22,7 @@ trait HandlerTrait {
 			return self::$classCache[$type][$handlerName];
 		}
 
-		$config = iconfig()->get("handler.$type", []);
+		$config = Config::get("handler.$type", []);
 		$handlerClass = $config[$handlerName] ?? '';
 		if (!$handlerClass || !class_exists($handlerClass)) {
 			throw new \RuntimeException($type . ' handler ' . $handlerName . ' is not support');

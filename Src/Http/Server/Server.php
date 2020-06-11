@@ -13,6 +13,7 @@
 namespace W7\Http\Server;
 
 use Swoole\Http\Server as HttpServer;
+use W7\Core\Facades\Event;
 use W7\Core\Server\SwooleServerAbstract;
 use W7\Core\View\Provider\ViewProvider;
 use W7\Http\Session\Provider\SessionProvider;
@@ -50,7 +51,7 @@ class Server extends SwooleServerAbstract {
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
-		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
 
 		$this->server->start();
 	}

@@ -20,6 +20,9 @@ use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
 use W7\Core\Exception\ValidatorException;
 use W7\Console\Io\Output;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
+use W7\Core\Facades\Logger;
 use W7\Core\Message\TaskMessage;
 use Illuminate\Database\Eloquent\Model;
 use W7\Core\Route\Router;
@@ -28,9 +31,10 @@ use Swoole\Timer;
 if (!function_exists('ieventDispatcher')) {
 	function ieventDispatcher() {
 		/**
+		 * @deprecated
 		 * @var EventDispatcher $dispatcher
 		 */
-		$dispatcher = icontainer()->singleton(EventDispatcher::class);
+		$dispatcher = Container::singleton(EventDispatcher::class);
 		return $dispatcher;
 	}
 }
@@ -38,6 +42,7 @@ if (!function_exists('ieventDispatcher')) {
 if (!function_exists('ievent')) {
 	/**
 	 * 派发一个事件
+	 * @deprecated
 	 * @param $eventName
 	 * @param array $args
 	 * @param bool $halt
@@ -66,7 +71,7 @@ if (!function_exists('itask')) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = icontainer()->singleton(TaskDispatcher::class);
+		$dispatcherMaker = Container::singleton(TaskDispatcher::class);
 		return $dispatcherMaker->register($taskMessage);
 	}
 
@@ -80,7 +85,7 @@ if (!function_exists('itask')) {
 		/**
 		 * @var TaskDispatcher $dispatcherMaker
 		 */
-		$dispatcherMaker = icontainer()->singleton(TaskDispatcher::class);
+		$dispatcherMaker = Container::singleton(TaskDispatcher::class);
 		return $dispatcherMaker->registerCo($taskMessage);
 	}
 }
@@ -92,7 +97,7 @@ if (!function_exists('iuuid')) {
 	 */
 	function iuuid() {
 		$len = rand(2, 16);
-		$prefix = md5(substr(md5(icontext()->getCoroutineId()), $len));
+		$prefix = md5(substr(md5(Context::getCoroutineId()), $len));
 		return uniqid($prefix);
 	}
 }
@@ -110,6 +115,7 @@ if (!function_exists('iloader')) {
 
 	/**
 	 * 获取容器
+	 * @deprecated
 	 * @return \W7\Core\Container\Container
 	 */
 	function icontainer() {
@@ -123,7 +129,7 @@ if (!function_exists('ioutputer')) {
 	 * @return W7\Console\Io\Output
 	 */
 	function ioutputer() {
-		return icontainer()->singleton(Output::class);
+		return Container::singleton(Output::class);
 	}
 }
 
@@ -149,6 +155,7 @@ if (!function_exists('ilogger')) {
 
 if (!function_exists('idb')) {
 	/**
+	 * @deprecated
 	 * 返回一个数据库连接对象
 	 * @return \W7\Core\Database\DatabaseManager
 	 */
@@ -160,6 +167,7 @@ if (!function_exists('idb')) {
 if (!function_exists('icontext')) {
 	/**
 	 * 返回logger对象
+	 * @deprecated
 	 * @return \W7\Core\Helper\Storage\Context
 	 */
 	function icontext() {
@@ -169,6 +177,7 @@ if (!function_exists('icontext')) {
 
 if (!function_exists('icache')) {
 	/**
+	 * @deprecated
 	 * @return \W7\Core\Cache\Cache
 	 */
 	function icache() {
@@ -178,10 +187,11 @@ if (!function_exists('icache')) {
 
 if (!function_exists('irouter')) {
 	/**
+	 * @deprecated
 	 * @return \W7\Core\Route\Router
 	 */
 	function irouter() {
-		return icontainer()->singleton(Router::class);
+		return Container::singleton(Router::class);
 	}
 }
 
@@ -191,13 +201,13 @@ if (!function_exists('isCo')) {
 	 * @return bool
 	 */
 	function isCo():bool {
-		return icontext()->getCoroutineId() > 0;
+		return Context::getCoroutineId() > 0;
 	}
 }
 
 if (!function_exists('getClientIp')) {
 	function getClientIp() {
-		$request = App::getApp()->getContext()->getRequest();
+		$request = Context::getRequest();
 
 		$serverParams = $request->getServerParams();
 		if (!empty($serverParams['HTTP_X_FORWARDED_FOR'])) {
@@ -350,8 +360,7 @@ if (!function_exists('ivalidate')) {
 			/**
 			 * @var Factory $validate
 			 */
-			$validate = ivalidator();
-			$result = $validate->make($data, $rules, $messages, $customAttributes)
+			$result = \W7\Core\Facades\Validator::make($data, $rules, $messages, $customAttributes)
 				->validate();
 		} catch (ValidationException $e) {
 			$errorMessage = [];
@@ -366,8 +375,12 @@ if (!function_exists('ivalidate')) {
 	}
 }
 if (!function_exists('ivalidator')) {
+	/**
+	 * @deprecated
+	 * @return Factory
+	 */
 	function ivalidator() : Factory {
-		$validator = icontainer()->singleton(Factory::class);
+		$validator = Container::singleton(Factory::class);
 		return $validator;
 	}
 }
@@ -378,25 +391,25 @@ if (!function_exists('igo')) {
 				try {
 					yield $callback();
 				} catch (Throwable $e) {
-					ilogger()->debug($e->getMessage(), ['exception' => $e]);
+					Logger::debug($e->getMessage(), ['exception' => $e]);
 				}
 			};
-			icontainer()->singleton(\W7\Core\Helper\Compate\Coroutine::class)->add($generatorFunc());
+			Container::singleton(\W7\Core\Helper\Compate\Coroutine::class)->add($generatorFunc());
 			return true;
 		}
 
-		$coId = icontext()->getCoroutineId();
+		$coId =Context::getCoroutineId();
 		$result = null;
 		Coroutine::create(function () use ($callback, $coId, &$result) {
-			icontext()->fork($coId);
+			Context::fork($coId);
 			try {
 				$result = $callback();
 			} catch (Throwable $throwable) {
-				ilogger()->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+				Logger::debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 
 			Coroutine::defer(function () {
-				icontext()->destroy();
+				Context::destroy();
 			});
 		});
 		return $result;
@@ -417,11 +430,11 @@ if (!function_exists('itimeTick')) {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
-				ilogger()->debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+				Logger::debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 
 			Coroutine::defer(function () {
-				icontext()->destroy();
+				Context::destroy();
 			});
 		});
 	}
@@ -432,11 +445,11 @@ if (!function_exists('itimeAfter')) {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
-				ilogger()->debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+				Logger::debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 
 			Coroutine::defer(function () {
-				icontext()->destroy();
+				Context::destroy();
 			});
 		});
 	}

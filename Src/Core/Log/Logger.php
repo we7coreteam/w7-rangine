@@ -13,6 +13,7 @@
 namespace W7\Core\Log;
 
 use Monolog\Handler\BufferHandler;
+use W7\Core\Facades\Container;
 
 class Logger extends \Monolog\Logger {
 	/**
@@ -23,7 +24,7 @@ class Logger extends \Monolog\Logger {
 		/**
 		 * @var LogManager $logManager
 		 */
-		$logManager = icontainer()->singleton(LogManager::class);
+		$logManager = Container::singleton(LogManager::class);
 		return $logManager->getChannel($name);
 	}
 

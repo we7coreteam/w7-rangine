@@ -13,6 +13,8 @@
 namespace W7\Core\Log;
 
 use Monolog\Logger as MonoLogger;
+use W7\Core\Facades\Config;
+use W7\Core\Facades\Container;
 use W7\Core\Helper\Traiter\HandlerTrait;
 use W7\Core\Log\Handler\HandlerAbstract;
 use W7\Core\Log\Processor\SwooleProcessor;
@@ -41,7 +43,7 @@ class LogManager {
 			return $this->config;
 		}
 
-		$config = iconfig()->get('log');
+		$config = Config::get('log');
 		if (!empty($this->config['channel'])) {
 			foreach ($this->config['channel'] as $name => &$setting) {
 				if (!empty($setting['level'])) {
@@ -95,7 +97,7 @@ class LogManager {
 	}
 
 	private function initCommonProcessor() {
-		$swooleProcessor = icontainer()->singleton(SwooleProcessor::class);
+		$swooleProcessor = Container::singleton(SwooleProcessor::class);
 		//不记录产生日志的文件和行号
 		//异常中会带，普通日志函数又是一样的
 		//$introProcessor = iloader()->singleton(IntrospectionProcessor::class);

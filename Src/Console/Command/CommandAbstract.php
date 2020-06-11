@@ -18,6 +18,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use W7\Console\Io\Output;
 use W7\Core\Config\Env;
+use W7\Core\Facades\Config;
 
 abstract class CommandAbstract extends Command {
 	protected $description;
@@ -51,7 +52,7 @@ abstract class CommandAbstract extends Command {
 					$key = implode('.', $option);
 					putenv($key . '=' . Env\Loader::parseValue($value));
 
-					iconfig()->set($key, ienv($key));
+					Config::set($key, ienv($key));
 				}
 			}
 		}

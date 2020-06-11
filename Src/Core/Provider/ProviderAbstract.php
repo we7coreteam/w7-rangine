@@ -13,9 +13,11 @@
 namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
+use W7\App;
 use W7\Console\Application;
 use W7\Core\Config\Config;
 use W7\Core\Container\Container;
+use W7\Core\Facades\Event;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Log\Logger;
 use W7\Core\Route\Router;
@@ -122,7 +124,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerView($namespace) {
-		$this->getView()->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
+		$this->getView()->addTemplatePath($namespace, $this->rootPath . '/view/');
 	}
 
 	protected function registerCommand($namespace = '') {
@@ -148,7 +150,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerEvent($event, $listener) {
-		ieventDispatcher()->listen($event, $listener);
+		Event::listen($event, $listener);
 	}
 
 	/**
@@ -282,19 +284,19 @@ abstract class ProviderAbstract {
 	}
 
 	protected function getContainer() {
-		return icontainer();
+		return App::getApp()->getContainer();
 	}
 
 	protected function getConfig() {
-		return iconfig();
+		return App::getApp()->getConfigger();
 	}
 
-	protected function getRouter() {
-		return irouter();
+	protected function getRouter() : Router {
+		return $this->getContainer()->singleton(Router::class);
 	}
 
-	protected function getLogger() {
-		return ilogger();
+	protected function getLogger() : Logger {
+		return \W7\Core\Facades\Logger::getFacadeRoot();
 	}
 
 	protected function getView() {

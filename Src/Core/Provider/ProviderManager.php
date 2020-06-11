@@ -15,6 +15,8 @@ namespace W7\Core\Provider;
 use W7\Core\Cache\Provider\CacheProvider;
 use W7\Core\Database\Provider\DatabaseProvider;
 use W7\Core\Exception\Provider\ExceptionProvider;
+use W7\Core\Facades\Config;
+use W7\Core\Facades\Container;
 
 class ProviderManager {
 	private $providerMap = [
@@ -38,14 +40,14 @@ class ProviderManager {
 	 * 扩展包注册
 	 */
 	public function register() {
-		$this->deferredProviders = iconfig()->get('provider.deferred', []);
+		$this->deferredProviders = Config::get('provider.deferred', []);
 
-		$providers = iconfig()->get('provider.providers', []);
+		$providers = Config::get('provider.providers', []);
 		$this->registerProviders(array_merge($this->providerMap, $providers));
 
 		if ($this->deferredProviders) {
-			icontainer()->registerDeferredService(array_keys($this->deferredProviders));
-			icontainer()->registerDeferredServiceLoader(function ($service) {
+			Container::registerDeferredService(array_keys($this->deferredProviders));
+			Container::registerDeferredServiceLoader(function ($service) {
 				$providers = $this->deferredProviders[$service] ?? [];
 				foreach ($providers as $provider) {
 					$provider = $this->registerProvider($provider, $provider, true);
@@ -85,7 +87,7 @@ class ProviderManager {
 				return false;
 			}
 			$params = isset($name) ? [$name] : [];
-			$provider = icontainer()->get($provider, $params);
+			$provider = Container::get($provider, $params);
 		}
 
 		/**

@@ -13,12 +13,13 @@
 namespace W7\WebSocket\Listener;
 
 use W7\App;
+use W7\Core\Facades\Container;
 use W7\Core\Listener\ListenerAbstract;
 
 class AfterWorkerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		if (icontainer()->has('ws-client')) {
-			$clientCollector = icontainer()->get('ws-client') ?? [];
+		if (Container::has('ws-client')) {
+			$clientCollector = Container::get('ws-client') ?? [];
 		} else {
 			$clientCollector = [];
 		}
@@ -31,6 +32,6 @@ class AfterWorkerStopListener extends ListenerAbstract {
 			App::$server->getServer()->isEstablished($fd) && App::$server->getServer()->disconnect($fd, 0, '');
 		}
 
-		icontainer()->delete('ws-client');
+		Container::delete('ws-client');
 	}
 }

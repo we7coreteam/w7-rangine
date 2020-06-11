@@ -13,6 +13,7 @@
 namespace W7\Core\Server;
 
 use W7\App;
+use W7\Core\Facades\Container;
 use W7\Core\Provider\ProviderManager;
 
 abstract class ServerAbstract implements ServerInterface {
@@ -51,7 +52,7 @@ abstract class ServerAbstract implements ServerInterface {
 		/**
 		 * @var ProviderManager $providerManager
 		 */
-		$providerManager = icontainer()->singleton(ProviderManager::class);
+		$providerManager = Container::singleton(ProviderManager::class);
 		$providerManager->registerProviders($this->providerMap);
 	}
 }

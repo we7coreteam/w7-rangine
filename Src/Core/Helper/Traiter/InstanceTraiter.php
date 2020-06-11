@@ -12,9 +12,11 @@
 
 namespace W7\Core\Helper\Traiter;
 
+use W7\Core\Facades\Container;
+
 trait InstanceTraiter {
 	public static function instance() {
-		$instance = icontainer()->get(static::class);
+		$instance = Container::get(static::class);
 
 		/**
 		 * @var static $instance

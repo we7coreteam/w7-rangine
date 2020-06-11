@@ -23,14 +23,15 @@ class TwigHandler extends HandlerAbstract {
 	 */
 	private $twig;
 
-	protected function init() {
-		$loader = new FilesystemLoader([self::$defaultTemplatePath], self::$defaultTemplatePath);
-		foreach (self::$providerTemplatePath as $namespace => $paths) {
+	public function __construct(array $config) {
+		parent::__construct($config);
+
+		$loader = new FilesystemLoader();
+		foreach ($this->config['template_path'] as $namespace => $paths) {
 			foreach ($paths as $path) {
 				$loader->addPath($path, $namespace);
 			}
 		}
-		self::$defaultCachePath && $this->config['cache'] = self::$defaultCachePath;
 		$this->twig = new Environment($loader, $this->config);
 		if ($this->config['debug']) {
 			$this->twig->addExtension(new DebugExtension());

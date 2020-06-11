@@ -12,6 +12,7 @@
 
 namespace W7\Tcp\Listener;
 
+use W7\Core\Facades\Container;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Route\RouteDispatcher;
 use W7\Core\Server\ServerEnum;
@@ -27,7 +28,7 @@ class BeforeStartListener extends ListenerAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = icontainer()->singleton(Dispatcher::class);
-		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(icontainer()->singleton(RouteMapping::class), ServerEnum::TYPE_TCP));
+		$dispatcher = Container::singleton(Dispatcher::class);
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(Container::singleton(RouteMapping::class), ServerEnum::TYPE_TCP));
 	}
 }

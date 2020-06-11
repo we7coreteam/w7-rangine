@@ -16,6 +16,7 @@ use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\DatabasePresenceVerifier;
 use Illuminate\Validation\Factory;
+use W7\Core\Facades\DB;
 
 class ValidateProvider extends ProviderAbstract {
 	public function register() {
@@ -44,7 +45,7 @@ class ValidateProvider extends ProviderAbstract {
 			 */
 			$translator = $this->container->get('validate.translator');
 			$validate = new Factory($translator);
-			$validate->setPresenceVerifier(new DatabasePresenceVerifier(idb()));
+			$validate->setPresenceVerifier(new DatabasePresenceVerifier(DB::getFacadeRoot()));
 			return $validate;
 		});
 	}

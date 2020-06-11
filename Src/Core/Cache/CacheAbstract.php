@@ -13,13 +13,18 @@
 namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
+use W7\Core\Facades\Container;
 
 abstract class CacheAbstract implements CacheInterface {
 	/**
 	 * @var ConnectorManager
 	 */
-	protected $manager;
+	protected $connectorManager;
 	protected $channelName = 'default';
+
+	public function setChannelName(string $channelName) {
+		$this->channelName = $channelName;
+	}
 
 	/**
 	 * 选择一个缓存通道
@@ -30,18 +35,17 @@ abstract class CacheAbstract implements CacheInterface {
 		if (empty($name)) {
 			throw new \RuntimeException('Invalid cache channel name');
 		}
-		if (!icontainer()->has('cache-' . $name)) {
+		if (!Container::has('cache-' . $name)) {
 			throw new \RuntimeException('cache not support the channel');
 		}
-		return icontainer()->get('cache-' . $name);
+		return Container::get('cache-' . $name);
+	}
+
+	public function setConnectorManager(ConnectorManager $connectorManager) {
+		$this->connectorManager = $connectorManager;
 	}
 
 	protected function getConnection() {
-		$this->manager = icontainer()->singleton(ConnectorManager::class);
-		return $this->manager->connect($this->channelName);
-	}
-
-	public function setChannelName(string $channelName) {
-		$this->channelName = $channelName;
+		return $this->connectorManager->connect($this->channelName);
 	}
 }

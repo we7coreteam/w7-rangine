@@ -15,6 +15,7 @@ namespace W7\Core\Database;
 use Illuminate\Database\Connectors\Connector;
 use W7\Core\Database\Event\MakeConnectionEvent;
 use W7\Core\Database\Pool\Pool;
+use W7\Core\Facades\Event;
 
 class ConnectorManager {
 	private $poolConfig;
@@ -23,8 +24,8 @@ class ConnectorManager {
 	private static $connectors;
 	private $connectorObjs = [];
 
-	public function __construct() {
-		$this->poolConfig = \iconfig()->get('app.pool.database', []);
+	public function __construct($poolConfig = []) {
+		$this->poolConfig = $poolConfig;
 	}
 
 	/**
@@ -80,7 +81,7 @@ class ConnectorManager {
 
 	private function getDefaultConnection($config) {
 		$this->defaultConnection = $this->getDefaultConnector($config['driver'])->connect($config);
-		ievent(new MakeConnectionEvent($config['name'], $this->defaultConnection));
+		Event::dispatch(new MakeConnectionEvent($config['name'], $this->defaultConnection));
 		return $this->defaultConnection;
 	}
 

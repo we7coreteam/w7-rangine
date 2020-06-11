@@ -12,9 +12,11 @@
 
 namespace W7\Tcp\Listener;
 
-use W7\App;
 use Swoole\Coroutine;
 use Swoole\Server;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
+use W7\Core\Facades\Event;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -30,13 +32,12 @@ class ReceiveListener extends ListenerAbstract {
 	}
 
 	private function dispatch(Server $server, $reactorId, $fd, $data) {
-		$context = App::getApp()->getContext();
-		$context->setContextDataByKey('fd', $fd);
-		$context->setContextDataByKey('reactorid', $reactorId);
-		$context->setContextDataByKey('workid', $server->worker_id);
-		$context->setContextDataByKey('coid', Coroutine::getuid());
+		Context::setContextDataByKey('fd', $fd);
+		Context::setContextDataByKey('reactorid', $reactorId);
+		Context::setContextDataByKey('workid', $server->worker_id);
+		Context::setContextDataByKey('coid', Coroutine::getuid());
 
-		$collector = icontainer()->get('tcp-client')[$fd] ?? [];
+		$collector = Container::get('tcp-client')[$fd] ?? [];
 
 		/**
 		 * @var Psr7Request $psr7Request
@@ -49,20 +50,20 @@ class ReceiveListener extends ListenerAbstract {
 		 */
 		$psr7Response = $collector[1];
 
-		App::getApp()->getContext()->setResponse($psr7Response);
-		App::getApp()->getContext()->setRequest($psr7Request);
+		Context::setResponse($psr7Response);
+		Context::setRequest($psr7Request);
 
-		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
 
 		/**
 		 * @var RequestDispatcher $dispatcher
 		 */
-		$dispatcher = \icontainer()->singleton(RequestDispatcher::class);
+		$dispatcher = Container::singleton(RequestDispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
 		$psr7Response->send();
 
-		ievent(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
-		icontext()->destroy();
+		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
+		Context::destroy();
 	}
 }

@@ -12,6 +12,7 @@
 
 namespace W7\Reload\Server;
 
+use W7\Core\Facades\Config;
 use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Reload\Process\ReloadProcess;
@@ -20,7 +21,7 @@ class Server extends ProcessServerAbstract {
 	public static $onlyFollowMasterServer = true;
 
 	public function __construct() {
-		iconfig()->set('server.' . $this->getType(), [
+		Config::set('server.' . $this->getType(), [
 			'worker_num' => 1
 		]);
 

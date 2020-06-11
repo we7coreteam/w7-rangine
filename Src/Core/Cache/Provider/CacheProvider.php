@@ -13,19 +13,22 @@
 namespace W7\Core\Cache\Provider;
 
 use W7\Core\Cache\Cache;
+use W7\Core\Cache\ConnectorManager;
 use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
 	public function register() {
-		$config = $this->config->get('app.cache', []);
-		$channels = array_keys($config);
+		$connectionConfig = $this->config->get('app.cache', []);
+		$poolConfig = $this->config->get('app.pool.cache', []);
+
+		$connectorManager = new ConnectorManager($connectionConfig, $poolConfig);
+
+		$channels = array_keys($connectionConfig);
 		foreach ($channels as $key => $channel) {
-			$this->container->set('cache-' . $channel, function () use ($channel) {
-				if ($channel === 'default') {
-					return icache();
-				}
+			$this->container->set('cache-' . $channel, function () use ($channel, $connectorManager) {
 				$cache = new Cache();
 				$cache->setChannelName($channel);
+				$cache->setConnectorManager($connectorManager);
 				return $cache;
 			});
 		}

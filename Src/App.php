@@ -43,7 +43,7 @@ class App {
 		self::$self = $this;
 
 		//初始化配置
-		iconfig()->load();
+		$this->getConfigger()->load();
 		$this->registerRuntimeEnv();
 		$this->registerErrorHandler();
 		$this->registerProvider();
@@ -51,7 +51,7 @@ class App {
 	}
 
 	private function registerRuntimeEnv() {
-		$defaultTimezone = iconfig()->get('app.setting.timezone', 'Asia/Shanghai');
+		$defaultTimezone = $this->getConfigger()->get('app.setting.timezone', 'Asia/Shanghai');
 		date_default_timezone_set($defaultTimezone);
 
 		if (!is_dir(RUNTIME_PATH)) {
@@ -73,7 +73,7 @@ class App {
 
 	private function registerSecurityDir() {
 		//设置安全限制目录
-		$openBaseDirConfig = iconfig()->get('app.setting.basedir', []);
+		$openBaseDirConfig = $this->getConfigger()->get('app.setting.basedir', []);
 		if (is_array($openBaseDirConfig)) {
 			$openBaseDirConfig = implode(':', $openBaseDirConfig);
 		}
@@ -90,7 +90,7 @@ class App {
 
 	private function registerErrorHandler() {
 		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
-		$setting = iconfig()->get('app.setting');
+		$setting = $this->getConfigger()->get('app.setting');
 		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
 		error_reporting($errorLevel);
 
@@ -129,6 +129,7 @@ class App {
 	}
 
 	/**
+	 * @deprecated
 	 * @return Logger
 	 */
 	public function getLogger() {
@@ -140,6 +141,7 @@ class App {
 	}
 
 	/**
+	 * @deprecated
 	 * @return Context
 	 */
 	public function getContext() {

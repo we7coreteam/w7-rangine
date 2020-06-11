@@ -12,10 +12,11 @@
 
 namespace W7\Core\Middleware;
 
-use W7\App;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
 use W7\Core\Helper\StringHelper;
 use W7\Http\Message\Server\Response;
 
@@ -29,7 +30,7 @@ class ControllerMiddleware extends MiddlewareAbstract {
 			$controllerHandler = $route['controller'];
 		} else {
 			$method = StringHelper::studly($route['method']);
-			$classObj = icontainer()->singleton($route['controller']);
+			$classObj = Container::singleton($route['controller']);
 			if (!method_exists($classObj, $method)) {
 				throw new \BadMethodCallException("method {$method} not available at class {$route['controller']}");
 			}
@@ -46,7 +47,7 @@ class ControllerMiddleware extends MiddlewareAbstract {
 		}
 
 		$response = call_user_func_array($controllerHandler, $funArgs);
-		App::getApp()->getContext()->setResponse($this->parseResponse($response));
+		Context::setResponse($this->parseResponse($response));
 
 		return $handler->handle($request);
 	}
@@ -59,6 +60,6 @@ class ControllerMiddleware extends MiddlewareAbstract {
 			$response = 'Illegal type ' . get_class($response) . ', Must be a response object, an array, or a string';
 		}
 
-		return App::getApp()->getContext()->getResponse()->json($response);
+		return Context::getResponse()->json($response);
 	}
 }

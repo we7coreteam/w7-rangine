@@ -12,6 +12,8 @@
 
 namespace W7\Fpm\Server;
 
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Event;
 use W7\Core\Route\RouteDispatcher;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
@@ -37,7 +39,7 @@ class Server extends ServerAbstract {
 		/**
 		 * @var ServerEvent $eventRegister
 		 */
-		$eventRegister = icontainer()->singleton(ServerEvent::class);
+		$eventRegister = Container::singleton(ServerEvent::class);
 		$eventRegister->registerServerUserEvent();
 		$eventRegister->registerServerCustomEvent($this->getType());
 	}
@@ -45,7 +47,7 @@ class Server extends ServerAbstract {
 	public function start() {
 		$this->registerService();
 
-		ievent(ServerEvent::ON_USER_BEFORE_START, [$this, $this->getType()]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_START, [$this, $this->getType()]);
 
 		$response = new Psr7Response();
 		$response->setOutputer(new FpmResponseOutputer());
@@ -72,14 +74,14 @@ class Server extends ServerAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = \icontainer()->singleton(Dispatcher::class);
-		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(icontainer()->singleton(RouteMapping::class), $this->getType()));
+		$dispatcher = Container::singleton(Dispatcher::class);
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(Container::singleton(RouteMapping::class), $this->getType()));
 
-		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response, $this->getType()]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response, $this->getType()]);
 
 		$response = $dispatcher->dispatch($request, $response);
 
-		ievent(ServerEvent::ON_USER_AFTER_REQUEST, [$request, $response, $this->getType()]);
+		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$request, $response, $this->getType()]);
 
 		return $response;
 	}

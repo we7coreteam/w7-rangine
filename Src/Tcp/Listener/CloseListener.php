@@ -13,6 +13,8 @@
 namespace W7\Tcp\Listener;
 
 use Swoole\Server;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Event;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -25,9 +27,9 @@ class CloseListener extends ListenerAbstract {
 
 	private function onClose(Server $server, int $fd, int $reactorId): void {
 		//删除数据绑定记录
-		icontainer()->append('tcp-client', [
+		Container::append('tcp-client', [
 			$fd => []
 		], []);
-		ievent(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_TCP]);
+		Event::dispatch(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_TCP]);
 	}
 }

@@ -12,8 +12,19 @@
 
 namespace W7\Core\Facades;
 
+/**
+ * Class View
+ * @package W7\Core\Facades
+ *
+ * @method static void registerFunction($name, \Closure $callback)
+ * @method static void registerConst($name, $value)
+ * @method static void registerObject($name, object $object)
+ * @method static string render($name, $context = [])
+ *
+ * @see \W7\Core\View\View
+ */
 class View extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
-		// TODO: Implement getFacadeAccessor() method.
+		return \W7\Core\View\View::class;
 	}
 }

@@ -12,8 +12,18 @@
 
 namespace W7\Core\Facades;
 
-class Request extends FacadeAbstract {
+/**
+ * Class Config
+ * @package W7\Core\Facades
+ *
+ * @method static string getBuiltInConfigPath()
+ * @method static mixed get($key, $default = null)
+ * @method static array set($key, $value)
+ *
+ * @see \W7\Core\Config\Config
+ */
+class Config extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
-		// TODO: Implement getFacadeAccessor() method.
+		return \W7\Core\Config\Config::class;
 	}
 }

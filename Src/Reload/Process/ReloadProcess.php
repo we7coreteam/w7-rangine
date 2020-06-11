@@ -14,6 +14,7 @@ namespace W7\Reload\Process;
 
 use Swoole\Process;
 use W7\App;
+use W7\Core\Facades\Config;
 use W7\Core\Process\ProcessAbstract;
 
 class ReloadProcess extends ProcessAbstract {
@@ -44,7 +45,7 @@ class ReloadProcess extends ProcessAbstract {
 	public function __construct($name, $num = 1, Process $process = null) {
 		parent::__construct($name, $num, $process);
 
-		$reloadConfig = \iconfig()->get('reload');
+		$reloadConfig = Config::get('reload');
 		self::$watchDir = array_merge(self::$watchDir, $reloadConfig['path'] ?? []);
 		self::$fileTypes = array_merge(self::$fileTypes, $reloadConfig['type'] ?? []);
 	}
