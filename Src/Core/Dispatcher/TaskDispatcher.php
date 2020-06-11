@@ -97,7 +97,7 @@ class TaskDispatcher extends DispatcherAbstract {
 		}
 
 		if (!class_exists($message->task)) {
-			ilogger()->debug('task name is wrong name is ' . $message->task);
+			ilogger()->debug('task ' . $message->task . ' not exists');
 			return false;
 		}
 
