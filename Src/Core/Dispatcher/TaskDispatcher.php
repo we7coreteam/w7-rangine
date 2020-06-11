@@ -81,7 +81,8 @@ class TaskDispatcher extends DispatcherAbstract {
 	/**
 	 * 在OnTask事件中执行具体任务
 	 * @param mixed ...$params
-	 * @return bool|mixed|void
+	 * @return mixed|void
+	 * @throws \Throwable
 	 */
 	public function dispatch(...$params) {
 		list($server, $taskId, $workId, $data) = $params;
@@ -97,8 +98,7 @@ class TaskDispatcher extends DispatcherAbstract {
 		}
 
 		if (!class_exists($message->task)) {
-			ilogger()->debug('task name is wrong name is ' . $message->task);
-			return false;
+			throw new \RuntimeException('task ' . $message->task . ' not exists');
 		}
 
 		$task = icontainer()->get($message->task);
