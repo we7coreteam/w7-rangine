@@ -15,14 +15,14 @@ namespace W7\Fpm\Session\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Facades\Config;
+use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Middleware\MiddlewareAbstract;
 use W7\Core\Session\Session;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		$request->session = new Session(Config::get('app.session', []));
+		$request->session = Container::clone(Session::class);
 		$request->session->start($request);
 
 		//第二个参数表示shudown后，保存session数据并执行close，释放session锁，不释放会导致同一个sessionid的请求处于等待状态(session_start被调用的时候，该文件是被锁住的)

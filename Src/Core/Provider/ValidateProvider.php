@@ -49,4 +49,8 @@ class ValidateProvider extends ProviderAbstract {
 			return $validate;
 		});
 	}
+
+	public function providers(): array {
+		return [Factory::class];
+	}
 }

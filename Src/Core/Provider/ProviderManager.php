@@ -18,6 +18,7 @@ use W7\Core\Exception\Provider\ExceptionProvider;
 use W7\Core\Facades\Config;
 use W7\Core\Facades\Container;
 use W7\Core\Log\Provider\LogProvider;
+use W7\Core\Session\Provider\SessionProvider;
 use W7\Core\View\Provider\ViewProvider;
 
 class ProviderManager {
@@ -27,7 +28,8 @@ class ProviderManager {
 		'database' => DatabaseProvider::class,
 		'cache' => CacheProvider::class,
 		'view' => ViewProvider::class,
-		'validate' => ValidateProvider::class
+		'validate' => ValidateProvider::class,
+		'session' => SessionProvider::class
 	];
 	private $deferredProviders = [];
 	private $registeredProviders = [];

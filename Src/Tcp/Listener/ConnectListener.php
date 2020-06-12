@@ -13,7 +13,6 @@
 namespace W7\Tcp\Listener;
 
 use Swoole\Server;
-use W7\Core\Facades\Config;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Event;
 use W7\Core\Listener\ListenerAbstract;
@@ -39,7 +38,7 @@ class ConnectListener extends ListenerAbstract {
 		$psr7Response->setOutputer(new TcpResponseOutputer($server, $fd));
 
 		//tcp session保证此次连接中是共享数据，Response没办法下放sessionid，不存在两次连接共用数据
-		$psr7Request->session = new Session(Config::get('app.session', []));
+		$psr7Request->session = Container::clone(Session::class);
 		$psr7Request->session->start($psr7Request);
 
 		Container::append('tcp-client', [

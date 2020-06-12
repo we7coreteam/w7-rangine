@@ -60,6 +60,10 @@ class Container {
 		$this->container[$name] = $handle;
 	}
 
+	public function has($name) {
+		return $this->psrContainer->has($name);
+	}
+
 	/**
 	 * @param $name
 	 * @param array $params  当参数为标量或者数组时，可按参数进行单例
@@ -121,8 +125,8 @@ class Container {
 		$this->set($dataKey, $data);
 	}
 
-	public function has($name) {
-		return $this->psrContainer->has($name);
+	public function clone($name, array $params = []) {
+		return clone $this->get($name, $params);
 	}
 
 	public function delete($name) {

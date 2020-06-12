@@ -15,7 +15,6 @@ namespace W7\WebSocket\Listener;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use W7\App;
-use W7\Core\Facades\Config;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Event;
 use W7\Core\Facades\Logger;
@@ -76,7 +75,7 @@ class HandShakeListener extends ListenerAbstract {
 
 		$response = $psr7Response->withHeaders($headers)->withStatus(101);
 
-		$psr7Request->session = new Session(Config::get('app.session', []));
+		$psr7Request->session = Container::clone(Session::class);
 		$psr7Request->session->start($psr7Request);
 		$response = $psr7Request->session->replenishResponse($response);
 
