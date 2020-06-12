@@ -17,13 +17,17 @@ use W7\Core\Database\Provider\DatabaseProvider;
 use W7\Core\Exception\Provider\ExceptionProvider;
 use W7\Core\Facades\Config;
 use W7\Core\Facades\Container;
+use W7\Core\Log\Provider\LogProvider;
+use W7\Core\View\Provider\ViewProvider;
 
 class ProviderManager {
 	private $providerMap = [
 		'exception' => ExceptionProvider::class,
-		'validate' => ValidateProvider::class,
+		'log' => LogProvider::class,
+		'database' => DatabaseProvider::class,
 		'cache' => CacheProvider::class,
-		'database' => DatabaseProvider::class
+		'view' => ViewProvider::class,
+		'validate' => ValidateProvider::class
 	];
 	private $deferredProviders = [];
 	private $registeredProviders = [];

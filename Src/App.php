@@ -13,12 +13,11 @@
 namespace W7;
 
 use W7\Console\Application;
-use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Container\Container;
-use W7\Core\Log\Logger;
-use W7\Core\Log\LogManager;
+use W7\Core\Facades\Cache;
+use W7\Core\Facades\Logger;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
@@ -130,14 +129,9 @@ class App {
 
 	/**
 	 * @deprecated
-	 * @return Logger
 	 */
 	public function getLogger() {
-		/**
-		 * @var LogManager $logManager
-		 */
-		$logManager = $this->getContainer()->get(LogManager::class);
-		return $logManager->getDefaultChannel();
+		return Logger::getFacadeRoot();
 	}
 
 	/**
@@ -153,14 +147,11 @@ class App {
 	}
 
 	/**
-	 * @return Cache
+	 * @deprecated
+	 * @return mixed|\Psr\SimpleCache\CacheInterface
 	 */
 	public function getCacher() {
-		/**
-		 * @var Cache $cache;
-		 */
-		$cache = $this->getContainer()->get(Cache::class);
-		return $cache;
+		return Cache::getFacadeRoot();
 	}
 
 	public function bootstrapCachePath($path = '') {

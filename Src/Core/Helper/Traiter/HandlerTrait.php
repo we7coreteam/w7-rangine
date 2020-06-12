@@ -12,22 +12,12 @@
 
 namespace W7\Core\Helper\Traiter;
 
-use W7\Core\Facades\Config;
-
 trait HandlerTrait {
-	public static $classCache = [];
-
-	public function getHandlerClassByTypeAndName($type, $handlerName) {
-		if (!empty(self::$classCache[$type][$handlerName])) {
-			return self::$classCache[$type][$handlerName];
-		}
-
-		$config = Config::get("handler.$type", []);
-		$handlerClass = $config[$handlerName] ?? '';
+	public function getHandlerByTypeAndName($handlerName, $supportHandlers = []) {
+		$handlerClass = $supportHandlers[$handlerName] ?? '';
 		if (!$handlerClass || !class_exists($handlerClass)) {
-			throw new \RuntimeException($type . ' handler ' . $handlerName . ' is not support');
+			throw new \RuntimeException('handler ' . $handlerName . ' is not support');
 		}
-		self::$classCache[$type][$handlerName] = $handlerClass;
 
 		return $handlerClass;
 	}

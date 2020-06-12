@@ -14,14 +14,10 @@ namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
 use W7\Core\Cache\Event\MakeConnectionEvent;
-use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\Pool;
 use W7\Core\Facades\Event;
-use W7\Core\Helper\Traiter\HandlerTrait;
 
 class ConnectorManager {
-	use HandlerTrait;
-
 	private $config;
 	private $pool;
 
@@ -40,11 +36,8 @@ class ConnectorManager {
 		}
 
 		if (!isCo() || empty($poolConfig) || empty($poolConfig['enable'])) {
-			/**
-			 * @var HandlerAbstract $handlerClass
-			 */
-			$handlerClass = $this->getHandlerClassByTypeAndName('cache', $config['driver']);
-			$handler = $handlerClass::getHandler($config);
+			$handler = $config['driver'];
+			$handler = $handler::getHandler($config);
 
 			Event::dispatch(new MakeConnectionEvent($name, $handler));
 
@@ -77,7 +70,7 @@ class ConnectorManager {
 
 		$pool = new Pool($name);
 		$pool->setConfig($config);
-		$pool->setCreator($this->getHandlerClassByTypeAndName('cache', $config['driver']));
+		$pool->setCreator($config['driver']);
 		$pool->setMaxCount($poolConfig['max'] ?? 1);
 
 		$this->pool[$name] = $pool;

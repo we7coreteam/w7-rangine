@@ -12,7 +12,7 @@
 
 namespace W7\Core\Facades;
 
-use W7\Core\Log\LogManager;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Logger
@@ -27,20 +27,39 @@ use W7\Core\Log\LogManager;
  * @method static void info(string $message, array $context = [])
  * @method static void debug(string $message, array $context = [])
  * @method static void log($level, string $message, array $context = [])
- * @method static \Psr\Log\LoggerInterface channel(string $channel = null)
  *
  * @see \W7\Core\Log\Logger
  */
 class Logger extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
-		return LogManager::class;
+		return '';
 	}
 
 	public static function getFacadeRoot() {
-		/**
-		 * @var LogManager $root
-		 */
-		$root = parent::getFacadeRoot();
-		return $root->getDefaultChannel();
+		return self::channel();
+	}
+
+	public static function channel($name = 'default') : LoggerInterface {
+		if (!self::getContainer()->has('logger-' . $name)) {
+			$name = 'default';
+		}
+
+		return self::getContainer()->get('logger-' . $name);
+	}
+
+	public static function cleanLogFile() {
+		if ((ENV & CLEAR_LOG) !== CLEAR_LOG) {
+			return false;
+		}
+		$logPath = RUNTIME_PATH . DS. 'logs/*';
+		$tree = glob($logPath);
+		if (!empty($tree)) {
+			foreach ($tree as $file) {
+				if (strstr($file, '.log') !== false) {
+					unlink($file);
+				}
+			}
+		}
+		return true;
 	}
 }

@@ -18,7 +18,6 @@ use Psr\SimpleCache\CacheInterface;
  * Class Cache
  * @package W7\Core\Facades
  *
- * @method static CacheInterface channel($name)
  * @method static connect( $host, $port = 6379, $timeout = 0.0, $reserved = null, $retry_interval = 0 ) {}
  * @method static psetex($key, $ttl, $value) {}
  * @method static sScan($key, $iterator, $pattern = '', $count = 0) {}
@@ -198,6 +197,18 @@ class Cache extends FacadeAbstract {
 	 * @return string
 	 */
 	protected static function getFacadeAccessor() {
-		return \W7\Core\Cache\Cache::class;
+		return '';
+	}
+
+	public static function getFacadeRoot() {
+		return self::channel();
+	}
+
+	public static function channel($name = 'default') : CacheInterface {
+		if (!self::getContainer()->has('cache-' . $name)) {
+			$name = 'default';
+		}
+
+		return self::getContainer()->get('cache-' . $name);
 	}
 }

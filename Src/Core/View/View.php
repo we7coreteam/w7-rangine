@@ -12,14 +12,11 @@
 
 namespace W7\Core\View;
 
-use W7\Core\Helper\Traiter\HandlerTrait;
 use W7\Core\View\Handler\HandlerAbstract;
+use W7\Core\View\Handler\TwigHandler;
 
 class View implements ViewInterface {
-	use HandlerTrait;
-
 	private $config;
-	private $handlerClass;
 	private $customFunctions = [];
 	private $customConsts = [];
 	private $customObjs = [];
@@ -62,8 +59,8 @@ class View implements ViewInterface {
 	}
 
 	private function getHandler() : HandlerAbstract {
-		$class = $this->getHandlerClassByTypeAndName('view', $this->config['handler'] ?? 'twig');
-		$handler = new $class($this->config);
+		$handler = empty($this->config['handler']) ? TwigHandler::class : $this->config['handler'];
+		$handler = new $handler($this->config);
 		if (!($handler instanceof HandlerAbstract)) {
 			throw new \RuntimeException('view handler must instance of HandlerAbstract');
 		}

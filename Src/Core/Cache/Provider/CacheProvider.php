@@ -20,15 +20,18 @@ class CacheProvider extends ProviderAbstract {
 	public function register() {
 		$connectionConfig = $this->config->get('app.cache', []);
 		$poolConfig = $this->config->get('app.pool.cache', []);
+		foreach ($connectionConfig as &$config) {
+			$config['driver'] = $this->config->get('handler.cache.' . $config['driver'], $config['driver']);
+		}
 
 		$connectorManager = new ConnectorManager($connectionConfig, $poolConfig);
+		Cache::setConnectionResolver($connectorManager);
 
 		$channels = array_keys($connectionConfig);
 		foreach ($channels as $key => $channel) {
 			$this->container->set('cache-' . $channel, function () use ($channel, $connectorManager) {
 				$cache = new Cache();
 				$cache->setChannelName($channel);
-				$cache->setConnectorManager($connectorManager);
 				return $cache;
 			});
 		}

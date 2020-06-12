@@ -12,7 +12,6 @@
 
 namespace W7\Core\View\Provider;
 
-use W7\App;
 use W7\Console\Application;
 use W7\Core\Exception\DumpException;
 use W7\Core\View\Handler\HandlerAbstract;
@@ -24,12 +23,14 @@ class ViewProvider extends ProviderAbstract {
 	public function register() {
 		$config = $this->config->get('app.view', []);
 		$config['debug'] = (ENV & DEBUG) === DEBUG;
+		if (!empty($config['handler'])) {
+			$config['handler'] = $this->config->get('handler.view.' . $config['handler'], $config['handler']);
+		}
 
 		$this->container->set(View::class, function () use ($config) {
 			$view = new View($config);
 			$this->registerSystemConst($view, $config);
 			$this->registerSystemFunction($view);
-			$this->registerSystemObject($view);
 		});
 
 		isCli() && $this->registerReloadDir($config);
@@ -59,11 +60,6 @@ class ViewProvider extends ProviderAbstract {
 		$view->registerConst(HandlerAbstract::__CSS__, $config['css'] ?? '/static/css/');
 		$view->registerConst(HandlerAbstract::__JS__, $config['js'] ?? '/static/js/');
 		$view->registerConst(HandlerAbstract::__IMAGES__, $config['images'] ?? '/static/images/');
-	}
-
-	protected function registerSystemObject(View $view) {
-		$view->registerObject('iconfig', App::getApp()->getConfigger());
-		$view->registerObject('icache', App::getApp()->getCacher());
 	}
 
 	protected function registerReloadDir($config) {

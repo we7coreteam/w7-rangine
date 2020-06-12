@@ -52,8 +52,8 @@ class Session implements SessionInterface {
 			return true;
 		}
 
-		$handlerClass = $this->getHandlerClassByTypeAndName('session', $this->config['handler'] ?? 'file');
-		$handler = new $handlerClass($this->config);
+		$handler = $this->getHandlerByTypeAndName('session', $this->config['handler'] ?? 'file');
+		$handler = new $handler($this->config);
 		if (!($handler instanceof HandlerAbstract)) {
 			throw new \RuntimeException('session handler must instance of HandlerAbstract');
 		}
