@@ -14,7 +14,6 @@ namespace W7\Core\Listener;
 
 use W7\App;
 use W7\Core\Facades\Event;
-use W7\Core\Facades\Logger;
 use W7\Core\Server\ServerEvent;
 
 class StartListener implements ListenerInterface {
@@ -23,8 +22,6 @@ class StartListener implements ListenerInterface {
 		mt_srand();
 
 		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' master process');
-
-		Logger::cleanLogFile();
 
 		Event::dispatch(ServerEvent::ON_USER_AFTER_START, $params);
 	}

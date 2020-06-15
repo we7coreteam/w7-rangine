@@ -46,20 +46,4 @@ class Logger extends FacadeAbstract {
 
 		return self::getContainer()->get('logger-' . $name);
 	}
-
-	public static function cleanLogFile() {
-		if ((ENV & CLEAR_LOG) !== CLEAR_LOG) {
-			return false;
-		}
-		$logPath = RUNTIME_PATH . DS. 'logs/*';
-		$tree = glob($logPath);
-		if (!empty($tree)) {
-			foreach ($tree as $file) {
-				if (strstr($file, '.log') !== false) {
-					unlink($file);
-				}
-			}
-		}
-		return true;
-	}
 }
