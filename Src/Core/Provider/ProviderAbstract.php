@@ -20,8 +20,10 @@ use W7\Core\Container\Container;
 use W7\Core\Facades\Event;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Facades\Logger as LoggerFacade;
+use W7\Core\Log\LogBuffer;
 use W7\Core\Log\Logger;
 use W7\Core\Facades\Router as RouterFacade;
+use W7\Core\Log\Processor\SwooleProcessor;
 use W7\Core\Route\Router;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -77,6 +79,13 @@ abstract class ProviderAbstract {
 	public function boot() {
 	}
 
+	protected function registerOpenBaseDir($dir) {
+		$dir = (array)$dir;
+		$appBasedir = $this->config->get('app.setting.basedir', []);
+		$appBasedir = array_merge($appBasedir, $dir);
+		$this->config->set('app.setting.basedir', $appBasedir);
+	}
+
 	protected function registerProvider($provider) {
 		$this->getContainer()->singleton(ProviderManager::class)->registerProvider($provider);
 	}
@@ -96,6 +105,42 @@ abstract class ProviderAbstract {
 		$this->publishes([
 			$this->rootPath . '/config/' . $sourceFileName => BASE_PATH . '/config/' . $targetFileName
 		], $group);
+	}
+
+	protected function registerLoggerChannel($name, $driver, $config = [], $isStack = false) {
+		$logger = new Logger($name, [], []);
+		$logger->bufferLimit = $config['buffer_limit'] ?? 1;
+
+		$config['processor'] = (array)(empty($config['processor']) ? [] : $config['processor']);
+		array_unshift($config['processor'], SwooleProcessor::class);
+		foreach ((array)$config['processor'] as $processor) {
+			$logger->pushProcessor(new $processor);
+		}
+
+		$handlers = [];
+		if (!$isStack) {
+			$handler = $this->config->get('handler.log.' . $driver, $driver);
+			if (!$handler || !class_exists($handler)) {
+				throw new \RuntimeException('log handler ' . $driver . ' is not support');
+			}
+			$handlers[] = new LogBuffer($handler::getHandler($config), $logger->bufferLimit, $config['level'], true, true);
+		} else {
+			$config['channel'] = (array)$config['channel'];
+			foreach ($config['channel'] as $channel) {
+				/**
+				 * @var Logger $channelLogger
+				 */
+				$channelLogger = $this->getContainer()->get('logger-' . $channel);
+				$handlers = array_merge($handlers, is_object($channelLogger) ? $channelLogger->getHandlers() : []);
+			}
+		}
+		foreach ($handlers as $handler) {
+			$logger->pushHandler($handler);
+		}
+
+		$this->container->set('logger-' . $name, $logger);
+
+		return $logger;
 	}
 
 	protected function registerRoute($fileName, $options = []) {
@@ -141,19 +186,8 @@ abstract class ProviderAbstract {
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->packageNamespace, $namespace);
 	}
 
-	protected function registerOpenBaseDir($dir) {
-		$dir = (array)$dir;
-		$appBasedir = $this->config->get('app.setting.basedir', []);
-		$appBasedir = array_merge($appBasedir, $dir);
-		$this->config->set('app.setting.basedir', $appBasedir);
-	}
-
 	protected function registerServer($name, $class) {
 		ServerEnum::registerServer($name, $class);
-	}
-
-	protected function registerEvent($event, $listener) {
-		Event::listen($event, $listener);
 	}
 
 	/**
@@ -167,6 +201,10 @@ abstract class ProviderAbstract {
 		 */
 		$event = $this->getContainer()->singleton(ServerEvent::class);
 		$event->addServerEvents($name, $events, $cover);
+	}
+
+	protected function registerEvent($event, $listener) {
+		Event::listen($event, $listener);
 	}
 
 	protected function setRootPath($path) {
