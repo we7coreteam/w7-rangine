@@ -39,9 +39,9 @@ class Logger extends FacadeAbstract {
 		return self::channel();
 	}
 
-	public static function channel($name = 'default') : LoggerInterface {
+	public static function channel($name = 'stack') : LoggerInterface {
 		if (!self::getContainer()->has('logger-' . $name)) {
-			$name = 'default';
+			$name = 'stack';
 		}
 
 		return self::getContainer()->get('logger-' . $name);

@@ -28,6 +28,7 @@ class View implements ViewInterface {
 
 	private function pretreatmentConfig() {
 		$this->config['suffix'] = empty($this->config['suffix']) ? 'html' : $this->config['suffix'];
+		$this->config['template_path'][HandlerAbstract::DEFAULT_NAMESPACE][] = APP_PATH . '/View';
 
 		$userTemplatePath = (array)($this->config['template_path'] ?? []);
 		$this->config['template_path'] = [];

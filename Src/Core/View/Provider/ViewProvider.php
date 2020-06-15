@@ -31,6 +31,8 @@ class ViewProvider extends ProviderAbstract {
 			$view = new View($config);
 			$this->registerSystemConst($view, $config);
 			$this->registerSystemFunction($view);
+
+			return $view;
 		});
 
 		isCli() && $this->registerReloadDir($config);

@@ -13,9 +13,8 @@
 namespace W7\Core\Controller;
 
 use W7\Core\Exception\ValidatorException;
-use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
-use W7\Core\View\View;
+use W7\Core\Facades\View;
 use W7\Http\Message\Server\Request;
 
 abstract class ControllerAbstract {
@@ -56,7 +55,7 @@ abstract class ControllerAbstract {
 	}
 
 	protected function render($name, $context = []) {
-		return $this->responseHtml(Container::singleton(View::class)->render($name, $context));
+		return $this->responseHtml(View::render($name, $context));
 	}
 
 	public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = []) {
