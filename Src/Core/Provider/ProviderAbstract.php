@@ -19,10 +19,13 @@ use W7\Core\Config\Config;
 use W7\Core\Container\Container;
 use W7\Core\Facades\Event;
 use W7\Core\Helper\StringHelper;
+use W7\Core\Facades\Logger as LoggerFacade;
 use W7\Core\Log\Logger;
+use W7\Core\Facades\Router as RouterFacade;
 use W7\Core\Route\Router;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
+use W7\Core\Facades\View as ViewFacade;
 use W7\Core\View\View;
 
 /**
@@ -292,22 +295,15 @@ abstract class ProviderAbstract {
 	}
 
 	protected function getRouter() : Router {
-		return $this->getContainer()->singleton(Router::class);
+		return RouterFacade::getFacadeRoot();
 	}
 
 	protected function getLogger() : Logger {
-		return \W7\Core\Facades\Logger::getFacadeRoot();
+		return LoggerFacade::getFacadeRoot();
 	}
 
-	protected function getView() {
-		if (!class_exists(View::class)) {
-			throw new \RuntimeException('class ' . View::class . ' not exists');
-		}
-		/**
-		 * @var View $view
-		 */
-		$view = $this->getContainer()->singleton(View::class);
-		return $view;
+	protected function getView() : View {
+		return ViewFacade::getFacadeRoot();
 	}
 
 	public function __get($name) {

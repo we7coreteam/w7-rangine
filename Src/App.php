@@ -18,6 +18,7 @@ use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Container\Container;
 use W7\Core\Facades\Cache;
 use W7\Core\Facades\Logger;
+use W7\Core\Facades\Context as ContextFacade;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
@@ -127,6 +128,10 @@ class App {
 		return $this->container;
 	}
 
+	public function getConfigger() {
+		return $this->getContainer()->get(Config::class);
+	}
+
 	/**
 	 * @deprecated
 	 */
@@ -139,11 +144,7 @@ class App {
 	 * @return Context
 	 */
 	public function getContext() {
-		return $this->getContainer()->get(Context::class);
-	}
-
-	public function getConfigger() {
-		return $this->getContainer()->get(Config::class);
+		return ContextFacade::getFacadeRoot();
 	}
 
 	/**
