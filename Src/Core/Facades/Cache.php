@@ -95,98 +95,98 @@ use Psr\SimpleCache\CacheInterface;
  * @method static move( $key, $dbindex ) {}
  * @method static rename( $srcKey, $dstKey ) {}
  * @method static renameKey( $srcKey, $dstKey ) {}
- * @method renameNx( $srcKey, $dstKey ) {}
- * @method expire( $key, $ttl ) {}
- * @method pExpire( $key, $ttl ) {}
- * @method setTimeout( $key, $ttl ) {}
- * @method expireAt( $key, $timestamp ) {}
- * @method pExpireAt( $key, $timestamp ) {}
- * @method keys( $pattern ) {}
- * @method getKeys( $pattern ) {}
- * @method dbSize( ) {}
- * @method auth( $password ) {}
- * @method bgrewriteaof( ) {}
- * @method slaveof( $host = '127.0.0.1', $port = 6379 ) {}
- * @method object( $string = '', $key = '' ) {}
- * @method save( ) {}
- * @method bgsave( ) {}
- * @method lastSave( ) {}
- * @method wait( $numSlaves, $timeout ) {}
- * @method type( $key ) {}
- * @method append( $key, $value ) {}
- * @method getRange( $key, $start, $end ) {}
- * @method substr( $key, $start, $end ) {}
- * @method setRange( $key, $offset, $value ) {}
- * @method strlen( $key ) {}
- * @method bitpos( $key, $bit, $start = 0, $end = null) {}
- * @method getBit( $key, $offset ) {}
- * @method setBit( $key, $offset, $value ) {}
- * @method bitCount( $key ) {}
- * @method bitOp( $operation, $retKey, ...$keys) {}
- * @method flushDB( ) {}
- * @method flushAll( ) {}
- * @method sort( $key, $option = null ) {}
- * @method info( $option = null ) {}
- * @method resetStat( ) {}
- * @method ttl( $key ) {}
- * @method pttl( $key ) {}
- * @method persist( $key ) {}
- * @method mset( array $array ) {}
- * @method mget( array $array ) {}
- * @method msetnx( array $array ) {}
- * @method rpoplpush( $srcKey, $dstKey ) {}
- * @method brpoplpush( $srcKey, $dstKey, $timeout ) {}
- * @method zAdd( $key, $score1, $value1, $score2 = null, $value2 = null, $scoreN = null, $valueN = null ) {}
- * @method zRange( $key, $start, $end, $withscores = null ) {}
- * @method zRem( $key, $member1, $member2 = null, $memberN = null ) {}
- * @method zDelete( $key, $member1, $member2 = null, $memberN = null ) {}
- * @method zRevRange( $key, $start, $end, $withscore = null ) {}
- * @method zRangeByScore( $key, $start, $end, array $options = array() ) {}
- * @method zRevRangeByScore( $key, $start, $end, array $options = array() ) {}
- * @method zRangeByLex( $key, $min, $max, $offset = null, $limit = null ) {}
- * @method zRevRangeByLex( $key, $min, $max, $offset = null, $limit = null ) {}
- * @method zCount( $key, $start, $end ) {}
- * @method zRemRangeByScore( $key, $start, $end ) {}
- * @method zDeleteRangeByScore( $key, $start, $end ) {}
- * @method zRemRangeByRank( $key, $start, $end ) {}
- * @method zDeleteRangeByRank( $key, $start, $end ) {}
- * @method zCard( $key ) {}
- * @method zSize( $key ) {}
- * @method zScore( $key, $member ) {}
- * @method zRank( $key, $member ) {}
- * @method zRevRank( $key, $member ) {}
- * @method zIncrBy( $key, $value, $member ) {}
- * @method zUnion($Output, $ZSetKeys, array $Weights = null, $aggregateFunction = 'SUM') {}
- * @method zInter($Output, $ZSetKeys, array $Weights = null, $aggregateFunction = 'SUM') {}
- * @method hSet( $key, $hashKey, $value ) {}
- * @method hSetNx( $key, $hashKey, $value ) {}
- * @method hGet($key, $hashKey) {}
- * @method hLen( $key ) {}
- * @method hDel( $key, $hashKey1, $hashKey2 = null, $hashKeyN = null ) {}
- * @method hKeys( $key ) {}
- * @method hVals( $key ) {}
- * @method hGetAll( $key ) {}
- * @method hExists( $key, $hashKey ) {}
- * @method hIncrBy( $key, $hashKey, $value ) {}
- * @method hIncrByFloat( $key, $field, $increment ) {}
- * @method hMset( $key, $hashKeys ) {}
- * @method hMGet( $key, $hashKeys ) {}
- * @method config( $operation, $key, $value ) {}
- * @method evaluate( $script, $args = array(), $numKeys = 0 ) {}
- * @method evalSha( $scriptSha, $args = array(), $numKeys = 0 ) {}
- * @method evaluateSha( $scriptSha, $args = array(), $numKeys = 0 ) {}
- * @method script( $command, $script ) {}
- * @method getLastError() {}
- * @method clearLastError() {}
- * @method dump( $key ) {}
- * @method restore( $key, $ttl, $value ) {}
- * @method migrate( $host, $port, $key, $db, $timeout, $copy = false, $replace = false ) {}
- * @method time() {}
- * @method pfAdd( $key, array $elements ) {}
- * @method pfCount( $key ) {}
- * @method pfMerge( $destkey, array $sourcekeys ) {}
- * @method rawCommand( $command, $arguments ) {}
- * @method getMode() {}
+ * @method static renameNx( $srcKey, $dstKey ) {}
+ * @method static expire( $key, $ttl ) {}
+ * @method static pExpire( $key, $ttl ) {}
+ * @method static setTimeout( $key, $ttl ) {}
+ * @method static expireAt( $key, $timestamp ) {}
+ * @method static pExpireAt( $key, $timestamp ) {}
+ * @method static keys( $pattern ) {}
+ * @method static getKeys( $pattern ) {}
+ * @method static dbSize( ) {}
+ * @method static auth( $password ) {}
+ * @method static bgrewriteaof( ) {}
+ * @method static slaveof( $host = '127.0.0.1', $port = 6379 ) {}
+ * @method static object( $string = '', $key = '' ) {}
+ * @method static save( ) {}
+ * @method static bgsave( ) {}
+ * @method static lastSave( ) {}
+ * @method static wait( $numSlaves, $timeout ) {}
+ * @method static type( $key ) {}
+ * @method static append( $key, $value ) {}
+ * @method static getRange( $key, $start, $end ) {}
+ * @method static substr( $key, $start, $end ) {}
+ * @method static setRange( $key, $offset, $value ) {}
+ * @method static strlen( $key ) {}
+ * @method static bitpos( $key, $bit, $start = 0, $end = null) {}
+ * @method static getBit( $key, $offset ) {}
+ * @method static setBit( $key, $offset, $value ) {}
+ * @method static bitCount( $key ) {}
+ * @method static bitOp( $operation, $retKey, ...$keys) {}
+ * @method static flushDB( ) {}
+ * @method static flushAll( ) {}
+ * @method static sort( $key, $option = null ) {}
+ * @method static info( $option = null ) {}
+ * @method static resetStat( ) {}
+ * @method static ttl( $key ) {}
+ * @method static pttl( $key ) {}
+ * @method static persist( $key ) {}
+ * @method static mset( array $array ) {}
+ * @method static mget( array $array ) {}
+ * @method static msetnx( array $array ) {}
+ * @method static rpoplpush( $srcKey, $dstKey ) {}
+ * @method static brpoplpush( $srcKey, $dstKey, $timeout ) {}
+ * @method static zAdd( $key, $score1, $value1, $score2 = null, $value2 = null, $scoreN = null, $valueN = null ) {}
+ * @method static zRange( $key, $start, $end, $withscores = null ) {}
+ * @method static zRem( $key, $member1, $member2 = null, $memberN = null ) {}
+ * @method static zDelete( $key, $member1, $member2 = null, $memberN = null ) {}
+ * @method static zRevRange( $key, $start, $end, $withscore = null ) {}
+ * @method static zRangeByScore( $key, $start, $end, array $options = array() ) {}
+ * @method static zRevRangeByScore( $key, $start, $end, array $options = array() ) {}
+ * @method static zRangeByLex( $key, $min, $max, $offset = null, $limit = null ) {}
+ * @method static zRevRangeByLex( $key, $min, $max, $offset = null, $limit = null ) {}
+ * @method static zCount( $key, $start, $end ) {}
+ * @method static zRemRangeByScore( $key, $start, $end ) {}
+ * @method static zDeleteRangeByScore( $key, $start, $end ) {}
+ * @method static zRemRangeByRank( $key, $start, $end ) {}
+ * @method static zDeleteRangeByRank( $key, $start, $end ) {}
+ * @method static zCard( $key ) {}
+ * @method static zSize( $key ) {}
+ * @method static zScore( $key, $member ) {}
+ * @method static zRank( $key, $member ) {}
+ * @method static zRevRank( $key, $member ) {}
+ * @method static zIncrBy( $key, $value, $member ) {}
+ * @method static zUnion($Output, $ZSetKeys, array $Weights = null, $aggregateFunction = 'SUM') {}
+ * @method static zInter($Output, $ZSetKeys, array $Weights = null, $aggregateFunction = 'SUM') {}
+ * @method static hSet( $key, $hashKey, $value ) {}
+ * @method static hSetNx( $key, $hashKey, $value ) {}
+ * @method static hGet($key, $hashKey) {}
+ * @method static hLen( $key ) {}
+ * @method static hDel( $key, $hashKey1, $hashKey2 = null, $hashKeyN = null ) {}
+ * @method static hKeys( $key ) {}
+ * @method static hVals( $key ) {}
+ * @method static hGetAll( $key ) {}
+ * @method static hExists( $key, $hashKey ) {}
+ * @method static hIncrBy( $key, $hashKey, $value ) {}
+ * @method static hIncrByFloat( $key, $field, $increment ) {}
+ * @method static hMset( $key, $hashKeys ) {}
+ * @method static hMGet( $key, $hashKeys ) {}
+ * @method static config( $operation, $key, $value ) {}
+ * @method static evaluate( $script, $args = array(), $numKeys = 0 ) {}
+ * @method static evalSha( $scriptSha, $args = array(), $numKeys = 0 ) {}
+ * @method static evaluateSha( $scriptSha, $args = array(), $numKeys = 0 ) {}
+ * @method static script( $command, $script ) {}
+ * @method static getLastError() {}
+ * @method static clearLastError() {}
+ * @method static dump( $key ) {}
+ * @method static restore( $key, $ttl, $value ) {}
+ * @method static migrate( $host, $port, $key, $db, $timeout, $copy = false, $replace = false ) {}
+ * @method static time() {}
+ * @method static pfAdd( $key, array $elements ) {}
+ * @method static pfCount( $key ) {}
+ * @method static pfMerge( $destkey, array $sourcekeys ) {}
+ * @method static rawCommand( $command, $arguments ) {}
+ * @method static getMode() {}
  *
  * @see \W7\Core\Cache\Cache
  */
