@@ -43,6 +43,7 @@ class LogProvider extends ProviderAbstract {
 		$this->logChannel = null;
 		$this->logConfig = [];
 
+		//如果env中包含CLEAR_LOG，启动后先执行清空日志
 		Event::listen(ServerEvent::ON_USER_AFTER_START, function () {
 			if ((ENV & CLEAR_LOG) !== CLEAR_LOG) {
 				return false;
