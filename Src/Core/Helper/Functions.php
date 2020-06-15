@@ -16,6 +16,7 @@ use Swoole\Coroutine;
 use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
 use W7\Core\Dispatcher\EventDispatcher;
+use W7\Core\Facades\Event;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
 use W7\Core\Exception\ValidatorException;
@@ -23,9 +24,11 @@ use W7\Console\Io\Output;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Logger;
+use W7\Core\Facades\Config;
+use W7\Core\Facades\Router;
+use W7\Core\Facades\Cache;
+use W7\Core\Facades\DB;
 use W7\Core\Message\TaskMessage;
-use Illuminate\Database\Eloquent\Model;
-use W7\Core\Route\Router;
 use Swoole\Timer;
 
 if (!function_exists('ieventDispatcher')) {
@@ -34,8 +37,7 @@ if (!function_exists('ieventDispatcher')) {
 		 * @deprecated
 		 * @var EventDispatcher $dispatcher
 		 */
-		$dispatcher = Container::singleton(EventDispatcher::class);
-		return $dispatcher;
+		return Event::getFacadeRoot();
 	}
 }
 
@@ -49,9 +51,105 @@ if (!function_exists('ievent')) {
 	 * @return array|null
 	 */
 	function ievent($eventName, $args = [], $halt = false) {
-		return ieventDispatcher()->dispatch($eventName, $args, $halt);
+		return Event::dispatch($eventName, $args, $halt);
 	}
 }
+if (!function_exists('iloader')) {
+
+	/**
+	 * 别名
+	 * @deprecated
+	 * @return \W7\Core\Container\Container
+	 */
+	function iloader() {
+		return icontainer();
+	}
+
+	/**
+	 * 获取容器
+	 * @deprecated
+	 * @return \W7\Core\Container\Container
+	 */
+	function icontainer() {
+		return Container::getFacadeRoot();
+	}
+}
+
+if (!function_exists('ioutputer')) {
+	/**
+	 * 获取输出对象
+	 * @deprecated
+	 * @return W7\Console\Io\Output
+	 */
+	function ioutputer() {
+		return Container::singleton(Output::class);
+	}
+}
+
+if (!function_exists('iconfig')) {
+	/**
+	 * 输入对象
+	 * @deprecated
+	 * @return \W7\Core\Config\Config
+	 */
+	function iconfig() {
+		return Config::getFacadeRoot();
+	}
+}
+
+if (!function_exists('ilogger')) {
+	/**
+	 * 返回logger对象
+	 * @deprecated
+	 * @return \W7\Core\Log\Logger
+	 */
+	function ilogger() {
+		return Logger::getFacadeRoot();
+	}
+}
+
+if (!function_exists('idb')) {
+	/**
+	 * 返回一个数据库连接对象
+	 * @deprecated
+	 * @return \W7\Core\Database\DatabaseManager
+	 */
+	function idb() {
+		return DB::getFacadeRoot();
+	}
+}
+
+if (!function_exists('icontext')) {
+	/**
+	 * 返回logger对象
+	 * @deprecated
+	 * @return \W7\Core\Helper\Storage\Context
+	 */
+	function icontext() {
+		return Context::getFacadeRoot();
+	}
+}
+
+if (!function_exists('icache')) {
+	/**
+	 * @deprecated
+	 * @return \W7\Core\Cache\Cache
+	 */
+	function icache() {
+		return Cache::getFacadeRoot();
+	}
+}
+
+if (!function_exists('irouter')) {
+	/**
+	 * @deprecated
+	 * @return \W7\Core\Route\Router
+	 */
+	function irouter() {
+		return Router::getFacadeRoot();
+	}
+}
+
 if (!function_exists('itask')) {
 	/**
 	 * 派发一个异步任务
@@ -99,99 +197,6 @@ if (!function_exists('iuuid')) {
 		$len = rand(2, 16);
 		$prefix = md5(substr(md5(Context::getCoroutineId()), $len));
 		return uniqid($prefix);
-	}
-}
-
-if (!function_exists('iloader')) {
-
-	/**
-	 * 别名
-	 * @deprecated
-	 * @return \W7\Core\Container\Container
-	 */
-	function iloader() {
-		return icontainer();
-	}
-
-	/**
-	 * 获取容器
-	 * @deprecated
-	 * @return \W7\Core\Container\Container
-	 */
-	function icontainer() {
-		return App::getApp()->getContainer();
-	}
-}
-
-if (!function_exists('ioutputer')) {
-	/**
-	 * 获取输出对象
-	 * @return W7\Console\Io\Output
-	 */
-	function ioutputer() {
-		return Container::singleton(Output::class);
-	}
-}
-
-if (!function_exists('iconfig')) {
-	/**
-	 * 输入对象
-	 * @return W7\Core\Config\Config
-	 */
-	function iconfig() {
-		return App::getApp()->getConfigger();
-	}
-}
-
-if (!function_exists('ilogger')) {
-	/**
-	 * 返回logger对象
-	 * @return \W7\Core\Log\Logger
-	 */
-	function ilogger() {
-		return App::getApp()->getLogger();
-	}
-}
-
-if (!function_exists('idb')) {
-	/**
-	 * @deprecated
-	 * 返回一个数据库连接对象
-	 * @return \W7\Core\Database\DatabaseManager
-	 */
-	function idb() {
-		return Model::getConnectionResolver();
-	}
-}
-
-if (!function_exists('icontext')) {
-	/**
-	 * 返回logger对象
-	 * @deprecated
-	 * @return \W7\Core\Helper\Storage\Context
-	 */
-	function icontext() {
-		return App::getApp()->getContext();
-	}
-}
-
-if (!function_exists('icache')) {
-	/**
-	 * @deprecated
-	 * @return \W7\Core\Cache\Cache
-	 */
-	function icache() {
-		return App::getApp()->getCacher();
-	}
-}
-
-if (!function_exists('irouter')) {
-	/**
-	 * @deprecated
-	 * @return \W7\Core\Route\Router
-	 */
-	function irouter() {
-		return Container::singleton(Router::class);
 	}
 }
 
