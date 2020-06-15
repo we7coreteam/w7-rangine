@@ -12,6 +12,8 @@
 
 namespace W7\Core\Facades;
 
+use W7\App;
+
 /**
  * Class Config
  * @package W7\Core\Facades
@@ -24,6 +26,10 @@ namespace W7\Core\Facades;
  */
 class Config extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
-		return \W7\Core\Config\Config::class;
+		return '';
+	}
+
+	public static function getFacadeRoot() {
+		return App::getApp()->getConfigger();
 	}
 }
