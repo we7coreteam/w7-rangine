@@ -23,8 +23,8 @@ use W7\Core\View\Provider\ViewProvider;
 
 class ProviderManager {
 	private $providerMap = [
-		'exception' => ExceptionProvider::class,
 		'log' => LogProvider::class,
+		'exception' => ExceptionProvider::class,
 		'database' => DatabaseProvider::class,
 		'cache' => CacheProvider::class,
 		'view' => ViewProvider::class,
