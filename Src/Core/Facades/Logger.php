@@ -39,6 +39,11 @@ class Logger extends FacadeAbstract {
 		return self::channel();
 	}
 
+	/**
+	 * 需调整
+	 * @param string $name
+	 * @return LoggerInterface
+	 */
 	public static function channel($name = 'stack') : LoggerInterface {
 		if (!self::getContainer()->has('logger-' . $name)) {
 			$name = 'stack';

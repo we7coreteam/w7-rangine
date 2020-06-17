@@ -204,6 +204,11 @@ class Cache extends FacadeAbstract {
 		return self::channel();
 	}
 
+	/**
+	 * 需调整
+	 * @param string $name
+	 * @return CacheInterface
+	 */
 	public static function channel($name = 'default') : CacheInterface {
 		if (!self::getContainer()->has('cache-' . $name)) {
 			$name = 'default';
