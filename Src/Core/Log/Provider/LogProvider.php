@@ -27,7 +27,7 @@ class LogProvider extends ProviderAbstract {
 			}
 		}
 
-		$this->registerLogger($config);
+		$this->registerLoggers($config);
 
 		//如果env中包含CLEAR_LOG，启动后先执行清空日志
 		Event::listen(ServerEvent::ON_USER_AFTER_START, function () {
@@ -46,7 +46,7 @@ class LogProvider extends ProviderAbstract {
 		});
 	}
 
-	private function registerLogger($config) {
+	private function registerLoggers($config) {
 		$stack = [];
 		//先初始化单个通道，记录下相关的Handler，再初始化复合通道
 		foreach ($config['channel'] as $name => $channel) {
@@ -56,13 +56,13 @@ class LogProvider extends ProviderAbstract {
 			if ($channel['driver'] == 'stack') {
 				$stack[$name] = $channel;
 			} else {
-				$this->registerLoggerChannel($name, $channel['driver'], $channel);
+				$this->registerLogger($name, $channel['driver'], $channel);
 			}
 		}
 
 		if (!empty($stack)) {
 			foreach ($stack as $name => $setting) {
-				$this->registerLoggerChannel($name, null, $setting, true);
+				$this->registerLogger($name, null, $setting, true);
 			}
 		}
 	}

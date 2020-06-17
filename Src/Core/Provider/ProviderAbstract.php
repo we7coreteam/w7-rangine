@@ -107,7 +107,7 @@ abstract class ProviderAbstract {
 		], $group);
 	}
 
-	protected function registerLoggerChannel($name, $driver, $config = [], $isStack = false) {
+	protected function registerLogger($name, $driver, $config = [], $isStack = false) {
 		$logger = new Logger($name, [], []);
 		$logger->bufferLimit = $config['buffer_limit'] ?? 1;
 
@@ -171,6 +171,10 @@ abstract class ProviderAbstract {
 		}
 	}
 
+	protected function registerEvent($event, $listener) {
+		Event::listen($event, $listener);
+	}
+
 	protected function registerView($namespace) {
 		$this->getView()->addTemplatePath($namespace, $this->rootPath . '/view/');
 	}
@@ -201,10 +205,6 @@ abstract class ProviderAbstract {
 		 */
 		$event = $this->getContainer()->singleton(ServerEvent::class);
 		$event->addServerEvents($name, $events, $cover);
-	}
-
-	protected function registerEvent($event, $listener) {
-		Event::listen($event, $listener);
 	}
 
 	protected function setRootPath($path) {
