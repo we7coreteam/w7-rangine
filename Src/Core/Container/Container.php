@@ -14,8 +14,9 @@ namespace W7\Core\Container;
 
 use Pimple\Container as PimpleContainer;
 use Pimple\Psr11\Container as PsrContainer;
+use Psr\Container\ContainerInterface;
 
-class Container {
+class Container implements ContainerInterface {
 	private $container;
 	private $psrContainer;
 	private $deferredServices = [];

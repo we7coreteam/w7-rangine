@@ -15,7 +15,6 @@ use Illuminate\Validation\ValidationException;
 use Swoole\Coroutine;
 use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
-use W7\Core\Dispatcher\EventDispatcher;
 use W7\Core\Facades\Event;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
@@ -35,7 +34,7 @@ if (!function_exists('ieventDispatcher')) {
 	function ieventDispatcher() {
 		/**
 		 * @deprecated
-		 * @var EventDispatcher $dispatcher
+		 * @var \W7\Core\Events\Dispatcher $dispatcher
 		 */
 		return Event::getFacadeRoot();
 	}

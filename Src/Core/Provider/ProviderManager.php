@@ -14,6 +14,7 @@ namespace W7\Core\Provider;
 
 use W7\Core\Cache\Provider\CacheProvider;
 use W7\Core\Database\Provider\DatabaseProvider;
+use W7\Core\Events\Provider\EventProvider;
 use W7\Core\Exception\Provider\ExceptionProvider;
 use W7\Core\Facades\Config;
 use W7\Core\Facades\Container;
@@ -24,8 +25,9 @@ use W7\Core\View\Provider\ViewProvider;
 
 class ProviderManager {
 	private $providerMap = [
-		'log' => LogProvider::class,
 		'exception' => ExceptionProvider::class,
+		'event' => EventProvider::class,
+		'log' => LogProvider::class,
 		'router' => RouterProvider::class,
 		'database' => DatabaseProvider::class,
 		'cache' => CacheProvider::class,

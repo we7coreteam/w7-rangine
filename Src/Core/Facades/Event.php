@@ -12,7 +12,7 @@
 
 namespace W7\Core\Facades;
 
-use W7\Core\Dispatcher\EventDispatcher;
+use W7\Core\Events\Dispatcher;
 
 /**
  * Class Event
@@ -38,6 +38,6 @@ use W7\Core\Dispatcher\EventDispatcher;
  */
 class Event extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
-		return EventDispatcher::class;
+		return Dispatcher::class;
 	}
 }
