@@ -15,7 +15,7 @@ namespace W7\Core\Route\Provider;
 use W7\Core\Provider\ProviderAbstract;
 use W7\Core\Route\Router;
 
-class RouteProvider extends ProviderAbstract {
+class RouterProvider extends ProviderAbstract {
 	public function register() {
 		$this->container->set(Router::class, function () {
 			$documentRoot = rtrim($this->config->get('server.common.document_root', BASE_PATH . '/public'), '/');
