@@ -23,9 +23,7 @@ use W7\Console\Io\Output;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Logger;
-use W7\Core\Facades\Config;
 use W7\Core\Facades\Router;
-use W7\Core\Facades\Cache;
 use W7\Core\Facades\DB;
 use W7\Core\Message\TaskMessage;
 use Swoole\Timer;
@@ -92,7 +90,7 @@ if (!function_exists('iconfig')) {
 	 * @return \W7\Core\Config\Config
 	 */
 	function iconfig() {
-		return Config::getFacadeRoot();
+		return App::getApp()->getConfigger();
 	}
 }
 
@@ -103,7 +101,7 @@ if (!function_exists('ilogger')) {
 	 * @return \W7\Core\Log\Logger
 	 */
 	function ilogger() {
-		return Logger::getFacadeRoot();
+		return App::getApp()->getLogger();
 	}
 }
 
@@ -125,7 +123,7 @@ if (!function_exists('icontext')) {
 	 * @return \W7\Core\Helper\Storage\Context
 	 */
 	function icontext() {
-		return Context::getFacadeRoot();
+		return App::getApp()->getContext();
 	}
 }
 
@@ -135,7 +133,7 @@ if (!function_exists('icache')) {
 	 * @return \W7\Core\Cache\Cache
 	 */
 	function icache() {
-		return Cache::getFacadeRoot();
+		return App::getApp()->getCacher();
 	}
 }
 

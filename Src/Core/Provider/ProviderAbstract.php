@@ -81,9 +81,9 @@ abstract class ProviderAbstract {
 
 	protected function registerOpenBaseDir($dir) {
 		$dir = (array)$dir;
-		$appBasedir = $this->config->get('app.setting.basedir', []);
+		$appBasedir = $this->getConfig()->get('app.setting.basedir', []);
 		$appBasedir = array_merge($appBasedir, $dir);
-		$this->config->set('app.setting.basedir', $appBasedir);
+		$this->getConfig()->set('app.setting.basedir', $appBasedir);
 	}
 
 	protected function registerProvider($provider) {
@@ -119,7 +119,7 @@ abstract class ProviderAbstract {
 
 		$handlers = [];
 		if (!$isStack) {
-			$handler = $this->config->get('handler.log.' . $driver, $driver);
+			$handler = $this->getConfig()->get('handler.log.' . $driver, $driver);
 			if (!$handler || !class_exists($handler)) {
 				throw new \RuntimeException('log handler ' . $driver . ' is not support');
 			}
@@ -157,7 +157,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerStaticResource() {
-		$documentRoot = $this->config->get('server.common.document_root');
+		$documentRoot = $this->getConfig()->get('server.common.document_root');
 		if (!$documentRoot) {
 			throw new \RuntimeException("please set server['common']['document_root']");
 		}
@@ -217,8 +217,8 @@ abstract class ProviderAbstract {
 	 * @param $key
 	 */
 	protected function mergeConfigFrom($path, $key) {
-		$config = $this->config->get($key, []);
-		$this->config->set($key, array_merge(require $path, $config));
+		$config = $this->getConfig()->get($key, []);
+		$this->getConfig()->set($key, array_merge(require $path, $config));
 	}
 
 	/**
@@ -336,8 +336,8 @@ abstract class ProviderAbstract {
 		return RouterFacade::getFacadeRoot();
 	}
 
-	protected function getLogger() : Logger {
-		return LoggerFacade::getFacadeRoot();
+	protected function getLogger() {
+		return new LoggerFacade();
 	}
 
 	protected function getView() : View {
