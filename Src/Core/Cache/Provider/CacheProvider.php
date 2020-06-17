@@ -29,10 +29,8 @@ class CacheProvider extends ProviderAbstract {
 
 		$channels = array_keys($connectionConfig);
 		foreach ($channels as $key => $channel) {
-			$this->container->set('cache-' . $channel, function () use ($channel, $connectorManager) {
-				$cache = new Cache();
-				$cache->setChannelName($channel);
-				return $cache;
+			$this->container->set('cache-' . $channel, function () use ($channel) {
+				return new Cache($channel);
 			});
 		}
 	}

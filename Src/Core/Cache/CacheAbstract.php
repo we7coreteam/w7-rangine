@@ -21,8 +21,8 @@ abstract class CacheAbstract implements CacheInterface {
 	protected static $connectionResolver;
 	protected $channelName;
 
-	public function setChannelName(string $channelName) {
-		$this->channelName = $channelName;
+	public function __construct($name = 'default') {
+		$this->channelName = $name;
 	}
 
 	public static function setConnectionResolver(ConnectorManager $connectorManager) {
