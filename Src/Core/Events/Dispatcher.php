@@ -16,6 +16,13 @@ use Illuminate\Events\Dispatcher as DispatcherAbstract;
 use Illuminate\Support\Str;
 
 class Dispatcher extends DispatcherAbstract {
+	public function listen($events, $listener) {
+		if (is_string($listener) && !class_exists($listener)) {
+			return false;
+		}
+		parent::listen($events, $listener);
+	}
+
 	protected function parseClassCallable($listener) {
 		return Str::parseCallback($listener, 'run');
 	}
