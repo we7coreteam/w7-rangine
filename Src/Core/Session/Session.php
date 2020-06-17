@@ -15,6 +15,7 @@ namespace W7\Core\Session;
 use W7\Core\Facades\Event;
 use W7\Core\Session\Channel\ChannelAbstract;
 use W7\Core\Session\Channel\CookieChannel;
+use W7\Core\Session\Event\SessionCloseEvent;
 use W7\Core\Session\Event\SessionStartEvent;
 use W7\Core\Session\Handler\FileHandler;
 use W7\Core\Session\Handler\HandlerAbstract;
@@ -151,7 +152,10 @@ class Session implements SessionInterface {
 	}
 
 	public function close() {
-		return $this->handler->close($this->getRealId());
+		$result = $this->handler->close($this->getRealId());
+		Event::dispatch(new SessionCloseEvent($this));
+
+		return $result;
 	}
 
 	public function gc() {
