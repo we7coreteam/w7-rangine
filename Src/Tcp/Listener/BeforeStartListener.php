@@ -29,6 +29,6 @@ class BeforeStartListener extends ListenerAbstract {
 		 * @var Dispatcher $dispatcher
 		 */
 		$dispatcher = Container::singleton(Dispatcher::class);
-		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(Container::singleton(RouteMapping::class), ServerEnum::TYPE_TCP));
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, ServerEnum::TYPE_TCP));
 	}
 }

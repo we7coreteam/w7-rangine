@@ -75,7 +75,7 @@ class Server extends ServerAbstract {
 		 * @var Dispatcher $dispatcher
 		 */
 		$dispatcher = Container::singleton(Dispatcher::class);
-		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(Container::singleton(RouteMapping::class), $this->getType()));
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, $this->getType()));
 
 		Event::dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response, $this->getType()]);
 

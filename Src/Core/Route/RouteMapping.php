@@ -12,9 +12,7 @@
 
 namespace W7\Core\Route;
 
-use W7\Core\Facades\Container;
 use W7\Core\Helper\FileLoader;
-use W7\Core\Facades\Router as RouterFacade;
 
 class RouteMapping {
 	protected $routeConfig = [];
@@ -23,11 +21,16 @@ class RouteMapping {
 	 * @var Router
 	 */
 	protected $router;
+	/**
+	 * @var FileLoader
+	 */
+	protected $fileLoader;
 
 	private static $isInitRouteByConfig = false;
 
-	public function __construct() {
-		$this->router = RouterFacade::getFacadeRoot();
+	public function __construct(Router $router, FileLoader $fileLoader) {
+		$this->router = $router;
+		$this->fileLoader = $fileLoader;
 	}
 
 	public function setRouteConfig($routeConfig) {
@@ -59,7 +62,7 @@ class RouteMapping {
 
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
-			$routeConfig = Container::singleton(FileLoader::class)->loadFile($path);
+			$routeConfig = $this->fileLoader->loadFile($path);
 			if (is_array($routeConfig)) {
 				$routeConfigs[$key] = $routeConfig;
 			}

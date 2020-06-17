@@ -14,7 +14,6 @@ namespace W7\Core\Route;
 
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
-use W7\Core\Facades\Config;
 use W7\Core\Route\Validator\ValidatorInterface;
 
 class Router {
@@ -27,6 +26,9 @@ class Router {
 	const METHOD_HEAD = 'HEAD';
 	const METHOD_OPTIONS = 'OPTIONS';
 	const METHOD_ALL = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
+
+	//保存document_root这些配置
+	protected $config = [];
 
 	private $routerCollector;
 
@@ -42,11 +44,12 @@ class Router {
 
 	private $name = '';
 
-	public function __construct(RouteCollector $routeCollector = null) {
+	public function __construct(RouteCollector $routeCollector = null, $config = []) {
 		if (!$routeCollector) {
 			$routeCollector = new RouteCollector(new Std(), new GroupCountBased());
 		}
 		$this->routerCollector = $routeCollector;
+		$this->config = $config;
 	}
 
 	public function getRouterCollector() {
@@ -161,11 +164,11 @@ class Router {
 
 	private function isStaticResource($resource) {
 		if (is_string($resource)) {
-			$documentRoot = Config::get('server.common.document_root', BASE_PATH . '/public');
-			$enableStatic = Config::get('server.common.enable_static_handler', true);
+			$documentRoot = $this->config['document_root'] ?? '';
+			$enableStatic = $this->config['enable_static_handler'] ?? false;
 			if ($enableStatic && $documentRoot) {
 				$module = $this->getModule() === $this->defaultModule ? '' : '/' . $this->getModule();
-				$path = rtrim($documentRoot, '/') . '/' . $module . '/' . ltrim($resource, '/');
+				$path = $documentRoot . '/' . $module . '/' . ltrim($resource, '/');
 				return file_exists($path);
 			}
 		}
@@ -221,10 +224,7 @@ class Router {
 	 */
 	public function add($methods, $uri, $handler, $name = '', $defaults = []) {
 		if ($this->isStaticResource($handler)) {
-			$handler = $this->getStaticResourcePath($handler);
-			$documentRoot = rtrim(Config::get('server.common.document_root', BASE_PATH . '/public'), '/');
-
-			$defaults = [$documentRoot . $handler];
+			$defaults = [$this->config['document_root'] . $this->getStaticResourcePath($handler)];
 			$handler = ['\W7\Core\Controller\StaticResourceController', 'index'];
 		}
 		$handler = $this->checkHandler($handler);
