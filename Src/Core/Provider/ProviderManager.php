@@ -38,21 +38,11 @@ class ProviderManager {
 	private $deferredProviders = [];
 	private $registeredProviders = [];
 
-	public function hasRegister($provider) {
-		if (is_object($provider)) {
-			$provider = get_class($provider);
-		}
-
-		return empty($this->registeredProviders[$provider]) ? false : true;
-	}
-
 	/**
 	 * 扩展包注册
 	 */
 	public function register() {
-		$this->deferredProviders = Config::get('provider.deferred', []);
-
-		$providers = Config::get('provider.providers', []);
+		$providers = Config::get('provider', []);
 		$this->registerProviders(array_merge($this->providerMap, $providers));
 
 		if ($this->deferredProviders) {
@@ -76,6 +66,14 @@ class ProviderManager {
 		foreach ($this->registeredProviders as $name => $provider) {
 			$this->bootProvider($provider);
 		}
+	}
+
+	public function hasRegister($provider) {
+		if (is_object($provider)) {
+			$provider = get_class($provider);
+		}
+
+		return empty($this->registeredProviders[$provider]) ? false : true;
 	}
 
 	public function registerProviders(array $providerMap) {
