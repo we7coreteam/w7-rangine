@@ -27,4 +27,8 @@ class RouterProvider extends ProviderAbstract {
 			]);
 		});
 	}
+
+	public function providers(): array {
+		return [Router::class];
+	}
 }
