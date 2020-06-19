@@ -22,6 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use W7\App;
+use W7\Core\Facades\Output;
 
 class Application extends SymfontApplication {
 	public function __construct() {
@@ -51,8 +52,7 @@ class Application extends SymfontApplication {
 	}
 
 	public function run(InputInterface $input = null, OutputInterface $output = null) {
-		$output = ioutputer();
-		return parent::run($input, $output);
+		return parent::run($input, Output::getFacadeRoot());
 	}
 
 	public function doRun(InputInterface $input, OutputInterface $output) {

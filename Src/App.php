@@ -19,6 +19,7 @@ use W7\Core\Container\Container;
 use W7\Core\Facades\Cache as CacheFacade;
 use W7\Core\Facades\Logger as LoggerFacade;
 use W7\Core\Facades\Context as ContextFacade;
+use W7\Core\Facades\Output;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
@@ -117,7 +118,7 @@ class App {
 		try {
 			$this->getContainer()->get(Application::class)->run();
 		} catch (\Throwable $e) {
-			ioutputer()->error($e->getMessage());
+			Output::error($e->getMessage());
 		}
 	}
 

@@ -15,6 +15,7 @@ namespace W7\Reload\Process;
 use Swoole\Process;
 use W7\App;
 use W7\Core\Facades\Config;
+use W7\Core\Facades\Output;
 use W7\Core\Process\ProcessAbstract;
 
 class ReloadProcess extends ProcessAbstract {
@@ -59,7 +60,7 @@ class ReloadProcess extends ProcessAbstract {
 	}
 
 	protected function beforeStart() {
-		ioutputer()->info('>> server hot reload start');
+		Output::info('>> server hot reload start');
 	}
 
 	public function check() {
@@ -79,7 +80,7 @@ class ReloadProcess extends ProcessAbstract {
 				$server->isRun();
 				$server->getServer()->reload();
 
-				ioutputer()->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
+				Output::writeln('Reloaded in ' . date('m-d H:i:s') . '...');
 			}
 		});
 	}

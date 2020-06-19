@@ -35,6 +35,8 @@ use W7\Core\Events\Dispatcher;
  * @method static void assertDispatched(string $event, callable|int $callback = null)
  * @method static void assertDispatchedTimes(string $event, int $times = 1)
  * @method static void assertNotDispatched(string $event, callable|int $callback = null)
+ *
+ * @see Dispatcher
  */
 class Event extends FacadeAbstract {
 	protected static function getFacadeAccessor() {

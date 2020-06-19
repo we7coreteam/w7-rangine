@@ -17,6 +17,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use W7\Console\Io\Output;
+use W7\Core\Facades\Output as OutputFacade;
 use W7\Core\Config\Env;
 use W7\Core\Facades\Config;
 
@@ -84,7 +85,7 @@ abstract class CommandAbstract extends Command {
 		$input = new ArrayInput($arguments);
 		return $this->getApplication()->find($command)->run(
 			$input,
-			ioutputer()
+			OutputFacade::getFacadeRoot()
 		);
 	}
 }

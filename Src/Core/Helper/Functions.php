@@ -19,12 +19,12 @@ use W7\Core\Facades\Event;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
 use W7\Core\Exception\ValidatorException;
-use W7\Console\Io\Output;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Logger;
 use W7\Core\Facades\Router;
 use W7\Core\Facades\DB;
+use W7\Core\Facades\Output;
 use W7\Core\Message\TaskMessage;
 use Swoole\Timer;
 
@@ -79,7 +79,7 @@ if (!function_exists('ioutputer')) {
 	 * @return W7\Console\Io\Output
 	 */
 	function ioutputer() {
-		return Container::singleton(Output::class);
+		return Output::getFacadeRoot();
 	}
 }
 

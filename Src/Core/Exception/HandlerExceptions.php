@@ -17,6 +17,7 @@ use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
 use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Event;
+use W7\Core\Facades\Output;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Response;
@@ -90,7 +91,7 @@ class HandlerExceptions {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
 		if (!$serverType || !Context::getResponse()) {
 			if (isCli()) {
-				ioutputer()->error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
+				Output::error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
 			} else {
 				trigger_error($throwable->getMessage());
 			}
