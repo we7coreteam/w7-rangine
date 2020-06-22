@@ -14,7 +14,9 @@ namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
 use W7\Core\Facades\Event;
+use W7\Core\Facades\Task;
 use W7\Core\Message\Message;
+use W7\Core\Message\TaskMessage;
 use W7\Core\Server\ServerEvent;
 
 class PipeMessageListener extends ListenerAbstract {
@@ -27,9 +29,9 @@ class PipeMessageListener extends ListenerAbstract {
 		//管道不一定只能发送任务消息，需要先判断一下
 		$message = Message::unpack($data);
 
-		if ($message->messageType == Message::MESSAGE_TYPE_TASK) {
+		if ($message instanceof TaskMessage) {
 			if ($message->isTaskAsync()) {
-				itask($message->task, $message->params);
+				Task::execute($message->task, $message->params);
 			}
 		}
 
