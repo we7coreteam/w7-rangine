@@ -17,6 +17,7 @@ use W7\App;
 use W7\Core\Facades\Container;
 use W7\Core\Helper\FileLoader;
 use W7\Core\Server\ServerEnum;
+use W7\Core\Facades\Router;
 
 class RouteDispatcher extends GroupCountBased {
 	public static $routeCacheFileName = 'route.php';
@@ -32,7 +33,7 @@ class RouteDispatcher extends GroupCountBased {
 			/**
 			 * @var RouteMapping $routeMapping
 			 */
-			$routeMapping = new $routeMapping(\W7\Core\Facades\Router::getFacadeRoot(), Container::get(FileLoader::class));
+			$routeMapping = new $routeMapping(Router::getFacadeRoot(), Container::get(FileLoader::class));
 			$routeDefinitions = $routeMapping->getMapping();
 		}
 
