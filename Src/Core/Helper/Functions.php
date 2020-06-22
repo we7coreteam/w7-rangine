@@ -15,137 +15,14 @@ use Illuminate\Validation\ValidationException;
 use Swoole\Coroutine;
 use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
-use W7\Core\Facades\Event;
 use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
 use W7\Core\Exception\ValidatorException;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Logger;
-use W7\Core\Facades\Router;
-use W7\Core\Facades\DB;
-use W7\Core\Facades\Output;
 use W7\Core\Message\TaskMessage;
 use Swoole\Timer;
-
-if (!function_exists('ieventDispatcher')) {
-	function ieventDispatcher() {
-		/**
-		 * @deprecated
-		 * @var \W7\Core\Events\Dispatcher $dispatcher
-		 */
-		return Event::getFacadeRoot();
-	}
-}
-
-if (!function_exists('ievent')) {
-	/**
-	 * 派发一个事件
-	 * @deprecated
-	 * @param $eventName
-	 * @param array $args
-	 * @param bool $halt
-	 * @return array|null
-	 */
-	function ievent($eventName, $args = [], $halt = false) {
-		return Event::dispatch($eventName, $args, $halt);
-	}
-}
-if (!function_exists('iloader')) {
-
-	/**
-	 * 别名
-	 * @deprecated
-	 * @return \W7\Core\Container\Container
-	 */
-	function iloader() {
-		return icontainer();
-	}
-
-	/**
-	 * 获取容器
-	 * @deprecated
-	 * @return \W7\Core\Container\Container
-	 */
-	function icontainer() {
-		return Container::getFacadeRoot();
-	}
-}
-
-if (!function_exists('ioutputer')) {
-	/**
-	 * 获取输出对象
-	 * @deprecated
-	 * @return W7\Console\Io\Output
-	 */
-	function ioutputer() {
-		return Output::getFacadeRoot();
-	}
-}
-
-if (!function_exists('iconfig')) {
-	/**
-	 * 输入对象
-	 * @deprecated
-	 * @return \W7\Core\Config\Config
-	 */
-	function iconfig() {
-		return App::getApp()->getConfigger();
-	}
-}
-
-if (!function_exists('ilogger')) {
-	/**
-	 * 返回logger对象
-	 * @deprecated
-	 * @return \W7\Core\Log\Logger
-	 */
-	function ilogger() {
-		return App::getApp()->getLogger();
-	}
-}
-
-if (!function_exists('idb')) {
-	/**
-	 * 返回一个数据库连接对象
-	 * @deprecated
-	 * @return \W7\Core\Database\DatabaseManager
-	 */
-	function idb() {
-		return DB::getFacadeRoot();
-	}
-}
-
-if (!function_exists('icontext')) {
-	/**
-	 * 返回logger对象
-	 * @deprecated
-	 * @return \W7\Core\Helper\Storage\Context
-	 */
-	function icontext() {
-		return App::getApp()->getContext();
-	}
-}
-
-if (!function_exists('icache')) {
-	/**
-	 * @deprecated
-	 * @return \W7\Core\Cache\Cache
-	 */
-	function icache() {
-		return App::getApp()->getCacher();
-	}
-}
-
-if (!function_exists('irouter')) {
-	/**
-	 * @deprecated
-	 * @return \W7\Core\Route\Router
-	 */
-	function irouter() {
-		return Router::getFacadeRoot();
-	}
-}
 
 if (!function_exists('itask')) {
 	/**
