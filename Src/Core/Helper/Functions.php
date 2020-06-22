@@ -10,57 +10,14 @@
  * visited https://www.rangine.com/ for more details
  */
 
-use Illuminate\Validation\Factory;
-use Illuminate\Validation\ValidationException;
 use Swoole\Coroutine;
 use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
-use W7\Core\Dispatcher\TaskDispatcher;
 use W7\Core\Exception\DumpException;
-use W7\Core\Exception\ValidatorException;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Logger;
-use W7\Core\Message\TaskMessage;
 use Swoole\Timer;
-
-if (!function_exists('itask')) {
-	/**
-	 * 派发一个异步任务
-	 * @param string $taskName
-	 * @param array $params
-	 * @param int $timeout
-	 * @return false|int
-	 * @throws \W7\Core\Exception\TaskException
-	 */
-	function itask($taskName, $params = [], int $timeout = 3) {
-		//构造一个任务消息
-		$taskMessage = new TaskMessage();
-		$taskMessage->task = $taskName;
-		$taskMessage->params = $params;
-		$taskMessage->timeout = $timeout;
-		$taskMessage->type = TaskMessage::OPERATION_TASK_ASYNC;
-		/**
-		 * @var TaskDispatcher $dispatcherMaker
-		 */
-		$dispatcherMaker = Container::singleton(TaskDispatcher::class);
-		return $dispatcherMaker->register($taskMessage);
-	}
-
-	function itaskCo($taskName, $params = [], int $timeout = 3) {
-		//构造一个任务消息
-		$taskMessage = new TaskMessage();
-		$taskMessage->task = $taskName;
-		$taskMessage->params = $params;
-		$taskMessage->timeout = $timeout;
-		$taskMessage->type = TaskMessage::OPERATION_TASK_CO;
-		/**
-		 * @var TaskDispatcher $dispatcherMaker
-		 */
-		$dispatcherMaker = Container::singleton(TaskDispatcher::class);
-		return $dispatcherMaker->registerCo($taskMessage);
-	}
-}
 
 if (!function_exists('iuuid')) {
 	/**
@@ -231,36 +188,6 @@ if (!function_exists('ienv')) {
 		}
 
 		return $value;
-	}
-}
-if (!function_exists('ivalidate')) {
-	function ivalidate(array $data, array $rules, array $messages = [], array $customAttributes = []) {
-		try {
-			/**
-			 * @var Factory $validate
-			 */
-			$result = \W7\Core\Facades\Validator::make($data, $rules, $messages, $customAttributes)
-				->validate();
-		} catch (ValidationException $e) {
-			$errorMessage = [];
-			$errors = $e->errors();
-			foreach ($errors as $field => $message) {
-				$errorMessage[] = $message[0];
-			}
-			throw new ValidatorException(implode('; ', $errorMessage), 403);
-		}
-
-		return $result;
-	}
-}
-if (!function_exists('ivalidator')) {
-	/**
-	 * @deprecated
-	 * @return Factory
-	 */
-	function ivalidator() : Factory {
-		$validator = Container::singleton(Factory::class);
-		return $validator;
 	}
 }
 if (!function_exists('igo')) {

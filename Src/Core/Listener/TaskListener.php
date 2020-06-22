@@ -14,8 +14,7 @@ namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
 use Swoole\Server\Task;
-use W7\Core\Dispatcher\TaskDispatcher;
-use W7\Core\Facades\Container;
+use W7\Core\Facades\Task as TaskFacade;
 
 class TaskListener implements ListenerInterface {
 	public function run(...$params) {
@@ -25,12 +24,8 @@ class TaskListener implements ListenerInterface {
 	}
 
 	private function dispatchTask(Server $server, Task $task) {
-		/**
-		 * @var TaskDispatcher $taskDispatcher
-		 */
-		$taskDispatcher = Container::singleton(TaskDispatcher::class);
 		try {
-			$result = $taskDispatcher->dispatch($server, $task->id, $task->worker_id, $task->data);
+			$result = TaskFacade::dispatch($server, $task->id, $task->worker_id, $task->data);
 		} catch (\Throwable $exception) {
 			$task->finish($exception->getMessage());
 			return;

@@ -58,17 +58,11 @@ class TaskDispatcher extends DispatcherAbstract {
 
 	/**
 	 * 注册一个协程任务
+	 * @param TaskMessage $message
+	 * @return mixed
+	 * @throws TaskException
 	 */
-	public function registerCo(...$params) {
-		/**
-		 * @var TaskMessage $message
-		 */
-		list($message) = $params;
-
-		if (!($message instanceof TaskMessage)) {
-			throw new \RuntimeException('Invalid task message');
-		}
-
+	public function registerCo(TaskMessage $message) {
 		if (!isWorkerStatus()) {
 			throw new TaskException('Please deliver task by http!');
 		}
