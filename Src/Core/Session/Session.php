@@ -12,6 +12,8 @@
 
 namespace W7\Core\Session;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Facades\Event;
 use W7\Core\Session\Channel\ChannelAbstract;
 use W7\Core\Session\Channel\CookieChannel;
@@ -19,8 +21,6 @@ use W7\Core\Session\Event\SessionCloseEvent;
 use W7\Core\Session\Event\SessionStartEvent;
 use W7\Core\Session\Handler\FileHandler;
 use W7\Core\Session\Handler\HandlerAbstract;
-use W7\Http\Message\Server\Request;
-use W7\Http\Message\Server\Response;
 
 class Session implements SessionInterface {
 	private $config;
@@ -41,7 +41,7 @@ class Session implements SessionInterface {
 		$this->prefix = $this->config['prefix'] ?? session_name();
 	}
 
-	private function initChannel(Request $request) {
+	private function initChannel(ServerRequestInterface $request) {
 		$channel = empty($this->config['channel']) ? CookieChannel::class : $this->config['channel'];
 		$this->channel = new $channel($this->config, $request);
 		if (!($this->channel instanceof ChannelAbstract)) {
@@ -67,7 +67,7 @@ class Session implements SessionInterface {
 		return $this->handler;
 	}
 
-	public function start(Request $request) {
+	public function start(ServerRequestInterface $request) {
 		$this->cache = null;
 
 		$this->initChannel($request);
@@ -183,7 +183,7 @@ class Session implements SessionInterface {
 		return self::$gcCondition;
 	}
 
-	public function replenishResponse(Response $response) {
+	public function replenishResponse(ResponseInterface $response) {
 		return $this->channel->replenishResponse($response);
 	}
 }
