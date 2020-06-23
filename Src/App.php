@@ -18,7 +18,7 @@ use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Container\Container;
 use W7\Core\Facades\Output;
 use W7\Core\Provider\ProviderManager;
-use W7\Http\Server\Server;
+use W7\Core\Server\ServerAbstract;
 
 class App {
 	const NAME = 'w7-rangine';
@@ -28,7 +28,7 @@ class App {
 	/**
 	 * 服务器对象
 	 *
-	 * @var Server
+	 * @var ServerAbstract
 	 */
 	public static $server;
 	/**
