@@ -112,7 +112,6 @@ abstract class ProviderAbstract {
 		$logger->bufferLimit = $config['buffer_limit'] ?? 1;
 
 		$config['processor'] = (array)(empty($config['processor']) ? [] : $config['processor']);
-		array_unshift($config['processor'], SwooleProcessor::class);
 		foreach ((array)$config['processor'] as $processor) {
 			$logger->pushProcessor(new $processor);
 		}

@@ -14,6 +14,7 @@ namespace W7\Core\Log\Provider;
 
 use Monolog\Logger as MonoLogger;
 use W7\Core\Facades\Event;
+use W7\Core\Log\Processor\SwooleProcessor;
 use W7\Core\Provider\ProviderAbstract;
 use W7\Core\Server\ServerEvent;
 
@@ -40,12 +41,16 @@ class LogProvider extends ProviderAbstract {
 			if ($channel['driver'] == 'stack') {
 				$stack[$name] = $channel;
 			} else {
+				$channel['processor'] = (array)(empty($channel['processor']) ? [] : $channel['processor']);
+				array_unshift($channel['processor'], SwooleProcessor::class);
 				$this->registerLogger($name, $channel['driver'], $channel);
 			}
 		}
 
 		if (!empty($stack)) {
 			foreach ($stack as $name => $setting) {
+				$setting['processor'] = (array)(empty($setting['processor']) ? [] : $setting['processor']);
+				array_unshift($setting['processor'], SwooleProcessor::class);
 				$this->registerLogger($name, null, $setting, true);
 			}
 		}
