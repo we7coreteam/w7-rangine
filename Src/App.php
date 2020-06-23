@@ -68,23 +68,6 @@ class App {
 		}
 	}
 
-	private function registerSecurityDir() {
-		//设置安全限制目录
-		$openBaseDirConfig = $this->getConfigger()->get('app.setting.basedir', []);
-		if (is_array($openBaseDirConfig)) {
-			$openBaseDirConfig = implode(':', $openBaseDirConfig);
-		}
-
-		$openBaseDir = [
-			'/tmp',
-			sys_get_temp_dir(),
-			BASE_PATH,
-			$openBaseDirConfig,
-			session_save_path()
-		];
-		ini_set('open_basedir', implode(':', $openBaseDir));
-	}
-
 	private function registerErrorHandler() {
 		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
 		$setting = $this->getConfigger()->get('app.setting');
@@ -101,6 +84,23 @@ class App {
 
 	private function registerProvider() {
 		$this->getContainer()->get(ProviderManager::class)->register()->boot();
+	}
+
+	private function registerSecurityDir() {
+		//设置安全限制目录
+		$openBaseDirConfig = $this->getConfigger()->get('app.setting.basedir', []);
+		if (is_array($openBaseDirConfig)) {
+			$openBaseDirConfig = implode(':', $openBaseDirConfig);
+		}
+
+		$openBaseDir = [
+			'/tmp',
+			sys_get_temp_dir(),
+			BASE_PATH,
+			$openBaseDirConfig,
+			session_save_path()
+		];
+		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
 
 	public static function getApp() {
