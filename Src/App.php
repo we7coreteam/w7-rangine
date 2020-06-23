@@ -16,11 +16,7 @@ use W7\Console\Application;
 use W7\Core\Config\Config;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Container\Container;
-use W7\Core\Facades\Cache as CacheFacade;
-use W7\Core\Facades\Logger as LoggerFacade;
-use W7\Core\Facades\Context as ContextFacade;
 use W7\Core\Facades\Output;
-use W7\Core\Helper\Storage\Context;
 use W7\Core\Provider\ProviderManager;
 use W7\Http\Server\Server;
 
@@ -131,29 +127,6 @@ class App {
 
 	public function getConfigger() {
 		return $this->getContainer()->get(Config::class);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function getLogger() {
-		return new LoggerFacade();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Context
-	 */
-	public function getContext() {
-		return ContextFacade::getFacadeRoot();
-	}
-
-	/**
-	 * @deprecated
-	 * @return mixed|\Psr\SimpleCache\CacheInterface
-	 */
-	public function getCacher() {
-		return new CacheFacade();
 	}
 
 	public function bootstrapCachePath($path = '') {
