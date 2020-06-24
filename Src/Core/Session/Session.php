@@ -14,11 +14,8 @@ namespace W7\Core\Session;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use W7\Core\Facades\Event;
 use W7\Core\Session\Channel\ChannelAbstract;
 use W7\Core\Session\Channel\CookieChannel;
-use W7\Core\Session\Event\SessionCloseEvent;
-use W7\Core\Session\Event\SessionStartEvent;
 use W7\Core\Session\Handler\FileHandler;
 use W7\Core\Session\Handler\HandlerAbstract;
 
@@ -72,8 +69,6 @@ class Session implements SessionInterface {
 
 		$this->initChannel($request);
 		$this->initHandler();
-
-		Event::dispatch(new SessionStartEvent($this));
 	}
 
 	public function getRealId() {
@@ -152,10 +147,7 @@ class Session implements SessionInterface {
 	}
 
 	public function close() {
-		$result = $this->handler->close($this->getRealId());
-		Event::dispatch(new SessionCloseEvent($this));
-
-		return $result;
+		return $this->handler->close($this->getRealId());
 	}
 
 	public function gc() {

@@ -12,19 +12,27 @@
 
 namespace W7\Core\Cache;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\SimpleCache\CacheInterface;
 use W7\Core\Cache\Event\MakeConnectionEvent;
 use W7\Core\Cache\Pool\Pool;
-use W7\Core\Facades\Event;
 
 class ConnectorManager {
 	private $config;
 	private $pool;
+	/**
+	 * @var EventDispatcherInterface
+	 */
+	private $eventDispatcher;
 
 	public function __construct($connectionConfig = [], $poolConfig = []) {
 		$this->pool = [];
 		$this->config['connection'] = $connectionConfig;
 		$this->config['pool'] = $poolConfig;
+	}
+
+	public function setEventDispatcher(EventDispatcherInterface $eventDispatcher) {
+		$this->eventDispatcher = $eventDispatcher;
 	}
 
 	public function connect($name = 'default') : CacheInterface {
@@ -39,7 +47,7 @@ class ConnectorManager {
 			$handler = $config['driver'];
 			$handler = $handler::getHandler($config);
 
-			Event::dispatch(new MakeConnectionEvent($name, $handler));
+			$this->eventDispatcher && $this->eventDispatcher->dispatch(new MakeConnectionEvent($name, $handler));
 
 			return $handler;
 		}

@@ -14,8 +14,9 @@ namespace W7\Core\Events;
 
 use Illuminate\Events\Dispatcher as DispatcherAbstract;
 use Illuminate\Support\Str;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
-class Dispatcher extends DispatcherAbstract {
+class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface {
 	public function listen($events, $listener) {
 		if (is_string($listener) && !class_exists($listener)) {
 			return false;

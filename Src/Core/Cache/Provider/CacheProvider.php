@@ -14,6 +14,7 @@ namespace W7\Core\Cache\Provider;
 
 use W7\Core\Cache\Cache;
 use W7\Core\Cache\ConnectorManager;
+use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
@@ -25,6 +26,7 @@ class CacheProvider extends ProviderAbstract {
 		}
 
 		$connectorManager = new ConnectorManager($connectionConfig, $poolConfig);
+		$connectorManager->setEventDispatcher(Event::getFacadeRoot());
 		Cache::setConnectionResolver($connectorManager);
 
 		$channels = array_keys($connectionConfig);
