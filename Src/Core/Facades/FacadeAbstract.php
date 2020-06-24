@@ -85,4 +85,14 @@ abstract class FacadeAbstract {
 	public function __call($name, $arguments) {
 		return static::__callStatic($name, $arguments);
 	}
+
+	public function __set($name, $value) {
+		$instance = static::getFacadeRoot();
+		$instance->$name = $value;
+	}
+
+	public function __get($name) {
+		$instance = static::getFacadeRoot();
+		return $instance->$name;
+	}
 }
