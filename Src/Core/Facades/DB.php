@@ -19,7 +19,7 @@ use W7\Core\Database\DatabaseManager;
  * Class DB
  * @package W7\Core\Facades
  *
- * @method static \Illuminate\Database\ConnectionInterface connection(string $name = null)
+ * @method static \Illuminate\Database\Connection connection(string $name = null)
  * @method static string getDefaultConnection()
  * @method static void setDefaultConnection(string $name)
  * @method static \Illuminate\Database\Query\Builder table(string $table, string $as = null)
