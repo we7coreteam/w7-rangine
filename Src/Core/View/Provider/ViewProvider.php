@@ -39,9 +39,6 @@ class ViewProvider extends ProviderAbstract {
 	}
 
 	protected function registerSystemFunction(View $view) {
-		$view->registerFunction('irandom', function () {
-			return irandom(...func_get_args());
-		});
 		$view->registerFunction('getClientIp', function () {
 			return getClientIp();
 		});

@@ -19,25 +19,9 @@ use W7\Core\Facades\Context;
 use W7\Core\Facades\Logger;
 use Swoole\Timer;
 
-if (!function_exists('iuuid')) {
-	/**
-	 * 获取UUID
-	 * @return string
-	 */
-	function iuuid() {
-		$len = rand(2, 16);
-		$prefix = md5(substr(md5(Context::getCoroutineId()), $len));
-		return uniqid($prefix);
-	}
-}
-
-if (!function_exists('isCo')) {
-	/**
-	 * 是否是在协成
-	 * @return bool
-	 */
-	function isCo():bool {
-		return Context::getCoroutineId() > 0;
+if (!function_exists('isCli')) {
+	function isCli() {
+		return PHP_SAPI == 'cli';
 	}
 }
 
@@ -66,58 +50,6 @@ if (!function_exists('getClientIp')) {
 		}
 
 		return $ip;
-	}
-}
-
-if (!function_exists('isWorkerStatus')) {
-	function isWorkerStatus() {
-		if (App::$server === null) {
-			return false;
-		}
-
-		$server = App::$server->getServer();
-		if ($server->manager_pid == 0) {
-			return false;
-		}
-		if ($server && \property_exists($server, 'taskworker') && ($server->taskworker === false)) {
-			return true;
-		}
-
-		return false;
-	}
-}
-
-if (!function_exists('isetProcessTitle')) {
-	function isetProcessTitle($title) {
-		if (\stripos(PHP_OS, 'Darwin') !== false) {
-			return true;
-		}
-		if (\function_exists('cli_set_process_title')) {
-			return cli_set_process_title($title);
-		}
-
-		if (\function_exists('swoole_set_process_name')) {
-			return swoole_set_process_name($title);
-		}
-		return true;
-	}
-}
-
-if (!function_exists('irandom')) {
-	function irandom($length, $numeric = false) {
-		$seed = base_convert(md5(microtime()), 16, $numeric ? 10 : 35);
-		$seed = $numeric ? (str_replace('0', '', $seed) . '012340567890') : ($seed . 'zZ' . strtoupper($seed));
-		if ($numeric) {
-			$hash = '';
-		} else {
-			$hash = chr(rand(1, 26) + rand(0, 1) * 32 + 64);
-			$length--;
-		}
-		$max = strlen($seed) - 1;
-		for ($i = 0; $i < $length; $i++) {
-			$hash .= $seed[mt_rand(0, $max)];
-		}
-		return $hash;
 	}
 }
 
@@ -190,6 +122,51 @@ if (!function_exists('ienv')) {
 		return $value;
 	}
 }
+
+if (!function_exists('isCo')) {
+	/**
+	 * 是否是在协成
+	 * @return bool
+	 */
+	function isCo():bool {
+		return Context::getCoroutineId() > 0;
+	}
+}
+
+if (!function_exists('isWorkerStatus')) {
+	function isWorkerStatus() {
+		if (App::$server === null) {
+			return false;
+		}
+
+		$server = App::$server->getServer();
+		if ($server->manager_pid == 0) {
+			return false;
+		}
+		if ($server && \property_exists($server, 'taskworker') && ($server->taskworker === false)) {
+			return true;
+		}
+
+		return false;
+	}
+}
+
+if (!function_exists('isetProcessTitle')) {
+	function isetProcessTitle($title) {
+		if (\stripos(PHP_OS, 'Darwin') !== false) {
+			return true;
+		}
+		if (\function_exists('cli_set_process_title')) {
+			return cli_set_process_title($title);
+		}
+
+		if (\function_exists('swoole_set_process_name')) {
+			return swoole_set_process_name($title);
+		}
+		return true;
+	}
+}
+
 if (!function_exists('igo')) {
 	function igo(Closure $callback) {
 		if (!isCo()) {
@@ -221,6 +198,7 @@ if (!function_exists('igo')) {
 		return $result;
 	}
 }
+
 if (!function_exists('isleep')) {
 	function isleep($seconds) {
 		if (!isCo()) {
@@ -230,6 +208,7 @@ if (!function_exists('isleep')) {
 		\Swoole\Coroutine\System::sleep($seconds);
 	}
 }
+
 if (!function_exists('itimeTick')) {
 	function itimeTick($ms, \Closure $callback) {
 		Timer::tick($ms, function () use ($callback) {
@@ -245,6 +224,7 @@ if (!function_exists('itimeTick')) {
 		});
 	}
 }
+
 if (!function_exists('itimeAfter')) {
 	function itimeAfter($ms, \Closure $callback) {
 		Timer::after($ms, function () use ($callback) {
@@ -258,10 +238,5 @@ if (!function_exists('itimeAfter')) {
 				Context::destroy();
 			});
 		});
-	}
-}
-if (!function_exists('isCli')) {
-	function isCli() {
-		return PHP_SAPI == 'cli';
 	}
 }
