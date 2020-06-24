@@ -18,6 +18,14 @@ use Psr\SimpleCache\CacheInterface;
  * Class Cache
  * @package W7\Core\Facades
  *
+ * @method static bool set($key, $value, $ttl = null)
+ * @method static mixed get($key, $default = null)
+ * @method static bool delete($key)
+ * @method static bool setMultiple($values, $ttl = null)
+ * @method static mixed getMultiple($keys, $default = null)
+ * @method static bool deleteMultiple($keys)
+ * @method static bool has($key)
+ * @method static bool clear()
  * @method static connect( $host, $port = 6379, $timeout = 0.0, $reserved = null, $retry_interval = 0 ) {}
  * @method static psetex($key, $ttl, $value) {}
  * @method static sScan($key, $iterator, $pattern = '', $count = 0) {}
