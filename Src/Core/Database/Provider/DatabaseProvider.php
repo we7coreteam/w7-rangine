@@ -53,7 +53,9 @@ class DatabaseProvider extends ProviderAbstract {
 		});
 
 		$container = new Container();
-		$container->instance('db.connector.mysql', new ConnectorManager(Config::get('app.pool.database', [])));
+		$connectorManager = new ConnectorManager(Config::get('app.pool.database', []));
+		$connectorManager->setEventDispatcher(Event::getFacadeRoot());
+		$container->instance('db.connector.mysql', $connectorManager);
 		ConnectorManager::registerConnector('mysql', MySqlConnector::class);
 
 		//侦听sql执行完后的事件，回收$connection
