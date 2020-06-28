@@ -38,24 +38,22 @@ class ProviderManager {
 	private $deferredProviders = [];
 	private $registeredProviders = [];
 
+	public function __construct() {
+		Container::registerDeferredServiceLoader(function ($service) {
+			$providers = $this->deferredProviders[$service] ?? [];
+			foreach ($providers as $provider) {
+				$provider = $this->registerProvider($provider, $provider, true);
+				$provider && $this->bootProvider($provider);
+			}
+		});
+	}
+
 	/**
 	 * 扩展包注册
 	 */
 	public function register() {
 		$providers = Config::get('provider', []);
 		$this->registerProviders(array_merge($this->providerMap, $providers));
-
-		if ($this->deferredProviders) {
-			Container::registerDeferredService(array_keys($this->deferredProviders));
-			Container::registerDeferredServiceLoader(function ($service) {
-				$providers = $this->deferredProviders[$service] ?? [];
-				foreach ($providers as $provider) {
-					$provider = $this->registerProvider($provider, $provider, true);
-					$provider && $this->bootProvider($provider);
-				}
-			});
-		}
-
 		return $this;
 	}
 
@@ -110,6 +108,7 @@ class ProviderManager {
 					$this->deferredProviders[$deferredService] = $this->deferredProviders[$deferredService] ?? [];
 					$this->deferredProviders[$deferredService] = array_merge($this->deferredProviders[$deferredService], [get_class($provider)]);
 				}
+				Container::registerDeferredService($deferredServices);
 				return false;
 			}
 		}
