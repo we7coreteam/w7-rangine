@@ -58,10 +58,11 @@ class MessageListener extends ListenerAbstract {
 
 		$dispatcher = Container::singleton(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
-		$psr7Response->send();
 
 		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
+
+		$psr7Response->send();
+
 		Context::destroy();
-		return true;
 	}
 }
