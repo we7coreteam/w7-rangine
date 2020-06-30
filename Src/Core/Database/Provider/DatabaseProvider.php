@@ -22,7 +22,6 @@ use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Fluent;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
@@ -52,14 +51,15 @@ class DatabaseProvider extends ProviderAbstract {
 			return new PdoMysqlConnection($connection, $database, $prefix, $config);
 		});
 
-		$container = new Container();
 		$connectorManager = new ConnectorManager(Config::get('app.pool.database', []));
 		$connectorManager->setEventDispatcher(Event::getFacadeRoot());
-		$container->instance('db.connector.mysql', $connectorManager);
 		ConnectorManager::registerConnector('mysql', MySqlConnector::class);
 
-		//侦听sql执行完后的事件，回收$connection
-		Event::setContainer($container);
+		/**
+		 * @var Container $container
+		 */
+		$container = $this->container->get(Container::class);
+		$container->instance('db.connector.mysql', $connectorManager);
 
 		Event::listen(QueryExecuted::class, function ($event) use ($container) {
 			/**
@@ -105,8 +105,6 @@ class DatabaseProvider extends ProviderAbstract {
 			}
 		});
 
-		$container->instance('events', Event::getFacadeRoot());
-		$container->instance('config', new Fluent());
 		$container['config']['database.default'] = 'default';
 		$container['config']['database.connections'] = $this->config->get('app.database', []);
 		$factory = new ConnectionFactory($container);

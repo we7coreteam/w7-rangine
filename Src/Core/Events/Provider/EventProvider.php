@@ -12,6 +12,7 @@
 
 namespace W7\Core\Events\Provider;
 
+use Illuminate\Container\Container;
 use W7\Core\Events\Dispatcher;
 use W7\Core\Provider\ProviderAbstract;
 
@@ -27,6 +28,13 @@ class EventProvider extends ProviderAbstract {
 					$eventDispatcher->listen($event, $listener);
 				}
 			}
+
+			/**
+			 * @var Container $container
+			 */
+			$container = $this->container->get(Container::class);
+			$container->instance('events', $eventDispatcher);
+			$eventDispatcher->setContainer($container);
 
 			return $eventDispatcher;
 		});
