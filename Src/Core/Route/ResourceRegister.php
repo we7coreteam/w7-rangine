@@ -1,14 +1,23 @@
 <?php
 
-namespace W7\Core\Route;
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
 
+namespace W7\Core\Route;
 
 class ResourceRegister {
 	protected $router;
 	protected $parameters = [];
 	protected $resourceDefaults = ['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'];
 
-	public function __construct(Route $router) {
+	public function __construct(Router $router) {
 		$this->router = $router;
 	}
 

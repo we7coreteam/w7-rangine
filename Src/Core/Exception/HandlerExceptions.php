@@ -13,17 +13,29 @@
 namespace W7\Core\Exception;
 
 use W7\App;
-use W7\Core\Exception\Handler\DefaultExceptionHandler;
-use W7\Core\Exception\Handler\HandlerAbstract;
+use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
+use W7\Core\Exception\Handler\ExceptionHandler;
+use W7\Core\Facades\Context;
+use W7\Core\Facades\Event;
+use W7\Core\Facades\Output;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Response;
 
 class HandlerExceptions {
-	protected $userExceptionHandler;
+	protected $exceptionHandler = ExceptionHandler::class;
 
-	public function setUserHandler(HandlerAbstract $userExceptionHandler) {
-		$this->userExceptionHandler = $userExceptionHandler;
+	public function setHandler(string $exceptionHandler) {
+		$this->exceptionHandler = $exceptionHandler;
+	}
+
+	public function getHandler() : ExceptionHandler {
+		$handler = $this->exceptionHandler;
+		return new $handler();
+	}
+
+	public static function isIgnoreErrorTypes($errorType) {
+		return !in_array($errorType, [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE]);
 	}
 
 	/**
@@ -35,14 +47,14 @@ class HandlerExceptions {
 
 		register_shutdown_function(function () {
 			$e = error_get_last();
-			if (!$e || !in_array($e['type'], [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE])) {
+			if (!$e || self::isIgnoreErrorTypes($e['type'])) {
 				return;
 			}
 
 			$throwable = new ShutDownException($e['message'], 0, $e['type'], $e['file'], $e['line']);
 			if (App::$server && App::$server->server) {
-				ievent(ServerEvent::ON_WORKER_SHUTDOWN, [App::$server->getServer(), $throwable]);
-				ievent(ServerEvent::ON_WORKER_STOP, [App::$server->getServer(), App::$server->getServer()->worker_id]);
+				Event::dispatch(ServerEvent::ON_WORKER_SHUTDOWN, [App::$server->getServer(), $throwable]);
+				Event::dispatch(ServerEvent::ON_WORKER_STOP, [App::$server->getServer(), App::$server->getServer()->worker_id]);
 			} else {
 				throw $throwable;
 			}
@@ -70,58 +82,37 @@ class HandlerExceptions {
 		return $this->handle($throwable);
 	}
 
-	protected function getServerExceptionHandlerClass($serverType) {
-		return sprintf('W7\\%s\\Handler\\ExceptionHandler', StringHelper::studly($serverType));
-	}
-
-	/**
-	 * @param $serverType
-	 * @return array
-	 */
-	public function getHandlers($serverType) : array {
-		$serverExceptionHandler = '';
-		if ($serverType) {
-			$serverExceptionHandler = $this->getServerExceptionHandlerClass($serverType);
-		}
-		if (!$serverExceptionHandler || !class_exists($serverExceptionHandler)) {
-			$serverExceptionHandler = DefaultExceptionHandler::class;
-		}
-
-		$handlers[] = icontainer()->singleton($serverExceptionHandler);
-		if ($this->userExceptionHandler) {
-			$handlers[] = $this->userExceptionHandler;
-		}
-
-		return $handlers;
+	protected function getServerExceptionFormatter($serverType) : ExceptionFormatterInterface {
+		$class = sprintf('W7\\%s\\Exception\\Formatter\\ExceptionFormatter', StringHelper::studly($serverType));
+		return new $class();
 	}
 
 	public function handle(\Throwable $throwable, $serverType = null) {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
-		$response = icontext()->getResponse();
-		if (!$response) {
-			$response = new Response();
-		}
-
-		$handlers = $this->getHandlers($serverType);
-		for ($i = 0; $i < count($handlers); $i++) {
-			$handlers[$i]->setServerType($serverType);
-			$handlers[$i]->setResponse($response);
-			//如果存在用户自定义handler,把server层的handler设置到用户层，作为真正执行develop,release的handler
-			if ($i >= 1) {
-				$handlers[$i]->setBeforeHandler($handlers[$i - 1]);
+		if (!$serverType || !Context::getResponse()) {
+			if (isCli()) {
+				Output::error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
+			} else {
+				trigger_error($throwable->getMessage());
 			}
+			return false;
 		}
 
-		/**
-		 * @var HandlerAbstract $lastHandler
-		 */
-		$lastHandler = end($handlers);
+		$handler = $this->getHandler();
 		try {
-			$lastHandler->report($throwable);
+			$handler->report($throwable);
 		} catch (\Throwable $e) {
 			null;
 		}
 
-		return  $lastHandler->handle($throwable);
+		$response = Context::getResponse();
+		if (!$response) {
+			$response = new Response();
+		}
+
+		$handler->setServerType($serverType);
+		$handler->setExceptionFormatter($this->getServerExceptionFormatter($serverType));
+		$handler->setResponse($response);
+		return $handler->handle($throwable);
 	}
 }

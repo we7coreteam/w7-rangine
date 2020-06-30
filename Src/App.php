@@ -13,22 +13,22 @@
 namespace W7;
 
 use W7\Console\Application;
-use W7\Core\Cache\Cache;
 use W7\Core\Config\Config;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Container\Container;
-use W7\Core\Log\Logger;
-use W7\Core\Log\LogManager;
-use W7\Core\Helper\Storage\Context;
+use W7\Core\Facades\Output;
 use W7\Core\Provider\ProviderManager;
-use W7\Http\Server\Server;
+use W7\Core\Server\ServerAbstract;
 
 class App {
+	const NAME = 'w7-rangine';
+	const VERSION = '2.3.2';
+
 	private static $self;
 	/**
 	 * 服务器对象
 	 *
-	 * @var Server
+	 * @var ServerAbstract
 	 */
 	public static $server;
 	/**
@@ -40,7 +40,7 @@ class App {
 		self::$self = $this;
 
 		//初始化配置
-		iconfig();
+		$this->getConfigger()->load();
 		$this->registerRuntimeEnv();
 		$this->registerErrorHandler();
 		$this->registerProvider();
@@ -48,7 +48,8 @@ class App {
 	}
 
 	private function registerRuntimeEnv() {
-		date_default_timezone_set('Asia/Shanghai');
+		$defaultTimezone = $this->getConfigger()->get('app.setting.timezone', 'Asia/Shanghai');
+		date_default_timezone_set($defaultTimezone);
 
 		if (!is_dir(RUNTIME_PATH)) {
 			mkdir(RUNTIME_PATH, 0777, true);
@@ -59,35 +60,17 @@ class App {
 		if (!is_writeable(RUNTIME_PATH)) {
 			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no write permission');
 		}
-	}
 
-	private function registerSecurityDir() {
-		//设置安全限制目录
-		$openBaseDirConfig = iconfig()->getUserAppConfig('setting')['basedir'] ?? [];
-		if (is_array($openBaseDirConfig)) {
-			$openBaseDirConfig = implode(':', $openBaseDirConfig);
+		$env = $this->getConfigger()->get('app.setting.env', DEVELOPMENT);
+		!defined('ENV') && define('ENV', $env);
+		if (!is_numeric(ENV) || ((RELEASE|DEVELOPMENT) & ENV) !== ENV) {
+			throw new \RuntimeException("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
 		}
-
-		$openBaseDir = [
-			'/tmp',
-			sys_get_temp_dir(),
-			APP_PATH,
-			BASE_PATH . '/config',
-			BASE_PATH . '/route',
-			BASE_PATH . '/public',
-			BASE_PATH . '/components',
-			BASE_PATH . '/composer.json',
-			RUNTIME_PATH,
-			BASE_PATH . '/vendor',
-			$openBaseDirConfig,
-			session_save_path()
-		];
-		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
 
 	private function registerErrorHandler() {
 		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
-		$setting = iconfig()->getUserAppConfig('setting');
+		$setting = $this->getConfigger()->get('app.setting');
 		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
 		error_reporting($errorLevel);
 
@@ -103,6 +86,23 @@ class App {
 		$this->getContainer()->get(ProviderManager::class)->register()->boot();
 	}
 
+	private function registerSecurityDir() {
+		//设置安全限制目录
+		$openBaseDirConfig = $this->getConfigger()->get('app.setting.basedir', []);
+		if (is_array($openBaseDirConfig)) {
+			$openBaseDirConfig = implode(':', $openBaseDirConfig);
+		}
+
+		$openBaseDir = [
+			'/tmp',
+			sys_get_temp_dir(),
+			BASE_PATH,
+			$openBaseDirConfig,
+			session_save_path()
+		];
+		ini_set('open_basedir', implode(':', $openBaseDir));
+	}
+
 	public static function getApp() {
 		if (!self::$self) {
 			new static();
@@ -114,7 +114,7 @@ class App {
 		try {
 			$this->getContainer()->get(Application::class)->run();
 		} catch (\Throwable $e) {
-			ioutputer()->error($e->getMessage());
+			Output::error($e->getMessage());
 		}
 	}
 
@@ -125,37 +125,20 @@ class App {
 		return $this->container;
 	}
 
-	/**
-	 * @return Logger
-	 */
-	public function getLogger() {
-		/**
-		 * @var LogManager $logManager
-		 */
-		$logManager = $this->getContainer()->get(LogManager::class);
-		return $logManager->getDefaultChannel();
-	}
-
-	/**
-	 * @return Context
-	 */
-	public function getContext() {
-		return $this->getContainer()->get(Context::class);
-	}
-
 	public function getConfigger() {
 		return $this->getContainer()->get(Config::class);
 	}
 
-	/**
-	 * @return Cache
-	 */
-	public function getCacher() {
-		/**
-		 * @var Cache $cache;
-		 */
-		$cache = $this->getContainer()->get(Cache::class);
-		return $cache;
+	public function bootstrapCachePath($path = '') {
+		return BASE_PATH . DIRECTORY_SEPARATOR . 'bootstrap/cache' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+	}
+
+	public function getRouteCachePath() {
+		return $this->bootstrapCachePath('route/');
+	}
+
+	public function getConfigCachePath() {
+		return $this->bootstrapCachePath('config/');
 	}
 
 	public function exit() {

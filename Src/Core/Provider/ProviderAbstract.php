@@ -13,12 +13,31 @@
 namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
+use W7\App;
 use W7\Console\Application;
+use W7\Core\Config\Config;
+use W7\Core\Container\Container;
+use W7\Core\Facades\Event;
 use W7\Core\Helper\StringHelper;
+use W7\Core\Facades\Logger as LoggerFacade;
+use W7\Core\Log\LogBuffer;
+use W7\Core\Log\Logger;
+use W7\Core\Facades\Router as RouterFacade;
+use W7\Core\Log\Processor\SwooleProcessor;
+use W7\Core\Route\Router;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
+use W7\Core\Facades\View as ViewFacade;
 use W7\Core\View\View;
 
+/**
+ * Class ProviderAbstract
+ * @package W7\Core\Provider
+ * @property-read Config $config
+ * @property-read Router $router
+ * @property-read Container $container
+ * @property-read Logger $logger
+ */
 abstract class ProviderAbstract {
 	protected $name;
 
@@ -27,25 +46,11 @@ abstract class ProviderAbstract {
 	//composer包的namespace
 	protected $packageNamespace;
 
-	/**
-	 * @var \W7\Core\Config\Config
-	 */
-	protected $config;
-	/**
-	 * @var \W7\Core\Route\Route
-	 */
-	protected $router;
-	/**
-	 * @var \W7\Core\Log\Logger
-	 */
-	protected $logger;
-
-	protected $defer;
 	public static $publishes = [];
 	public static $publishGroups = [];
 	protected $rootPath;
 
-	public function __construct($name = null) {
+	final public function __construct($name = null) {
 		if (!$name) {
 			$name = get_called_class();
 		}
@@ -58,10 +63,6 @@ abstract class ProviderAbstract {
 			$this->packageNamespace = $reflect->getNamespaceName();
 			$this->rootPath = dirname($reflect->getFileName(), 2);
 		}
-
-		$this->config = iconfig();
-		$this->router = irouter();
-		$this->logger = ilogger();
 	}
 
 	/**
@@ -76,6 +77,17 @@ abstract class ProviderAbstract {
 	 * @return mixed
 	 */
 	public function boot() {
+	}
+
+	protected function registerBaseDir($dir) {
+		$dir = (array)$dir;
+		$appBasedir = $this->getConfig()->get('app.setting.basedir', []);
+		$appBasedir = array_merge($appBasedir, $dir);
+		$this->getConfig()->set('app.setting.basedir', $appBasedir);
+	}
+
+	protected function registerProvider($provider) {
+		$this->getContainer()->singleton(ProviderManager::class)->registerProvider($provider);
 	}
 
 	protected function registerConfig($fileName, $key) {
@@ -95,49 +107,75 @@ abstract class ProviderAbstract {
 		], $group);
 	}
 
-	protected function registerRoute($fileName) {
-		$this->router->group([
+	protected function registerLogger($name, $driver, $config = [], $isStack = false) {
+		$logger = new Logger($name, [], []);
+		$logger->bufferLimit = $config['buffer_limit'] ?? 1;
+
+		$config['processor'] = (array)(empty($config['processor']) ? [] : $config['processor']);
+		foreach ((array)$config['processor'] as $processor) {
+			$logger->pushProcessor(new $processor);
+		}
+
+		$handlers = [];
+		if (!$isStack) {
+			$handler = $this->getConfig()->get('handler.log.' . $driver, $driver);
+			if (!$handler || !class_exists($handler)) {
+				throw new \RuntimeException('log handler ' . $driver . ' is not support');
+			}
+			$handlers[] = new LogBuffer($handler::getHandler($config), $logger->bufferLimit, $config['level'], true, true);
+		} else {
+			$config['channel'] = (array)$config['channel'];
+			foreach ($config['channel'] as $channel) {
+				/**
+				 * @var Logger $channelLogger
+				 */
+				$channelLogger = $this->getContainer()->get('logger-' . $channel);
+				$handlers = array_merge($handlers, is_object($channelLogger) ? $channelLogger->getHandlers() : []);
+			}
+		}
+		foreach ($handlers as $handler) {
+			$logger->pushHandler($handler);
+		}
+
+		$this->container->set('logger-' . $name, $logger);
+
+		return $logger;
+	}
+
+	protected function registerRoute($fileName, $options = []) {
+		$routeConfig = [
 			'namespace' => $this->packageNamespace,
-			'module' => $this->name
-		], function () use ($fileName) {
+			'module' => $this->name,
+			'name' => $this->name
+		];
+		$routeConfig = array_merge($routeConfig, $options);
+
+		$this->getRouter()->name($routeConfig['name'])->middleware($routeConfig['middleware'] ?? [])->group($routeConfig, function () use ($fileName) {
 			$this->loadRouteFrom($this->rootPath . '/route/' . $fileName);
 		});
 	}
 
 	protected function registerStaticResource() {
-		$config = $this->config->getServer();
-		if (empty($config['common']['document_root'])) {
+		$documentRoot = $this->getConfig()->get('server.common.document_root');
+		if (!$documentRoot) {
 			throw new \RuntimeException("please set server['common']['document_root']");
 		}
 
 		$filesystem = new Filesystem();
-		$config = $this->config->getServer();
-		$config['common']['document_root'] = rtrim($config['common']['document_root'], '/');
-		$flagFilePath = $config['common']['document_root'] . '/' . $this->name . '/resource.lock';
-
+		$documentRoot = rtrim($documentRoot, '/');
+		$flagFilePath = $documentRoot . '/' . $this->name . '/resource.lock';
 		if ($filesystem->exists($this->rootPath . '/resource') && !$filesystem->exists($flagFilePath)) {
-			$filesystem->copyDirectory($this->rootPath . '/resource', $config['common']['document_root'] . '/' . $this->name);
+			$filesystem->copyDirectory($this->rootPath . '/resource', $documentRoot . '/' . $this->name);
 			$filesystem->put($flagFilePath, '');
 		}
 	}
 
-	public function getView() {
-		if (!class_exists(View::class)) {
-			throw new \RuntimeException('class ' . View::class . ' not exists');
-		}
-		/**
-		 * @var View $view
-		 */
-		$view = icontainer()->singleton(View::class);
-		return $view;
+	protected function registerEvent($event, $listener) {
+		Event::listen($event, $listener);
 	}
 
 	protected function registerView($namespace) {
-		$this->getView()->addProviderTemplatePath($namespace, $this->rootPath . '/view/');
-	}
-
-	protected function registerProvider($provider) {
-		icontainer()->singleton(ProviderManager::class)->registerProvider($provider);
+		$this->getView()->addTemplatePath($namespace, $this->rootPath . '/view/');
 	}
 
 	protected function registerCommand($namespace = '') {
@@ -147,24 +185,12 @@ abstract class ProviderAbstract {
 		/**
 		 * @var  Application $application
 		 */
-		$application = icontainer()->singleton(Application::class);
+		$application = $this->getContainer()->singleton(Application::class);
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->packageNamespace, $namespace);
-	}
-
-	protected function registerOpenBaseDir($dir) {
-		$dir = (array)$dir;
-		$config = iconfig()->getUserConfig('app');
-		$config['setting']['basedir'] = (array)($config['setting']['basedir'] ?? []);
-		$config['setting']['basedir'] = array_merge($config['setting']['basedir'], $dir);
-		iconfig()->setUserConfig('app', $config);
 	}
 
 	protected function registerServer($name, $class) {
 		ServerEnum::registerServer($name, $class);
-	}
-
-	protected function registerEvent($event, $listener) {
-		ieventDispatcher()->listen($event, $listener);
 	}
 
 	/**
@@ -176,7 +202,7 @@ abstract class ProviderAbstract {
 		/**
 		 * @var ServerEvent $event
 		 */
-		$event = icontainer()->singleton(ServerEvent::class);
+		$event = $this->getContainer()->singleton(ServerEvent::class);
 		$event->addServerEvents($name, $events, $cover);
 	}
 
@@ -190,8 +216,8 @@ abstract class ProviderAbstract {
 	 * @param $key
 	 */
 	protected function mergeConfigFrom($path, $key) {
-		$config = $this->config->getUserConfig($key);
-		$this->config->setUserConfig($key, array_merge(require $path, $config));
+		$config = $this->getConfig()->get($key, []);
+		$this->getConfig()->set($key, array_merge(require $path, $config));
 	}
 
 	/**
@@ -294,6 +320,39 @@ abstract class ProviderAbstract {
 		if (! empty(static::$publishes[$provider]) && ! empty(static::$publishGroups[$group])) {
 			return array_intersect_key(static::$publishes[$provider], static::$publishGroups[$group]);
 		}
+		return [];
+	}
+
+	protected function getContainer() {
+		return App::getApp()->getContainer();
+	}
+
+	protected function getConfig() {
+		return App::getApp()->getConfigger();
+	}
+
+	protected function getRouter() : Router {
+		return RouterFacade::getFacadeRoot();
+	}
+
+	protected function getLogger() {
+		return new LoggerFacade();
+	}
+
+	protected function getView() : View {
+		return ViewFacade::getFacadeRoot();
+	}
+
+	public function __get($name) {
+		$method = 'get' . ucfirst($name);
+		if (method_exists($this, $method)) {
+			return $this->$method();
+		}
+
+		throw new \RuntimeException('property ' . $name . ' not exists');
+	}
+
+	public function providers() : array {
 		return [];
 	}
 }

@@ -15,6 +15,9 @@ namespace W7\Core\Server;
 use Swoole\Process;
 use Swoole\Server;
 use W7\App;
+use W7\Core\Facades\Config;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Event;
 
 abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServerInterface {
 	/**
@@ -42,16 +45,9 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	 */
 	public $setting;
 
-	//表示当前服务是主服务
-	public static $masterServer = true;
-	//表示该服务只能跟随主服务启动
-	public static $onlyFollowMasterServer = false;
-	//表示该服务可以单独启动
-	public static $aloneServer = false;
-
 	public function __construct() {
 		parent::__construct();
-		$setting = \iconfig()->getServer();
+		$setting = Config::get('server');
 		if (!isset($setting[$this->getType()])) {
 			throw new \RuntimeException(sprintf('缺少服务配置 %s', $this->getType()));
 		}
@@ -125,7 +121,6 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 			unlink($this->setting['pid_file']);
 		}
 
-		App::$server = null;
 		return $result;
 	}
 
@@ -188,7 +183,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		/**
 		 * @var ServerEvent $eventRegister
 		 */
-		$eventRegister = icontainer()->singleton(ServerEvent::class);
+		$eventRegister = Container::singleton(ServerEvent::class);
 
 		//注册master manager事件,这些事件只注册一次
 		if (!self::$isRegisterMasterServerEvent && $server instanceof Server) {
@@ -210,7 +205,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$eventRegister->registerServerCustomEvent($this->getType());
 		$eventTypes[] = $this->getType();
 
-		$swooleEvents = icontainer()->singleton(ServerEvent::class)->getDefaultEvent();
+		$swooleEvents = Container::singleton(ServerEvent::class)->getDefaultEvent();
 		foreach ($eventTypes as $eventType) {
 			$event = $swooleEvents[$eventType];
 			if (!empty($event)) {
@@ -227,11 +222,11 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 			}
 			if ($eventName == ServerEvent::ON_REQUEST) {
 				$server->on(ServerEvent::ON_REQUEST, function ($request, $response) use ($masterServer, $eventType) {
-					ieventDispatcher()->dispatch($this->getServerEventRealName(ServerEvent::ON_REQUEST, $eventType), [$masterServer, $request, $response]);
+					Event::dispatch($this->getServerEventRealName(ServerEvent::ON_REQUEST, $eventType), [$masterServer, $request, $response]);
 				});
 			} else {
 				$server->on($eventName, function () use ($eventName, $eventType) {
-					ieventDispatcher()->dispatch($this->getServerEventRealName($eventName, $eventType), func_get_args());
+					Event::dispatch($this->getServerEventRealName($eventName, $eventType), func_get_args());
 				});
 			}
 		}

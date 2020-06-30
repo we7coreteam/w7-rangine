@@ -12,53 +12,63 @@
 
 namespace W7\Core\Route;
 
-use W7\Core\Middleware\MiddlewareMapping;
+use W7\Core\Helper\FileLoader;
 
 class RouteMapping {
 	protected $routeConfig = [];
 	protected $routeKeyWords = ['prefix', 'method', 'middleware', 'name', 'namespace', 'uri', 'handler'];
 	/**
-	 * @var Route
+	 * @var Router
 	 */
 	protected $router;
-
 	/**
-	 * @var MiddlewareMapping
+	 * @var FileLoader
 	 */
-	private $middlewareMapping;
+	protected $fileLoader;
 
 	private static $isInitRouteByConfig = false;
 
-	public function __construct() {
-		$this->middlewareMapping = icontainer()->singleton(MiddlewareMapping::class);
-		if (!self::$isInitRouteByConfig) {
-			//在多个服务同时启动的时候，防止重复注册
-			$this->routeConfig = \iconfig()->getRouteConfig();
-			self::$isInitRouteByConfig = true;
-		}
-		$this->router = irouter();
-		/**
-		 * @todo 增加引入扩展机制的路由
-		 */
+	public function __construct(Router $router, FileLoader $fileLoader) {
+		$this->router = $router;
+		$this->fileLoader = $fileLoader;
 	}
 
 	public function setRouteConfig($routeConfig) {
 		$this->routeConfig = $routeConfig;
 	}
 
-	public function getRouteConfig() {
-		return $this->routeConfig;
-	}
-
 	/**
 	 * @return array|mixed
 	 */
 	public function getMapping() {
+		if (!self::$isInitRouteByConfig) {
+			//在多个服务同时启动的时候，防止重复注册
+			$this->routeConfig = empty($this->routeConfig) ? $this->getRouteConfig() : $this->routeConfig;
+			self::$isInitRouteByConfig = true;
+		}
 		foreach ($this->routeConfig as $index => $routeConfig) {
 			$this->initRouteByConfig($routeConfig);
 		}
 		$this->registerSystemRoute();
 		return $this->router->getData();
+	}
+
+	protected function getRouteConfig() {
+		$routeConfigs = [];
+		$configFileTree = glob(BASE_PATH . '/route/*.php');
+		if (empty($configFileTree)) {
+			return $routeConfigs;
+		}
+
+		foreach ($configFileTree as $path) {
+			$key = pathinfo($path, PATHINFO_FILENAME);
+			$routeConfig = $this->fileLoader->loadFile($path);
+			if (is_array($routeConfig)) {
+				$routeConfigs[$key] = $routeConfig;
+			}
+		}
+
+		return $routeConfigs;
 	}
 
 	protected function initRouteByConfig($config) {
@@ -162,7 +172,7 @@ class RouteMapping {
 			}
 
 			if (empty($route['method'])) {
-				$route['method'] = Route::METHOD_BOTH_GP;
+				$route['method'] = Router::METHOD_BOTH_GP;
 			}
 
 			if (is_string($route['method'])) {
@@ -193,9 +203,7 @@ class RouteMapping {
 	//如果用户自定义了系统路由，则按照用户的路由走
 	public function registerSystemRoute() {
 		try {
-			$this->router->get('/favicon.ico', function () {
-				return icontext()->getResponse()->withContent('');
-			});
+			$this->router->get('/favicon.ico', ['\W7\Core\Controller\FaviconController', 'index']);
 		} catch (\Throwable $e) {
 			null;
 		}

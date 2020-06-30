@@ -1,25 +1,23 @@
 <?php
+
 /**
- * 扩展monolog日志中包含swoole进程及协程信息
- * @author donknap
- * @date 18-10-20 下午2:58
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Log\Processor;
 
-
-use W7\App;
+use W7\Core\Facades\Context;
 
 class SwooleProcessor {
-	private $context;
-
-	public function __construct() {
-		$this->context = App::getApp()->getContext();
-	}
-
 	public function __invoke(array $record) {
-		$workid = $this->context->getContextDataByKey('workid');
-		$coid = $this->context->getContextDataByKey('coid');
+		$workid = Context::getContextDataByKey('workid');
+		$coid = Context::getContextDataByKey('coid');
 
 		$record['workid'] = $workid ? $workid : '0';
 		$record['coid'] = $coid ? $coid : '0';

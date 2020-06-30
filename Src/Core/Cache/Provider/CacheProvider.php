@@ -13,20 +13,26 @@
 namespace W7\Core\Cache\Provider;
 
 use W7\Core\Cache\Cache;
+use W7\Core\Cache\ConnectorManager;
+use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
 	public function register() {
-		$config = iconfig()->getUserAppConfig('cache');
-		$channels = array_keys($config);
+		$connectionConfig = $this->config->get('app.cache', []);
+		$poolConfig = $this->config->get('app.pool.cache', []);
+		foreach ($connectionConfig as &$config) {
+			$config['driver'] = $this->config->get('handler.cache.' . $config['driver'], $config['driver']);
+		}
+
+		$connectorManager = new ConnectorManager($connectionConfig, $poolConfig);
+		$connectorManager->setEventDispatcher(Event::getFacadeRoot());
+		Cache::setConnectionResolver($connectorManager);
+
+		$channels = array_keys($connectionConfig);
 		foreach ($channels as $key => $channel) {
-			icontainer()->set('cache-' . $channel, function () use ($channel) {
-				if ($channel === 'default') {
-					return icache();
-				}
-				$cache = new Cache();
-				$cache->setChannelName($channel);
-				return $cache;
+			$this->container->set('cache-' . $channel, function () use ($channel) {
+				return new Cache($channel);
 			});
 		}
 	}

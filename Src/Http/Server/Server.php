@@ -13,8 +13,8 @@
 namespace W7\Http\Server;
 
 use Swoole\Http\Server as HttpServer;
+use W7\Core\Facades\Event;
 use W7\Core\Server\SwooleServerAbstract;
-use W7\Core\View\Provider\ViewProvider;
 use W7\Http\Session\Provider\SessionProvider;
 use W7\WebSocket\Server\Server as WebSocketServer;
 use W7\App;
@@ -23,8 +23,7 @@ use W7\Core\Server\ServerEnum;
 
 class Server extends SwooleServerAbstract {
 	protected $providerMap = [
-		SessionProvider::class,
-		ViewProvider::class
+		'http-session' => SessionProvider::class
 	];
 
 	public function getType() {
@@ -50,7 +49,7 @@ class Server extends SwooleServerAbstract {
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
-		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
 
 		$this->server->start();
 	}

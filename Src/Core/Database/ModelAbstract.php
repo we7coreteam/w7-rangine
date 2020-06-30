@@ -13,6 +13,7 @@
 namespace W7\Core\Database;
 
 use Illuminate\Database\Eloquent\Builder;
+use W7\Core\Helper\Traiter\InstanceTraiter;
 
 /**
  * Class ModelAbstract
@@ -72,6 +73,8 @@ use Illuminate\Database\Eloquent\Builder;
  * @method getMacro($name)
  */
 abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
+	use InstanceTraiter;
+
 	protected function insertAndSetId(Builder $query, $attributes) {
 		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
 
@@ -96,10 +99,6 @@ abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	 */
 	public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null) {
 		return parent::hasManyThrough($related, $through, $firstKey, $secondKey, $localKey, $secondLocalKey);
-	}
-
-	public static function instance() {
-		return icontainer()->singleton(static::class);
 	}
 
 	/**

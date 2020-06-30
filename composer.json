@@ -13,6 +13,7 @@
 		"php": ">=7.2",
 		"ext-swoole": ">=4.4.0",
 		"ext-json": "*",
+		"w7/rangine-compat": "2.3.2",
 		"w7/rangine-http-message": "*",
 		"w7/rangine-database-tool": "*",
 		"w7/rangine-lang": "*",
@@ -33,7 +34,8 @@
 		"filp/whoops": "^2.3",
 		"twig/twig": "^2.0",
 		"smarty/smarty": "^3.1",
-		"pimple/pimple": "^3.2"
+		"pimple/pimple": "^3.2",
+		"psr/event-dispatcher": "^1.0"
 	},
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",

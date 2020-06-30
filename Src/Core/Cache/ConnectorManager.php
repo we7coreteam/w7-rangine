@@ -12,22 +12,27 @@
 
 namespace W7\Core\Cache;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\SimpleCache\CacheInterface;
 use W7\Core\Cache\Event\MakeConnectionEvent;
-use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\Pool;
-use W7\Core\Helper\Traiter\HandlerTrait;
 
 class ConnectorManager {
-	use HandlerTrait;
-
 	private $config;
 	private $pool;
+	/**
+	 * @var EventDispatcherInterface
+	 */
+	private $eventDispatcher;
 
-	public function __construct() {
+	public function __construct($connectionConfig = [], $poolConfig = []) {
 		$this->pool = [];
-		$this->config['connection'] = \iconfig()->getUserAppConfig('cache') ?? [];
-		$this->config['pool'] = \iconfig()->getUserAppConfig('pool')['cache'] ?? [];
+		$this->config['connection'] = $connectionConfig;
+		$this->config['pool'] = $poolConfig;
+	}
+
+	public function setEventDispatcher(EventDispatcherInterface $eventDispatcher) {
+		$this->eventDispatcher = $eventDispatcher;
 	}
 
 	public function connect($name = 'default') : CacheInterface {
@@ -39,13 +44,10 @@ class ConnectorManager {
 		}
 
 		if (!isCo() || empty($poolConfig) || empty($poolConfig['enable'])) {
-			/**
-			 * @var HandlerAbstract $handlerClass
-			 */
-			$handlerClass = $this->getHandlerClass($config['driver']);
-			$handler = $handlerClass::getHandler($config);
+			$handler = $config['driver'];
+			$handler = $handler::getHandler($config);
 
-			ievent(new MakeConnectionEvent($name, $handler));
+			$this->eventDispatcher && $this->eventDispatcher->dispatch(new MakeConnectionEvent($name, $handler));
 
 			return $handler;
 		}
@@ -76,21 +78,10 @@ class ConnectorManager {
 
 		$pool = new Pool($name);
 		$pool->setConfig($config);
-		$pool->setCreator($this->getHandlerClass($config['driver']));
+		$pool->setCreator($config['driver']);
 		$pool->setMaxCount($poolConfig['max'] ?? 1);
 
 		$this->pool[$name] = $pool;
 		return $this->pool[$name];
-	}
-
-	private function getHandlerClass($handler) {
-		$handlerClass = $this->getHandlerClassByType('cache', $handler);
-
-		$reflectClass = new \ReflectionClass($handlerClass);
-		if (!in_array(CacheInterface::class, array_keys($reflectClass->getInterfaces()))) {
-			throw new \RuntimeException('please implements Psr\SimpleCache\CacheInterface');
-		}
-
-		return $handlerClass;
 	}
 }

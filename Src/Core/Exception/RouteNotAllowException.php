@@ -12,10 +12,8 @@
 
 namespace W7\Core\Exception;
 
-use Throwable;
-
 class RouteNotAllowException extends ResponseExceptionAbstract {
-	public function __construct($message = 'Route not allowed', $code = 405, Throwable $previous = null) {
-		parent::__construct($message, $code, $previous);
+	public function __construct($message = 'Route not allowed', $code = 405, \Throwable $previous = null) {
+		parent::__construct(json_encode(['error' => $message], JSON_UNESCAPED_UNICODE), $code, $previous);
 	}
 }

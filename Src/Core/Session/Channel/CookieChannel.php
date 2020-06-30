@@ -12,15 +12,15 @@
 
 namespace W7\Core\Session\Channel;
 
+use Psr\Http\Message\ResponseInterface;
 use W7\Http\Message\Base\Cookie;
-use W7\Http\Message\Server\Response;
 
 class CookieChannel extends ChannelAbstract {
 	protected function generateId() {
 		return $this->request->cookie($this->getSessionName(), parent::generateId());
 	}
 
-	public function replenishResponse(Response $response) : Response {
+	public function replenishResponse(ResponseInterface $response) : ResponseInterface {
 		//如果用户自定义channel,在这里要通过响应的data中携带sessionid的话,暂不支持
 
 		// websocket 需要使用 header Set-Cookie 下发 Cookie

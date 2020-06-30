@@ -13,6 +13,8 @@
 namespace W7\Core\Listener;
 
 use W7\App;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Logger;
 
 class ProcessStopListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -24,9 +26,9 @@ class ProcessStopListener extends ListenerAbstract {
 		try {
 			$userProcess->onStop();
 		} catch (\Throwable $e) {
-			ilogger()->debug('stop process fail with error ' . $e->getMessage());
+			Logger::debug('stop process fail with error ' . $e->getMessage());
 		}
 
-		icontainer()->clear();
+		Container::clear();
 	}
 }

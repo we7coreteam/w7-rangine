@@ -15,7 +15,7 @@ namespace W7\Core\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\App;
+use W7\Core\Facades\Context;
 
 abstract class TransformsRequestMiddleware extends MiddlewareAbstract {
 	final public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
@@ -33,7 +33,7 @@ abstract class TransformsRequestMiddleware extends MiddlewareAbstract {
 		$request = $request->withQueryParams($this->transArray($request->getQueryParams()));
 		$request = $request->withParsedBody($this->transArray($request->getParsedBody()));
 
-		App::getApp()->getContext()->setRequest($request);
+		Context::setRequest($request);
 
 		return $request;
 	}

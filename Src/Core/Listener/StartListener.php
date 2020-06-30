@@ -13,7 +13,7 @@
 namespace W7\Core\Listener;
 
 use W7\App;
-use W7\Core\Log\LogManager;
+use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEvent;
 
 class StartListener implements ListenerInterface {
@@ -23,8 +23,6 @@ class StartListener implements ListenerInterface {
 
 		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' master process');
 
-		icontainer()->singleton(LogManager::class)->cleanLogFile();
-
-		ievent(ServerEvent::ON_USER_AFTER_START, $params);
+		Event::dispatch(ServerEvent::ON_USER_AFTER_START, $params);
 	}
 }

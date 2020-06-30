@@ -12,7 +12,9 @@
 
 namespace W7\Fpm\Server;
 
-use FastRoute\Dispatcher\GroupCountBased;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Event;
+use W7\Core\Route\RouteDispatcher;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
@@ -23,8 +25,10 @@ use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 
 class Server extends ServerAbstract {
+	public $worker_id;
+
 	protected $providerMap = [
-		SessionProvider::class
+		'fpm-session' => SessionProvider::class
 	];
 
 	public function getType() {
@@ -35,7 +39,7 @@ class Server extends ServerAbstract {
 		/**
 		 * @var ServerEvent $eventRegister
 		 */
-		$eventRegister = icontainer()->singleton(ServerEvent::class);
+		$eventRegister = Container::singleton(ServerEvent::class);
 		$eventRegister->registerServerUserEvent();
 		$eventRegister->registerServerCustomEvent($this->getType());
 	}
@@ -43,7 +47,7 @@ class Server extends ServerAbstract {
 	public function start() {
 		$this->registerService();
 
-		ievent(ServerEvent::ON_USER_BEFORE_START, [$this]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_START, [$this, $this->getType()]);
 
 		$response = new Psr7Response();
 		$response->setOutputer(new FpmResponseOutputer());
@@ -54,6 +58,7 @@ class Server extends ServerAbstract {
 
 	public function getServer() {
 		if (!$this->server) {
+			$this->worker_id = getmypid();
 			$this->server = $this;
 		}
 		return $this->server;
@@ -66,18 +71,17 @@ class Server extends ServerAbstract {
 	 * @return \Psr\Http\Message\ResponseInterface|void
 	 */
 	private function dispatch($request, $response) {
-		$routeInfo = icontainer()->singleton(RouteMapping::class)->getMapping();
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = \icontainer()->singleton(Dispatcher::class);
-		$dispatcher->setRouter(new GroupCountBased($routeInfo));
+		$dispatcher = Container::singleton(Dispatcher::class);
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, $this->getType()));
 
-		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response, $this->getType()]);
 
 		$response = $dispatcher->dispatch($request, $response);
 
-		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
+		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$request, $response, $this->getType()]);
 
 		return $response;
 	}

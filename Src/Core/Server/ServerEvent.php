@@ -12,6 +12,7 @@
 
 namespace W7\Core\Server;
 
+use W7\Core\Facades\Event;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
@@ -30,7 +31,7 @@ use W7\Tcp\Listener\ReceiveListener;
 use W7\Core\Listener\ProcessStartListener;
 use W7\Core\Listener\ProcessStopListener;
 use W7\WebSocket\Listener\CloseListener as WebSocketCloseListener;
-use W7\WebSocket\Listener\HandshakeListener;
+use W7\WebSocket\Listener\HandShakeListener;
 use W7\WebSocket\Listener\MessageListener;
 use W7\WebSocket\Listener\OpenListener;
 
@@ -77,10 +78,11 @@ class ServerEvent {
 	const ON_USER_AFTER_WORKER_STOP = 'afterWorkerStop';
 	const ON_USER_AFTER_WORKER_SHUTDOWN = 'afterWorkerShutDown';
 	const ON_USER_AFTER_WORKER_ERROR = 'afterWorkerError';
+	const ON_USER_AFTER_PIPE_MESSAGE = 'afterPipeMessage';
 	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
 	const ON_USER_AFTER_REQUEST = 'afterRequest';
 	const ON_USER_TASK_FINISH = 'afterTaskFinish';
-	const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandshake';
+	const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandShake';
 	const ON_USER_AFTER_OPEN = 'afterOpen';
 	const ON_USER_AFTER_CLOSE = 'afterClose';
 
@@ -110,7 +112,7 @@ class ServerEvent {
 			self::ON_CLOSE => CloseListener::class
 		],
 		ServerEnum::TYPE_WEBSOCKET => [
-			self::ON_HAND_SHAKE => HandshakeListener::class,
+			self::ON_HAND_SHAKE => HandShakeListener::class,
 			self::ON_OPEN => OpenListener::class,
 			self::ON_CLOSE => WebSocketCloseListener::class,
 			self::ON_MESSAGE => MessageListener::class
@@ -136,6 +138,7 @@ class ServerEvent {
 			self::ON_USER_AFTER_WORKER_START,
 			self::ON_USER_AFTER_WORKER_STOP,
 			self::ON_WORKER_SHUTDOWN,
+			self::ON_USER_AFTER_PIPE_MESSAGE,
 			self::ON_USER_BEFORE_REQUEST,
 			self::ON_USER_AFTER_REQUEST,
 			self::ON_USER_TASK_FINISH,
@@ -154,7 +157,7 @@ class ServerEvent {
 		foreach ((array)$eventTypes as $eventType) {
 			$events = $swooleEvents[$eventType] ?? [];
 			foreach ($events as $name => $event) {
-				ieventDispatcher()->listen($eventType . ':' . $name, $event);
+				Event::listen($eventType . ':' . $name, $event);
 			}
 		}
 	}
@@ -167,10 +170,10 @@ class ServerEvent {
 		//注册用户层和系统的公共事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
-			ieventDispatcher()->listen($eventName, $listener);
+			Event::listen($eventName, $listener);
 
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
-			ieventDispatcher()->listen($eventName, $listener);
+			Event::listen($eventName, $listener);
 		}
 	}
 
@@ -182,7 +185,7 @@ class ServerEvent {
 		//注册server下的自定义事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly($server), ucfirst($eventName));
-			ieventDispatcher()->listen($eventName, $listener);
+			Event::listen($eventName, $listener);
 		}
 	}
 

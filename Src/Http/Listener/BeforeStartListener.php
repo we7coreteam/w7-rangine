@@ -12,9 +12,11 @@
 
 namespace W7\Http\Listener;
 
+use W7\Core\Facades\Container;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Core\Route\RouteDispatcher;
 use W7\Core\Route\RouteMapping;
-use FastRoute\Dispatcher\GroupCountBased;
+use W7\Core\Server\ServerEnum;
 use W7\Http\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
@@ -26,8 +28,7 @@ class BeforeStartListener extends ListenerAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = icontainer()->singleton(Dispatcher::class);
-		$routeInfo = icontainer()->singleton(RouteMapping::class)->getMapping();
-		$dispatcher->setRouter(new GroupCountBased($routeInfo));
+		$dispatcher = Container::singleton(Dispatcher::class);
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, ServerEnum::TYPE_HTTP));
 	}
 }

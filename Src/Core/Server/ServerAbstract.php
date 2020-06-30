@@ -13,16 +13,22 @@
 namespace W7\Core\Server;
 
 use W7\App;
-use W7\Core\Exception\CommandException;
+use W7\Core\Facades\Container;
 use W7\Core\Provider\ProviderManager;
 
 abstract class ServerAbstract implements ServerInterface {
+	//表示当前服务是主服务
+	public static $masterServer = true;
+	//表示该服务只能跟随主服务启动
+	public static $onlyFollowMasterServer = false;
+	//表示该服务可以单独启动
+	public static $aloneServer = false;
+
 	protected $providerMap = [];
 	public $server;
 
 	/**
 	 * ServerAbstract constructor.
-	 * @throws CommandException
 	 */
 	public function __construct() {
 		!App::$server && App::$server = $this;
@@ -46,7 +52,7 @@ abstract class ServerAbstract implements ServerInterface {
 		/**
 		 * @var ProviderManager $providerManager
 		 */
-		$providerManager = icontainer()->singleton(ProviderManager::class);
+		$providerManager = Container::singleton(ProviderManager::class);
 		$providerManager->registerProviders($this->providerMap);
 	}
 }

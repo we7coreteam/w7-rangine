@@ -23,7 +23,6 @@ use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Fluent;
-use W7\App;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
@@ -31,7 +30,10 @@ use W7\Core\Database\Event\QueryExecutedEvent;
 use W7\Core\Database\Event\TransactionBeginningEvent;
 use W7\Core\Database\Event\TransactionCommittedEvent;
 use W7\Core\Database\Event\TransactionRolledBackEvent;
-use W7\Core\Dispatcher\EventDispatcher;
+use W7\Core\Facades\Config;
+use W7\Core\Facades\Context;
+use W7\Core\Facades\DB;
+use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
@@ -51,75 +53,69 @@ class DatabaseProvider extends ProviderAbstract {
 		});
 
 		$container = new Container();
-		$container->instance('db.connector.mysql', new ConnectorManager());
+		$connectorManager = new ConnectorManager(Config::get('app.pool.database', []));
+		$connectorManager->setEventDispatcher(Event::getFacadeRoot());
+		$container->instance('db.connector.mysql', $connectorManager);
 		ConnectorManager::registerConnector('mysql', MySqlConnector::class);
 
 		//侦听sql执行完后的事件，回收$connection
-		/**
-		 * @var EventDispatcher $dbDispatch
-		 */
-		$dbDispatch = ieventDispatcher();
-		$dbDispatch->setContainer($container);
+		Event::setContainer($container);
 
-		$dbDispatch->listen(QueryExecuted::class, function ($event) use ($container) {
+		Event::listen(QueryExecuted::class, function ($event) use ($container) {
 			/**
 			 * @var QueryExecuted $event
 			 */
-			ievent(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
+			Event::dispatch(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
 			/**
 			 *检测是否是事物里面的query
 			 */
-			if (App::getApp()->getContext()->getContextDataByKey('db-transaction')) {
+			if (Context::getContextDataByKey('db-transaction')) {
 				return false;
 			}
 			return $this->releaseDb($event, $container);
 		});
-		$dbDispatch->listen(TransactionBeginning::class, function ($event) {
+		Event::listen(TransactionBeginning::class, function ($event) {
 			/**
 			 * @var TransactionBeginning $event
 			 */
-			ievent(new TransactionBeginningEvent($event->connection));
+			Event::dispatch(new TransactionBeginningEvent($event->connection));
 
-			App::getApp()->getContext()->setContextDataByKey('db-transaction', $event->connection);
+			Context::setContextDataByKey('db-transaction', $event->connection);
 		});
-		$dbDispatch->listen(TransactionCommitted::class, function ($event) use ($container) {
-			if (idb()->transactionLevel() === 0) {
+		Event::listen(TransactionCommitted::class, function ($event) use ($container) {
+			if (DB::transactionLevel() === 0) {
 				/**
 				 * @var TransactionCommitted $event
 				 */
-				ievent(new TransactionCommittedEvent($event->connection));
+				Event::dispatch(new TransactionCommittedEvent($event->connection));
 
-				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
+				Context::setContextDataByKey('db-transaction', null);
 				return $this->releaseDb($event, $container);
 			}
 		});
-		$dbDispatch->listen(TransactionRolledBack::class, function ($event) use ($container) {
-			if (idb()->transactionLevel() === 0) {
+		Event::listen(TransactionRolledBack::class, function ($event) use ($container) {
+			if (DB::transactionLevel() === 0) {
 				/**
 				 * @var TransactionRolledBack $event
 				 */
-				ievent(new TransactionRolledBackEvent($event->connection));
+				Event::dispatch(new TransactionRolledBackEvent($event->connection));
 
-				App::getApp()->getContext()->setContextDataByKey('db-transaction', null);
+				Context::setContextDataByKey('db-transaction', null);
 				return $this->releaseDb($event, $container);
 			}
 		});
 
-		$container->instance('events', $dbDispatch);
-
-		//添加配置信息到容器
-		$dbconfig = \iconfig()->getUserAppConfig('database');
-
+		$container->instance('events', Event::getFacadeRoot());
 		$container->instance('config', new Fluent());
 		$container['config']['database.default'] = 'default';
-		$container['config']['database.connections'] = $dbconfig;
+		$container['config']['database.connections'] = $this->config->get('app.database', []);
 		$factory = new ConnectionFactory($container);
 		$dbManager = new DatabaseManager($container, $factory);
 
-		Model::setEventDispatcher($dbDispatch);
+		Model::setEventDispatcher(Event::getFacadeRoot());
 		Model::setConnectionResolver($dbManager);
 
-		$container['db'] = idb();
+		$container['db'] = DB::getFacadeRoot();
 		Facade::setFacadeApplication($container);
 	}
 

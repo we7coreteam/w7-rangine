@@ -13,4 +13,7 @@
 namespace W7\Core\Exception;
 
 class ValidatorException extends ResponseExceptionAbstract {
+	public function __construct($message = '', $code = 0, \Throwable $previous = null) {
+		parent::__construct(json_encode(['error' => $message], JSON_UNESCAPED_UNICODE), $code, $previous);
+	}
 }

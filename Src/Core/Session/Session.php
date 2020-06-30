@@ -12,21 +12,17 @@
 
 namespace W7\Core\Session;
 
-use W7\Core\Helper\Traiter\HandlerTrait;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Session\Channel\ChannelAbstract;
-use W7\Core\Session\Event\SessionStartEvent;
+use W7\Core\Session\Channel\CookieChannel;
+use W7\Core\Session\Handler\FileHandler;
 use W7\Core\Session\Handler\HandlerAbstract;
-use W7\Http\Message\Server\Request;
-use W7\Http\Message\Server\Response;
-use W7\Http\Message\Contract\Session as SessionInterface;
 
 class Session implements SessionInterface {
-	use HandlerTrait;
-
 	private $config;
 	private $prefix;
 	private static $gcCondition;
-	private static $channelClass;
 	/**
 	 * @var ChannelAbstract
 	 */
@@ -34,77 +30,45 @@ class Session implements SessionInterface {
 	/**
 	 * @var HandlerAbstract
 	 */
-	private static $handler;
+	private $handler;
 	private $cache;
 
-	public function __construct() {
-		$this->config = iconfig()->getUserAppConfig('session');
-
-		$this->initPrefix();
-	}
-
-	private function initPrefix() {
+	public function __construct($config = []) {
+		$this->config = $config;
 		$this->prefix = $this->config['prefix'] ?? session_name();
 	}
 
-	private function initHandler() {
-		if (self::$handler) {
-			return true;
-		}
-
-		$handlerClass = $this->getHandlerClass();
-		$handler = new $handlerClass($this->config);
-		if (!($handler instanceof HandlerAbstract)) {
-			throw new \RuntimeException('session handler must instance of HandlerAbstract');
-		}
-		self::$handler = $handler;
-	}
-
-	private function getHandlerClass() {
-		$handler = $this->config['handler'] ?? 'file';
-
-		return $this->getHandlerClassByType('session', $handler);
-	}
-
-	public function getHandler() {
-		return self::$handler;
-	}
-
-	private function initChannel(Request $request) {
-		$channel = $this->getChannelClass();
+	private function initChannel(ServerRequestInterface $request) {
+		$channel = empty($this->config['channel']) ? CookieChannel::class : $this->config['channel'];
 		$this->channel = new $channel($this->config, $request);
 		if (!($this->channel instanceof ChannelAbstract)) {
 			throw new \RuntimeException('session channel must instance of ChannelAbstract');
 		}
 	}
 
-	private function getChannelClass() {
-		if (!self::$channelClass) {
-			$channel = $this->config['channel'] ?? 'cookie';
-			$class = sprintf('\\W7\\Core\\Session\\Channel\\%sChannel', ucfirst($channel));
-			if (!class_exists($class)) {
-				$class = sprintf('\\W7\\App\\Channel\\Session\\%sChannel', ucfirst($channel));
-			}
-			if (!class_exists($class)) {
-				throw new \RuntimeException('session not support this channel');
-			}
-			self::$channelClass = $class;
+	private function initHandler() {
+		if ($this->handler) {
+			return true;
 		}
 
-		return self::$channelClass;
+		$handler = empty($this->config['handler']) ? FileHandler::class : $this->config['handler'];
+		$handler = new $handler($this->config);
+		if (!($handler instanceof HandlerAbstract)) {
+			throw new \RuntimeException('session handler must instance of HandlerAbstract');
+		}
+
+		$this->handler = $handler;
 	}
 
-	private function getGcCondition() {
-		if (!self::$gcCondition) {
-			$gcDivisor = (int)($this->config['gc_divisor'] ?? ini_get('session.gc_divisor'));
-			$gcDivisor = $gcDivisor <= 0 ? 1 : $gcDivisor;
-			$gcProbability = (int)($this->config['gc_probability'] ?? ini_get('session.gc_probability'));
-			$gcProbability = $gcProbability <= 0 ? 1 : $gcProbability;
+	public function getHandler() {
+		return $this->handler;
+	}
 
-			self::$gcCondition = $gcDivisor / $gcProbability;
-		}
+	public function start(ServerRequestInterface $request) {
+		$this->cache = null;
 
-		return self::$gcCondition;
+		$this->initChannel($request);
+		$this->initHandler();
 	}
 
 	public function getRealId() {
@@ -127,7 +91,7 @@ class Session implements SessionInterface {
 		}
 
 		try {
-			$data = self::$handler->unpack(self::$handler->read($this->prefix . $this->getId()));
+			$data = $this->handler->unpack($this->handler->read($this->prefix . $this->getId()));
 			$data = !is_array($data) ? [] : $data;
 		} catch (\Throwable $e) {
 			$data = [];
@@ -137,19 +101,12 @@ class Session implements SessionInterface {
 		return $data;
 	}
 
-	public function start(Request $request) {
-		$this->initChannel($request);
-		$this->initHandler();
-
-		ievent(new SessionStartEvent($this));
-	}
-
 	public function set($key, $value) {
 		$data = $this->readSession();
 
 		$data[$key] = $value;
 		$this->cache[$key] = $value;
-		return self::$handler->write($this->prefix . $this->getId(), self::$handler->pack($data));
+		return $this->handler->write($this->prefix . $this->getId(), $this->handler->pack($data));
 	}
 
 	public function has($key) {
@@ -174,7 +131,7 @@ class Session implements SessionInterface {
 		}
 
 		if ($sessionData) {
-			return self::$handler->write($this->prefix . $this->getId(), self::$handler->pack($sessionData));
+			return $this->handler->write($this->prefix . $this->getId(), $this->handler->pack($sessionData));
 		}
 
 		return $this->destroy();
@@ -186,11 +143,11 @@ class Session implements SessionInterface {
 
 	public function destroy() {
 		$this->cache = null;
-		return self::$handler->destroy($this->prefix . $this->getId());
+		return $this->handler->destroy($this->prefix . $this->getId());
 	}
 
 	public function close() {
-		return self::$handler->close($this->getRealId());
+		return $this->handler->close($this->getRealId());
 	}
 
 	public function gc() {
@@ -200,12 +157,25 @@ class Session implements SessionInterface {
 		if ($requestNum > $condition) {
 			$requestNum = 0;
 			igo(function () {
-				self::$handler->gc(self::$handler->getExpires());
+				$this->handler->gc($this->handler->getExpires());
 			});
 		}
 	}
 
-	public function replenishResponse(Response $response) {
+	private function getGcCondition() {
+		if (!self::$gcCondition) {
+			$gcDivisor = (int)($this->config['gc_divisor'] ?? ini_get('session.gc_divisor'));
+			$gcDivisor = $gcDivisor <= 0 ? 1 : $gcDivisor;
+			$gcProbability = (int)($this->config['gc_probability'] ?? ini_get('session.gc_probability'));
+			$gcProbability = $gcProbability <= 0 ? 1 : $gcProbability;
+
+			self::$gcCondition = $gcDivisor / $gcProbability;
+		}
+
+		return self::$gcCondition;
+	}
+
+	public function replenishResponse(ResponseInterface $response) {
 		return $this->channel->replenishResponse($response);
 	}
 }

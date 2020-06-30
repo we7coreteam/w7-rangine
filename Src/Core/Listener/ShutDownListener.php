@@ -12,10 +12,11 @@
 
 namespace W7\Core\Listener;
 
+use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEvent;
 
 class ShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
-		ievent(ServerEvent::ON_USER_AFTER_SHUTDOWN, $params);
+		Event::dispatch(ServerEvent::ON_USER_AFTER_SHUTDOWN, $params);
 	}
 }

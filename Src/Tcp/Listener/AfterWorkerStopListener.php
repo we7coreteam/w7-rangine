@@ -13,12 +13,13 @@
 namespace W7\Tcp\Listener;
 
 use W7\App;
+use W7\Core\Facades\Container;
 use W7\Core\Listener\ListenerAbstract;
 
 class AfterWorkerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		if (icontainer()->has('tcp-client')) {
-			$clientCollector = icontainer()->get('tcp-client') ?? [];
+		if (Container::has('tcp-client')) {
+			$clientCollector = Container::get('tcp-client') ?? [];
 		} else {
 			$clientCollector = [];
 		}
@@ -30,6 +31,6 @@ class AfterWorkerStopListener extends ListenerAbstract {
 			App::$server->getServer()->exists($fd) && App::$server->getServer()->close($fd);
 		}
 
-		icontainer()->delete('tcp-client');
+		Container::delete('tcp-client');
 	}
 }

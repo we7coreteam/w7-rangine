@@ -14,6 +14,8 @@ namespace W7\Core\Dispatcher;
 
 use W7\App;
 use W7\Core\Exception\TaskException;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
 use W7\Core\Message\Message;
 use W7\Core\Message\TaskMessage;
 
@@ -56,17 +58,11 @@ class TaskDispatcher extends DispatcherAbstract {
 
 	/**
 	 * 注册一个协程任务
+	 * @param TaskMessage $message
+	 * @return mixed
+	 * @throws TaskException
 	 */
-	public function registerCo(...$params) {
-		/**
-		 * @var TaskMessage $message
-		 */
-		list($message) = $params;
-
-		if (!($message instanceof TaskMessage)) {
-			throw new \RuntimeException('Invalid task message');
-		}
-
+	public function registerCo(TaskMessage $message) {
 		if (!isWorkerStatus()) {
 			throw new TaskException('Please deliver task by http!');
 		}
@@ -81,27 +77,26 @@ class TaskDispatcher extends DispatcherAbstract {
 	/**
 	 * 在OnTask事件中执行具体任务
 	 * @param mixed ...$params
-	 * @return bool|mixed|void
+	 * @return mixed|void
+	 * @throws \Throwable
 	 */
 	public function dispatch(...$params) {
 		list($server, $taskId, $workId, $data) = $params;
 
 		$message = Message::unpack($data);
 
-		$context = App::getApp()->getContext();
-		$context->setContextDataByKey('workid', $workId);
-		$context->setContextDataByKey('coid', $taskId);
+		Context::setContextDataByKey('workid', $workId);
+		Context::setContextDataByKey('coid', $taskId);
 
 		if (!class_exists($message->task)) {
 			$message->task = 'W7\\App\\Task\\'. ucfirst($message->task);
 		}
 
 		if (!class_exists($message->task)) {
-			ilogger()->debug('task name is wrong name is ' . $message->task);
-			return false;
+			throw new \RuntimeException('task ' . $message->task . ' not exists');
 		}
 
-		$task = icontainer()->get($message->task);
+		$task = Container::get($message->task);
 		if (method_exists($task, 'finish')) {
 			$message->hasFinishCallback = true;
 		}

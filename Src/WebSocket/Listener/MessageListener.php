@@ -15,8 +15,11 @@ namespace W7\WebSocket\Listener;
 use Swoole\Coroutine;
 use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
+use W7\Core\Facades\Event;
+use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
-use W7\App;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Http\Message\Outputer\WebSocketResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
@@ -30,11 +33,10 @@ class MessageListener extends ListenerAbstract {
 	}
 
 	private function onMessage(Server $server, SwooleFrame $frame): bool {
-		$context = App::getApp()->getContext();
-		$context->setContextDataByKey('workid', $server->worker_id);
-		$context->setContextDataByKey('coid', Coroutine::getuid());
+		Context::setContextDataByKey('workid', $server->worker_id);
+		Context::setContextDataByKey('coid', Coroutine::getuid());
 
-		$collector = icontainer()->get('ws-client')[$frame->fd] ?? [];
+		$collector = Container::get('ws-client')[$frame->fd] ?? [];
 
 		/**
 		 * @var Psr7Request $psr7Request
@@ -49,17 +51,17 @@ class MessageListener extends ListenerAbstract {
 		//握手的Response只是为了响应握手，只处才是真正返回数据的Response
 		$psr7Response->setOutputer(new WebSocketResponseOutputer($server, $frame->fd));
 
-		App::getApp()->getContext()->setResponse($psr7Response);
-		App::getApp()->getContext()->setRequest($psr7Request);
+		Context::setResponse($psr7Response);
+		Context::setRequest($psr7Request);
 
-		ievent(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 
-		$dispatcher = icontainer()->singleton(Dispatcher::class);
+		$dispatcher = Container::singleton(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 		$psr7Response->send();
 
-		ievent(ServerEvent::ON_USER_AFTER_REQUEST);
-		icontext()->destroy();
+		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
+		Context::destroy();
 		return true;
 	}
 }

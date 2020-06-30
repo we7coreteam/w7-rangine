@@ -12,18 +12,19 @@
 
 namespace W7\Core\Dispatcher;
 
-use W7\App;
-use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Exception\RouteNotAllowException;
 use W7\Core\Exception\RouteNotFoundException;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
+use W7\Core\Facades\Event;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\Event\RouteMatchedEvent;
+use W7\Core\Route\RouteDispatcher;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
-use FastRoute\Dispatcher\GroupCountBased;
 
 class RequestDispatcher extends DispatcherAbstract {
 	/**
@@ -32,9 +33,9 @@ class RequestDispatcher extends DispatcherAbstract {
 	protected $middlewareMapping;
 	protected $serverType;
 	/**
-	 * @var GroupCountBased
+	 * @var RouteDispatcher
 	 */
-	protected $router;
+	protected $routerDispatcher;
 
 	public function __construct() {
 		//当不同类型的server一起启动时，需要区分middleware
@@ -46,8 +47,8 @@ class RequestDispatcher extends DispatcherAbstract {
 		$this->serverType = $type;
 	}
 
-	public function setRouter(GroupCountBased $router) {
-		$this->router = $router;
+	public function setRouterDispatcher(RouteDispatcher $routeDispatcher) {
+		$this->routerDispatcher = $routeDispatcher;
 	}
 
 	public function getMiddlewareMapping() {
@@ -62,23 +63,22 @@ class RequestDispatcher extends DispatcherAbstract {
 			 */
 			$psr7Request = $params[0];
 			$psr7Response = $params[1];
-			$contextObj = App::getApp()->getContext();
-			$contextObj->setRequest($psr7Request);
-			$contextObj->setResponse($psr7Response);
-			$contextObj->setContextDataByKey('server-type', $this->serverType);
+			Context::setRequest($psr7Request);
+			Context::setResponse($psr7Response);
+			Context::setContextDataByKey('server-type', $this->serverType);
 
 			//根据router配置，获取到匹配的controller信息
 			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
 			$route = $this->getRoute($psr7Request);
-			ievent(new RouteMatchedEvent($route, $psr7Request));
+			Event::dispatch(new RouteMatchedEvent($route, $psr7Request));
 			$psr7Request = $psr7Request->withAttribute('route', $route);
-			$contextObj->setRequest($psr7Request);
+			Context::setRequest($psr7Request);
 
 			$middleWares = $this->middlewareMapping->getRouteMiddleWares($route);
 			$middlewareHandler = new MiddlewareHandler($middleWares);
 			return $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $e) {
-			return icontainer()->singleton(HandlerExceptions::class)->handle($e);
+			return Container::singleton(HandlerExceptions::class)->handle($e, $this->serverType);
 		}
 	}
 
@@ -86,17 +86,17 @@ class RequestDispatcher extends DispatcherAbstract {
 		$httpMethod = $request->getMethod();
 		$url = $request->getUri()->getPath();
 
-		$route = $this->router->dispatch($httpMethod, $url);
+		$route = $this->routerDispatcher->dispatch($httpMethod, $url);
 
 		$controller = $method = '';
 		switch ($route[0]) {
-			case Dispatcher::NOT_FOUND:
+			case RouteDispatcher::NOT_FOUND:
 				throw new RouteNotFoundException('Route not found, ' . $url, 404);
 				break;
-			case Dispatcher::METHOD_NOT_ALLOWED:
+			case RouteDispatcher::METHOD_NOT_ALLOWED:
 				throw new RouteNotAllowException('Route not allowed, ' . $url, 405);
 				break;
-			case Dispatcher::FOUND:
+			case RouteDispatcher::FOUND:
 				if ($route[1]['handler'] instanceof \Closure) {
 					$controller = $route[1]['handler'];
 					$method = '';
@@ -113,6 +113,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			'controller' => $controller,
 			'args' => $route[2],
 			'middleware' => $route[1]['middleware']['before'],
+			'defaults' => $route[1]['defaults']
 		];
 	}
 }

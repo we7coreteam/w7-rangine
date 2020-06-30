@@ -12,8 +12,8 @@
 
 namespace W7\Core\Session\Channel;
 
-use W7\Http\Message\Server\Request;
-use W7\Http\Message\Server\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 abstract class ChannelAbstract {
 	protected $config;
@@ -21,11 +21,11 @@ abstract class ChannelAbstract {
 	protected $sessionId;
 	protected $expires;
 	/**
-	 * @var Request
+	 * @var ServerRequestInterface
 	 */
 	protected $request;
 
-	public function __construct($config, Request $request) {
+	public function __construct($config, ServerRequestInterface $request) {
 		$this->config = $config;
 		$this->request = $request;
 	}
@@ -54,5 +54,5 @@ abstract class ChannelAbstract {
 		$this->sessionId = $sessionId;
 	}
 
-	abstract public function replenishResponse(Response $response) : Response;
+	abstract public function replenishResponse(ResponseInterface $response) : ResponseInterface;
 }

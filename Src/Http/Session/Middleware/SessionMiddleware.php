@@ -15,17 +15,18 @@ namespace W7\Http\Session\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\App;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Context;
 use W7\Core\Middleware\MiddlewareAbstract;
 use W7\Core\Session\Session;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		$request->session = new Session();
+		$request->session = Container::clone(Session::class);
 		$request->session->start($request);
 		$request->session->gc();
 
-		App::getApp()->getContext()->setResponse($request->session->replenishResponse(App::getApp()->getContext()->getResponse()));
+		Context::setResponse($request->session->replenishResponse(Context::getResponse()));
 
 		return $handler->handle($request);
 	}

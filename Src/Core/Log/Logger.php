@@ -14,19 +14,13 @@ namespace W7\Core\Log;
 
 use Monolog\Handler\BufferHandler;
 
+/**
+ * Class Logger
+ * @package W7\Core\Log
+ *
+ * @property $bufferLimit
+ */
 class Logger extends \Monolog\Logger {
-	/**
-	 * @param $name
-	 * @return \Monolog\Logger
-	 */
-	public function channel($name) {
-		/**
-		 * @var LogManager $logManager
-		 */
-		$logManager = icontainer()->singleton(LogManager::class);
-		return $logManager->getChannel($name);
-	}
-
 	public function addRecord($level, $message, array $context = array()) {
 		$result =  parent::addRecord($level, $message, $context);
 

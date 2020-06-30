@@ -13,16 +13,15 @@
 namespace W7\Tcp\Server;
 
 use Swoole\Server as TcpServer;
+use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Server\SwooleServerAbstract;
-use W7\Core\View\Provider\ViewProvider;
 use W7\Tcp\Session\Provider\SessionProvider;
 
 class Server extends SwooleServerAbstract {
 	protected $providerMap = [
-		SessionProvider::class,
-		ViewProvider::class
+		'tcp-session' => SessionProvider::class
 	];
 
 	public function getType() {
@@ -43,7 +42,7 @@ class Server extends SwooleServerAbstract {
 		//执行一些公共操作，注册事件等
 		$this->registerService();
 
-		ievent(ServerEvent::ON_USER_BEFORE_START, [$this->server]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
 
 		$this->server->start();
 	}

@@ -18,30 +18,18 @@ abstract class CacheAbstract implements CacheInterface {
 	/**
 	 * @var ConnectorManager
 	 */
-	protected $manager;
-	protected $channelName = 'default';
+	protected static $connectionResolver;
+	protected $channelName;
 
-	/**
-	 * 选择一个缓存通道
-	 * @param $name
-	 * @return $this
-	 */
-	public function channel($name) {
-		if (empty($name)) {
-			throw new \RuntimeException('Invalid cache channel name');
-		}
-		if (!icontainer()->has('cache-' . $name)) {
-			throw new \RuntimeException('cache not support the channel');
-		}
-		return icontainer()->get('cache-' . $name);
+	public function __construct($name = 'default') {
+		$this->channelName = $name;
+	}
+
+	public static function setConnectionResolver(ConnectorManager $connectorManager) {
+		static::$connectionResolver = $connectorManager;
 	}
 
 	protected function getConnection() {
-		$this->manager = icontainer()->singleton(ConnectorManager::class);
-		return $this->manager->connect($this->channelName);
-	}
-
-	public function setChannelName(string $channelName) {
-		$this->channelName = $channelName;
+		return static::$connectionResolver->connect($this->channelName);
 	}
 }
