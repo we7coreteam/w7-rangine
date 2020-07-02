@@ -13,10 +13,8 @@
 namespace W7\Core\Log\Provider;
 
 use Monolog\Logger as MonoLogger;
-use W7\Core\Facades\Event;
 use W7\Core\Log\Processor\SwooleProcessor;
 use W7\Core\Provider\ProviderAbstract;
-use W7\Core\Server\ServerEvent;
 
 class LogProvider extends ProviderAbstract {
 	public function register() {
@@ -57,20 +55,21 @@ class LogProvider extends ProviderAbstract {
 	}
 
 	public function boot() {
-		//如果env中包含CLEAR_LOG，启动后先执行清空日志
-		Event::listen(ServerEvent::ON_USER_AFTER_START, function () {
-			if ((ENV & CLEAR_LOG) !== CLEAR_LOG) {
-				return false;
-			}
-			$logPath = RUNTIME_PATH . DS. 'logs/*';
-			$tree = glob($logPath);
-			if (!empty($tree)) {
-				foreach ($tree as $file) {
-					if (strstr($file, '.log') !== false) {
-						unlink($file);
-					}
+		$this->clearLog();
+	}
+
+	private function clearLog() {
+		if ((ENV & CLEAR_LOG) !== CLEAR_LOG) {
+			return false;
+		}
+		$logPath = RUNTIME_PATH . DS. 'logs/*';
+		$tree = glob($logPath);
+		if (!empty($tree)) {
+			foreach ($tree as $file) {
+				if (strstr($file, '.log') !== false) {
+					unlink($file);
 				}
 			}
-		});
+		}
 	}
 }
