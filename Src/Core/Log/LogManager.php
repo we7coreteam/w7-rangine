@@ -81,11 +81,11 @@ class LogManager {
 			$handlers[] = new LogBuffer($handler::getHandler($config), $logger->bufferLimit, $config['level'], true, true);
 		} else {
 			$config['channel'] = (array)$config['channel'];
-			foreach ($config['channel'] as $channel) {
+			foreach ($config['channel'] as $childChannel) {
 				/**
 				 * @var Logger $channelLogger
 				 */
-				$channelLogger = $this->getLogger($channel);
+				$channelLogger = $this->getLogger($childChannel);
 				$handlers = array_merge($handlers, $channelLogger->getHandlers());
 			}
 		}
