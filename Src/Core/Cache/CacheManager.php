@@ -55,7 +55,7 @@ class CacheManager {
 		$cache = new Cache($channel, $config);
 		$cache->setConnectionResolver($this->connectorResolver);
 
-		return $cache;
+		$this->caches[$channel] = $cache;
 	}
 
 	public function __call($name, $arguments) {

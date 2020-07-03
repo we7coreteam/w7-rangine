@@ -29,7 +29,9 @@ class CacheProvider extends ProviderAbstract {
 			$connectorManager = new ConnectorManager($poolConfig);
 			$connectorManager->setEventDispatcher(Event::getFacadeRoot());
 
-			return new CacheManager($connectionConfig);
+			$cacheManager = new CacheManager($connectionConfig);
+			$cacheManager->setConnectorResolver($connectorManager);
+			return $cacheManager;
 		});
 	}
 

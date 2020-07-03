@@ -278,7 +278,7 @@ class Cache extends CacheAbstract {
 			$result = null;
 		}
 
-		static::$connectionResolver->release($connection);
+		$this->connectionResolver->release($connection);
 
 		return $result;
 	}
