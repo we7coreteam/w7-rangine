@@ -12,7 +12,6 @@
 
 namespace W7\Core\Facades;
 
-use Illuminate\Database\Eloquent\Model;
 use W7\Core\Database\DatabaseManager;
 
 /**
@@ -46,10 +45,6 @@ use W7\Core\Database\DatabaseManager;
  */
 class DB extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
-		return '';
-	}
-
-	public static function getFacadeRoot() {
-		return Model::getConnectionResolver();
+		return DatabaseManager::class;
 	}
 }

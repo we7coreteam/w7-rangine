@@ -21,7 +21,6 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
-use Illuminate\Support\Facades\Facade;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\DatabaseManager;
@@ -29,6 +28,7 @@ use W7\Core\Database\Event\QueryExecutedEvent;
 use W7\Core\Database\Event\TransactionBeginningEvent;
 use W7\Core\Database\Event\TransactionCommittedEvent;
 use W7\Core\Database\Event\TransactionRolledBackEvent;
+use W7\Core\Database\ModelAbstract;
 use W7\Core\Facades\Config;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\DB;
@@ -37,84 +37,80 @@ use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
 	public function register() {
-		$this->registerDb();
+		$this->registerConnectionResolver();
 	}
 
-	/**
-	 * model -> newQuery -> DatabaseMananger -> function connection ->
-	 *      Factory -> createConnector 拿到一个Pdo连接 （ConnectorManager -> 从连接池里拿一个Pdo连接） -> createConnection 放置Pdo连接，生成连接操作对象 (PdoMysqlConnection)
-	 *
-	 * @return bool
-	 */
-	private function registerDb() {
-		Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
-			return new PdoMysqlConnection($connection, $database, $prefix, $config);
-		});
+	private function registerConnectionResolver() {
+		$this->container->set(DatabaseManager::class, function () {
+			Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
+				return new PdoMysqlConnection($connection, $database, $prefix, $config);
+			});
 
-		$connectorManager = new ConnectorManager(Config::get('app.pool.database', []));
-		$connectorManager->setEventDispatcher(Event::getFacadeRoot());
-		ConnectorManager::registerConnector('mysql', MySqlConnector::class);
+			$connectorManager = new ConnectorManager(Config::get('app.pool.database', []));
+			$connectorManager->setEventDispatcher(Event::getFacadeRoot());
+			ConnectorManager::registerConnector('mysql', MySqlConnector::class);
 
-		/**
-		 * @var Container $container
-		 */
-		$container = $this->container->get(Container::class);
-		$container->instance('db.connector.mysql', $connectorManager);
-
-		Event::listen(QueryExecuted::class, function ($event) use ($container) {
 			/**
-			 * @var QueryExecuted $event
+			 * @var Container $container
 			 */
-			Event::dispatch(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
-			/**
-			 *检测是否是事物里面的query
-			 */
-			if (Context::getContextDataByKey('db-transaction')) {
-				return false;
-			}
-			return $this->releaseDb($event, $container);
-		});
-		Event::listen(TransactionBeginning::class, function ($event) {
-			/**
-			 * @var TransactionBeginning $event
-			 */
-			Event::dispatch(new TransactionBeginningEvent($event->connection));
+			$container = $this->container->get(Container::class);
+			$container->instance('db.connector.mysql', $connectorManager);
 
-			Context::setContextDataByKey('db-transaction', $event->connection);
-		});
-		Event::listen(TransactionCommitted::class, function ($event) use ($container) {
-			if (DB::transactionLevel() === 0) {
+			Event::listen(QueryExecuted::class, function ($event) use ($container) {
 				/**
-				 * @var TransactionCommitted $event
+				 * @var QueryExecuted $event
 				 */
-				Event::dispatch(new TransactionCommittedEvent($event->connection));
-
-				Context::setContextDataByKey('db-transaction', null);
-				return $this->releaseDb($event, $container);
-			}
-		});
-		Event::listen(TransactionRolledBack::class, function ($event) use ($container) {
-			if (DB::transactionLevel() === 0) {
+				Event::dispatch(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
 				/**
-				 * @var TransactionRolledBack $event
+				 *检测是否是事物里面的query
 				 */
-				Event::dispatch(new TransactionRolledBackEvent($event->connection));
-
-				Context::setContextDataByKey('db-transaction', null);
+				if (Context::getContextDataByKey('db-transaction')) {
+					return false;
+				}
 				return $this->releaseDb($event, $container);
-			}
+			});
+			Event::listen(TransactionBeginning::class, function ($event) {
+				/**
+				 * @var TransactionBeginning $event
+				 */
+				Event::dispatch(new TransactionBeginningEvent($event->connection));
+
+				Context::setContextDataByKey('db-transaction', $event->connection);
+			});
+			Event::listen(TransactionCommitted::class, function ($event) use ($container) {
+				if (DB::transactionLevel() === 0) {
+					/**
+					 * @var TransactionCommitted $event
+					 */
+					Event::dispatch(new TransactionCommittedEvent($event->connection));
+
+					Context::setContextDataByKey('db-transaction', null);
+					return $this->releaseDb($event, $container);
+				}
+			});
+			Event::listen(TransactionRolledBack::class, function ($event) use ($container) {
+				if (DB::transactionLevel() === 0) {
+					/**
+					 * @var TransactionRolledBack $event
+					 */
+					Event::dispatch(new TransactionRolledBackEvent($event->connection));
+
+					Context::setContextDataByKey('db-transaction', null);
+					return $this->releaseDb($event, $container);
+				}
+			});
+
+			$container['config']['database.default'] = 'default';
+			$container['config']['database.connections'] = $this->config->get('app.database', []);
+			$factory = new ConnectionFactory($container);
+
+			$databaseManager =  new DatabaseManager($container, $factory);
+
+			Model::setEventDispatcher(Event::getFacadeRoot());
+			Model::setConnectionResolver($databaseManager);
+
+			return $databaseManager;
 		});
-
-		$container['config']['database.default'] = 'default';
-		$container['config']['database.connections'] = $this->config->get('app.database', []);
-		$factory = new ConnectionFactory($container);
-		$dbManager = new DatabaseManager($container, $factory);
-
-		Model::setEventDispatcher(Event::getFacadeRoot());
-		Model::setConnectionResolver($dbManager);
-
-		$container['db'] = DB::getFacadeRoot();
-		Facade::setFacadeApplication($container);
 	}
 
 	private function releaseDb($data, $container) {
@@ -139,5 +135,9 @@ class DatabaseProvider extends ProviderAbstract {
 			return true;
 		}
 		$pool->releaseConnection($activePdo);
+	}
+
+	public function providers(): array {
+		return [ModelAbstract::class, Model::class, DatabaseManager::class];
 	}
 }
