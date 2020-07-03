@@ -15,21 +15,24 @@ namespace W7\Core\Cache;
 use Psr\SimpleCache\CacheInterface;
 
 abstract class CacheAbstract implements CacheInterface {
+	protected $cacheName;
+	protected $config;
 	/**
 	 * @var ConnectorManager
 	 */
-	protected static $connectionResolver;
-	protected $channelName;
+	protected $connectionResolver;
 
-	public function __construct($name = 'default') {
-		$this->channelName = $name;
+	public function __construct($name, array $config = []) {
+		$this->cacheName = $name;
+		$config['name'] = $name;
+		$this->config = $config;
 	}
 
-	public static function setConnectionResolver(ConnectorManager $connectorManager) {
-		static::$connectionResolver = $connectorManager;
+	public function setConnectionResolver(ConnectorManager $connectorManager) {
+		$this->connectionResolver = $connectorManager;
 	}
 
 	protected function getConnection() {
-		return static::$connectionResolver->connect($this->channelName);
+		return $this->connectionResolver->connect($this->config);
 	}
 }

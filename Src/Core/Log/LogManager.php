@@ -44,10 +44,6 @@ class LogManager {
 		$this->defaultChannel = $channel;
 	}
 
-	public function getDefaultChannel() {
-		return $this->defaultChannel;
-	}
-
 	/**
 	 * 需调整
 	 * @param string $channel
@@ -57,22 +53,22 @@ class LogManager {
 		return $this->getLogger($channel);
 	}
 
-	public function getLogger($channel) : LoggerInterface {
+	protected function getLogger($channel) : LoggerInterface {
 		if (empty($this->loggers[$channel]) && !empty($this->channelsConfig[$channel])) {
 			$this->registerLogger($channel, $this->channelsConfig[$channel]);
 		}
+		if (empty($this->loggers[$channel])) {
+			$channel = $this->defaultChannel;
+		}
 
-		if (!isset($this->loggers[$channel])) {
-			$channel = $this->getDefaultChannel();
+		if (!empty($this->loggers[$channel]) && $this->loggers[$channel] instanceof MonoLogger) {
+			return $this->loggers[$channel];
 		}
-		if (!isset($this->channelsConfig[$channel]) & $this->channelsConfig[$channel] instanceof MonoLogger) {
-			return $this->channelsConfig[$channel];
-		} else {
-			throw new \RuntimeException('logger channel ' . $channel . ' not support');
-		}
+
+		throw new \RuntimeException('logger channel ' . $channel . ' not support');
 	}
 
-	public function registerLogger($channel, $config = []) {
+	public function registerLogger($channel, array $config) {
 		$logger = new Logger($channel, [], []);
 		$logger->bufferLimit = $config['buffer_limit'] ?? 1;
 
