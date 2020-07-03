@@ -29,7 +29,7 @@ class Container implements ContainerInterface {
 
 	public function registerDeferredService($services) {
 		$services = (array)$services;
-		$this->deferredServices = array_merge($this->deferredServices, $services);
+		$this->deferredServices = array_unique(array_merge($this->deferredServices, $services));
 	}
 
 	public function registerDeferredServiceLoader(\Closure $loader) {
