@@ -13,6 +13,7 @@
 namespace W7\Core\Facades;
 
 use Psr\Log\LoggerInterface;
+use W7\Core\Log\LogManager;
 
 /**
  * Class Logger
@@ -27,28 +28,12 @@ use Psr\Log\LoggerInterface;
  * @method static void info(string $message, array $context = [])
  * @method static void debug(string $message, array $context = [])
  * @method static void log($level, string $message, array $context = [])
+ * @method static LoggerInterface channel($name = 'stack')
  *
  * @see \W7\Core\Log\Logger
  */
 class Logger extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
-		return '';
-	}
-
-	public static function getFacadeRoot() {
-		return self::channel();
-	}
-
-	/**
-	 * 需调整
-	 * @param string $name
-	 * @return LoggerInterface
-	 */
-	public static function channel($name = 'stack') : LoggerInterface {
-		if (!self::getContainer()->has('logger-' . $name)) {
-			$name = 'stack';
-		}
-
-		return self::getContainer()->get('logger-' . $name);
+		return LogManager::class;
 	}
 }
