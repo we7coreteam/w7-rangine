@@ -38,6 +38,10 @@ use W7\Core\Provider\ProviderAbstract;
 class DatabaseProvider extends ProviderAbstract {
 	public function register() {
 		$this->registerConnectionResolver();
+		$this->registerDbEvent();
+
+		Model::setEventDispatcher(Event::getFacadeRoot());
+		Model::setConnectionResolver($this->container->get(DatabaseManager::class));
 	}
 
 	private function registerConnectionResolver() {
@@ -56,60 +60,62 @@ class DatabaseProvider extends ProviderAbstract {
 			$container = $this->container->get(Container::class);
 			$container->instance('db.connector.mysql', $connectorManager);
 
-			Event::listen(QueryExecuted::class, function ($event) use ($container) {
-				/**
-				 * @var QueryExecuted $event
-				 */
-				Event::dispatch(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
-				/**
-				 *检测是否是事物里面的query
-				 */
-				if (Context::getContextDataByKey('db-transaction')) {
-					return false;
-				}
-				return $this->releaseDb($event, $container);
-			});
-			Event::listen(TransactionBeginning::class, function ($event) {
-				/**
-				 * @var TransactionBeginning $event
-				 */
-				Event::dispatch(new TransactionBeginningEvent($event->connection));
-
-				Context::setContextDataByKey('db-transaction', $event->connection);
-			});
-			Event::listen(TransactionCommitted::class, function ($event) use ($container) {
-				if (DB::transactionLevel() === 0) {
-					/**
-					 * @var TransactionCommitted $event
-					 */
-					Event::dispatch(new TransactionCommittedEvent($event->connection));
-
-					Context::setContextDataByKey('db-transaction', null);
-					return $this->releaseDb($event, $container);
-				}
-			});
-			Event::listen(TransactionRolledBack::class, function ($event) use ($container) {
-				if (DB::transactionLevel() === 0) {
-					/**
-					 * @var TransactionRolledBack $event
-					 */
-					Event::dispatch(new TransactionRolledBackEvent($event->connection));
-
-					Context::setContextDataByKey('db-transaction', null);
-					return $this->releaseDb($event, $container);
-				}
-			});
-
 			$container['config']['database.default'] = 'default';
 			$container['config']['database.connections'] = $this->config->get('app.database', []);
 			$factory = new ConnectionFactory($container);
 
-			$databaseManager =  new DatabaseManager($container, $factory);
+			return new DatabaseManager($container, $factory);
+		});
+	}
 
-			Model::setEventDispatcher(Event::getFacadeRoot());
-			Model::setConnectionResolver($databaseManager);
+	private function registerDbEvent() {
+		/**
+		 * @var Container $container
+		 */
+		$container = $this->container->get(Container::class);
 
-			return $databaseManager;
+		Event::listen(QueryExecuted::class, function ($event) use ($container) {
+			/**
+			 * @var QueryExecuted $event
+			 */
+			Event::dispatch(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
+			/**
+			 *检测是否是事物里面的query
+			 */
+			if (Context::getContextDataByKey('db-transaction')) {
+				return false;
+			}
+			return $this->releaseDb($event, $container);
+		});
+		Event::listen(TransactionBeginning::class, function ($event) {
+			/**
+			 * @var TransactionBeginning $event
+			 */
+			Event::dispatch(new TransactionBeginningEvent($event->connection));
+
+			Context::setContextDataByKey('db-transaction', $event->connection);
+		});
+		Event::listen(TransactionCommitted::class, function ($event) use ($container) {
+			if (DB::transactionLevel() === 0) {
+				/**
+				 * @var TransactionCommitted $event
+				 */
+				Event::dispatch(new TransactionCommittedEvent($event->connection));
+
+				Context::setContextDataByKey('db-transaction', null);
+				return $this->releaseDb($event, $container);
+			}
+		});
+		Event::listen(TransactionRolledBack::class, function ($event) use ($container) {
+			if (DB::transactionLevel() === 0) {
+				/**
+				 * @var TransactionRolledBack $event
+				 */
+				Event::dispatch(new TransactionRolledBackEvent($event->connection));
+
+				Context::setContextDataByKey('db-transaction', null);
+				return $this->releaseDb($event, $container);
+			}
 		});
 	}
 
