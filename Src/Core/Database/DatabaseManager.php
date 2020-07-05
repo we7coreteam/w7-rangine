@@ -12,6 +12,7 @@
 
 namespace W7\Core\Database;
 
+use Illuminate\Database\ConnectionInterface;
 use W7\Core\Facades\Context;
 
 class DatabaseManager extends \Illuminate\Database\DatabaseManager {
@@ -19,22 +20,55 @@ class DatabaseManager extends \Illuminate\Database\DatabaseManager {
 		list($database, $type) = $this->parseConnectionName($name);
 		$name = $name ?: $database;
 
-		//这里不同于父函数，要做一个单例返回
-		//外部还会接连接池，所以此处直接生成对象
-		$connection = Context::getContextDataByKey('db-transaction');
-		if ($connection) {
-			$this->connections[$name] = $connection;
-		} else {
-			$this->connections[$name] = $this->configure(
-				$this->makeConnection($database),
-				$type
-			);
+		$name = $this->getContextKey($name);
+		$connection = Context::getContextDataByKey($name);
+
+		if (! $connection instanceof ConnectionInterface) {
+			try {
+				$connection = $this->configure(
+					$this->makeConnection($database),
+					$type
+				);
+				Context::setContextDataByKey($name, $connection);
+			} finally {
+				if ($connection && isCo()) {
+					defer(function () use ($connection) {
+						$this->releaseConnection($connection);
+					});
+				}
+			}
 		}
 
-		return $this->connections[$name];
+		return $connection;
 	}
 
 	public function beginTransaction($name = null) {
 		return $this->connection($name)->beginTransaction();
+	}
+
+	private function releaseConnection($connection) {
+		$poolName = $connection->getPoolName();
+		if (empty($poolName)) {
+			return true;
+		}
+		list($poolType, $poolName) = explode(':', $poolName);
+		if (empty($poolType)) {
+			$poolType = 'mysql';
+		}
+
+		$activePdo = $connection->getActiveConnection();
+		if (empty($activePdo)) {
+			return false;
+		}
+		$connectorManager = $this->app->make('db.connector.' . $poolType);
+		$pool = $connectorManager->getCreatedPool($poolName);
+		if (empty($pool)) {
+			return true;
+		}
+		$pool->releaseConnection($activePdo);
+	}
+
+	private function getContextKey($name): string {
+		return sprintf('database.connection.%s', $name);
 	}
 }

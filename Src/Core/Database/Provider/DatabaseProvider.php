@@ -30,8 +30,6 @@ use W7\Core\Database\Event\TransactionCommittedEvent;
 use W7\Core\Database\Event\TransactionRolledBackEvent;
 use W7\Core\Database\ModelAbstract;
 use W7\Core\Facades\Config;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\DB;
 use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
 
@@ -69,78 +67,18 @@ class DatabaseProvider extends ProviderAbstract {
 	}
 
 	private function registerDbEvent() {
-		/**
-		 * @var Container $container
-		 */
-		$container = $this->container->get(Container::class);
-
-		Event::listen(QueryExecuted::class, function ($event) use ($container) {
-			/**
-			 * @var QueryExecuted $event
-			 */
+		Event::listen(QueryExecuted::class, function ($event) {
 			Event::dispatch(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
-			/**
-			 *检测是否是事物里面的query
-			 */
-			if (Context::getContextDataByKey('db-transaction')) {
-				return false;
-			}
-			return $this->releaseDb($event, $container);
 		});
 		Event::listen(TransactionBeginning::class, function ($event) {
-			/**
-			 * @var TransactionBeginning $event
-			 */
 			Event::dispatch(new TransactionBeginningEvent($event->connection));
-
-			Context::setContextDataByKey('db-transaction', $event->connection);
 		});
-		Event::listen(TransactionCommitted::class, function ($event) use ($container) {
-			if (DB::transactionLevel() === 0) {
-				/**
-				 * @var TransactionCommitted $event
-				 */
-				Event::dispatch(new TransactionCommittedEvent($event->connection));
-
-				Context::setContextDataByKey('db-transaction', null);
-				return $this->releaseDb($event, $container);
-			}
+		Event::listen(TransactionCommitted::class, function ($event) {
+			Event::dispatch(new TransactionCommittedEvent($event->connection));
 		});
-		Event::listen(TransactionRolledBack::class, function ($event) use ($container) {
-			if (DB::transactionLevel() === 0) {
-				/**
-				 * @var TransactionRolledBack $event
-				 */
-				Event::dispatch(new TransactionRolledBackEvent($event->connection));
-
-				Context::setContextDataByKey('db-transaction', null);
-				return $this->releaseDb($event, $container);
-			}
+		Event::listen(TransactionRolledBack::class, function ($event) {
+			Event::dispatch(new TransactionRolledBackEvent($event->connection));
 		});
-	}
-
-	private function releaseDb($data, $container) {
-		$connection = $data->connection;
-
-		$poolName = $connection->getPoolName();
-		if (empty($poolName)) {
-			return true;
-		}
-		list($poolType, $poolName) = explode(':', $poolName);
-		if (empty($poolType)) {
-			$poolType = 'mysql';
-		}
-
-		$activePdo = $connection->getActiveConnection();
-		if (empty($activePdo)) {
-			return false;
-		}
-		$connectorManager = $container->make('db.connector.' . $poolType);
-		$pool = $connectorManager->getCreatedPool($poolName);
-		if (empty($pool)) {
-			return true;
-		}
-		$pool->releaseConnection($activePdo);
 	}
 
 	public function providers(): array {
