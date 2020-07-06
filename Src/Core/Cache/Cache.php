@@ -278,8 +278,6 @@ class Cache extends CacheAbstract {
 			$result = null;
 		}
 
-		$this->connectionResolver->release($connection);
-
 		return $result;
 	}
 }
