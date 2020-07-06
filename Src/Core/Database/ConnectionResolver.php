@@ -13,9 +13,10 @@
 namespace W7\Core\Database;
 
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\DatabaseManager;
 use W7\Core\Facades\Context;
 
-class DatabaseManager extends \Illuminate\Database\DatabaseManager {
+class ConnectionResolver extends DatabaseManager {
 	public function connection($name = null) {
 		list($database, $type) = $this->parseConnectionName($name);
 		$name = $name ?: $database;

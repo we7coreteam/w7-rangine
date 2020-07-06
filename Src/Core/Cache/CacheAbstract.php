@@ -13,6 +13,7 @@
 namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
+use W7\Core\Facades\Context;
 
 abstract class CacheAbstract implements CacheInterface {
 	protected $cacheName;
@@ -33,6 +34,26 @@ abstract class CacheAbstract implements CacheInterface {
 	}
 
 	protected function getConnection() {
-		return $this->connectionResolver->connect($this->config);
+		$name = $this->getContextKey($this->cacheName);
+		$connection = Context::getContextDataByKey($name);
+
+		if (! $connection instanceof CacheInterface) {
+			try {
+				$connection = $this->connectionResolver->connect($this->config);
+				Context::setContextDataByKey($name, $connection);
+			} finally {
+				if ($connection && isCo()) {
+					defer(function () use ($connection) {
+						$this->connectionResolver->release($connection);
+					});
+				}
+			}
+		}
+
+		return $connection;
+	}
+
+	private function getContextKey($name): string {
+		return sprintf('cache.connection.%s', $name);
 	}
 }
