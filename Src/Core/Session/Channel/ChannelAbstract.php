@@ -18,7 +18,6 @@ use Psr\Http\Message\ServerRequestInterface;
 abstract class ChannelAbstract {
 	protected $config;
 	protected static $sessionName;
-	protected $sessionId;
 	protected $expires;
 	/**
 	 * @var ServerRequestInterface
@@ -37,22 +36,6 @@ abstract class ChannelAbstract {
 		return static::$sessionName;
 	}
 
-	protected function generateId() {
-		$sessionId = session_id();
-		return !empty($sessionId) ? $sessionId : \session_create_id();
-	}
-
-	final public function getSessionId() {
-		if (!$this->sessionId) {
-			$this->sessionId = $this->generateId();
-		}
-
-		return $this->sessionId;
-	}
-
-	final public function setSessionId($sessionId) {
-		$this->sessionId = $sessionId;
-	}
-
-	abstract public function replenishResponse(ResponseInterface $response) : ResponseInterface;
+	abstract public function getSessionId() : string ;
+	abstract public function replenishResponse(ResponseInterface $response, $sessionId) : ResponseInterface;
 }
