@@ -22,8 +22,8 @@ use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
 use W7\Core\Database\Connection\PdoMysqlConnection;
+use W7\Core\Database\ConnectionResolver;
 use W7\Core\Database\ConnectorManager;
-use W7\Core\Database\DatabaseManager;
 use W7\Core\Database\Event\QueryExecutedEvent;
 use W7\Core\Database\Event\TransactionBeginningEvent;
 use W7\Core\Database\Event\TransactionCommittedEvent;
@@ -39,11 +39,11 @@ class DatabaseProvider extends ProviderAbstract {
 		$this->registerDbEvent();
 
 		Model::setEventDispatcher(Event::getFacadeRoot());
-		Model::setConnectionResolver($this->container->get(DatabaseManager::class));
+		Model::setConnectionResolver($this->container->get(ConnectionResolver::class));
 	}
 
 	private function registerConnectionResolver() {
-		$this->container->set(DatabaseManager::class, function () {
+		$this->container->set(ConnectionResolver::class, function () {
 			Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
 				return new PdoMysqlConnection($connection, $database, $prefix, $config);
 			});
@@ -62,7 +62,7 @@ class DatabaseProvider extends ProviderAbstract {
 			$container['config']['database.connections'] = $this->config->get('app.database', []);
 			$factory = new ConnectionFactory($container);
 
-			return new DatabaseManager($container, $factory);
+			return new ConnectionResolver($container, $factory);
 		});
 	}
 
@@ -82,6 +82,6 @@ class DatabaseProvider extends ProviderAbstract {
 	}
 
 	public function providers(): array {
-		return [ModelAbstract::class, Model::class, DatabaseManager::class];
+		return [ModelAbstract::class, Model::class, ConnectionResolver::class];
 	}
 }
