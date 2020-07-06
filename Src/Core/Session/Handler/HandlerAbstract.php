@@ -47,6 +47,4 @@ abstract class HandlerAbstract implements \SessionHandlerInterface {
 	public function close($session_id = '') {
 		return true;
 	}
-
-	abstract public function destroy($session_id);
 }
