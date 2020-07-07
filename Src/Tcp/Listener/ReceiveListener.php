@@ -61,9 +61,10 @@ class ReceiveListener extends ListenerAbstract {
 		$dispatcher = Container::singleton(RequestDispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
+		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
+
 		$psr7Response->send();
 
-		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
 		Context::destroy();
 	}
 }

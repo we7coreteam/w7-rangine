@@ -26,6 +26,7 @@ use W7\Core\View\Provider\ViewProvider;
 class ProviderManager {
 	private $providerMap = [
 		'exception' => ExceptionProvider::class,
+		'illuminate' => IlluminateProvider::class,
 		'event' => EventProvider::class,
 		'log' => LogProvider::class,
 		'router' => RouterProvider::class,

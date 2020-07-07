@@ -12,7 +12,7 @@
 
 namespace W7\Core\Session\Handler;
 
-abstract class HandlerAbstract implements \SessionHandlerInterface {
+abstract class HandlerAbstract extends \SessionHandler {
 	protected $config;
 	protected $expires;
 
@@ -48,5 +48,7 @@ abstract class HandlerAbstract implements \SessionHandlerInterface {
 		return true;
 	}
 
-	abstract public function destroy($session_id);
+	public function create_sid(){
+		return session_create_id();
+	}
 }

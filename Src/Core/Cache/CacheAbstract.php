@@ -13,23 +13,47 @@
 namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
+use W7\Core\Facades\Context;
 
 abstract class CacheAbstract implements CacheInterface {
+	protected $cacheName;
+	protected $config;
 	/**
 	 * @var ConnectorManager
 	 */
-	protected static $connectionResolver;
-	protected $channelName;
+	protected $connectionResolver;
 
-	public function __construct($name = 'default') {
-		$this->channelName = $name;
+	public function __construct($name, array $config = []) {
+		$this->cacheName = $name;
+		$config['name'] = $name;
+		$this->config = $config;
 	}
 
-	public static function setConnectionResolver(ConnectorManager $connectorManager) {
-		static::$connectionResolver = $connectorManager;
+	public function setConnectionResolver(ConnectorManager $connectorManager) {
+		$this->connectionResolver = $connectorManager;
 	}
 
 	protected function getConnection() {
-		return static::$connectionResolver->connect($this->channelName);
+		$name = $this->getContextKey($this->cacheName);
+		$connection = Context::getContextDataByKey($name);
+
+		if (! $connection instanceof CacheInterface) {
+			try {
+				$connection = $this->connectionResolver->connect($this->config);
+				Context::setContextDataByKey($name, $connection);
+			} finally {
+				if ($connection && isCo()) {
+					defer(function () use ($connection) {
+						$this->connectionResolver->release($connection);
+					});
+				}
+			}
+		}
+
+		return $connection;
+	}
+
+	private function getContextKey($name): string {
+		return sprintf('cache.connection.%s', $name);
 	}
 }

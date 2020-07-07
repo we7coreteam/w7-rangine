@@ -12,28 +12,30 @@
 
 namespace W7\Core\Cache\Provider;
 
-use W7\Core\Cache\Cache;
+use W7\Core\Cache\CacheManager;
 use W7\Core\Cache\ConnectorManager;
 use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
 	public function register() {
-		$connectionConfig = $this->config->get('app.cache', []);
-		$poolConfig = $this->config->get('app.pool.cache', []);
-		foreach ($connectionConfig as &$config) {
-			$config['driver'] = $this->config->get('handler.cache.' . $config['driver'], $config['driver']);
-		}
+		$this->container->set(CacheManager::class, function () {
+			$connectionConfig = $this->config->get('app.cache', []);
+			$poolConfig = $this->config->get('app.pool.cache', []);
+			foreach ($connectionConfig as &$config) {
+				$config['driver'] = $this->config->get('handler.cache.' . $config['driver'], $config['driver']);
+			}
 
-		$connectorManager = new ConnectorManager($connectionConfig, $poolConfig);
-		$connectorManager->setEventDispatcher(Event::getFacadeRoot());
-		Cache::setConnectionResolver($connectorManager);
+			$connectorManager = new ConnectorManager($poolConfig);
+			$connectorManager->setEventDispatcher(Event::getFacadeRoot());
 
-		$channels = array_keys($connectionConfig);
-		foreach ($channels as $key => $channel) {
-			$this->container->set('cache-' . $channel, function () use ($channel) {
-				return new Cache($channel);
-			});
-		}
+			$cacheManager = new CacheManager($connectionConfig);
+			$cacheManager->setConnectorResolver($connectorManager);
+			return $cacheManager;
+		});
+	}
+
+	public function providers(): array {
+		return [CacheManager::class];
 	}
 }

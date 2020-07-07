@@ -12,8 +12,7 @@
 
 namespace W7\Core\Facades;
 
-use Illuminate\Database\Eloquent\Model;
-use W7\Core\Database\DatabaseManager;
+use W7\Core\Database\ConnectionResolver;
 
 /**
  * Class DB
@@ -41,15 +40,11 @@ use W7\Core\Database\DatabaseManager;
  * @method static array pretend(\Closure $callback)
  * @method static void listen(\Closure $callback)
  *
- * @see DatabaseManager
+ * @see ConnectionResolver
  * @see \Illuminate\Database\Connection
  */
 class DB extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
-		return '';
-	}
-
-	public static function getFacadeRoot() {
-		return Model::getConnectionResolver();
+		return ConnectionResolver::class;
 	}
 }

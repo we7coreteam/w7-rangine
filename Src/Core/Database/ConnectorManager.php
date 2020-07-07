@@ -19,8 +19,8 @@ use W7\Core\Database\Pool\Pool;
 
 class ConnectorManager {
 	private $poolConfig;
-	private $pool;
-	private $defaultConnection;
+	private $pools;
+
 	private static $connectors;
 	private $connectorObjs = [];
 	/**
@@ -51,24 +51,25 @@ class ConnectorManager {
 	}
 
 	public function getCreatedPool($name) {
-		return $this->pool[$name];
+		return $this->pools[$name];
 	}
 
 	/**
 	 * @param $name
-	 * @return Pool
+	 * @param array $config
+	 * @return mixed
 	 */
-	private function getPool($name, $option = []) {
-		if (!empty($this->pool[$name])) {
-			return $this->pool[$name];
+	private function getPool($name, $config = []) {
+		if (!empty($this->pools[$name])) {
+			return $this->pools[$name];
 		}
 		$pool = new Pool($name);
-		$pool->setConfig($option);
-		$pool->setCreator($this->getDefaultConnector($option['driver']));
-		$pool->setMaxCount($this->poolConfig[$name]['max']);
+		$pool->setConfig($config);
+		$pool->setCreator($this->getDefaultConnector($config['driver']));
+		$pool->setMaxCount($this->poolConfig[$name]['max'] ?? 1);
 
-		$this->pool[$name] = $pool;
-		return $this->pool[$name];
+		$this->pools[$name] = $pool;
+		return $this->pools[$name];
 	}
 
 	private function getDefaultConnector($driver = 'mysql') : Connector {
@@ -88,9 +89,9 @@ class ConnectorManager {
 	}
 
 	private function getDefaultConnection($config) {
-		$this->defaultConnection = $this->getDefaultConnector($config['driver'])->connect($config);
-		$this->eventDispatcher && $this->eventDispatcher->dispatch(new MakeConnectionEvent($config['name'], $this->defaultConnection));
-		return $this->defaultConnection;
+		$defaultConnection = $this->getDefaultConnector($config['driver'])->connect($config);
+		$this->eventDispatcher && $this->eventDispatcher->dispatch(new MakeConnectionEvent($config['name'], $defaultConnection));
+		return $defaultConnection;
 	}
 
 	public static function registerConnector(string $driver, string $connectorClass) {

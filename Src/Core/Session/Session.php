@@ -20,18 +20,19 @@ use W7\Core\Session\Handler\FileHandler;
 use W7\Core\Session\Handler\HandlerAbstract;
 
 class Session implements SessionInterface {
-	private $config;
-	private $prefix;
-	private static $gcCondition;
+	protected $config;
+	protected $prefix;
+	protected static $gcCondition;
 	/**
 	 * @var ChannelAbstract
 	 */
-	private $channel;
+	protected $channel;
 	/**
 	 * @var HandlerAbstract
 	 */
-	private $handler;
-	private $cache;
+	protected $handler;
+	protected $cache;
+	protected $sessionId;
 
 	public function __construct($config = []) {
 		$this->config = $config;
@@ -76,11 +77,20 @@ class Session implements SessionInterface {
 	}
 
 	public function getId() {
-		return $this->channel->getSessionId();
+		if ($this->sessionId) {
+			return $this->sessionId;
+		}
+
+		if(empty($sessionId = $this->channel->getSessionId())) {
+			$sessionId = $this->handler->create_sid();
+		}
+		$this->sessionId = $sessionId;
+
+		return $this->sessionId;
 	}
 
 	public function setId($sessionId) {
-		$this->channel->setSessionId($sessionId);
+		$this->sessionId = $sessionId;
 		$this->cache = null;
 	}
 
@@ -176,6 +186,6 @@ class Session implements SessionInterface {
 	}
 
 	public function replenishResponse(ResponseInterface $response) {
-		return $this->channel->replenishResponse($response);
+		return $this->channel->replenishResponse($response, $this->getId());
 	}
 }

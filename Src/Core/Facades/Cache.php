@@ -13,6 +13,7 @@
 namespace W7\Core\Facades;
 
 use Psr\SimpleCache\CacheInterface;
+use W7\Core\Cache\CacheManager;
 
 /**
  * Class Cache
@@ -195,6 +196,7 @@ use Psr\SimpleCache\CacheInterface;
  * @method static pfMerge( $destkey, array $sourcekeys ) {}
  * @method static rawCommand( $command, $arguments ) {}
  * @method static getMode() {}
+ * @method static CacheInterface channel($name = 'default')
  *
  * @see \W7\Core\Cache\Cache
  */
@@ -205,23 +207,6 @@ class Cache extends FacadeAbstract {
 	 * @return string
 	 */
 	protected static function getFacadeAccessor() {
-		return '';
-	}
-
-	public static function getFacadeRoot() {
-		return self::channel();
-	}
-
-	/**
-	 * 需调整
-	 * @param string $name
-	 * @return CacheInterface
-	 */
-	public static function channel($name = 'default') : CacheInterface {
-		if (!self::getContainer()->has('cache-' . $name)) {
-			$name = 'default';
-		}
-
-		return self::getContainer()->get('cache-' . $name);
+		return CacheManager::class;
 	}
 }
