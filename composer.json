@@ -38,7 +38,6 @@
 	},
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",
-		"symfony/var-dumper": "^4.1",
 		"w7/php-cs-fixer": "^1.0"
 	},
 	"autoload": {

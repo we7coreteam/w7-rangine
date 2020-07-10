@@ -11,9 +11,7 @@
  */
 
 use Swoole\Coroutine;
-use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
-use W7\Core\Exception\DumpException;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Logger;
@@ -50,28 +48,6 @@ if (!function_exists('getClientIp')) {
 		}
 
 		return $ip;
-	}
-}
-
-if (!function_exists('idd')) {
-	function idd(...$vars) {
-		ob_start();
-		if (class_exists(VarDumper::class)) {
-			$_SERVER['VAR_DUMPER_FORMAT'] = 'html';
-			foreach ($vars as $var) {
-				VarDumper::dump($var);
-			}
-			VarDumper::setHandler(null);
-		} else {
-			foreach ($vars as $var) {
-				echo '<pre>';
-				print_r($var);
-				echo '</pre>';
-			}
-		}
-		$content = ob_get_clean();
-
-		throw new DumpException($content);
 	}
 }
 
