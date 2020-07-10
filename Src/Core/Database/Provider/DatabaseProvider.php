@@ -28,7 +28,6 @@ use W7\Core\Database\Event\QueryExecutedEvent;
 use W7\Core\Database\Event\TransactionBeginningEvent;
 use W7\Core\Database\Event\TransactionCommittedEvent;
 use W7\Core\Database\Event\TransactionRolledBackEvent;
-use W7\Core\Database\ModelAbstract;
 use W7\Core\Facades\Config;
 use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
@@ -79,9 +78,5 @@ class DatabaseProvider extends ProviderAbstract {
 		Event::listen(TransactionRolledBack::class, function ($event) {
 			Event::dispatch(new TransactionRolledBackEvent($event->connection));
 		});
-	}
-
-	public function providers(): array {
-		return [ModelAbstract::class, Model::class, ConnectionResolver::class];
 	}
 }
