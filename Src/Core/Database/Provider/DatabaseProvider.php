@@ -21,6 +21,7 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionRolledBack;
+use Illuminate\Support\Facades\Facade;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectionResolver;
 use W7\Core\Database\ConnectorManager;
@@ -61,7 +62,11 @@ class DatabaseProvider extends ProviderAbstract {
 			$container['config']['database.connections'] = $this->config->get('app.database', []);
 			$factory = new ConnectionFactory($container);
 
-			return new ConnectionResolver($container, $factory);
+			$connectionResolver = new ConnectionResolver($container, $factory);
+			$container['db'] = $connectionResolver;
+			Facade::setFacadeApplication($container);
+
+			return $connectionResolver;
 		});
 	}
 
