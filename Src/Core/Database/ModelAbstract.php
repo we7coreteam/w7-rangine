@@ -12,7 +12,6 @@
 
 namespace W7\Core\Database;
 
-use Illuminate\Database\Eloquent\Builder;
 use W7\Core\Helper\Traiter\InstanceTraiter;
 
 /**
@@ -75,12 +74,6 @@ use W7\Core\Helper\Traiter\InstanceTraiter;
 abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	use InstanceTraiter;
 
-	protected function insertAndSetId(Builder $query, $attributes) {
-		$id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
-
-		$this->setAttribute($keyName, $id);
-	}
-
 	public function createOrUpdate($condition) {
 		return static::query()->updateOrCreate($condition, $this->getAttributes());
 	}
@@ -104,6 +97,7 @@ abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	/**
 	 * 增加当前表的字段表前缀
 	 * @param array $columns
+	 * @return array
 	 */
 	public static function qualifyColumns($columns = []) {
 		if (empty($columns)) {
