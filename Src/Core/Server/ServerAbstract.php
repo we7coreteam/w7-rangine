@@ -53,6 +53,6 @@ abstract class ServerAbstract implements ServerInterface {
 		 * @var ProviderManager $providerManager
 		 */
 		$providerManager = Container::singleton(ProviderManager::class);
-		$providerManager->registerProviders($this->providerMap);
+		$providerManager->register($this->providerMap);
 	}
 }

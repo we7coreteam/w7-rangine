@@ -35,11 +35,16 @@ class ProviderManager {
 	}
 
 	/**
-	 * @param array $providers
+	 * @param array $providerMap
 	 * @return $this
 	 */
-	public function register(array $providers) {
-		$this->registerProviders($providers);
+	public function register(array $providerMap) {
+		foreach ($providerMap as $name => $providers) {
+			$providers = (array) $providers;
+			foreach ($providers as $provider) {
+				$this->registerProvider($provider, $name);
+			}
+		}
 		return $this;
 	}
 
@@ -58,15 +63,6 @@ class ProviderManager {
 		}
 
 		return empty($this->registeredProviders[$provider]) ? false : true;
-	}
-
-	public function registerProviders(array $providerMap) {
-		foreach ($providerMap as $name => $providers) {
-			$providers = (array) $providers;
-			foreach ($providers as $provider) {
-				$this->registerProvider($provider, $name);
-			}
-		}
 	}
 
 	public function registerProvider($provider, $name = null, $force = false) {
