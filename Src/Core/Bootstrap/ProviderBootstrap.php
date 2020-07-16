@@ -17,6 +17,6 @@ use W7\Core\Provider\ProviderManager;
 
 class ProviderBootstrap implements BootstrapInterface {
 	public function bootstrap(App $app) {
-		$app->getContainer()->get(ProviderManager::class)->register()->boot();
+		$app->getContainer()->singleton(ProviderManager::class)->register()->boot();
 	}
 }
