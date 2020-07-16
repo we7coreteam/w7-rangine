@@ -18,10 +18,12 @@ use W7\Core\Route\RouteDispatcher;
 use W7\Core\Server\ServerEnum;
 use W7\WebSocket\Route\RouteMapping;
 use W7\WebSocket\Server\Dispatcher;
+use W7\WebSocket\Session\Middleware\SessionMiddleware;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		$this->registerRouter();
+		$this->registerMiddleware();
 	}
 
 	private function registerRouter() {
@@ -30,5 +32,13 @@ class BeforeStartListener extends ListenerAbstract {
 		 */
 		$dispatcher = Container::singleton(Dispatcher::class);
 		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, ServerEnum::TYPE_WEBSOCKET));
+	}
+
+	private function registerMiddleware() {
+		/**
+		 * @var Dispatcher $dispatcher
+		 */
+		$dispatcher = Container::singleton(Dispatcher::class);
+		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class);
 	}
 }
