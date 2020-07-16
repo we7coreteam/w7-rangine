@@ -13,7 +13,6 @@
 namespace W7\Core\View\Provider;
 
 use W7\Console\Application;
-use W7\Core\Exception\DumpException;
 use W7\Core\View\Handler\HandlerAbstract;
 use W7\Reload\Process\ReloadProcess;
 use W7\Core\Provider\ProviderAbstract;
@@ -44,13 +43,6 @@ class ViewProvider extends ProviderAbstract {
 		});
 		$view->registerFunction('ienv', function () {
 			return ienv(...func_get_args());
-		});
-		$view->registerFunction('idd', function () {
-			try {
-				idd(...func_get_args());
-			} catch (DumpException $e) {
-				echo $e->getMessage();
-			}
 		});
 	}
 
