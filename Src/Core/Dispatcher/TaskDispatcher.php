@@ -96,7 +96,7 @@ class TaskDispatcher extends DispatcherAbstract {
 			throw new \RuntimeException('task ' . $message->task . ' not exists');
 		}
 
-		$task = Container::get($message->task);
+		$task = Container::singleton($message->task);
 		if (method_exists($task, 'finish')) {
 			$message->hasFinishCallback = true;
 		}

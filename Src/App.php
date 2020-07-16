@@ -13,16 +13,20 @@
 namespace W7;
 
 use W7\Console\Application;
+use W7\Core\Bootstrap\BootstrapInterface;
+use W7\Core\Bootstrap\LoadConfigBootstrap;
+use W7\Core\Bootstrap\ProviderBootstrap;
+use W7\Core\Bootstrap\RegisterHandleExceptionsBootstrap;
+use W7\Core\Bootstrap\RegisterRuntimeEnvBootstrap;
+use W7\Core\Bootstrap\RegisterSecurityDirBootstrap;
 use W7\Core\Config\Config;
-use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Container\Container;
 use W7\Core\Facades\Output;
-use W7\Core\Provider\ProviderManager;
 use W7\Core\Server\ServerAbstract;
 
 class App {
 	const NAME = 'w7-rangine';
-	const VERSION = '2.3.3';
+	const VERSION = '2.3.5';
 
 	private static $self;
 	/**
@@ -34,73 +38,30 @@ class App {
 	/**
 	 * @var Container
 	 */
-	private $container;
+	protected $container;
+
+	protected $bootstrapMap = [
+		LoadConfigBootstrap::class,
+		RegisterRuntimeEnvBootstrap::class,
+		RegisterHandleExceptionsBootstrap::class,
+		ProviderBootstrap::class,
+		RegisterSecurityDirBootstrap::class
+	];
 
 	public function __construct() {
 		self::$self = $this;
 
-		//初始化配置
-		$this->getConfigger()->load();
-		$this->registerRuntimeEnv();
-		$this->registerErrorHandler();
-		$this->registerProvider();
-		$this->registerSecurityDir();
+		$this->bootstrap();
 	}
 
-	private function registerRuntimeEnv() {
-		$defaultTimezone = $this->getConfigger()->get('app.setting.timezone', 'Asia/Shanghai');
-		date_default_timezone_set($defaultTimezone);
-
-		if (!is_dir(RUNTIME_PATH)) {
-			mkdir(RUNTIME_PATH, 0777, true);
+	protected function bootstrap() {
+		foreach ($this->bootstrapMap as $bootstrap) {
+			/**
+			 * @var BootstrapInterface $bootstrap
+			 */
+			$bootstrap = new $bootstrap();
+			$bootstrap->bootstrap($this);
 		}
-		if (!is_readable(RUNTIME_PATH)) {
-			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no read permission');
-		}
-		if (!is_writeable(RUNTIME_PATH)) {
-			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no write permission');
-		}
-
-		$env = $this->getConfigger()->get('app.setting.env', DEVELOPMENT);
-		!defined('ENV') && define('ENV', $env);
-		if (!is_numeric(ENV) || ((RELEASE|DEVELOPMENT) & ENV) !== ENV) {
-			throw new \RuntimeException("config setting['env'] error, please use the constant RELEASE, DEVELOPMENT, DEBUG, CLEAR_LOG, BACKTRACE instead");
-		}
-	}
-
-	private function registerErrorHandler() {
-		//设置了错误级别后只会收集错误级别内的日志, 容器确认后, 系统设置进行归类处理
-		$setting = $this->getConfigger()->get('app.setting');
-		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
-		error_reporting($errorLevel);
-
-		((ENV & DEBUG) === DEBUG) && ini_set('display_errors', 'On');
-
-		/**
-		 * 设置错误信息接管
-		 */
-		$this->getContainer()->get(HandlerExceptions::class)->registerErrorHandle();
-	}
-
-	private function registerProvider() {
-		$this->getContainer()->get(ProviderManager::class)->register()->boot();
-	}
-
-	private function registerSecurityDir() {
-		//设置安全限制目录
-		$openBaseDirConfig = $this->getConfigger()->get('app.setting.basedir', []);
-		if (is_array($openBaseDirConfig)) {
-			$openBaseDirConfig = implode(':', $openBaseDirConfig);
-		}
-
-		$openBaseDir = [
-			'/tmp',
-			sys_get_temp_dir(),
-			BASE_PATH,
-			$openBaseDirConfig,
-			session_save_path()
-		];
-		ini_set('open_basedir', implode(':', $openBaseDir));
 	}
 
 	public static function getApp() {
@@ -112,7 +73,7 @@ class App {
 
 	public function runConsole() {
 		try {
-			$this->getContainer()->get(Application::class)->run();
+			$this->getContainer()->singleton(Application::class)->run();
 		} catch (\Throwable $e) {
 			Output::error($e->getMessage());
 		}
@@ -126,7 +87,7 @@ class App {
 	}
 
 	public function getConfigger() {
-		return $this->getContainer()->get(Config::class);
+		return $this->getContainer()->singleton(Config::class);
 	}
 
 	public function bootstrapCachePath($path = '') {
