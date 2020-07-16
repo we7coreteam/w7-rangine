@@ -12,33 +12,20 @@
 
 namespace W7\Core\Provider;
 
-use W7\Core\Cache\Provider\CacheProvider;
-use W7\Core\Database\Provider\DatabaseProvider;
-use W7\Core\Events\Provider\EventProvider;
-use W7\Core\Facades\Config;
-use W7\Core\Facades\Container;
-use W7\Core\Log\Provider\LogProvider;
-use W7\Core\Route\Provider\RouterProvider;
-use W7\Core\Session\Provider\SessionProvider;
-use W7\Core\View\Provider\ViewProvider;
+use W7\Core\Container\Container;
 
 class ProviderManager {
-	private $providerMap = [
-		'illuminate' => IlluminateProvider::class,
-		'event' => EventProvider::class,
-		'log' => LogProvider::class,
-		'router' => RouterProvider::class,
-		'database' => DatabaseProvider::class,
-		'cache' => CacheProvider::class,
-		'view' => ViewProvider::class,
-		'validate' => ValidateProvider::class,
-		'session' => SessionProvider::class
-	];
-	private $deferredProviders = [];
-	private $registeredProviders = [];
+	/**
+	 * @var Container
+	 */
+	protected $container;
+	protected $deferredProviders = [];
+	protected $registeredProviders = [];
 
-	public function __construct() {
-		Container::registerDeferredServiceLoader(function ($service) {
+	public function __construct(Container $container) {
+		$this->container = $container;
+
+		$container->registerDeferredServiceLoader(function ($service) {
 			$providers = $this->deferredProviders[$service] ?? [];
 			foreach ($providers as $provider) {
 				$provider = $this->registerProvider($provider, $provider, true);
@@ -48,11 +35,11 @@ class ProviderManager {
 	}
 
 	/**
-	 * 扩展包注册
+	 * @param array $providers
+	 * @return $this
 	 */
-	public function register() {
-		$providers = Config::get('provider', []);
-		$this->registerProviders(array_merge($this->providerMap, $providers));
+	public function register(array $providers) {
+		$this->registerProviders($providers);
 		return $this;
 	}
 
@@ -92,7 +79,7 @@ class ProviderManager {
 				return false;
 			}
 			$params = isset($name) ? [$name] : [];
-			$provider = Container::singleton($provider, $params);
+			$provider = $this->container->singleton($provider, $params);
 		}
 
 		/**
@@ -107,7 +94,7 @@ class ProviderManager {
 					$this->deferredProviders[$deferredService] = $this->deferredProviders[$deferredService] ?? [];
 					$this->deferredProviders[$deferredService] = array_merge($this->deferredProviders[$deferredService], [get_class($provider)]);
 				}
-				Container::registerDeferredService($deferredServices);
+				$this->container->registerDeferredService($deferredServices);
 				return false;
 			}
 		}
