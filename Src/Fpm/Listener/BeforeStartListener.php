@@ -16,7 +16,7 @@ use W7\Core\Facades\Config;
 use W7\Core\Facades\Container;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Fpm\Session\Middleware\SessionMiddleware;
-use W7\Http\Server\Dispatcher;
+use W7\Fpm\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
