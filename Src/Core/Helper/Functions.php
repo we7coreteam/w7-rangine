@@ -187,7 +187,7 @@ if (!function_exists('isleep')) {
 
 if (!function_exists('itimeTick')) {
 	function itimeTick($ms, \Closure $callback) {
-		Timer::tick($ms, function () use ($callback) {
+		return Timer::tick($ms, function () use ($callback) {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
