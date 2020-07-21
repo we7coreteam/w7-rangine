@@ -43,8 +43,9 @@ abstract class CacheAbstract implements CacheInterface {
 				Context::setContextDataByKey($name, $connection);
 			} finally {
 				if ($connection && isCo()) {
-					defer(function () use ($connection) {
+					defer(function () use ($connection, $name) {
 						$this->connectionResolver->release($connection);
+						Context::setContextDataByKey($name, null);
 					});
 				}
 			}

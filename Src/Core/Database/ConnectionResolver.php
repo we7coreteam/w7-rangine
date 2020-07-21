@@ -33,8 +33,9 @@ class ConnectionResolver extends DatabaseManager {
 				Context::setContextDataByKey($name, $connection);
 			} finally {
 				if ($connection && isCo()) {
-					defer(function () use ($connection) {
+					defer(function () use ($connection, $name) {
 						$this->releaseConnection($connection);
+						Context::setContextDataByKey($name, null);
 					});
 				}
 			}
