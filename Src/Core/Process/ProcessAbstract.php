@@ -18,6 +18,7 @@ use W7\App;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Logger;
+use W7\Core\Facades\Output;
 
 abstract class ProcessAbstract {
 	protected $name = 'process';
@@ -128,6 +129,9 @@ abstract class ProcessAbstract {
 		try {
 			$callback();
 		} catch (\Throwable $throwable) {
+			if ((ENV & DEBUG) == DEBUG) {
+				Output::error($throwable->getMessage() . ' at file ' . $throwable->getFile() . ' line ' . $throwable->getLine());
+			}
 			Container::singleton(HandlerExceptions::class)->getHandler()->report($throwable);
 		}
 	}
