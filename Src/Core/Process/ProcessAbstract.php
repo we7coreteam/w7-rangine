@@ -22,6 +22,7 @@ use W7\Core\Facades\Logger;
 abstract class ProcessAbstract {
 	protected $name = 'process';
 	protected $num = 1;
+	protected $workerId;
 	protected $mqKey;
 	protected $serverType;
 	/**
@@ -44,6 +45,14 @@ abstract class ProcessAbstract {
 
 	public function getName() {
 		return $this->name;
+	}
+
+	public function setWorkerId($workerId) {
+		$this->workerId = $workerId;
+	}
+
+	public function getWorkerId() {
+		return $this->workerId;
 	}
 
 	public function setProcess(Process $process) {

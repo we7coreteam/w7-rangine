@@ -28,6 +28,7 @@ class ProcessStartListener extends ListenerAbstract {
 		$userProcess = $processFactory->make($workerId);
 		$userProcess->setProcess($process);
 		$userProcess->setServerType($serverType);
+		$userProcess->setWorkerId($workerId);
 		$name = $userProcess->getName();
 
 		$mqKey = Config::get("process.process.$name.message_queue_key", $mqKey);
