@@ -153,7 +153,7 @@ if (!function_exists('igo')) {
 					Logger::debug($e->getMessage(), ['exception' => $e]);
 				}
 			};
-			Container::singleton(\W7\Core\Helper\Compate\Coroutine::class)->add($generatorFunc());
+			Container::singleton(\W7\Core\Helper\Compate\CgiCoroutine::class)->add($generatorFunc());
 			return true;
 		}
 
