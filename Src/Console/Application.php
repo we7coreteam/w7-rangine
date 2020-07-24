@@ -128,7 +128,7 @@ class Application extends SymfontApplication {
 	}
 
 	private function checkCommand($input) {
-		$command = $this->getCommandName($input);
+		$command = $this->getCommandName($input) ?? '';
 		if ($this->has($command) && strpos($command, ':') !== false) {
 			return true;
 		}
