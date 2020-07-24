@@ -12,14 +12,14 @@
 
 namespace W7\Core\Provider;
 
+use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
-use Illuminate\Support\Fluent;
 
 class IlluminateProvider extends ProviderAbstract {
 	public function register() {
 		$this->container->set(Container::class, function () {
 			$container = new Container();
-			$container->instance('config', new Fluent());
+			$container->instance('config', new Repository());
 
 			$container->singleton(\Illuminate\Contracts\Container\Container::class, function () use ($container) {
 				return $container;

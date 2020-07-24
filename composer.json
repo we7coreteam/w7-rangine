@@ -19,6 +19,7 @@
 		"w7/rangine-lang": "*",
 		"w7/rangine-command": "*",
 		"w7/rangine-package-plugin": "*",
+		"illuminate/config": "~6.0",
 		"illuminate/database": "~6.0",
 		"illuminate/events": "~6.0",
 		"illuminate/validation": "~6.0",
