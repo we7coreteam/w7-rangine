@@ -29,7 +29,7 @@
 		"monolog/monolog": "^1.23",
 		"psr/http-server-middleware": "^1.0",
 		"vlucas/phpdotenv": "^3.3",
-		"symfony/console": "^5.0",
+		"symfony/console": "^4.3",
 		"filp/whoops": "^2.7",
 		"twig/twig": "^3.0",
 		"pimple/pimple": "^3.2",
