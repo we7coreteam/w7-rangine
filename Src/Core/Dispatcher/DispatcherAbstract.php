@@ -19,10 +19,4 @@ abstract class DispatcherAbstract {
 	 */
 	public function dispatch(...$params) {
 	}
-
-	/**
-	 * 注册服务
-	 */
-	public function register() {
-	}
 }

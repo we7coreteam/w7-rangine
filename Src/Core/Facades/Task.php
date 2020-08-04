@@ -12,7 +12,7 @@
 
 namespace W7\Core\Facades;
 
-use W7\Core\Dispatcher\TaskDispatcher;
+use W7\Core\Task\TaskDispatcher;
 use W7\Core\Message\Message;
 use W7\Core\Message\TaskMessage;
 
@@ -20,16 +20,15 @@ use W7\Core\Message\TaskMessage;
  * Class Task
  * @package W7\Core\Facades
  *
- * @method static mixed register(...$params)
- * @method static mixed registerCo(TaskMessage $message)
- * @method static Message dispatch(...$params)
+ * @method static mixed dispatchNow($message, $server = null, $taskId = null, $workerId = null)
+ * @method static Message handle(...$params)
  */
 class Task extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
 		return TaskDispatcher::class;
 	}
 
-	public static function execute($taskName, $params = [], int $timeout = 3) {
+	public static function dispatch($taskName, $params = [], int $timeout = null) {
 		//构造一个任务消息
 		$taskMessage = new TaskMessage();
 		$taskMessage->task = $taskName;
@@ -37,21 +36,6 @@ class Task extends FacadeAbstract {
 		$taskMessage->timeout = $timeout;
 		$taskMessage->type = TaskMessage::OPERATION_TASK_ASYNC;
 
-		return self::register($taskMessage);
-	}
-
-	public static function executeAsync($taskName, $params = [], int $timeout = 3) {
-		if (self::getContainer()->has('queue')) {
-			$task = new $taskName($params);
-			return self::getContainer()->get('queue')->push($task);
-		} else {
-			//构造一个任务消息
-			$taskMessage = new TaskMessage();
-			$taskMessage->task = $taskName;
-			$taskMessage->params = $params;
-			$taskMessage->timeout = $timeout;
-			$taskMessage->type = TaskMessage::OPERATION_TASK_CO;
-			return self::registerCo($taskMessage);
-		}
+		return self::getFacadeRoot()->dispatch($taskMessage);
 	}
 }

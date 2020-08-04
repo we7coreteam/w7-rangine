@@ -31,7 +31,7 @@ class PipeMessageListener extends ListenerAbstract {
 
 		if ($message instanceof TaskMessage) {
 			if ($message->isTaskAsync()) {
-				Task::execute($message->task, $message->params);
+				Task::dispatchNow($message);
 			}
 		}
 

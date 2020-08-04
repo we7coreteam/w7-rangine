@@ -116,7 +116,7 @@ if (!function_exists('isWorkerStatus')) {
 		}
 
 		$server = App::$server->getServer();
-		if ($server->manager_pid == 0) {
+		if (empty($server->manager_pid) || $server->manager_pid == 0) {
 			return false;
 		}
 		if ($server && \property_exists($server, 'taskworker') && ($server->taskworker === false)) {

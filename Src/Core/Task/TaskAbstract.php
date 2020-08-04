@@ -12,19 +12,13 @@
 
 namespace W7\Core\Task;
 
-use W7\App;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Context;
-
 abstract class TaskAbstract implements TaskInterface {
-	public $options = [];
-
-	public function __construct($options = []) {
-		$this->options = $options;
+	public static function isAsyncTask() {
+		return true;
 	}
 
-	final public function handle() {
-		return $this->run(App::$server, Context::getCoroutineId(), Container::get('worker_id'), $this->options);
+	public static function shouldQueue() {
+		return false;
 	}
 
 	public function finish($server, $taskId, $data, $params) {

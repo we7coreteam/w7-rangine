@@ -25,10 +25,9 @@ class TaskListener implements ListenerInterface {
 
 	private function dispatchTask(Server $server, Task $task) {
 		try {
-			$result = TaskFacade::dispatch($server, $task->id, $task->worker_id, $task->data);
+			$result = TaskFacade::dispatchNow($task->data, $server, $task->id, $task->worker_id);
 		} catch (\Throwable $exception) {
-			$task->finish($exception->getMessage());
-			return;
+			$result = $exception->getMessage();
 		}
 		if (empty($result)) {
 			$result = true;
