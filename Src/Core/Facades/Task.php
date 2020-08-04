@@ -43,7 +43,7 @@ class Task extends FacadeAbstract {
 	public static function executeAsync($taskName, $params = [], int $timeout = 3) {
 		if (self::getContainer()->has('queue')) {
 			$task = new $taskName($params);
-			return self::getContainer()->push($task);
+			return self::getContainer()->get('queue')->push($task);
 		} else {
 			//构造一个任务消息
 			$taskMessage = new TaskMessage();
