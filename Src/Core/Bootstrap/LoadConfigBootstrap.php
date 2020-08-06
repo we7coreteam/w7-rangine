@@ -38,7 +38,7 @@ class LoadConfigBootstrap implements BootstrapInterface {
 		});
 	}
 
-	protected function loadConfigFile($configDir) {
+	public function loadConfigFile($configDir) {
 		$configFileTree = glob($configDir . '/*.php');
 		if (empty($configFileTree)) {
 			return $this->payload;
