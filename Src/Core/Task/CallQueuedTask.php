@@ -38,10 +38,9 @@ class CallQueuedTask {
 	 */
 	public function failed($e) {
 		$handler = Container::singleton($this->taskMessage->task);
-		$handler->exception = $e;
 
 		if (method_exists($handler, 'failed')) {
-			call_user_func([$handler, 'failed']);
+			call_user_func_array([$handler, 'failed'], [$e]);
 		}
 	}
 
