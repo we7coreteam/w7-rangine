@@ -203,7 +203,7 @@ if (!function_exists('itimeTick')) {
 
 if (!function_exists('itimeAfter')) {
 	function itimeAfter($ms, \Closure $callback) {
-		Timer::after($ms, function () use ($callback) {
+		return Timer::after($ms, function () use ($callback) {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
