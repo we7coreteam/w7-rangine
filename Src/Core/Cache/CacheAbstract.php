@@ -13,6 +13,7 @@
 namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
+use Swoole\Coroutine;
 use W7\Core\Facades\Context;
 
 abstract class CacheAbstract implements CacheInterface {
@@ -43,7 +44,7 @@ abstract class CacheAbstract implements CacheInterface {
 				Context::setContextDataByKey($name, $connection);
 			} finally {
 				if ($connection && isCo()) {
-					defer(function () use ($connection, $name) {
+					Coroutine::defer(function () use ($connection, $name) {
 						$this->connectionResolver->release($connection);
 						Context::setContextDataByKey($name, null);
 					});

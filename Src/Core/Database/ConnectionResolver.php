@@ -14,6 +14,7 @@ namespace W7\Core\Database;
 
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
+use Swoole\Coroutine;
 use W7\Core\Facades\Context;
 
 class ConnectionResolver extends DatabaseManager {
@@ -33,7 +34,7 @@ class ConnectionResolver extends DatabaseManager {
 				Context::setContextDataByKey($name, $connection);
 			} finally {
 				if ($connection && isCo()) {
-					defer(function () use ($connection, $name) {
+					Coroutine::defer(function () use ($connection, $name) {
 						$this->releaseConnection($connection);
 						Context::setContextDataByKey($name, null);
 					});
