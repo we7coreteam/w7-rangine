@@ -28,7 +28,7 @@ class App {
 	const NAME = 'w7-rangine';
 	const VERSION = '2.3.6';
 
-	private static $self;
+	public static $self;
 	/**
 	 * 服务器对象
 	 *
