@@ -13,12 +13,14 @@
 namespace W7\Core\Task;
 
 abstract class TaskAbstract implements TaskInterface {
+	public static $connection;
+
 	public static function isAsyncTask() {
 		return true;
 	}
 
 	public static function shouldQueue() {
-		return false;
+		return true;
 	}
 
 	public function finish($server, $taskId, $data, $params) {

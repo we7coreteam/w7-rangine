@@ -37,7 +37,7 @@ class TaskDispatcher extends DispatcherAbstract {
 	}
 
 	/**
-	 * 派发同步任务
+	 * 派发任务
 	 * @param mixed ...$params
 	 * @return mixed|void
 	 * @throws TaskException
@@ -81,7 +81,7 @@ class TaskDispatcher extends DispatcherAbstract {
 		}
 
 		if ($this->queueResolver && (method_exists($message->task, 'shouldQueue') && $message->task::shouldQueue())) {
-			return $this->resolveQueue()->push(new CallQueuedTask($message));
+			return $this->resolveQueue()->pushOn($message->task::$connection ?? '', new CallQueuedTask($message));
 		}
 
 		if (!isWorkerStatus()) {
