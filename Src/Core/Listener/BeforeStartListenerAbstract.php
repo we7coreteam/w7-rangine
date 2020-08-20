@@ -10,29 +10,18 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener\User;
+namespace W7\Core\Listener;
 
 use Swoole\Server;
-use W7\Http\Message\Server\Request;
 
-abstract class AfterConnectionListenerAbstract extends UserListenerAbstract {
+abstract class BeforeStartListenerAbstract extends UserListenerAbstract {
 	/**
 	 * @var Server
 	 */
 	protected $server;
-	/**
-	 * @var int
-	 */
-	protected $fd;
-	/**
-	 * @var Request
-	 */
-	protected $request;
 
 	public function __construct(...$params) {
 		$this->server = $params[0];
-		$this->fd = $params[1];
-		$this->request = $params[2];
-		$this->serverType = $params[3];
+		$this->serverType = $params[1];
 	}
 }

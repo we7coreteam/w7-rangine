@@ -10,19 +10,24 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener\User;
+namespace W7\Core\Listener;
 
-use W7\Core\Server\ServerEnum;
 use W7\Http\Message\Server\Request;
+use W7\Http\Message\Server\Response;
 
-abstract class BeforeHandShakeListenerAbstract extends UserListenerAbstract {
+abstract class RequestListenerAbstract extends UserListenerAbstract {
 	/**
 	 * @var Request
 	 */
 	protected $request;
+	/**
+	 * @var Response
+	 */
+	protected $response;
 
 	public function __construct(...$params) {
 		$this->request = $params[0];
-		$this->serverType = ServerEnum::TYPE_WEBSOCKET;
+		$this->response = $params[1];
+		$this->serverType = $params[2];
 	}
 }
