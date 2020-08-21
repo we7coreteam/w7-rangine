@@ -81,7 +81,12 @@ class TaskDispatcher extends DispatcherAbstract {
 		}
 
 		if ($this->queueResolver && (method_exists($message->task, 'shouldQueue') && $message->task::shouldQueue())) {
-			return $this->resolveQueue()->pushOn($message->task::$connection ?? '', new CallQueuedTask($message));
+			$connection = $this->resolveQueue()->connection(
+				$message->task::$connection ?? null
+			);
+
+			$queue = $message->task::$queue ?? null;
+			return $connection->pushOn($queue, new CallQueuedTask($message));
 		}
 
 		if (!isWorkerStatus()) {
