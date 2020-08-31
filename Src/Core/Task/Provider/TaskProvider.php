@@ -20,12 +20,11 @@ class TaskProvider extends ProviderAbstract {
 		$this->container->set(TaskDispatcher::class, function () {
 			$taskDispatcher = new TaskDispatcher();
 
-			$taskDispatcher->setQueueResolver(function () {
-				if ($this->container->has('queue')) {
+			if ($this->container->has('queue')) {
+				$taskDispatcher->setQueueResolver(function () {
 					return $this->container->singleton('queue');
-				}
-				return null;
-			});
+				});
+			}
 
 			return $taskDispatcher;
 		});
