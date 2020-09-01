@@ -88,7 +88,7 @@ class TaskDispatcher extends DispatcherAbstract {
 			$queue = $message->task::$queue ?? null;
 
 			if (isset($message->task::$delay)) {
-				return $queue->later($queue, $message->task::$delay, new CallQueuedTask($message));
+				return $queue->laterOn($queue, $message->task::$delay, new CallQueuedTask($message));
 			}
 			return $connection->pushOn($queue, new CallQueuedTask($message));
 		}
