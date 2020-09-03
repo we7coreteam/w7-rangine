@@ -49,15 +49,6 @@ abstract class HandlerAbstract extends \SessionHandler {
 	}
 
 	public function create_sid() {
-		if (isCli()) {
-			return session_create_id();
-		}
-
-		$sessionId = session_id();
-		if ($sessionId) {
-			return $sessionId;
-		}
-
 		return session_create_id();
 	}
 }

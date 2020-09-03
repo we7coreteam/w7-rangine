@@ -81,8 +81,15 @@ class Session implements SessionInterface {
 			return $this->sessionId;
 		}
 
-		if(empty($sessionId = $this->channel->getSessionId())) {
-			$sessionId = $this->handler->create_sid();
+		if (empty($sessionId = $this->channel->getSessionId())) {
+			if (isCli()) {
+				$sessionId = $this->handler->create_sid();
+			} else {
+				$sessionId = session_id();
+				if (!$sessionId) {
+					$sessionId = $this->handler->create_sid();
+				}
+			}
 		}
 		$this->sessionId = $sessionId;
 
