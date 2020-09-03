@@ -22,7 +22,6 @@ abstract class ServerAbstract implements ServerInterface {
 	//表示该服务可以单独启动
 	public static $aloneServer = false;
 
-	protected $providerMap = [];
 	public $server;
 
 	/**
