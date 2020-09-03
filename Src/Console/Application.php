@@ -113,7 +113,7 @@ class Application extends SymfontApplication {
 		 * @var SplFileInfo $file
 		 */
 		foreach ($files as $file) {
-			$dir = trim(str_replace([$path, '/'], ['', '\\'], $file->getPath()), '\\');
+			$dir = trim(str_replace([$path, DIRECTORY_SEPARATOR], ['', '\\'], $file->getPath()), '\\');
 			if (!$dir) {
 				continue;
 			}

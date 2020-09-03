@@ -52,7 +52,7 @@ class TwigHandler extends HandlerAbstract {
 
 	public function render($namespace, $name, $context = []) : string {
 		if ($namespace !== self::DEFAULT_NAMESPACE) {
-			$name = '@' . $namespace . '/' . $name;
+			$name = '@' . $namespace . DIRECTORY_SEPARATOR . $name;
 		}
 		return $this->twig->render($name, $context);
 	}

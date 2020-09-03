@@ -78,7 +78,7 @@ class RouteMapping {
 		$name = '';
 		$routeNamespace = '';
 
-		$prefix .= '/' . trim($config['prefix'] ?? '', '/');
+		$prefix .= DIRECTORY_SEPARATOR . trim($config['prefix'] ?? '', DIRECTORY_SEPARATOR);
 
 		$method = $config['method'] ?? [];
 		if (!empty($config['middleware'])) {
@@ -108,7 +108,7 @@ class RouteMapping {
 		//如果有子路由的话，解析子路由
 		if (!empty($childRoutes)) {
 			//这里按照路由级别，把prefix全部加上，在具体的路由上，按照路径进行替换
-			$prefix .= '/' . trim($route['prefix'] ?? '', '/');
+			$prefix .= DIRECTORY_SEPARATOR . trim($route['prefix'] ?? '', DIRECTORY_SEPARATOR);
 			$method = $route['method'] ?? $method;
 
 			if (!empty($route['middleware'])) {
@@ -123,7 +123,7 @@ class RouteMapping {
 				$routeNamespace = $route['namespace'];
 			}
 			foreach ($childRoutes as $section => $childRoute) {
-				$this->parseRoute($key . '/' . $childRoute, $route[$childRoute], $prefix, $middleware, $method, $name, $routeNamespace);
+				$this->parseRoute($key . DIRECTORY_SEPARATOR . $childRoute, $route[$childRoute], $prefix, $middleware, $method, $name, $routeNamespace);
 			}
 		} else {
 			//解析具体的路由
@@ -131,11 +131,11 @@ class RouteMapping {
 			if (empty($route['uri'])) {
 				//按prefix和key的路径，按位置替换，生成最后的url
 				if (!empty($route['prefix'])) {
-					$prefix .= '/' . trim($route['prefix'] ?? '', '/');
+					$prefix .= DIRECTORY_SEPARATOR . trim($route['prefix'] ?? '', DIRECTORY_SEPARATOR);
 				}
 
-				$prefixArr = explode('/', $prefix);
-				$tmpKey = explode('/', $key);
+				$prefixArr = explode(DIRECTORY_SEPARATOR, $prefix);
+				$tmpKey = explode(DIRECTORY_SEPARATOR, $key);
 				foreach ($tmpKey as $index => $value) {
 					if (!empty($prefixArr[$index + 2])) {
 						$tmpKey[$index] = $prefixArr[$index + 2];
@@ -144,8 +144,8 @@ class RouteMapping {
 				if (!empty($prefixArr[1])) {
 					array_unshift($tmpKey, $prefixArr[1]);
 				}
-				$tmpKey = implode('/', $tmpKey);
-				$uri = sprintf('/%s', trim($tmpKey, '/'));
+				$tmpKey = implode(DIRECTORY_SEPARATOR, $tmpKey);
+				$uri = sprintf('/%s', trim($tmpKey, DIRECTORY_SEPARATOR));
 				$route['uri'] = $uri;
 			}
 			if (empty($route['uri'])) {
@@ -154,7 +154,7 @@ class RouteMapping {
 
 			//如果没有指定handler，则按数组层级生成命名空间+Controller@当前键名
 			if (empty($route['handler'])) {
-				$namespace = explode('/', ltrim($key, '/'));
+				$namespace = explode(DIRECTORY_SEPARATOR, ltrim($key, DIRECTORY_SEPARATOR));
 				$namespace = array_slice($namespace, 0, -1);
 
 				$namespace = array_map('ucfirst', $namespace);
@@ -162,7 +162,7 @@ class RouteMapping {
 					throw new \RuntimeException('route format error, route: ' . $route['uri']);
 				}
 
-				$key = explode('/', $key);
+				$key = explode(DIRECTORY_SEPARATOR, $key);
 				$key = end($key);
 				$route['handler'] = sprintf('%sController@%s', implode('\\', $namespace), $key);
 			}

@@ -23,7 +23,7 @@ class Dispatcher extends RequestDispatcher {
 		$httpMethod = $request->getMethod();
 		//该方法最后在http-message中做兼容
 		$pathInfo = $request->getUri()->getPath();
-		if ($pathInfo == '/' && !empty($request->getQueryParams()['r'])) {
+		if ($pathInfo == DIRECTORY_SEPARATOR && !empty($request->getQueryParams()['r'])) {
 			$url = $request->getQueryParams()['r'];
 		} else {
 			$url = $pathInfo;

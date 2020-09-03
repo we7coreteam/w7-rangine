@@ -166,7 +166,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	protected function resetPidFile() {
 		$pathInfo = pathinfo($this->setting['pid_file']);
 		$pathInfo['basename'] = $this->getType() . '_' .  ($this->setting['port'] ?? '') . '_' . $pathInfo['basename'];
-		$pidFile = rtrim($pathInfo['dirname'], '/') . '/' . $pathInfo['basename'];
+		$pidFile = rtrim($pathInfo['dirname'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $pathInfo['basename'];
 
 		$this->setting['pid_file'] = $pidFile;
 	}
