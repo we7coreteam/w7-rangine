@@ -24,14 +24,14 @@ class FileHandler extends HandlerAbstract {
 
 	protected function init() {
 		$this->filesystem = new Filesystem();
-		$this->setPath();
+		$this->initSavePath();
 	}
 
 	public function getUserSessionSavePath() {
 		return empty($this->config['save_path']) ? '/tmp/rangine-server/session' : $this->config['save_path'];
 	}
 
-	private function setPath() {
+	private function initSavePath() {
 		$this->directory = $this->getUserSessionSavePath();
 		$this->ensureSessionDirectoryExists($this->directory);
 		if (!$this->filesystem->isWritable($this->directory) || !$this->filesystem->isReadable($this->directory)) {
@@ -40,7 +40,7 @@ class FileHandler extends HandlerAbstract {
 	}
 
 	private function getPayload($key) {
-		$path = $this->getPath($key);
+		$path = $this->getSavePath($key);
 
 		try {
 			$expire = substr(
@@ -61,7 +61,7 @@ class FileHandler extends HandlerAbstract {
 		return substr($contents, 10);
 	}
 
-	private function getPath($key) {
+	private function getSavePath($key) {
 		$parts = array_slice(str_split($hash = sha1($key), 2), 0, 2);
 
 		return $this->directory . DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR . $hash;
@@ -82,7 +82,7 @@ class FileHandler extends HandlerAbstract {
 			return true;
 		}
 
-		$this->ensureSessionDirectoryExists(dirname($path = $this->getPath($session_id)));
+		$this->ensureSessionDirectoryExists(dirname($path = $this->getSavePath($session_id)));
 		$result = $this->filesystem->put(
 			$path,
 			$this->expiration($this->getExpires()).$session_data,
@@ -97,7 +97,7 @@ class FileHandler extends HandlerAbstract {
 	}
 
 	public function destroy($session_id) {
-		if ($this->filesystem->exists($file = $this->getPath($session_id))) {
+		if ($this->filesystem->exists($file = $this->getSavePath($session_id))) {
 			return $this->filesystem->delete($file);
 		}
 
