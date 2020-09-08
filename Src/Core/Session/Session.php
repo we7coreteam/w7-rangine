@@ -82,6 +82,10 @@ class Session implements SessionInterface {
 		}
 
 		if (empty($sessionId = $this->channel->getSessionId())) {
+			//加环境检测原因
+			//１：fpm下session_start会自动触发create_sid,再次调用会报错
+			//２：保证handler的create_sid功能单一
+			//３：不在fpm下单独处理，涉及到channel setSessionId问题
 			if (isCli()) {
 				$sessionId = $this->handler->create_sid();
 			} else {
