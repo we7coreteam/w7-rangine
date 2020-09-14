@@ -15,7 +15,7 @@ namespace W7\Core\Listener;
 use Swoole\Server;
 use W7\Http\Message\Server\Request;
 
-abstract class AfterConnectionListenerAbstract extends UserListenerAbstract {
+abstract class AfterOpenListenerAbstract extends UserListenerAbstract {
 	/**
 	 * @var Server
 	 */
