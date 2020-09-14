@@ -1,6 +1,6 @@
 {
 	"name": "w7/rangine",
-	"description": "微擎基于Swoole框架",
+	"description": "基于 Swoole 的常驻内存型 PHP 高性能框架",
 	"type": "library",
 	"license": "Apache-2.0",
 	"authors": [
