@@ -123,6 +123,9 @@ class TaskDispatcher extends DispatcherAbstract {
 			throw new TaskException('Task ' . $message->task . ' not found');
 		}
 
+		/**
+		 * @var TaskAbstract $task
+		 */
 		$task = Container::singleton($message->task);
 		if (method_exists($task, 'finish')) {
 			$message->hasFinishCallback = true;
@@ -133,10 +136,16 @@ class TaskDispatcher extends DispatcherAbstract {
 		try {
 			$message->result = call_user_func_array([$task, $message->method], [$server, $taskId, $workId, $message->params ?? []]);
 		} catch (\Throwable $e) {
+			$task->fail($e);
 			throw $e;
 		}
+
 		//return 时将消息传递给 onFinish 事件
-		//onFinish 回调还需要处理一下用户定义的任务回调方法
+		//在task进程中执行完成后,onFinish 回调还需要处理一下用户定义的任务回调方法
+		if (!($server && \property_exists($server, 'taskworker') && ($server->taskworker))) {
+			$task->finish($server, $taskId, $message->result, $message->params ?? []);
+		}
+
 		return $message;
 	}
 }

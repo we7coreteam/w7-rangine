@@ -23,6 +23,9 @@ abstract class TaskAbstract implements TaskInterface {
 		return true;
 	}
 
+	public function fail($exception) {
+	}
+
 	public function finish($server, $taskId, $data, $params) {
 	}
 }
