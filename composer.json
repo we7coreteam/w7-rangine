@@ -13,7 +13,7 @@
 		"php": ">=7.2",
 		"ext-swoole": ">=4.4.0",
 		"ext-json": "*",
-		"w7/rangine-compat": "2.3.8",
+		"w7/rangine-compat": "2.3.9",
 		"w7/rangine-http-message": "*",
 		"w7/rangine-database-tool": "*",
 		"w7/rangine-lang": "*",
