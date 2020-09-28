@@ -32,6 +32,7 @@ use W7\Core\Route\Validator\ValidatorInterface;
  * @method static bool redirect($uri, $destination, $status = 302)
  * @method static bool view($uri, string $view)
  * @method static bool add($methods, $uri, $handler, $name = '', $defaults = [])
+ * @method static bool all($uri, $handler)
  * @method static ResourceRoute apiResource($name, $controller, $options = [])
  * @method static \W7\Core\Route\Router middleware($name)
  * @method static \W7\Core\Route\Router name($name)
