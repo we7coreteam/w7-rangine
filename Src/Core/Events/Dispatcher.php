@@ -23,6 +23,7 @@ class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface 
 		if (is_string($listener) && !class_exists($listener)) {
 			return false;
 		}
+
 		parent::listen($events, $listener);
 	}
 
@@ -32,6 +33,29 @@ class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface 
 
 	public function setContainer($container) {
 		$this->container = $container;
+	}
+
+	public function createClassListener($listener, $wildcard = false) {
+		return function ($event, $payload) use ($listener, $wildcard) {
+			if ($wildcard) {
+				return call_user_func($this->createClassCallable($listener, $event, $payload), $event, $payload);
+			}
+
+			return call_user_func_array(
+				$this->createClassCallable($listener, $event, $payload),
+				$payload
+			);
+		};
+	}
+
+	protected function createClassCallable($listener, $event = null, $payload = null) {
+		[$class, $method] = $this->parseClassCallable($listener);
+
+		if ($this->handlerShouldBeQueued($class)) {
+			return $this->createQueuedHandlerCallable($class, $method);
+		}
+
+		return [new $class($event, $payload), $method];
 	}
 
 	protected function shouldBroadcast(array $payload) {
