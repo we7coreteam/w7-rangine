@@ -31,7 +31,7 @@ use W7\Core\Events\Dispatcher;
  * @method static \Closure createClassListener(string $listener, bool $wildcard = false)
  * @method static void forget(string $event)
  * @method static void forgetPushed()
- * @method static \Illuminate\Events\Dispatcher setQueueResolver(callable $resolver)
+ * @method static Dispatcher setQueueResolver(callable $resolver)
  * @method static void assertDispatched(string $event, callable|int $callback = null)
  * @method static void assertDispatchedTimes(string $event, int $times = 1)
  * @method static void assertNotDispatched(string $event, callable|int $callback = null)
