@@ -19,14 +19,6 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use ReflectionClass;
 
 class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface {
-	public function listen($events, $listener) {
-		if (is_string($listener) && !class_exists($listener)) {
-			return false;
-		}
-
-		parent::listen($events, $listener);
-	}
-
 	protected function parseClassCallable($listener) {
 		return Str::parseCallback($listener, 'run');
 	}
@@ -38,24 +30,24 @@ class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface 
 	public function createClassListener($listener, $wildcard = false) {
 		return function ($event, $payload) use ($listener, $wildcard) {
 			if ($wildcard) {
-				return call_user_func($this->createClassCallable($listener, $event, $payload), $event, $payload);
+				return call_user_func($this->createClassCallable($listener, $payload), $event, $payload);
 			}
 
 			return call_user_func_array(
-				$this->createClassCallable($listener, $event, $payload),
+				$this->createClassCallable($listener, $payload),
 				$payload
 			);
 		};
 	}
 
-	protected function createClassCallable($listener, $event = null, $payload = null) {
+	protected function createClassCallable($listener, $payload = []) {
 		[$class, $method] = $this->parseClassCallable($listener);
 
 		if ($this->handlerShouldBeQueued($class)) {
 			return $this->createQueuedHandlerCallable($class, $method);
 		}
 
-		return [new $class($event, $payload), $method];
+		return [new $class(...$payload), $method];
 	}
 
 	protected function shouldBroadcast(array $payload) {
