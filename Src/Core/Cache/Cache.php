@@ -266,8 +266,8 @@ class Cache extends CacheAbstract {
 
 		try {
 			$result = $method($connection);
-		} catch (\Throwable $throwable) {
-			$result = null;
+		} catch (\Throwable $e) {
+			$result = $this->tryAgainIfCausedByLostConnection($e, $method, $connection);
 		}
 
 		return $result;

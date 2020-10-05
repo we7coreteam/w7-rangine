@@ -14,9 +14,11 @@ namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
 use Swoole\Coroutine;
+use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Facades\Context;
 
 abstract class CacheAbstract implements CacheInterface {
+
 	protected $cacheName;
 	protected $config;
 	/**
@@ -53,6 +55,16 @@ abstract class CacheAbstract implements CacheInterface {
 		}
 
 		return $connection;
+	}
+
+	protected function tryAgainIfCausedByLostConnection(\Throwable $e, \Closure $callback, HandlerAbstract $connection){
+		if ($connection->causedByLostConnection($e)) {
+			$name = $this->getContextKey($this->cacheName);
+			Context::setContextDataByKey($name, null);
+			return $this->call($callback);
+		}
+
+		throw $e;
 	}
 
 	private function getContextKey($name): string {

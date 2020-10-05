@@ -12,10 +12,14 @@
 
 namespace W7\Core\Cache\Handler;
 
+use Illuminate\Database\DetectsLostConnections;
 use Psr\SimpleCache\CacheInterface;
 
 abstract class HandlerAbstract implements CacheInterface {
+	use DetectsLostConnections;
+
 	abstract public static function getHandler($config) : HandlerAbstract;
+	abstract public function reconnect() : HandlerAbstract;
 
 	public function pack($data) {
 		return is_numeric($data) ? $data : serialize($data);
