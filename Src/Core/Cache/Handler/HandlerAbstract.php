@@ -19,7 +19,6 @@ abstract class HandlerAbstract implements CacheInterface {
 	use DetectsLostConnections;
 
 	abstract public static function getHandler($config) : HandlerAbstract;
-	abstract public function reconnect() : HandlerAbstract;
 
 	public function pack($data) {
 		return is_numeric($data) ? $data : serialize($data);
