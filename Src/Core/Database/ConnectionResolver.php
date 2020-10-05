@@ -12,6 +12,7 @@
 
 namespace W7\Core\Database;
 
+use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
 use Swoole\Coroutine;
@@ -43,6 +44,21 @@ class ConnectionResolver extends DatabaseManager {
 		}
 
 		return $connection;
+	}
+
+	public function disconnect($name = null) {
+		list($database, $type) = $this->parseConnectionName($name);
+		$name = $name ?: $database;
+
+		$name = $this->getContextKey($name);
+		/**
+		 * @var Connection $connection
+		 */
+		$connection = Context::getContextDataByKey($name);
+		Context::setContextDataByKey($name, null);
+		if ($connection) {
+			$connection->disconnect();
+		}
 	}
 
 	public function beginTransaction($name = null) {
