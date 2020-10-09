@@ -18,7 +18,6 @@ use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Facades\Context;
 
 abstract class CacheAbstract implements CacheInterface {
-
 	protected $cacheName;
 	protected $config;
 	/**
@@ -57,11 +56,11 @@ abstract class CacheAbstract implements CacheInterface {
 		return $connection;
 	}
 
-	protected function tryAgainIfCausedByLostConnection(\Throwable $e, \Closure $callback, HandlerAbstract $connection){
+	protected function tryAgainIfCausedByLostConnection(\Throwable $e, \Closure $callback, HandlerAbstract $connection, callable $tryCall) {
 		if ($connection->causedByLostConnection($e)) {
 			$name = $this->getContextKey($this->cacheName);
 			Context::setContextDataByKey($name, null);
-			return $this->call($callback);
+			return call_user_func_array($tryCall, [$callback]);
 		}
 
 		throw $e;
