@@ -12,7 +12,18 @@
 
 namespace W7\Core\Dispatcher;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
+
 abstract class DispatcherAbstract {
+	/**
+	 * @var EventDispatcherInterface
+	 */
+	protected $eventDispatcher;
+
+	public function setEventDispatcher(EventDispatcherInterface $eventDispatcher) {
+		$this->eventDispatcher = $eventDispatcher;
+	}
+
 	/**
 	 * 派发服务
 	 * @param mixed ...$params

@@ -12,6 +12,7 @@
 
 namespace W7\Core\Task\Provider;
 
+use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
 use W7\Core\Task\TaskDispatcher;
 
@@ -19,6 +20,7 @@ class TaskProvider extends ProviderAbstract {
 	public function register() {
 		$this->container->set(TaskDispatcher::class, function () {
 			$taskDispatcher = new TaskDispatcher();
+			$taskDispatcher->setEventDispatcher(Event::getFacadeRoot());
 
 			if ($this->container->has('queue')) {
 				$taskDispatcher->setQueueResolver(function () {

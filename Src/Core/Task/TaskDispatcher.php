@@ -19,6 +19,7 @@ use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Message\Message;
 use W7\Core\Message\TaskMessage;
+use W7\Core\Task\Event\TaskDispatchEvent;
 
 /**
  * 派发任务的时候，需要先注册任务，然后在OnTask事件中具体调用
@@ -62,11 +63,15 @@ class TaskDispatcher extends DispatcherAbstract {
 		}
 
 		if (!isWorkerStatus()) {
-			return $this->dispatchNow($message);
+			$message = $this->dispatchNow($message);
+			$this->eventDispatcher && $this->eventDispatcher->dispatch(new TaskDispatchEvent($message, 'default', $message->result));
+			return $message;
 		}
 
 		$message->type = TaskMessage::OPERATION_TASK_CO;
-		return App::$server->getServer()->taskCo($message->pack(), $message->timeout);
+		$result = App::$server->getServer()->taskCo($message->pack(), $message->timeout);
+		$this->eventDispatcher && $this->eventDispatcher->dispatch(new TaskDispatchEvent($message, 'co', $result));
+		return $result;
 	}
 
 	/**
@@ -86,18 +91,22 @@ class TaskDispatcher extends DispatcherAbstract {
 			);
 
 			$queue = $message->task::$queue ?? null;
-
 			if (isset($message->task::$delay)) {
-				return $connection->laterOn($queue, $message->task::$delay, new CallQueuedTask($message));
+				$result = $connection->laterOn($queue, $message->task::$delay, new CallQueuedTask($message));
+			} else {
+				$result = $connection->pushOn($queue, new CallQueuedTask($message));
 			}
-			return $connection->pushOn($queue, new CallQueuedTask($message));
+			$this->eventDispatcher && $this->eventDispatcher->dispatch(new TaskDispatchEvent($message, 'queue', $result));
+			return $result;
 		}
 
 		if (!isWorkerStatus()) {
 			throw new TaskException('Please deliver task at worker process or deliver to queue!');
 		}
 
-		return App::$server->getServer()->task($message->pack());
+		$result = App::$server->getServer()->task($message->pack());
+		$this->eventDispatcher && $this->eventDispatcher->dispatch(new TaskDispatchEvent($message, 'worker', $result));
+		return $result;
 	}
 
 	/**
