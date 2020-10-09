@@ -18,7 +18,31 @@ use Psr\SimpleCache\CacheInterface;
 abstract class HandlerAbstract implements CacheInterface {
 	use DetectsLostConnections;
 
-	abstract public static function getHandler($config) : HandlerAbstract;
+	protected $storage;
+
+	public function __construct($storage) {
+		$this->storage = $storage;
+	}
+
+	public function setStorage($storage) {
+		$this->storage = $storage;
+		return $this;
+	}
+
+	public function getStorage() {
+		return $this->storage;
+	}
+
+	abstract public static function connect($config) : HandlerAbstract;
+
+	/**
+	 * @deprecated
+	 * @param $config
+	 * @return HandlerAbstract
+	 */
+	public static function getHandler($config) : HandlerAbstract {
+		return static::connect($config);
+	}
 
 	public function pack($data) {
 		return is_numeric($data) ? $data : serialize($data);

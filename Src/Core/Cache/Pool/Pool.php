@@ -12,28 +12,15 @@
 
 namespace W7\Core\Cache\Pool;
 
-use W7\Core\Cache\Handler\HandlerAbstract;
+use W7\Core\Cache\ConnectionResolver;
+use W7\Core\Facades\Container;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
-	private $creator;
 	protected $type = 'cache';
 
-	public function setCreator($creator) {
-		$this->creator = $creator;
-	}
-
 	public function createConnection() {
-		if (empty($this->creator)) {
-			throw new \RuntimeException('Invalid cache creator');
-		}
-		/**
-		 * @var HandlerAbstract $connectionClass
-		 */
-		$connectionClass = $this->creator;
-		$connection = $connectionClass::getHandler($this->config);
-		$connection->poolName = sprintf('%s:%s', $this->config['driver'], $this->poolName);
-		return $connection;
+		return Container::get(ConnectionResolver::class)->createConnection($this->getPoolName(), false);
 	}
 
 	public function getConnection() {

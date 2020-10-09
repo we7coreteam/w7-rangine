@@ -56,7 +56,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 	 */
 	protected $waitCount = 0;
 
-	public function __construct($name = '') {
+	public function __construct($name) {
 		$this->poolName = $name;
 
 		$this->busyCount = 0;

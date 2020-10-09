@@ -10,7 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Database\Pool;
+namespace W7\Core\Cache\Pool;
 
 use W7\Core\Pool\PoolFactoryAbstract;
 

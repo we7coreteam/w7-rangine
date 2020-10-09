@@ -16,9 +16,9 @@ class RedisHandler extends HandlerAbstract {
 	/**
 	 * @var \Redis
 	 */
-	private $redis;
+	protected $storage;
 
-	public static function getHandler($config) : HandlerAbstract {
+	public static function connect($config) : HandlerAbstract {
 		$redis  = new \Redis();
 		$result = $redis->connect($config['host'], $config['port'], $config['timeout']);
 		if ($result === false) {
@@ -34,47 +34,43 @@ class RedisHandler extends HandlerAbstract {
 		return new static($redis);
 	}
 
-	public function __construct(\Redis $redis) {
-		$this->redis = $redis;
-	}
-
 	public function set($key, $value, $ttl = null) {
-		return $this->redis->set($key, $value, $ttl);
+		return $this->storage->set($key, $value, $ttl);
 	}
 
 	public function get($key, $default = null) {
-		return $this->redis->get($key);
+		return $this->storage->get($key);
 	}
 
 	public function has($key) {
-		return $this->redis->exists($key);
+		return $this->storage->exists($key);
 	}
 
 	public function setMultiple($values, $ttl = null) {
-		return $this->redis->mset($values);
+		return $this->storage->mset($values);
 	}
 
 	public function getMultiple($keys, $default = null) {
-		return $this->redis->mget($keys);
+		return $this->storage->mget($keys);
 	}
 
 	public function delete($key) {
-		return $this->redis->del($key);
+		return $this->storage->del($key);
 	}
 
 	public function deleteMultiple($keys) {
-		return $this->redis->del(...$keys);
+		return $this->storage->del(...$keys);
 	}
 
 	public function clear() {
-		return $this->redis->flushDB();
+		return $this->storage->flushDB();
 	}
 
 	public function alive() {
-		return $this->redis->ping();
+		return $this->storage->ping();
 	}
 
 	public function __call($name, $arguments) {
-		return $this->redis->$name(...$arguments);
+		return $this->storage->$name(...$arguments);
 	}
 }
