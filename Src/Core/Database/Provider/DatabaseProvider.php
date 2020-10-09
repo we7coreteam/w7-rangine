@@ -15,7 +15,6 @@ namespace W7\Core\Database\Provider;
 use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
-use Illuminate\Database\Connectors\MySqlConnector;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Events\TransactionBeginning;
@@ -24,11 +23,11 @@ use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Support\Facades\Facade;
 use W7\Core\Database\Connection\PdoMysqlConnection;
 use W7\Core\Database\ConnectionResolver;
-use W7\Core\Database\ConnectorManager;
 use W7\Core\Database\Event\QueryExecutedEvent;
 use W7\Core\Database\Event\TransactionBeginningEvent;
 use W7\Core\Database\Event\TransactionCommittedEvent;
 use W7\Core\Database\Event\TransactionRolledBackEvent;
+use W7\Core\Database\Pool\PoolFactory;
 use W7\Core\Facades\Config;
 use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
@@ -48,21 +47,17 @@ class DatabaseProvider extends ProviderAbstract {
 				return new PdoMysqlConnection($connection, $database, $prefix, $config);
 			});
 
-			$connectorManager = new ConnectorManager(Config::get('app.pool.database', []));
-			$connectorManager->setEventDispatcher(Event::getFacadeRoot());
-			ConnectorManager::registerConnector('mysql', MySqlConnector::class);
-
 			/**
 			 * @var Container $container
 			 */
 			$container = $this->container->get(Container::class);
-			$container->instance('db.connector.mysql', $connectorManager);
 
 			$container['config']['database.default'] = 'default';
 			$container['config']['database.connections'] = $this->config->get('app.database', []);
 			$factory = new ConnectionFactory($container);
 
 			$connectionResolver = new ConnectionResolver($container, $factory);
+			$connectionResolver->setPoolFactory(new PoolFactory(Config::get('app.pool.database', [])));
 			$container['db'] = $connectionResolver;
 			Facade::setFacadeApplication($container);
 

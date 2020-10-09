@@ -1,23 +1,20 @@
 <?php
+
 /**
- * @author donknap
- * @date 18-10-26 上午11:17
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Core\Database\Connection;
 
-
 use Illuminate\Database\MySqlConnection;
 
 class PdoMysqlConnection extends MySqlConnection {
-	public function getPoolName() {
-		$activeConnection = $this->getActiveConnection();
-		if (!empty($activeConnection->poolName)) {
-			return $activeConnection->poolName;
-		}
-		return '';
-	}
-
 	/**
 	 * 获取当前活动的查询连接
 	 */
