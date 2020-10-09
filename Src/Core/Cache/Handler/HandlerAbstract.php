@@ -16,7 +16,9 @@ use Illuminate\Database\DetectsLostConnections;
 use Psr\SimpleCache\CacheInterface;
 
 abstract class HandlerAbstract implements CacheInterface {
-	use DetectsLostConnections;
+	use DetectsLostConnections {
+		causedByLostConnection as public isCausedByLostConnection;
+	}
 
 	protected $storage;
 

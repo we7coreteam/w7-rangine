@@ -40,7 +40,7 @@ abstract class CacheAbstract implements CacheInterface {
 	}
 
 	protected function tryAgainIfCausedByLostConnection(\Throwable $e, \Closure $callback, HandlerAbstract $connection, callable $tryCall) {
-		if ($connection->causedByLostConnection($e)) {
+		if ($connection->isCausedByLostConnection($e)) {
 			$this->connectionResolver->reconnect($this->getName());
 			return call_user_func_array($tryCall, [$callback]);
 		}
