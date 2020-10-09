@@ -63,7 +63,7 @@ class ConnectionResolver extends DatabaseManager {
 	 * @return \Illuminate\Database\Connection
 	 */
 	public function reconnect($name = null) {
-		$this->disconnect($name);
+		$this->disconnect($name = $name ?: $this->getDefaultConnection());
 
 		if (!$this->getConnectionByNameFromContext($name)) {
 			return $this->connection($name);
