@@ -47,20 +47,53 @@ class ConnectionResolver extends DatabaseManager {
 	}
 
 	public function disconnect($name = null) {
-		list($database, $type) = $this->parseConnectionName($name);
-		$name = $name ?: $database;
-
-		$name = $this->getContextKey($name);
 		/**
 		 * @var Connection $connection
 		 */
-		$connection = Context::getContextDataByKey($name);
-		Context::setContextDataByKey($name, null);
+		$connection = $this->getConnectionByNameFromContext($name);
 		if ($connection) {
 			$connection->disconnect();
 		}
 	}
 
+	/**
+	 * Reconnect to the given database.
+	 *
+	 * @param  string|null  $name
+	 * @return \Illuminate\Database\Connection
+	 */
+	public function reconnect($name = null) {
+		$this->disconnect($name);
+
+		if (!$this->getConnectionByNameFromContext($name)) {
+			return $this->connection($name);
+		}
+
+		return $this->refreshPdoConnections($name);
+	}
+
+	/**
+	 * Refresh the PDO connections on a given connection.
+	 *
+	 * @param  string  $name
+	 * @return \Illuminate\Database\Connection
+	 */
+	protected function refreshPdoConnections($name) {
+		$fresh = $this->makeConnection($name);
+
+		/**
+		 * @var Connection $connection
+		 */
+		$connection = $this->getConnectionByNameFromContext($name);
+		return $connection->setPdo($fresh->getRawPdo())
+			->setReadPdo($fresh->getRawReadPdo());
+	}
+
+	/**
+	 * @deprecated
+	 * @param null $name
+	 * @throws \Exception
+	 */
 	public function beginTransaction($name = null) {
 		return $this->connection($name)->beginTransaction();
 	}
@@ -85,6 +118,13 @@ class ConnectionResolver extends DatabaseManager {
 			return true;
 		}
 		$pool->releaseConnection($activePdo);
+	}
+
+	private function getConnectionByNameFromContext($name = null) {
+		list($database, $type) = $this->parseConnectionName($name);
+		$contextDbName = $name ?: $database;
+		$contextDbName = $this->getContextKey($contextDbName);
+		return Context::getContextDataByKey($contextDbName);
 	}
 
 	private function getContextKey($name): string {
