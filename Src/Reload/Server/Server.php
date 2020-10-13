@@ -12,6 +12,7 @@
 
 namespace W7\Reload\Server;
 
+use W7\App;
 use W7\Core\Facades\Config;
 use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Server\ServerEnum;
@@ -42,6 +43,9 @@ class Server extends ProcessServerAbstract {
 
 	public function listener(\Swoole\Server $server = null) {
 		if ((ENV & DEBUG) !== DEBUG) {
+			return false;
+		}
+		if (App::$server instanceof ProcessServerAbstract) {
 			return false;
 		}
 		return parent::listener($server);
