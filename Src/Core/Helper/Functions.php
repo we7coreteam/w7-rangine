@@ -26,10 +26,11 @@ if (!function_exists('isCli')) {
 if (!function_exists('getClientIp')) {
 	function getClientIp() {
 		$request = Context::getRequest();
-
 		$serverParams = $request->getServerParams();
-		if (!empty($serverParams['HTTP_X_FORWARDED_FOR'])) {
-			$arr = explode(',', $serverParams['HTTP_X_FORWARDED_FOR']);
+		$xForwardedFor = !empty($serverParams['HTTP_X_FORWARDED_FOR']) ? $serverParams['HTTP_X_FORWARDED_FOR'] : ($request->getHeader('X-Forwarded-For')[0] ?? '');
+
+		if (!empty($xForwardedFor)) {
+			$arr = explode(',', $xForwardedFor);
 			$pos = array_search('unknown', $arr);
 			if (false !== $pos) {
 				unset($arr[$pos]);
@@ -37,12 +38,10 @@ if (!function_exists('getClientIp')) {
 			$ip = trim($arr[0]);
 		} elseif (!empty($serverParams['HTTP_CLIENT_IP'])) {
 			$ip = $serverParams['HTTP_CLIENT_IP'];
+		} elseif ($request->hasHeader('X-Real-IP')) {
+			$ip = $request->getHeader('X-Real-IP')[0];
 		} elseif (!empty($serverParams['REMOTE_ADDR'])) {
 			$ip = $serverParams['REMOTE_ADDR'];
-		} elseif ($request->getHeader('X-Forwarded-For')) {
-			$ip = $request->getHeader('X-Forwarded-For')[0];
-		} elseif ($request->getHeader('X-Real-IP')) {
-			$ip = $request->getHeader('X-Real-IP')[0];
 		} else {
 			$ip = $request->getSwooleRequest()->server['remote_addr'];
 		}
