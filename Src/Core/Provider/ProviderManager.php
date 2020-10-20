@@ -95,8 +95,8 @@ class ProviderManager {
 			}
 		}
 
-		$provider->register();
 		$this->registeredProviders[get_class($provider)] = $provider;
+		$provider->register();
 
 		return $provider;
 	}
