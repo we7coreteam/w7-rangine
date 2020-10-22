@@ -20,8 +20,11 @@ use ReflectionClass;
 
 class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface {
 	public function listen($events, $listener) {
-		if (is_string($listener) && !class_exists($listener)) {
-			return false;
+		if (is_string($listener)) {
+			[$class, $method] = $this->parseClassCallable($listener);
+			if (!class_exists($class)) {
+				return false;
+			}
 		}
 
 		parent::listen($events, $listener);
