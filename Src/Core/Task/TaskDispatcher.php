@@ -58,7 +58,7 @@ class TaskDispatcher extends DispatcherAbstract {
 			throw new TaskException('Task ' . $message->task . ' not found');
 		}
 
-		if ((method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask())) {
+		if ($message->isTaskAsync() || method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask()) {
 			return $this->dispatchAsync($message);
 		}
 
@@ -151,7 +151,7 @@ class TaskDispatcher extends DispatcherAbstract {
 
 		//return 时将消息传递给 onFinish 事件
 		//在task进程中执行完成后,onFinish 回调还需要处理一下用户定义的任务回调方法
-		if (!($server && \property_exists($server, 'taskworker') && ($server->taskworker))) {
+		if (!($server && \property_exists($server, 'taskworker') && ($server->taskworker) && $message->isTaskAsync())) {
 			$task->finish($server, $taskId, $message->result, $message->params ?? []);
 		}
 
