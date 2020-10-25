@@ -19,7 +19,8 @@ use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Message\Message;
 use W7\Core\Message\TaskMessage;
-use W7\Core\Task\Event\TaskDispatchEvent;
+use W7\Core\Task\Event\AfterTaskDispatchEvent;
+use W7\Core\Task\Event\BeforeTaskDispatchEvent;
 
 /**
  * 派发任务的时候，需要先注册任务，然后在OnTask事件中具体调用
@@ -63,14 +64,16 @@ class TaskDispatcher extends DispatcherAbstract {
 		}
 
 		if (!isWorkerStatus()) {
+			$this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeTaskDispatchEvent($message, 'default'));
 			$message = $this->dispatchNow($message);
-			$this->eventDispatcher && $this->eventDispatcher->dispatch(new TaskDispatchEvent($message, 'default', $message->result));
+			$this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterTaskDispatchEvent($message, 'default', $message->result));
 			return $message;
 		}
 
 		$message->type = TaskMessage::OPERATION_TASK_CO;
+		$this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeTaskDispatchEvent($message, 'co'));
 		$result = App::$server->getServer()->taskCo($message->pack(), $message->timeout);
-		$this->eventDispatcher && $this->eventDispatcher->dispatch(new TaskDispatchEvent($message, 'co', $result));
+		$this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterTaskDispatchEvent($message, 'co', $result));
 		return $result;
 	}
 
@@ -90,13 +93,14 @@ class TaskDispatcher extends DispatcherAbstract {
 				$message->task::$connection ?? null
 			);
 
+			$this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeTaskDispatchEvent($message, 'queue'));
 			$queue = $message->task::$queue ?? null;
 			if (isset($message->task::$delay)) {
 				$result = $connection->laterOn($queue, $message->task::$delay, new CallQueuedTask($message));
 			} else {
 				$result = $connection->pushOn($queue, new CallQueuedTask($message));
 			}
-			$this->eventDispatcher && $this->eventDispatcher->dispatch(new TaskDispatchEvent($message, 'queue', $result));
+			$this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterTaskDispatchEvent($message, 'queue', $result));
 			return $result;
 		}
 
@@ -104,8 +108,9 @@ class TaskDispatcher extends DispatcherAbstract {
 			throw new TaskException('Please deliver task at worker process or deliver to queue!');
 		}
 
+		$this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeTaskDispatchEvent($message, 'worker'));
 		$result = App::$server->getServer()->task($message->pack());
-		$this->eventDispatcher && $this->eventDispatcher->dispatch(new TaskDispatchEvent($message, 'worker', $result));
+		$this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterTaskDispatchEvent($message, 'worker', $result));
 		return $result;
 	}
 

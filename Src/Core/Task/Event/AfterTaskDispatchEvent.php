@@ -14,7 +14,7 @@ namespace W7\Core\Task\Event;
 
 use W7\Core\Message\TaskMessage;
 
-class TaskDispatchEvent {
+class AfterTaskDispatchEvent {
 	/**
 	 * @var TaskMessage
 	 */
