@@ -13,13 +13,13 @@
 namespace W7\Core\Process;
 
 class ProcessFactory {
+	private $processConfig = [];
 	private $processMap = [];
-	private $processNames = [];
-	private $processIds = [];
+	private $processMapWithName = [];
 
 	public function add($name, $handle, $num = 1) {
 		for ($i = 0; $i < $num; $i++) {
-			$this->processMap[] = [
+			$this->processConfig[] = [
 				'name' => $name,
 				'handle' => $handle,
 				'num' => $num
@@ -28,24 +28,20 @@ class ProcessFactory {
 	}
 
 	public function count() {
-		return count($this->processMap);
+		return count($this->processConfig);
 	}
 
-	public function make($id) : ProcessAbstract {
-		$value = $this->processMap[$id];
+	public function makeById($id) : ProcessAbstract {
+		$value = $this->processConfig[$id];
 		$process = new $value['handle']($value['name'], $value['num']);
-		$this->processIds[$id] = $process;
-		$this->processNames[$value['name']][] = $process;
+		$this->processMap[$id] = $process;
+		$this->processMapWithName[$value['name']][] = $process;
 
 		return $process;
 	}
 
-	public function del($name) {
-		unset($this->processMap[$name]);
-	}
-
-	public function get($id) : ProcessAbstract {
-		return $this->processIds[$id];
+	public function getById($id) : ProcessAbstract {
+		return $this->processMap[$id];
 	}
 
 	public function getByName($name, $index = 0) : ProcessAbstract {
@@ -56,6 +52,11 @@ class ProcessFactory {
 			throw new \Exception('the process ' . $name . '[' . $index . '] not exist');
 		}
 
-		return $this->processNames[$name][$index];
+		return $this->processMapWithName[$name][$index];
+	}
+
+	public function delById($id) {
+		unset($this->processConfig[$id]);
+		unset($this->processMap[$id]);
 	}
 }
