@@ -13,15 +13,13 @@
 namespace W7\Core\Facades;
 
 use W7\Core\Task\TaskDispatcher;
-use W7\Core\Message\Message;
 use W7\Core\Message\TaskMessage;
 
 /**
  * Class Task
  * @package W7\Core\Facades
  *
- * @method static mixed dispatchNow($message, $server = null, $taskId = null, $workerId = null)
- * @method static Message handle(...$params)
+ * @method static TaskMessage dispatchNow($message, $server = null, $taskId = null, $workerId = null)
  */
 class Task extends FacadeAbstract {
 	protected static function getFacadeAccessor() {

@@ -42,9 +42,6 @@ class PipeMessageListener extends ListenerAbstract {
 			Event::dispatch(new BeforeTaskExecutorEvent($message));
 			try {
 				$message = Task::dispatchNow($message, $server, Context::getCoroutineId(), $params[1]);
-				if ($message === false) {
-					return false;
-				}
 				Event::dispatch(new AfterTaskExecutorEvent($message));
 			} catch (\Throwable $throwable) {
 				Event::dispatch(new AfterTaskExecutorEvent($message, $throwable));
