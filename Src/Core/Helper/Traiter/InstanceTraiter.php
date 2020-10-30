@@ -16,7 +16,7 @@ use W7\Core\Facades\Container;
 
 trait InstanceTraiter {
 	public static function instance() {
-		$instance = Container::get(static::class);
+		$instance = Container::singleton(static::class);
 
 		/**
 		 * @var static $instance

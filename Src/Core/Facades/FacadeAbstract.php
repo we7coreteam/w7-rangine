@@ -21,7 +21,7 @@ abstract class FacadeAbstract {
 	 *
 	 * @var array
 	 */
-	protected static $resolvedInstance;
+	public static $resolvedInstance;
 
 	/**
 	 * Resolve the facade root instance from the container.

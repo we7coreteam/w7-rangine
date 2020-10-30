@@ -35,6 +35,12 @@ class EventProvider extends ProviderAbstract {
 			$container = $this->container->get(Container::class);
 			$container->instance('events', $eventDispatcher);
 			$eventDispatcher->setContainer($container);
+			$eventDispatcher->setQueueResolver(function () {
+				if ($this->container->has('queue')) {
+					return $this->container->singleton('queue');
+				}
+				return null;
+			});
 
 			return $eventDispatcher;
 		});

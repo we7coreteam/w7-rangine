@@ -13,24 +13,29 @@
 namespace W7\Core\Cache\Provider;
 
 use W7\Core\Cache\CacheManager;
-use W7\Core\Cache\ConnectorManager;
+use W7\Core\Cache\ConnectionResolver;
+use W7\Core\Cache\Pool\PoolFactory;
 use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set(CacheManager::class, function () {
+		$this->container->set(ConnectionResolver::class, function () {
 			$connectionConfig = $this->config->get('app.cache', []);
-			$poolConfig = $this->config->get('app.pool.cache', []);
 			foreach ($connectionConfig as &$config) {
 				$config['driver'] = $this->config->get('handler.cache.' . $config['driver'], $config['driver']);
 			}
+			$poolConfig = $this->config->get('app.pool.cache', []);
 
-			$connectorManager = new ConnectorManager($poolConfig);
-			$connectorManager->setEventDispatcher(Event::getFacadeRoot());
+			$connectionResolver = new ConnectionResolver($connectionConfig);
+			$connectionResolver->setEventDispatcher(Event::getFacadeRoot());
+			$connectionResolver->setPoolFactory(new PoolFactory($poolConfig));
 
-			$cacheManager = new CacheManager($connectionConfig);
-			$cacheManager->setConnectorResolver($connectorManager);
+			return $connectionResolver;
+		});
+		$this->container->set(CacheManager::class, function () {
+			$cacheManager = new CacheManager();
+			$cacheManager->setConnectionResolver($this->container->get(ConnectionResolver::class));
 			return $cacheManager;
 		});
 	}

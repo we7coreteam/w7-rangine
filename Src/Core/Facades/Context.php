@@ -18,6 +18,7 @@ namespace W7\Core\Facades;
  *
  * @method static \W7\Http\Message\Server\Request getRequest()
  * @method static \W7\Http\Message\Server\Response getResponse()
+ * @method static void setContextData(array $contextData = [])
  * @method static array getContextData()
  * @method static void setRequest(\W7\Http\Message\Server\Request $request)
  * @method static void setResponse(\W7\Http\Message\Server\Response $response)

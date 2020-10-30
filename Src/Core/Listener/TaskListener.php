@@ -14,7 +14,14 @@ namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
 use Swoole\Server\Task;
+use W7\Core\Exception\HandlerExceptions;
+use W7\Core\Facades\Container;
+use W7\Core\Facades\Event;
 use W7\Core\Facades\Task as TaskFacade;
+use W7\Core\Message\Message;
+use W7\Core\Task\Event\AfterTaskExecutorEvent;
+use W7\Core\Task\Event\BeforeTaskExecutorEvent;
+use W7\Core\Task\TaskDispatcher;
 
 class TaskListener implements ListenerInterface {
 	public function run(...$params) {
@@ -24,15 +31,20 @@ class TaskListener implements ListenerInterface {
 	}
 
 	private function dispatchTask(Server $server, Task $task) {
+		$message = Message::unpack($task->data);
+		/**
+		 * @var TaskDispatcher $taskDispatcher
+		 */
+		Event::dispatch(new BeforeTaskExecutorEvent($message));
 		try {
-			$result = TaskFacade::dispatch($server, $task->id, $task->worker_id, $task->data);
-		} catch (\Throwable $exception) {
-			$task->finish($exception->getMessage());
-			return;
+			$message = TaskFacade::dispatchNow($message, $server, $task->id, $task->worker_id);
+			Event::dispatch(new AfterTaskExecutorEvent($message));
+		} catch (\Throwable $throwable) {
+			$message->result = $throwable->getMessage();
+			Event::dispatch(new AfterTaskExecutorEvent($message, $throwable));
+			Container::singleton(HandlerExceptions::class)->getHandler()->report($throwable);
 		}
-		if (empty($result)) {
-			$result = true;
-		}
-		$task->finish($result);
+
+		$task->finish($message->result);
 	}
 }

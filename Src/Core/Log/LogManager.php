@@ -15,6 +15,7 @@ namespace W7\Core\Log;
 use Monolog\Logger as MonoLogger;
 use Psr\Log\LoggerInterface;
 use W7\Core\Log\Handler\HandlerAbstract;
+use W7\Core\Log\Processor\SwooleProcessor;
 
 /**
  * Class LogManager
@@ -93,7 +94,7 @@ class LogManager {
 			$logger->pushHandler($handler);
 		}
 
-		$config['processor'] = (array)(empty($config['processor']) ? [] : $config['processor']);
+		$config['processor'] = (array)(empty($config['processor']) ? [SwooleProcessor::class] : $config['processor']);
 		foreach ($config['processor'] as $processor) {
 			$logger->pushProcessor(new $processor);
 		}

@@ -46,7 +46,7 @@ class FileLoader {
 				$parentDir = dirname($loadRule);
 				$parentLoadRule = $loadDir;
 				if ($parentDir != '.' && $parentDir != '..') {
-					$parentLoadRule .= '/' . $parentDir;
+					$parentLoadRule .= DIRECTORY_SEPARATOR . $parentDir;
 				}
 				$files = array_diff(glob("$parentLoadRule/*"), glob("$loadDir/$loadRule"));
 			} else {

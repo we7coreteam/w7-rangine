@@ -12,10 +12,39 @@
 
 namespace W7\Core\Cache\Handler;
 
+use Illuminate\Database\DetectsLostConnections;
 use Psr\SimpleCache\CacheInterface;
 
 abstract class HandlerAbstract implements CacheInterface {
-	abstract public static function getHandler($config) : HandlerAbstract;
+	use DetectsLostConnections {
+		causedByLostConnection as public isCausedByLostConnection;
+	}
+
+	protected $storage;
+
+	public function __construct($storage) {
+		$this->storage = $storage;
+	}
+
+	public function setStorage($storage) {
+		$this->storage = $storage;
+		return $this;
+	}
+
+	public function getStorage() {
+		return $this->storage;
+	}
+
+	abstract public static function connect($config) : HandlerAbstract;
+
+	/**
+	 * @deprecated
+	 * @param $config
+	 * @return HandlerAbstract
+	 */
+	public static function getHandler($config) : HandlerAbstract {
+		return static::connect($config);
+	}
 
 	public function pack($data) {
 		return is_numeric($data) ? $data : serialize($data);

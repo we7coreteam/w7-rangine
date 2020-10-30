@@ -10,21 +10,23 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Fpm\Session\Provider;
+namespace W7\Fpm\Listener;
 
-use W7\Core\Provider\ProviderAbstract;
-use W7\Fpm\Server\Dispatcher;
+use W7\Core\Facades\Config;
+use W7\Core\Facades\Container;
+use W7\Core\Listener\ListenerAbstract;
 use W7\Fpm\Session\Middleware\SessionMiddleware;
+use W7\Fpm\Server\Dispatcher;
 
-class SessionProvider extends ProviderAbstract {
-	public function register() {
+class BeforeStartListener extends ListenerAbstract {
+	public function run(...$params) {
 		$this->initSessionConfig();
 		$this->registerMiddleware();
 	}
 
 	//把用户设置的session配置起作用到php.ini中
 	private function initSessionConfig() {
-		$sessionConfig = $this->config->get('app.session', []);
+		$sessionConfig = Config::get('app.session', []);
 		if (empty($sessionConfig['save_path'])) {
 			//如果没设置，使用php默认的session目录
 			$sessionConfig['save_path'] = session_save_path();
@@ -43,14 +45,14 @@ class SessionProvider extends ProviderAbstract {
 		}
 		ini_set('session.auto_start', 'Off');
 
-		$this->config->set('app.session', $sessionConfig);
+		Config::set('app.session', $sessionConfig);
 	}
 
 	private function registerMiddleware() {
 		/**
-		 * @var Dispatcher $dispatcher
+		 * @var \W7\Fpm\Server\Dispatcher $dispatcher
 		 */
-		$dispatcher = $this->container->singleton(Dispatcher::class);
+		$dispatcher = Container::singleton(Dispatcher::class);
 		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class);
 	}
 }

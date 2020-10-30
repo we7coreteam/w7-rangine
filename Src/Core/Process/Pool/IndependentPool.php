@@ -14,6 +14,7 @@ namespace W7\Core\Process\Pool;
 
 use Swoole\Process;
 use Swoole\Process\Pool as PoolManager;
+use W7\App;
 
 /**
  * 该进程池由独立的process manager管理
@@ -55,6 +56,7 @@ class IndependentPool extends PoolAbstract {
 
 		file_put_contents($this->pidFile, getmypid());
 
+		isetProcessTitle(App::$server->getPname() . 'process manager');
 		$server->start();
 	}
 

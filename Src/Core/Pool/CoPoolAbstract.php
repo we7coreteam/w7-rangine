@@ -23,6 +23,9 @@ use W7\Core\Pool\Event\SuspendConnectionEvent;
 
 abstract class CoPoolAbstract implements PoolInterface {
 	protected $poolName;
+
+	protected $type;
+
 	/**
 	 * 最大连接数据
 	 * @var int
@@ -53,17 +56,17 @@ abstract class CoPoolAbstract implements PoolInterface {
 	 */
 	protected $waitCount = 0;
 
-	protected $config;
-
-	protected $type;
-
-	public function __construct($name = '') {
+	public function __construct($name) {
 		$this->poolName = $name;
 
 		$this->busyCount = 0;
 		$this->waitCount = 0;
 
 		$this->waitQueue = new \SplQueue();
+	}
+
+	public function getPoolName() {
+		return $this->poolName;
 	}
 
 	abstract public function createConnection();
@@ -125,10 +128,6 @@ abstract class CoPoolAbstract implements PoolInterface {
 	public function setMaxCount(int $maxActive) {
 		$this->maxActive = $maxActive;
 		$this->idleQueue = new Channel($this->maxActive);
-	}
-
-	public function setConfig($config) {
-		$this->config = $config;
 	}
 
 	/**

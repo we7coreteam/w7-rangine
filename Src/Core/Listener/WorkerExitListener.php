@@ -12,8 +12,11 @@
 
 namespace W7\Core\Listener;
 
-class ProcessMessageListener extends ListenerAbstract {
+use W7\Core\Facades\Event;
+use W7\Core\Server\ServerEvent;
+
+class WorkerExitListener extends ListenerAbstract {
 	public function run(...$params) {
-		// TODO: Implement run() method.
+		Event::dispatch(ServerEvent::ON_USER_AFTER_WORKER_EXIT, $params);
 	}
 }

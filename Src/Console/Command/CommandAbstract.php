@@ -22,7 +22,7 @@ use W7\Core\Config\Env;
 use W7\Core\Facades\Config;
 
 abstract class CommandAbstract extends Command {
-	protected $description;
+	protected $description = '';
 	/**
 	 * @var InputInterface
 	 */

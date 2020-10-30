@@ -18,13 +18,13 @@ use W7\Core\Facades\Logger;
 
 class ProcessStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		$userProcess = App::getApp()->userProcess;
-		if (empty($userProcess)) {
+		$process = App::getApp()->process;
+		if (empty($process)) {
 			return false;
 		}
 
 		try {
-			$userProcess->onStop();
+			$process->onStop();
 		} catch (\Throwable $e) {
 			Logger::debug('stop process fail with error ' . $e->getMessage());
 		}

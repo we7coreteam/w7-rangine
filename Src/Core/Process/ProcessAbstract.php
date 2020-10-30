@@ -18,10 +18,12 @@ use W7\App;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Logger;
+use W7\Core\Facades\Output;
 
 abstract class ProcessAbstract {
 	protected $name = 'process';
 	protected $num = 1;
+	protected $workerId;
 	protected $mqKey;
 	protected $serverType;
 	/**
@@ -44,6 +46,14 @@ abstract class ProcessAbstract {
 
 	public function getName() {
 		return $this->name;
+	}
+
+	public function setWorkerId($workerId) {
+		$this->workerId = $workerId;
+	}
+
+	public function getWorkerId() {
+		return $this->workerId;
 	}
 
 	public function setProcess(Process $process) {
@@ -119,6 +129,9 @@ abstract class ProcessAbstract {
 		try {
 			$callback();
 		} catch (\Throwable $throwable) {
+			if ((ENV & DEBUG) == DEBUG) {
+				Output::error($throwable->getMessage() . ' at file ' . $throwable->getFile() . ' line ' . $throwable->getLine());
+			}
 			Container::singleton(HandlerExceptions::class)->getHandler()->report($throwable);
 		}
 	}

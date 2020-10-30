@@ -13,47 +13,38 @@
 namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
-use W7\Core\Facades\Context;
+use W7\Core\Cache\Handler\HandlerAbstract;
 
 abstract class CacheAbstract implements CacheInterface {
-	protected $cacheName;
-	protected $config;
+	protected $name;
 	/**
-	 * @var ConnectorManager
+	 * @var ConnectionResolver
 	 */
 	protected $connectionResolver;
 
-	public function __construct($name, array $config = []) {
-		$this->cacheName = $name;
+	public function __construct($name) {
+		$this->name = $name;
 		$config['name'] = $name;
-		$this->config = $config;
 	}
 
-	public function setConnectionResolver(ConnectorManager $connectorManager) {
+	public function getName() {
+		return $this->name;
+	}
+
+	public function setConnectionResolver(ConnectionResolver $connectorManager) {
 		$this->connectionResolver = $connectorManager;
 	}
 
 	protected function getConnection() {
-		$name = $this->getContextKey($this->cacheName);
-		$connection = Context::getContextDataByKey($name);
-
-		if (! $connection instanceof CacheInterface) {
-			try {
-				$connection = $this->connectionResolver->connect($this->config);
-				Context::setContextDataByKey($name, $connection);
-			} finally {
-				if ($connection && isCo()) {
-					defer(function () use ($connection) {
-						$this->connectionResolver->release($connection);
-					});
-				}
-			}
-		}
-
-		return $connection;
+		return $this->connectionResolver->connection($this->name);
 	}
 
-	private function getContextKey($name): string {
-		return sprintf('cache.connection.%s', $name);
+	protected function tryAgainIfCausedByLostConnection(\Throwable $e, \Closure $callback, HandlerAbstract $connection, callable $tryCall) {
+		if ($connection->isCausedByLostConnection($e)) {
+			$this->connectionResolver->reconnect($this->getName());
+			return call_user_func_array($tryCall, [$callback]);
+		}
+
+		throw $e;
 	}
 }

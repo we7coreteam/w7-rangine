@@ -187,10 +187,6 @@ use W7\Core\Cache\Handler\HandlerAbstract;
  */
 class Cache extends CacheAbstract {
 	public function set($key, $value, $ttl = null) {
-		if (isset($ttl)) {
-			$ttl = (int)$ttl;
-		}
-
 		return $this->call(function (HandlerAbstract $handler) use ($key, $value, $ttl) {
 			$value = $handler->pack($value);
 			return $handler->set($key, $value, $ttl);
@@ -215,10 +211,6 @@ class Cache extends CacheAbstract {
 	}
 
 	public function setMultiple($values, $ttl = null) {
-		if (isset($ttl)) {
-			$ttl = (int)$ttl;
-		}
-
 		return $this->call(function (HandlerAbstract $handler) use ($values, $ttl) {
 			$values = (array)$values;
 			foreach ($values as $key => &$value) {
@@ -274,8 +266,8 @@ class Cache extends CacheAbstract {
 
 		try {
 			$result = $method($connection);
-		} catch (\Throwable $throwable) {
-			$result = null;
+		} catch (\Throwable $e) {
+			$result = $this->tryAgainIfCausedByLostConnection($e, $method, $connection, [$this, 'call']);
 		}
 
 		return $result;

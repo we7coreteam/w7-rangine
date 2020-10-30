@@ -17,13 +17,8 @@ use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Server\SwooleServerAbstract;
-use W7\WebSocket\Session\Provider\SessionProvider;
 
 class Server extends SwooleServerAbstract {
-	protected $providerMap = [
-		'websocket-session' => SessionProvider::class
-	];
-
 	public function getType() {
 		return ServerEnum::TYPE_WEBSOCKET;
 	}

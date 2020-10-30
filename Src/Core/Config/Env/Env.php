@@ -26,7 +26,7 @@ class Env {
 		if (empty($path) || !is_dir($path)) {
 			throw new \RuntimeException('Invalid env path');
 		}
-		$this->envPath = rtrim($path, '/');
+		$this->envPath = rtrim($path, DIRECTORY_SEPARATOR);
 		$this->hostName = gethostname();
 	}
 
@@ -35,7 +35,7 @@ class Env {
 		$envName = getenv('ENV_NAME') ?: 'default';
 
 		$envFileName = $this->getEnvFileByHostName($envName);
-		if (!empty($envFileName) && file_exists($this->envPath . '/' . $envFileName)) {
+		if (!empty($envFileName) && file_exists($this->envPath . DIRECTORY_SEPARATOR . $envFileName)) {
 			putenv('ENV_NAME=' . $envFileName);
 			$_ENV['ENV_NAME'] = $envFileName;
 			

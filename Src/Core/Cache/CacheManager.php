@@ -16,20 +16,18 @@ use Psr\SimpleCache\CacheInterface;
 
 class CacheManager {
 	protected $caches = [];
-	protected $channelsConfig;
 	protected $defaultChannel;
 	/**
-	 * @var ConnectorManager
+	 * @var ConnectionResolver
 	 */
-	protected $connectorResolver;
+	protected $connectionResolver;
 
-	public function __construct($channelsConfig = [], $defaultChannel = 'default') {
-		$this->channelsConfig = $channelsConfig;
+	public function __construct($defaultChannel = 'default') {
 		$this->defaultChannel = $defaultChannel;
 	}
 
-	public function setConnectorResolver($connectorResolver) {
-		$this->connectorResolver = $connectorResolver;
+	public function setConnectionResolver($connectionResolver) {
+		$this->connectionResolver = $connectionResolver;
 	}
 
 	public function channel($name = 'default') : CacheInterface {
@@ -37,25 +35,17 @@ class CacheManager {
 	}
 
 	protected function getCache($channel) {
-		if (empty($this->caches[$channel]) && !empty($this->channelsConfig[$channel])) {
-			$this->registerCache($channel, $this->channelsConfig[$channel]);
-		}
 		if (empty($this->caches[$channel])) {
-			$channel = $this->defaultChannel;
+			$cache = new Cache($channel);
+			$cache->setConnectionResolver($this->connectionResolver);
+			$this->caches[$channel] = $cache;
 		}
 
-		if (!empty($this->caches[$channel]) && $this->caches[$channel] instanceof CacheInterface) {
-			return $this->caches[$channel];
-		}
-
-		throw new \RuntimeException('cache channel ' . $channel . ' not support');
+		return $this->caches[$channel];
 	}
 
-	public function registerCache($channel, array $config) {
-		$cache = new Cache($channel, $config);
-		$cache->setConnectionResolver($this->connectorResolver);
-
-		$this->caches[$channel] = $cache;
+	public function registerCache(CacheAbstract $cache) {
+		$this->caches[$cache->getName()] = $cache;
 	}
 
 	public function __call($name, $arguments) {

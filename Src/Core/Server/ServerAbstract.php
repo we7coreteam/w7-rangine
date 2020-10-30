@@ -13,8 +13,6 @@
 namespace W7\Core\Server;
 
 use W7\App;
-use W7\Core\Facades\Container;
-use W7\Core\Provider\ProviderManager;
 
 abstract class ServerAbstract implements ServerInterface {
 	//表示当前服务是主服务
@@ -24,7 +22,6 @@ abstract class ServerAbstract implements ServerInterface {
 	//表示该服务可以单独启动
 	public static $aloneServer = false;
 
-	protected $providerMap = [];
 	public $server;
 
 	/**
@@ -42,17 +39,8 @@ abstract class ServerAbstract implements ServerInterface {
 	 * //执行一些公共操作，注册事件,provider等
 	 */
 	public function registerService() {
-		$this->registerProvider();
 		$this->registerServerEvent($this->getServer());
 	}
 
 	abstract protected function registerServerEvent($byListener);
-
-	protected function registerProvider() {
-		/**
-		 * @var ProviderManager $providerManager
-		 */
-		$providerManager = Container::singleton(ProviderManager::class);
-		$providerManager->registerProviders($this->providerMap);
-	}
 }

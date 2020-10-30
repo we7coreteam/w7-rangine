@@ -13,6 +13,7 @@
 namespace W7\Core\Process;
 
 use Swoole\Process\Pool as PoolManager;
+use W7\App;
 use W7\Core\Facades\Event;
 use W7\Core\Process\Pool\DependentPool;
 use W7\Core\Process\Pool\IndependentPool;
@@ -23,7 +24,7 @@ use W7\Core\Server\SwooleServerAbstract;
 abstract class ProcessServerAbstract extends SwooleServerAbstract {
 	protected $masterServerType = ['manage'];
 
-	public static $masterServer = false;
+	public static $masterServer = true;
 	public static $onlyFollowMasterServer = false;
 	/**
 	 * @var PoolAbstract
@@ -60,23 +61,45 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 		];
 	}
 
+	public function getPool() {
+		if ($this->pool) {
+			return $this->pool;
+		}
+
+		if (App::$server instanceof ProcessServerAbstract) {
+			$this->pool = new IndependentPool($this->getType(), $this->setting);
+		} else {
+			$this->pool = new DependentPool($this->getType(), $this->setting);
+		}
+
+		return $this->pool;
+	}
+
 	public function start() {
-		$this->pool = new IndependentPool($this->getType(), $this->setting);
+		$pool = $this->getPool();
 
 		$this->registerService();
 		$this->register();
 
-		Event::dispatch(ServerEvent::ON_USER_BEFORE_START, [$this->pool]);
+		Event::dispatch(ServerEvent::ON_USER_BEFORE_START, [$pool]);
 
-		return $this->pool->start();
+		return $pool->start();
 	}
 
 	public function listener(\Swoole\Server $server = null) {
-		$this->pool = new DependentPool($this->getType(), $this->setting);
+		if (App::$server instanceof ProcessServerAbstract) {
+			$pool = $this->pool = App::$server->getPool();
+		} else {
+			$pool = $this->getPool();
+		}
 
 		$this->register();
 
-		return $this->pool->start();
+		if (!App::$server instanceof ProcessServerAbstract) {
+			$pool->start();
+		}
+
+		return true;
 	}
 
 	protected function registerSwooleEvent($server, $event, $eventType) {

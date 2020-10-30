@@ -10,7 +10,9 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener\User;
+namespace W7\Core\Events;
 
-abstract class AfterRequestListenerAbstract extends RequestListenerAbstract {
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+interface ShouldQueueInterface extends ShouldQueue {
 }

@@ -12,16 +12,18 @@
 
 namespace W7\Core\Database\Event;
 
+use Illuminate\Database\Connection;
+
 class MakeConnectionEvent {
 	public $name;
 
 	/**
-	 * @var \PDO
+	 * @var Connection
 	 */
-	public $pdo;
+	public $connection;
 
-	public function __construct($name, $pdo) {
+	public function __construct($name, Connection $connection) {
 		$this->name = $name;
-		$this->pdo = $pdo;
+		$this->connection = $connection;
 	}
 }

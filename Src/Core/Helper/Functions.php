@@ -11,9 +11,7 @@
  */
 
 use Swoole\Coroutine;
-use Symfony\Component\VarDumper\VarDumper;
 use W7\App;
-use W7\Core\Exception\DumpException;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Logger;
@@ -28,10 +26,11 @@ if (!function_exists('isCli')) {
 if (!function_exists('getClientIp')) {
 	function getClientIp() {
 		$request = Context::getRequest();
-
 		$serverParams = $request->getServerParams();
-		if (!empty($serverParams['HTTP_X_FORWARDED_FOR'])) {
-			$arr = explode(',', $serverParams['HTTP_X_FORWARDED_FOR']);
+		$xForwardedFor = !empty($serverParams['HTTP_X_FORWARDED_FOR']) ? $serverParams['HTTP_X_FORWARDED_FOR'] : ($request->getHeader('X-Forwarded-For')[0] ?? '');
+
+		if (!empty($xForwardedFor)) {
+			$arr = explode(',', $xForwardedFor);
 			$pos = array_search('unknown', $arr);
 			if (false !== $pos) {
 				unset($arr[$pos]);
@@ -39,39 +38,15 @@ if (!function_exists('getClientIp')) {
 			$ip = trim($arr[0]);
 		} elseif (!empty($serverParams['HTTP_CLIENT_IP'])) {
 			$ip = $serverParams['HTTP_CLIENT_IP'];
+		} elseif ($request->hasHeader('X-Real-IP')) {
+			$ip = $request->getHeader('X-Real-IP')[0];
 		} elseif (!empty($serverParams['REMOTE_ADDR'])) {
 			$ip = $serverParams['REMOTE_ADDR'];
-		} elseif ($request->getHeader('X-Forwarded-For')) {
-			$ip = $request->getHeader('X-Forwarded-For')[0];
-		} elseif ($request->getHeader('X-Real-IP')) {
-			$ip = $request->getHeader('X-Real-IP')[0];
 		} else {
 			$ip = $request->getSwooleRequest()->server['remote_addr'];
 		}
 
 		return $ip;
-	}
-}
-
-if (!function_exists('idd')) {
-	function idd(...$vars) {
-		ob_start();
-		if (class_exists(VarDumper::class)) {
-			$_SERVER['VAR_DUMPER_FORMAT'] = 'html';
-			foreach ($vars as $var) {
-				VarDumper::dump($var);
-			}
-			VarDumper::setHandler(null);
-		} else {
-			foreach ($vars as $var) {
-				echo '<pre>';
-				print_r($var);
-				echo '</pre>';
-			}
-		}
-		$content = ob_get_clean();
-
-		throw new DumpException($content);
 	}
 }
 
@@ -140,7 +115,7 @@ if (!function_exists('isWorkerStatus')) {
 		}
 
 		$server = App::$server->getServer();
-		if ($server->manager_pid == 0) {
+		if (empty($server->manager_pid) || $server->manager_pid == 0) {
 			return false;
 		}
 		if ($server && \property_exists($server, 'taskworker') && ($server->taskworker === false)) {
@@ -177,7 +152,7 @@ if (!function_exists('igo')) {
 					Logger::debug($e->getMessage(), ['exception' => $e]);
 				}
 			};
-			Container::singleton(\W7\Core\Helper\Compate\Coroutine::class)->add($generatorFunc());
+			Container::singleton(\W7\Core\Helper\Compate\CgiCoroutine::class)->add($generatorFunc());
 			return true;
 		}
 
@@ -211,7 +186,7 @@ if (!function_exists('isleep')) {
 
 if (!function_exists('itimeTick')) {
 	function itimeTick($ms, \Closure $callback) {
-		Timer::tick($ms, function () use ($callback) {
+		return Timer::tick($ms, function () use ($callback) {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
@@ -227,7 +202,7 @@ if (!function_exists('itimeTick')) {
 
 if (!function_exists('itimeAfter')) {
 	function itimeAfter($ms, \Closure $callback) {
-		Timer::after($ms, function () use ($callback) {
+		return Timer::after($ms, function () use ($callback) {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {

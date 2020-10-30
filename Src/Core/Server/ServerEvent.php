@@ -22,6 +22,7 @@ use W7\Core\Listener\ShutDownListener;
 use W7\Core\Listener\StartListener;
 use W7\Core\Listener\TaskListener;
 use W7\Core\Listener\WorkerErrorListener;
+use W7\Core\Listener\WorkerExitListener;
 use W7\Core\Listener\WorkerStartListener;
 use W7\Core\Listener\WorkerStopListener;
 use W7\Http\Listener\RequestListener;
@@ -76,6 +77,7 @@ class ServerEvent {
 	const ON_USER_AFTER_MANAGER_STOP = 'afterManagerStop';
 	const ON_USER_AFTER_WORKER_START = 'afterWorkerStart';
 	const ON_USER_AFTER_WORKER_STOP = 'afterWorkerStop';
+	const ON_USER_AFTER_WORKER_EXIT = 'afterWorkerExit';
 	const ON_USER_AFTER_WORKER_SHUTDOWN = 'afterWorkerShutDown';
 	const ON_USER_AFTER_WORKER_ERROR = 'afterWorkerError';
 	const ON_USER_AFTER_PIPE_MESSAGE = 'afterPipeMessage';
@@ -98,6 +100,7 @@ class ServerEvent {
 			self::ON_WORKER_START => WorkerStartListener::class,
 			self::ON_WORKER_STOP => WorkerStopListener::class,
 			self::ON_PIPE_MESSAGE => PipeMessageListener::class,
+			self::ON_WORKER_EXIT => WorkerExitListener::class
 		],
 		'task' => [
 			self::ON_TASK => TaskListener::class,
@@ -137,6 +140,7 @@ class ServerEvent {
 			self::ON_USER_AFTER_MANAGER_STOP,
 			self::ON_USER_AFTER_WORKER_START,
 			self::ON_USER_AFTER_WORKER_STOP,
+			self::ON_USER_AFTER_WORKER_EXIT,
 			self::ON_WORKER_SHUTDOWN,
 			self::ON_USER_AFTER_PIPE_MESSAGE,
 			self::ON_USER_BEFORE_REQUEST,

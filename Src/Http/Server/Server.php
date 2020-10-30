@@ -15,17 +15,12 @@ namespace W7\Http\Server;
 use Swoole\Http\Server as HttpServer;
 use W7\Core\Facades\Event;
 use W7\Core\Server\SwooleServerAbstract;
-use W7\Http\Session\Provider\SessionProvider;
 use W7\WebSocket\Server\Server as WebSocketServer;
 use W7\App;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Server\ServerEnum;
 
 class Server extends SwooleServerAbstract {
-	protected $providerMap = [
-		'http-session' => SessionProvider::class
-	];
-
 	public function getType() {
 		return ServerEnum::TYPE_HTTP;
 	}

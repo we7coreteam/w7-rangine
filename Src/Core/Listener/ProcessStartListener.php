@@ -15,30 +15,35 @@ namespace W7\Core\Listener;
 use W7\App;
 use W7\Core\Facades\Config;
 use W7\Core\Process\ProcessAbstract;
+use W7\Core\Process\ProcessFactory;
 
 class ProcessStartListener extends ListenerAbstract {
 	public function run(...$params) {
+		/**
+		 * @var ProcessFactory $processFactory
+		 */
 		list($serverType, $process, $workerId, $processFactory, $mqKey) = $params;
 		//重新播种随机因子
 		mt_srand();
 
 		/**
-		 * @var ProcessAbstract $userProcess
+		 * @var ProcessAbstract $processInstance
 		 */
-		$userProcess = $processFactory->make($workerId);
-		$userProcess->setProcess($process);
-		$userProcess->setServerType($serverType);
-		$name = $userProcess->getName();
+		$processInstance = $processFactory->makeById($workerId);
+		$processInstance->setProcess($process);
+		$processInstance->setServerType($serverType);
+		$processInstance->setWorkerId($workerId);
+		$name = $processInstance->getName();
 
 		$mqKey = Config::get("process.process.$name.message_queue_key", $mqKey);
 		$mqKey = (int)$mqKey;
-		$userProcess->setMq($mqKey);
+		$processInstance->setMq($mqKey);
 
-		isetProcessTitle($userProcess->getProcessName());
+		isetProcessTitle($processInstance->getProcessName());
 
 		//用临时变量保存该进程中的用户进程对象
-		App::getApp()->userProcess = $userProcess;
+		App::getApp()->process = $processInstance;
 
-		$userProcess->onStart();
+		$processInstance->onStart();
 	}
 }

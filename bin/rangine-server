@@ -17,7 +17,7 @@ if (strpos($path, '--app-path') !== false) {
 $dir = dirname(__DIR__, 4);
 if (!file_exists($dir . '/config/define.php')) {
 	if (!$appPath) {
-		echo '请通过参数--app-path指定app目录';
+		echo "请通过参数--app-path指定app目录\n";
 		exit();
 	}
 	$dir = explode('=', $appPath, 2)[1];

@@ -18,7 +18,7 @@ use W7\Core\Route\Router;
 class RouterProvider extends ProviderAbstract {
 	public function register() {
 		$this->container->set(Router::class, function () {
-			$documentRoot = rtrim($this->config->get('server.common.document_root', BASE_PATH . '/public'), '/');
+			$documentRoot = rtrim($this->config->get('server.common.document_root', BASE_PATH . '/public'), DIRECTORY_SEPARATOR);
 			$enableStatic = $this->config->get('server.common.enable_static_handler', true);
 
 			return new Router(null, [

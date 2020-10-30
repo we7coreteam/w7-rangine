@@ -10,13 +10,10 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener\User;
+namespace W7\Core\Bootstrap;
 
-use W7\Core\Listener\ListenerAbstract;
+use W7\App;
 
-abstract class UserListenerAbstract extends ListenerAbstract {
-	/**
-	 * @var string
-	 */
-	protected $serverType;
+interface BootstrapInterface {
+	public function bootstrap(App $app);
 }
