@@ -14,7 +14,7 @@ namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
 
-class CacheManager {
+class CacheFactory {
 	protected $cacheMap = [];
 	protected $defaultChannel;
 	/**

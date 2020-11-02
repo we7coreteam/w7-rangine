@@ -13,7 +13,7 @@
 namespace W7\Core\Facades;
 
 use Psr\SimpleCache\CacheInterface;
-use W7\Core\Cache\CacheManager;
+use W7\Core\Cache\CacheFactory;
 
 /**
  * Class Cache
@@ -207,6 +207,6 @@ class Cache extends FacadeAbstract {
 	 * @return string
 	 */
 	protected static function getFacadeAccessor() {
-		return CacheManager::class;
+		return CacheFactory::class;
 	}
 }

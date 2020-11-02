@@ -12,7 +12,7 @@
 
 namespace W7\Core\Cache\Provider;
 
-use W7\Core\Cache\CacheManager;
+use W7\Core\Cache\CacheFactory;
 use W7\Core\Cache\ConnectionResolver;
 use W7\Core\Cache\Pool\PoolFactory;
 use W7\Core\Facades\Event;
@@ -33,14 +33,14 @@ class CacheProvider extends ProviderAbstract {
 
 			return $connectionResolver;
 		});
-		$this->container->set(CacheManager::class, function () {
-			$cacheManager = new CacheManager();
-			$cacheManager->setConnectionResolver($this->container->get(ConnectionResolver::class));
-			return $cacheManager;
+		$this->container->set(CacheFactory::class, function () {
+			$cacheFactoryr = new CacheFactory();
+			$cacheFactoryr->setConnectionResolver($this->container->get(ConnectionResolver::class));
+			return $cacheFactoryr;
 		});
 	}
 
 	public function providers(): array {
-		return [CacheManager::class];
+		return [CacheFactory::class];
 	}
 }

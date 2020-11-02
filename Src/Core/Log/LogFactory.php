@@ -18,7 +18,7 @@ use W7\Core\Log\Handler\HandlerAbstract;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 /**
- * Class LogManager
+ * Class LogFactory
  * @package W7\Core\Log
  *
  * @method void emergency(string $message, array $context = [])
@@ -31,7 +31,7 @@ use W7\Core\Log\Processor\SwooleProcessor;
  * @method void debug(string $message, array $context = [])
  * @method void log($level, string $message, array $context = [])
  */
-class LogManager {
+class LogFactory {
 	protected $channelsConfig;
 	protected $defaultChannel;
 	protected $loggerMap = [];

@@ -13,13 +13,13 @@
 namespace W7\Core\Log\Provider;
 
 use Monolog\Logger as MonoLogger;
-use W7\Core\Log\LogManager;
+use W7\Core\Log\LogFactory;
 use W7\Core\Log\Processor\SwooleProcessor;
 use W7\Core\Provider\ProviderAbstract;
 
 class LogProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set(LogManager::class, function () {
+		$this->container->set(LogFactory::class, function () {
 			$config = $this->config->get('log', []);
 			$config['channel'] = $config['channel'] ?? [];
 			foreach ($config['channel'] as $name => &$setting) {
@@ -34,7 +34,7 @@ class LogProvider extends ProviderAbstract {
 				array_unshift($setting['processor'], SwooleProcessor::class);
 			}
 
-			return new LogManager($config['channel'], $config['default'] ?? 'stack');
+			return new LogFactory($config['channel'], $config['default'] ?? 'stack');
 		});
 	}
 
@@ -58,6 +58,6 @@ class LogProvider extends ProviderAbstract {
 	}
 
 	public function providers(): array {
-		return [LogManager::class];
+		return [LogFactory::class];
 	}
 }
