@@ -106,7 +106,8 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerLogger($channel, $config = []) {
-		$this->logger->registerLogger($channel, $config);
+		$logger = $this->logger->createLogger($channel, $config);
+		$this->logger->registerLogger($channel, $logger);
 	}
 
 	protected function registerRoute($fileName, $options = []) {

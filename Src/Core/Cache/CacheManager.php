@@ -30,6 +30,10 @@ class CacheManager {
 		$this->connectionResolver = $connectionResolver;
 	}
 
+	public function registerCache(CacheAbstract $cache) {
+		$this->cacheMap[$cache->getName()] = $cache;
+	}
+
 	public function channel($name = 'default') : CacheInterface {
 		return $this->getCache($name);
 	}
@@ -42,10 +46,6 @@ class CacheManager {
 		}
 
 		return $this->cacheMap[$channel];
-	}
-
-	public function registerCache(CacheAbstract $cache) {
-		$this->cacheMap[$cache->getName()] = $cache;
 	}
 
 	public function __call($name, $arguments) {

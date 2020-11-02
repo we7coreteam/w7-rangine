@@ -45,31 +45,7 @@ class LogManager {
 		$this->defaultChannel = $channel;
 	}
 
-	/**
-	 * 需调整
-	 * @param string $channel
-	 * @return LoggerInterface
-	 */
-	public function channel($channel = 'stack') : LoggerInterface {
-		return $this->getLogger($channel);
-	}
-
-	protected function getLogger($channel) : LoggerInterface {
-		if (empty($this->loggerMap[$channel]) && !empty($this->channelsConfig[$channel])) {
-			$this->registerLogger($channel, $this->channelsConfig[$channel]);
-		}
-		if (empty($this->loggerMap[$channel])) {
-			$channel = $this->defaultChannel;
-		}
-
-		if (!empty($this->loggerMap[$channel]) && $this->loggerMap[$channel] instanceof MonoLogger) {
-			return $this->loggerMap[$channel];
-		}
-
-		throw new \RuntimeException('logger channel ' . $channel . ' not support');
-	}
-
-	public function registerLogger($channel, array $config) {
+	public function createLogger($channel, array $config) {
 		$logger = new Logger($channel, [], []);
 		$logger->bufferLimit = $config['buffer_limit'] ?? 1;
 
@@ -99,9 +75,36 @@ class LogManager {
 			$logger->pushProcessor(new $processor);
 		}
 
-		$this->loggerMap[$channel] = $logger;
-
 		return $logger;
+	}
+
+	public function registerLogger($channel, LoggerInterface $logger) {
+		$this->loggerMap[$channel] = $logger;
+	}
+
+	/**
+	 * 需调整
+	 * @param string $channel
+	 * @return LoggerInterface
+	 */
+	public function channel($channel = 'stack') : LoggerInterface {
+		return $this->getLogger($channel);
+	}
+
+	protected function getLogger($channel) : LoggerInterface {
+		if (empty($this->loggerMap[$channel]) && !empty($this->channelsConfig[$channel])) {
+			$logger = $this->createLogger($channel, $this->channelsConfig[$channel]);
+			$this->registerLogger($channel, $logger);
+		}
+		if (empty($this->loggerMap[$channel])) {
+			$channel = $this->defaultChannel;
+		}
+
+		if (!empty($this->loggerMap[$channel]) && $this->loggerMap[$channel] instanceof MonoLogger) {
+			return $this->loggerMap[$channel];
+		}
+
+		throw new \RuntimeException('logger channel ' . $channel . ' not support');
 	}
 
 	public function __call($name, $arguments) {
