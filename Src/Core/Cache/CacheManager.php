@@ -15,7 +15,7 @@ namespace W7\Core\Cache;
 use Psr\SimpleCache\CacheInterface;
 
 class CacheManager {
-	protected $caches = [];
+	protected $cacheMap = [];
 	protected $defaultChannel;
 	/**
 	 * @var ConnectionResolver
@@ -35,17 +35,17 @@ class CacheManager {
 	}
 
 	protected function getCache($channel) {
-		if (empty($this->caches[$channel])) {
+		if (empty($this->cacheMap[$channel])) {
 			$cache = new Cache($channel);
 			$cache->setConnectionResolver($this->connectionResolver);
-			$this->caches[$channel] = $cache;
+			$this->cacheMap[$channel] = $cache;
 		}
 
-		return $this->caches[$channel];
+		return $this->cacheMap[$channel];
 	}
 
 	public function registerCache(CacheAbstract $cache) {
-		$this->caches[$cache->getName()] = $cache;
+		$this->cacheMap[$cache->getName()] = $cache;
 	}
 
 	public function __call($name, $arguments) {

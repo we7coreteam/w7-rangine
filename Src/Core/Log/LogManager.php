@@ -34,7 +34,7 @@ use W7\Core\Log\Processor\SwooleProcessor;
 class LogManager {
 	protected $channelsConfig;
 	protected $defaultChannel;
-	protected $loggers = [];
+	protected $loggerMap = [];
 
 	public function __construct($channelsConfig = [], $defaultChannel = 'stack') {
 		$this->channelsConfig = $channelsConfig;
@@ -55,15 +55,15 @@ class LogManager {
 	}
 
 	protected function getLogger($channel) : LoggerInterface {
-		if (empty($this->loggers[$channel]) && !empty($this->channelsConfig[$channel])) {
+		if (empty($this->loggerMap[$channel]) && !empty($this->channelsConfig[$channel])) {
 			$this->registerLogger($channel, $this->channelsConfig[$channel]);
 		}
-		if (empty($this->loggers[$channel])) {
+		if (empty($this->loggerMap[$channel])) {
 			$channel = $this->defaultChannel;
 		}
 
-		if (!empty($this->loggers[$channel]) && $this->loggers[$channel] instanceof MonoLogger) {
-			return $this->loggers[$channel];
+		if (!empty($this->loggerMap[$channel]) && $this->loggerMap[$channel] instanceof MonoLogger) {
+			return $this->loggerMap[$channel];
 		}
 
 		throw new \RuntimeException('logger channel ' . $channel . ' not support');
@@ -99,7 +99,7 @@ class LogManager {
 			$logger->pushProcessor(new $processor);
 		}
 
-		$this->loggers[$channel] = $logger;
+		$this->loggerMap[$channel] = $logger;
 
 		return $logger;
 	}
