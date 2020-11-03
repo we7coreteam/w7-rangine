@@ -25,11 +25,6 @@ class MiddlewareHandler implements RequestHandlerInterface {
 	private $middlewares;
 
 	/**
-	 * @var string
-	 */
-	private $default;
-
-	/**
 	 * @var integer
 	 *
 	 */

@@ -16,6 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Exception\RouteNotAllowException;
 use W7\Core\Exception\RouteNotFoundException;
+use W7\Core\Facades\Config;
 use W7\Core\Facades\Container;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Event;
@@ -40,7 +41,14 @@ class RequestDispatcher extends DispatcherAbstract {
 	public function __construct() {
 		//当不同类型的server一起启动时，需要区分middleware
 		$this->serverType = lcfirst(explode('\\', static::class)[1]);
-		$this->middlewareMapping = new MiddlewareMapping($this->serverType);
+		$this->middlewareMapping = new MiddlewareMapping();
+
+		foreach (Config::get('middleware.' . strtotime($this->serverType) . '.before', []) as $middleware) {
+			$this->middlewareMapping->addBeforeMiddleware($middleware);
+		}
+		foreach (Config::get('middleware.' . strtotime($this->serverType) . '.after', []) as $middleware) {
+			$this->middlewareMapping->addAfterMiddleware($middleware);
+		}
 	}
 
 	public function setServerType($type) {
