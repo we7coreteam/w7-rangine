@@ -40,7 +40,7 @@ class RequestDispatcher extends DispatcherAbstract {
 	public function __construct() {
 		//当不同类型的server一起启动时，需要区分middleware
 		$this->serverType = lcfirst(explode('\\', static::class)[1]);
-		$this->middlewareMapping = new MiddlewareMapping();
+		$this->middlewareMapping = new MiddlewareMapping($this->serverType);
 	}
 
 	public function setServerType($type) {

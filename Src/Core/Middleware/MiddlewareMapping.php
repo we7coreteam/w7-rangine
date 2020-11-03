@@ -13,9 +13,15 @@
 namespace W7\Core\Middleware;
 
 use W7\App;
+use W7\Core\Facades\Config;
 use W7\Core\Helper\StringHelper;
 
 class MiddlewareMapping {
+	/**
+	 * 当前中间件map所属的server
+	 * @var string
+	 */
+	protected $serverType;
 	/**
 	 * 前置的中间件，用于定义一些系统的操作
 	 */
@@ -25,15 +31,26 @@ class MiddlewareMapping {
 	 */
 	public $afterMiddleware = [];
 
-	public function __construct() {
+	public function __construct($serverType) {
+		$this->serverType = $serverType;
+		$this->beforeMiddleware = Config::get('middleware.' . strtotime($this->serverType) . '.before', []);
+		$this->afterMiddleware = Config::get('middleware.' . strtotime($this->serverType) . '.after', []);
 	}
 
-	public function addBeforeMiddleware(string $middleware) {
-		$this->beforeMiddleware[] = [$middleware];
+	public function addBeforeMiddleware(string $middleware, $unshift = false) {
+		if ($unshift) {
+			array_unshift($this->beforeMiddleware, $middleware);
+		} else {
+			$this->beforeMiddleware[] = [$middleware];
+		}
 	}
 
-	public function addAfterMiddleware(string $middleware) {
-		$this->afterMiddleware[] = [$middleware];
+	public function addAfterMiddleware(string $middleware, $unshift = false) {
+		if ($unshift) {
+			array_unshift($this->afterMiddleware, $middleware);
+		} else {
+			$this->afterMiddleware[] = [$middleware];
+		}
 	}
 
 	public function deleteBeforeMiddleware(string $middleware) {

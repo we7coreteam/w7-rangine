@@ -53,6 +53,6 @@ class BeforeStartListener extends ListenerAbstract {
 		 * @var \W7\Fpm\Server\Dispatcher $dispatcher
 		 */
 		$dispatcher = Container::singleton(Dispatcher::class);
-		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class);
+		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class, true);
 	}
 }
