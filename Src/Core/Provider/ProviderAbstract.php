@@ -21,7 +21,7 @@ use W7\Core\Facades\Event;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Facades\Logger as LoggerFacade;
 use W7\Core\Facades\Router as RouterFacade;
-use W7\Core\Log\LogFactory;
+use W7\Core\Log\LoggerFactory;
 use W7\Core\Route\Router;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -34,7 +34,7 @@ use W7\Core\View\View;
  * @property-read Config $config
  * @property-read Router $router
  * @property-read Container $container
- * @property-read LogFactory $logger
+ * @property-read LoggerFactory $logger
  */
 abstract class ProviderAbstract {
 	protected $name;
@@ -303,7 +303,7 @@ abstract class ProviderAbstract {
 		return RouterFacade::getFacadeRoot();
 	}
 
-	protected function getLogger() : LogFactory {
+	protected function getLogger() : LoggerFactory {
 		return LoggerFacade::getFacadeRoot();
 	}
 

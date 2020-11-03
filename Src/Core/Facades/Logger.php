@@ -13,7 +13,7 @@
 namespace W7\Core\Facades;
 
 use Psr\Log\LoggerInterface;
-use W7\Core\Log\LogFactory;
+use W7\Core\Log\LoggerFactory;
 
 /**
  * Class Logger
@@ -34,6 +34,6 @@ use W7\Core\Log\LogFactory;
  */
 class Logger extends FacadeAbstract {
 	protected static function getFacadeAccessor() {
-		return LogFactory::class;
+		return LoggerFactory::class;
 	}
 }

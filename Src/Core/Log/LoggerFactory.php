@@ -31,7 +31,7 @@ use W7\Core\Log\Processor\SwooleProcessor;
  * @method void debug(string $message, array $context = [])
  * @method void log($level, string $message, array $context = [])
  */
-class LogFactory {
+class LoggerFactory {
 	protected $channelsConfig;
 	protected $defaultChannel;
 	protected $loggerMap = [];
