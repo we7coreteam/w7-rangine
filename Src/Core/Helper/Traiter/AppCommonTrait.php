@@ -26,7 +26,7 @@ trait AppCommonTrait {
 	/**
 	 * @var LoggerFactoryInterface
 	 */
-	protected $logger;
+	protected $loggerFactory;
 
 	public function setEventDispatcher(EventDispatcherInterface $eventDispatcher) {
 		$this->eventDispatcher = $eventDispatcher;
@@ -44,18 +44,18 @@ trait AppCommonTrait {
 	}
 
 	public function setLogger(LoggerFactoryInterface $loggerFactory) {
-		$this->logger = $loggerFactory;
+		$this->loggerFactory = $loggerFactory;
 	}
 
 	public function getLogger() {
-		if (!$this->logger) {
+		if (!$this->loggerFactory) {
 			if (!App::getApp()->getContainer()->has(LoggerFactoryInterface::class)) {
 				throw new Exception('the target instance ' . LoggerFactoryInterface::class . ' does not exist');
 			}
-			$this->logger = App::getApp()->getContainer()->get(LoggerFactoryInterface::class);
+			$this->loggerFactory = App::getApp()->getContainer()->get(LoggerFactoryInterface::class);
 		}
 
-		return $this->logger;
+		return $this->loggerFactory;
 	}
 
 	public function getContainer() {
