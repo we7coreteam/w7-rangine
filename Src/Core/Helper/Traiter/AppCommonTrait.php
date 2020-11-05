@@ -14,7 +14,7 @@ namespace W7\Core\Helper\Traiter;
 
 use Exception;
 use W7\App;
-use W7\Contract\Events\EventDispatcherInterface;
+use W7\Contract\Event\EventDispatcherInterface;
 use W7\Contract\Logger\LoggerFactoryInterface;
 use W7\Core\Helper\Storage\Context;
 

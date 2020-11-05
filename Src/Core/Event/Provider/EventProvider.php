@@ -13,7 +13,7 @@
 namespace W7\Core\Event\Provider;
 
 use Illuminate\Container\Container;
-use W7\Contract\Events\EventDispatcherInterface;
+use W7\Contract\Event\EventDispatcherInterface;
 use W7\Core\Event\Dispatcher;
 use W7\Core\Provider\ProviderAbstract;
 

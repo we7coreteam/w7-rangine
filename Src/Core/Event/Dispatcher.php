@@ -16,9 +16,9 @@ use Exception;
 use Illuminate\Events\Dispatcher as DispatcherAbstract;
 use Illuminate\Support\Str;
 use ReflectionClass;
-use W7\Contract\Events\EventDispatcherInterface;
-use W7\Contract\Events\ShouldBroadcastInterface;
-use W7\Contract\Events\ShouldQueueInterface;
+use W7\Contract\Event\EventDispatcherInterface;
+use W7\Contract\Event\ShouldBroadcastInterface;
+use W7\Contract\Event\ShouldQueueInterface;
 
 class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface {
 	public function listen($events, $listener) {
