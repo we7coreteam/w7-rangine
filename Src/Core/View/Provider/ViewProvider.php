@@ -38,7 +38,7 @@ class ViewProvider extends ProviderAbstract {
 		isCli() && $this->registerReloadDir($config);
 	}
 
-	protected function registerSystemFunction(View $view) {
+	protected function registerSystemFunction(ViewInterface $view) {
 		$view->registerFunction('getClientIp', function () {
 			return getClientIp();
 		});
@@ -47,7 +47,7 @@ class ViewProvider extends ProviderAbstract {
 		});
 	}
 
-	protected function registerSystemConst(View $view, $config) {
+	protected function registerSystemConst(ViewInterface $view, $config) {
 		$view->registerConst(HandlerAbstract::__STATIC__, $config['static'] ?? '/static/');
 		$view->registerConst(HandlerAbstract::__CSS__, $config['css'] ?? '/static/css/');
 		$view->registerConst(HandlerAbstract::__JS__, $config['js'] ?? '/static/js/');

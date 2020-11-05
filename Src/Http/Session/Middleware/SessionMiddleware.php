@@ -15,12 +15,12 @@ namespace W7\Http\Session\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use W7\Contract\Session\SessionInterface;
 use W7\Core\Middleware\MiddlewareAbstract;
-use W7\Core\Session\Session;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		$request->session = $this->getConfigger()->clone(Session::class);
+		$request->session = $this->getConfigger()->clone(SessionInterface::class);
 		$request->session->start($request);
 		$request->session->gc();
 

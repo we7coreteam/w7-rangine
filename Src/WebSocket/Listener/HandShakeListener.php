@@ -15,10 +15,10 @@ namespace W7\WebSocket\Listener;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use W7\App;
+use W7\Contract\Session\SessionInterface;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
-use W7\Core\Session\Session;
 use W7\Http\Message\Outputer\SwooleResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
@@ -72,7 +72,7 @@ class HandShakeListener extends ListenerAbstract {
 
 		$response = $psr7Response->withHeaders($headers)->withStatus(101);
 
-		$psr7Request->session = $this->getContainer()->clone(Session::class);
+		$psr7Request->session = $this->getContainer()->clone(SessionInterface::class);
 		$psr7Request->session->start($psr7Request);
 		$response = $psr7Request->session->replenishResponse($response);
 
