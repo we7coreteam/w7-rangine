@@ -14,6 +14,7 @@ namespace W7\Core\Session;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use W7\Contract\Session\SessionInterface;
 use W7\Core\Session\Channel\ChannelAbstract;
 use W7\Core\Session\Channel\CookieChannel;
 use W7\Core\Session\Handler\FileHandler;
@@ -72,8 +73,8 @@ class Session implements SessionInterface {
 		$this->initHandler();
 	}
 
-	public function getRealId() {
-		return $this->prefix . $this->getId();
+	public function getName() {
+		return $this->channel->getSessionName();
 	}
 
 	public function getId() {
@@ -103,23 +104,6 @@ class Session implements SessionInterface {
 	public function setId($sessionId) {
 		$this->sessionId = $sessionId;
 		$this->cache = null;
-	}
-
-	private function readSession() {
-		//只读一次, 防止在临界点上,第一次读有数据,第二次读不到
-		if (isset($this->cache)) {
-			return $this->cache;
-		}
-
-		try {
-			$data = $this->handler->unpack($this->handler->read($this->prefix . $this->getId()));
-			$data = !is_array($data) ? [] : $data;
-		} catch (\Throwable $e) {
-			$data = [];
-		}
-		$this->cache = $data;
-
-		return $data;
 	}
 
 	public function set($key, $value) {
@@ -183,7 +167,32 @@ class Session implements SessionInterface {
 		}
 	}
 
-	private function getGcCondition() {
+	public function replenishResponse(ResponseInterface $response) {
+		return $this->channel->replenishResponse($response, $this->getId());
+	}
+
+	protected function getRealId() {
+		return $this->prefix . $this->getId();
+	}
+
+	protected function readSession() {
+		//只读一次, 防止在临界点上,第一次读有数据,第二次读不到
+		if (isset($this->cache)) {
+			return $this->cache;
+		}
+
+		try {
+			$data = $this->handler->unpack($this->handler->read($this->prefix . $this->getId()));
+			$data = !is_array($data) ? [] : $data;
+		} catch (\Throwable $e) {
+			$data = [];
+		}
+		$this->cache = $data;
+
+		return $data;
+	}
+
+	protected function getGcCondition() {
 		if (!self::$gcCondition) {
 			$gcDivisor = (int)($this->config['gc_divisor'] ?? ini_get('session.gc_divisor'));
 			$gcDivisor = $gcDivisor <= 0 ? 1 : $gcDivisor;
@@ -194,9 +203,5 @@ class Session implements SessionInterface {
 		}
 
 		return self::$gcCondition;
-	}
-
-	public function replenishResponse(ResponseInterface $response) {
-		return $this->channel->replenishResponse($response, $this->getId());
 	}
 }

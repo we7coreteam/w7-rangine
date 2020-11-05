@@ -15,9 +15,6 @@ namespace W7\WebSocket\Listener;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use W7\App;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Event;
-use W7\Core\Facades\Logger;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -54,7 +51,7 @@ class HandShakeListener extends ListenerAbstract {
 		} catch (\Exception $e) {
 			return false;
 		}
-		if (Event::dispatch(ServerEvent::ON_USER_BEFORE_HAND_SHAKE, [$psr7Request], true) === false) {
+		if ($this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_HAND_SHAKE, [$psr7Request], true) === false) {
 			return false;
 		}
 
@@ -75,7 +72,7 @@ class HandShakeListener extends ListenerAbstract {
 
 		$response = $psr7Response->withHeaders($headers)->withStatus(101);
 
-		$psr7Request->session = Container::clone(Session::class);
+		$psr7Request->session = $this->getContainer()->clone(Session::class);
 		$psr7Request->session->start($psr7Request);
 		$response = $psr7Request->session->replenishResponse($response);
 
@@ -87,13 +84,13 @@ class HandShakeListener extends ListenerAbstract {
 				'mac' => swoole_get_local_mac()[array_keys($localIps)[0] ?? 0] ?? ''
 			]);
 
-			Event::dispatch(ServerEnum::TYPE_WEBSOCKET . ':' . ServerEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
+			$this->getEventDispatcher()->dispatch(ServerEnum::TYPE_WEBSOCKET . ':' . ServerEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
 		} catch (\Throwable $e) {
-			Logger::debug($e->getMessage(), ['exception' => $e]);
+			$this->getLogger()->debug($e->getMessage(), ['exception' => $e]);
 			return false;
 		}
 
-		Container::append('ws-client', [
+		$this->getContainer()->append('ws-client', [
 			$request->fd => [$psr7Request, $response]
 		], []);
 

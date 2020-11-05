@@ -16,11 +16,10 @@ use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Http\Message\Server\Response;
-use W7\Core\Facades\Context as ContextFacade;
 
 class AfterWorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
-		$contexts = ContextFacade::all();
+		$contexts = $this->getContext()->all();
 		foreach ($contexts as $id => $context) {
 			if (!empty($context[Context::RESPONSE_KEY]) && !empty($context['data']['server-type']) && $context['data']['server-type'] == ServerEnum::TYPE_HTTP) {
 				/**
@@ -30,7 +29,7 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 				$cResponse = $cResponse->withContent('发生致命错误，请在日志中查看错误原因，workid：' . ($context['data']['workid'] ?? '') . '，coid：' . ContextFacade::getLastCoId() . '。');
 				$cResponse->send();
 
-				ContextFacade::destroy($id);
+				$this->getContext()->destroy($id);
 			}
 		}
 	}

@@ -13,8 +13,6 @@
 namespace W7\WebSocket\Listener;
 
 use Swoole\Server;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Event;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -27,8 +25,8 @@ class CloseListener extends ListenerAbstract {
 	}
 
 	private function onClose(Server $server, int $fd, int $reactorId): void {
-		if (Container::has('ws-client')) {
-			$collector = Container::get('ws-client')[$fd] ?? [];
+		if ($this->getContainer()->has('ws-client')) {
+			$collector = $this->getContainer()->get('ws-client')[$fd] ?? [];
 			if ($collector) {
 				/**
 				 * @var Psr7Request $psr7Request
@@ -39,10 +37,10 @@ class CloseListener extends ListenerAbstract {
 		}
 
 		//删除数据绑定记录
-		Container::append('ws-client', [
+		$this->getContainer()->append('ws-client', [
 			$fd => []
 		], []);
 
-		Event::dispatch(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_WEBSOCKET]);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_WEBSOCKET]);
 	}
 }

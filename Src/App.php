@@ -21,7 +21,7 @@ use W7\Core\Bootstrap\RegisterRuntimeEnvBootstrap;
 use W7\Core\Bootstrap\RegisterSecurityDirBootstrap;
 use W7\Core\Config\Config;
 use W7\Core\Container\Container;
-use W7\Core\Facades\Output;
+use W7\Facade\Output;
 use W7\Core\Server\ServerAbstract;
 
 class App {
@@ -86,7 +86,7 @@ class App {
 		return $this->container;
 	}
 
-	public function getConfigger() {
+	public function getConfigger() : Config {
 		return $this->getContainer()->singleton(Config::class);
 	}
 

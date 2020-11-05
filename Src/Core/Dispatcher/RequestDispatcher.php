@@ -16,10 +16,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Exception\RouteNotAllowException;
 use W7\Core\Exception\RouteNotFoundException;
-use W7\Core\Facades\Config;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\Event;
 use W7\Core\Middleware\MiddlewareHandler;
 use W7\Core\Middleware\MiddlewareMapping;
 use W7\Core\Route\Event\RouteMatchedEvent;
@@ -28,11 +24,11 @@ use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 
 class RequestDispatcher extends DispatcherAbstract {
+	protected $serverType;
 	/**
 	 * @var MiddlewareMapping
 	 */
 	protected $middlewareMapping;
-	protected $serverType;
 	/**
 	 * @var RouteDispatcher
 	 */
@@ -43,10 +39,10 @@ class RequestDispatcher extends DispatcherAbstract {
 		$this->serverType = lcfirst(explode('\\', static::class)[1]);
 		$this->middlewareMapping = new MiddlewareMapping();
 
-		foreach (Config::get('middleware.' . strtotime($this->serverType) . '.before', []) as $middleware) {
+		foreach ($this->getConfig()->get('middleware.' . strtotime($this->serverType) . '.before', []) as $middleware) {
 			$this->middlewareMapping->addBeforeMiddleware($middleware);
 		}
-		foreach (Config::get('middleware.' . strtotime($this->serverType) . '.after', []) as $middleware) {
+		foreach ($this->getConfig()->get('middleware.' . strtotime($this->serverType) . '.after', []) as $middleware) {
 			$this->middlewareMapping->addAfterMiddleware($middleware);
 		}
 	}
@@ -71,22 +67,22 @@ class RequestDispatcher extends DispatcherAbstract {
 			 */
 			$psr7Request = $params[0];
 			$psr7Response = $params[1];
-			Context::setRequest($psr7Request);
-			Context::setResponse($psr7Response);
-			Context::setContextDataByKey('server-type', $this->serverType);
+			$this->getContext()->setRequest($psr7Request);
+			$this->getContext()->setResponse($psr7Response);
+			$this->getContext()->setContextDataByKey('server-type', $this->serverType);
 
 			//根据router配置，获取到匹配的controller信息
 			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
 			$route = $this->getRoute($psr7Request);
-			Event::dispatch(new RouteMatchedEvent($route, $psr7Request));
+			$this->getEventDispatcher()->dispatch(new RouteMatchedEvent($route, $psr7Request));
 			$psr7Request = $psr7Request->withAttribute('route', $route);
-			Context::setRequest($psr7Request);
+			$this->getContext()->getRequest($psr7Request);
 
 			$middleWares = $this->middlewareMapping->getRouteMiddleWares($route);
 			$middlewareHandler = new MiddlewareHandler($middleWares);
 			return $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $e) {
-			return Container::singleton(HandlerExceptions::class)->handle($e, $this->serverType);
+			return $this->getContainer()->singleton(HandlerExceptions::class)->handle($e, $this->serverType);
 		}
 	}
 

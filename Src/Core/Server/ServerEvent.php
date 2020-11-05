@@ -12,7 +12,7 @@
 
 namespace W7\Core\Server;
 
-use W7\Core\Facades\Event;
+use W7\Core\Helper\Traiter\AppCommonTrait;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
@@ -37,6 +37,8 @@ use W7\WebSocket\Listener\MessageListener;
 use W7\WebSocket\Listener\OpenListener;
 
 class ServerEvent {
+	use AppCommonTrait;
+
 	/**
 	 * swoole 事件
 	 */
@@ -161,7 +163,7 @@ class ServerEvent {
 		foreach ((array)$eventTypes as $eventType) {
 			$events = $swooleEvents[$eventType] ?? [];
 			foreach ($events as $name => $event) {
-				Event::listen($eventType . ':' . $name, $event);
+				$this->getEventDispatcher()->listen($eventType . ':' . $name, $event);
 			}
 		}
 	}
@@ -174,10 +176,10 @@ class ServerEvent {
 		//注册用户层和系统的公共事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
-			Event::listen($eventName, $listener);
+			$this->getEventDispatcher()->listen($eventName, $listener);
 
 			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
-			Event::listen($eventName, $listener);
+			$this->getEventDispatcher()->listen($eventName, $listener);
 		}
 	}
 
@@ -189,7 +191,7 @@ class ServerEvent {
 		//注册server下的自定义事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly($server), ucfirst($eventName));
-			Event::listen($eventName, $listener);
+			$this->getEventDispatcher()->listen($eventName, $listener);
 		}
 	}
 

@@ -12,23 +12,20 @@
 
 namespace W7\Core\Cache;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Swoole\Coroutine;
 use W7\Core\Cache\Event\MakeConnectionEvent;
 use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\PoolFactory;
-use W7\Core\Facades\Context;
+use W7\Core\Helper\Traiter\AppCommonTrait;
 
 class ConnectionResolver {
+	use AppCommonTrait;
+
 	protected $connectionConfig = [];
 	/**
 	 * @var PoolFactory
 	 */
 	protected $poolFactory;
-	/**
-	 * @var EventDispatcherInterface
-	 */
-	protected $eventDispatcher;
 
 	public function __construct($connectionConfig = []) {
 		$this->connectionConfig = $connectionConfig;
@@ -36,10 +33,6 @@ class ConnectionResolver {
 
 	public function setPoolFactory(PoolFactory $poolFactory) {
 		$this->poolFactory = $poolFactory;
-	}
-
-	public function setEventDispatcher(EventDispatcherInterface $eventDispatcher) {
-		$this->eventDispatcher = $eventDispatcher;
 	}
 
 	public function createConnection($name, $usePool = true) {
@@ -58,24 +51,24 @@ class ConnectionResolver {
 		 * @var HandlerAbstract $connection
 		 */
 		$connection = $connection::connect($this->connectionConfig[$name]);
-		$this->eventDispatcher && $this->eventDispatcher->dispatch(new MakeConnectionEvent($name, $connection));
+		$this->getEventDispatcher()->dispatch(new MakeConnectionEvent($name, $connection));
 
 		return $connection;
 	}
 
 	public function connection($name) {
 		$contextCacheName = $this->getContextKey($name);
-		$connection = Context::getContextDataByKey($contextCacheName);
+		$connection = $this->getContext()->getContextDataByKey($contextCacheName);
 
 		if (! $connection instanceof HandlerAbstract) {
 			try {
 				$connection = $this->createConnection($name);
-				Context::setContextDataByKey($contextCacheName, $connection);
+				$this->getContext()->setContextDataByKey($contextCacheName, $connection);
 			} finally {
 				if ($connection && isCo()) {
 					Coroutine::defer(function () use ($connection, $contextCacheName) {
 						$this->releaseConnection($connection);
-						Context::setContextDataByKey($contextCacheName, null);
+						$this->getContext()->setContextDataByKey($contextCacheName, null);
 					});
 				}
 			}
@@ -89,7 +82,7 @@ class ConnectionResolver {
 		/**
 		 * @var HandlerAbstract $connection
 		 */
-		$connection = Context::getContextDataByKey($contextCacheName);
+		$connection = $this->getContext()->getContextDataByKey($contextCacheName);
 		if (!$connection) {
 			return $this->connection($name);
 		}

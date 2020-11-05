@@ -13,7 +13,6 @@
 namespace W7\Core\Listener;
 
 use W7\App;
-use W7\Core\Facades\Config;
 use W7\Core\Process\ProcessAbstract;
 use W7\Core\Process\ProcessFactory;
 
@@ -35,7 +34,7 @@ class ProcessStartListener extends ListenerAbstract {
 		$processInstance->setWorkerId($workerId);
 		$name = $processInstance->getName();
 
-		$mqKey = Config::get("process.process.$name.message_queue_key", $mqKey);
+		$mqKey = $this->getConfig()->get("process.process.$name.message_queue_key", $mqKey);
 		$mqKey = (int)$mqKey;
 		$processInstance->setMq($mqKey);
 

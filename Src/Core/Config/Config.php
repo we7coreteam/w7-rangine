@@ -13,15 +13,16 @@
 namespace W7\Core\Config;
 
 use Illuminate\Support\Arr;
+use W7\Contract\Config\RepositoryInterface;
 
-class Config {
+class Config implements RepositoryInterface {
 	private $payload = [];
 
 	public function __construct(array $payload = []) {
 		$this->payload = $payload;
 	}
 
-	public function set($key, $value) {
+	public function set($key, $value = null) {
 		return Arr::set($this->payload, $key, $value);
 	}
 

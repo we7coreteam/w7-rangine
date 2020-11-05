@@ -16,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Facades\Container;
+use W7\App;
 
 class MiddlewareHandler implements RequestHandlerInterface {
 	/**
@@ -54,7 +54,7 @@ class MiddlewareHandler implements RequestHandlerInterface {
 			throw new \InvalidArgumentException($handler . ' Handler not found.');
 		}
 
-		$handler = Container::singleton($handler);
+		$handler = App::getApp()->getContainer()->singleton($handler);
 		if (!$handler instanceof MiddlewareInterface) {
 			throw new \InvalidArgumentException('Invalid Handler. It must be an instance of MiddlewareInterface');
 		}

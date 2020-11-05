@@ -15,8 +15,7 @@ namespace W7\Core\Bootstrap;
 use W7\App;
 use W7\Core\Cache\Provider\CacheProvider;
 use W7\Core\Database\Provider\DatabaseProvider;
-use W7\Core\Events\Provider\EventProvider;
-use W7\Core\Facades\Config;
+use W7\Core\Event\Provider\EventProvider;
 use W7\Core\Log\Provider\LogProvider;
 use W7\Core\Provider\IlluminateProvider;
 use W7\Core\Provider\ProviderManager;
@@ -45,7 +44,7 @@ class ProviderBootstrap implements BootstrapInterface {
 			return new ProviderManager($app->getContainer());
 		});
 
-		$providers = Config::get('provider', []);
+		$providers = $app->getConfigger()->get('provider', []);
 		$providers = array_merge($this->providerMap, $providers);
 
 		$app->getContainer()->singleton(ProviderManager::class)->register($providers)->boot();

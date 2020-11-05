@@ -12,10 +12,10 @@
 
 namespace W7\Core\Cache\Provider;
 
+use W7\Contract\Cache\CacheFactoryInterface;
 use W7\Core\Cache\CacheFactory;
 use W7\Core\Cache\ConnectionResolver;
 use W7\Core\Cache\Pool\PoolFactory;
-use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
@@ -28,19 +28,18 @@ class CacheProvider extends ProviderAbstract {
 			$poolConfig = $this->config->get('app.pool.cache', []);
 
 			$connectionResolver = new ConnectionResolver($connectionConfig);
-			$connectionResolver->setEventDispatcher(Event::getFacadeRoot());
 			$connectionResolver->setPoolFactory(new PoolFactory($poolConfig));
 
 			return $connectionResolver;
 		});
-		$this->container->set(CacheFactory::class, function () {
-			$cacheFactoryr = new CacheFactory();
-			$cacheFactoryr->setConnectionResolver($this->container->get(ConnectionResolver::class));
-			return $cacheFactoryr;
+		$this->container->set(CacheFactoryInterface::class, function () {
+			$cacheFactory = new CacheFactory();
+			$cacheFactory->setConnectionResolver($this->container->get(ConnectionResolver::class));
+			return $cacheFactory;
 		});
 	}
 
 	public function providers(): array {
-		return [CacheFactory::class];
+		return [CacheFactoryInterface::class];
 	}
 }

@@ -13,7 +13,6 @@
 namespace W7\WebSocket\Listener;
 
 use Swoole\WebSocket\Server;
-use W7\Core\Facades\Event;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -30,6 +29,6 @@ class OpenListener extends ListenerAbstract {
 	 * @param Psr7Request $psr7Request
 	 */
 	private function onOpen(Server $server, Psr7Request $psr7Request): void {
-		Event::dispatch(ServerEvent::ON_USER_AFTER_OPEN, [$server, $psr7Request->getSwooleRequest()->fd, $psr7Request->getSwooleRequest(), ServerEnum::TYPE_WEBSOCKET]);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_OPEN, [$server, $psr7Request->getSwooleRequest()->fd, $psr7Request->getSwooleRequest(), ServerEnum::TYPE_WEBSOCKET]);
 	}
 }

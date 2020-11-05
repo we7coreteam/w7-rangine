@@ -12,9 +12,7 @@
 
 use Swoole\Coroutine;
 use W7\App;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\Logger;
+use W7\Contract\Logger\LoggerFactoryInterface;
 use Swoole\Timer;
 
 if (!function_exists('isCli')) {
@@ -25,7 +23,7 @@ if (!function_exists('isCli')) {
 
 if (!function_exists('getClientIp')) {
 	function getClientIp() {
-		$request = Context::getRequest();
+		$request = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class)->getRequest();
 		$serverParams = $request->getServerParams();
 		$xForwardedFor = !empty($serverParams['HTTP_X_FORWARDED_FOR']) ? $serverParams['HTTP_X_FORWARDED_FOR'] : ($request->getHeader('X-Forwarded-For')[0] ?? '');
 
@@ -104,7 +102,7 @@ if (!function_exists('isCo')) {
 	 * @return bool
 	 */
 	function isCo():bool {
-		return Context::getCoroutineId() > 0;
+		return App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class)->getCoroutineId() > 0;
 	}
 }
 
@@ -149,25 +147,26 @@ if (!function_exists('igo')) {
 				try {
 					yield $callback();
 				} catch (Throwable $e) {
-					Logger::debug($e->getMessage(), ['exception' => $e]);
+					App::getApp()->getContainer()->singleton(LoggerFactoryInterface::class)->debug($e->getMessage(), ['exception' => $e]);
 				}
 			};
-			Container::singleton(\W7\Core\Helper\Compate\CgiCoroutine::class)->add($generatorFunc());
+			App::getApp()->getContainer()->singleton(\W7\Core\Helper\Compate\CgiCoroutine::class)->add($generatorFunc());
 			return true;
 		}
 
-		$coId =Context::getCoroutineId();
+		$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
+		$coId = $context->getCoroutineId();
 		$result = null;
-		Coroutine::create(function () use ($callback, $coId, &$result) {
-			Context::fork($coId);
+		Coroutine::create(function () use ($callback, $coId, &$result, $context) {
+			$context->fork($coId);
 			try {
 				$result = $callback();
 			} catch (Throwable $throwable) {
-				Logger::debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 
-			Coroutine::defer(function () {
-				Context::destroy();
+			Coroutine::defer(function () use ($context) {
+				$context->destroy();
 			});
 		});
 		return $result;
@@ -190,11 +189,12 @@ if (!function_exists('itimeTick')) {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
-				Logger::debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 
-			Coroutine::defer(function () {
-				Context::destroy();
+			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
+			Coroutine::defer(function () use ($context) {
+				$context->destroy();
 			});
 		});
 	}
@@ -206,11 +206,12 @@ if (!function_exists('itimeAfter')) {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
-				Logger::debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 
-			Coroutine::defer(function () {
-				Context::destroy();
+			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
+			Coroutine::defer(function () use ($context) {
+				$context->destroy();
 			});
 		});
 	}

@@ -24,7 +24,6 @@ abstract class CacheAbstract implements CacheInterface {
 
 	public function __construct($name) {
 		$this->name = $name;
-		$config['name'] = $name;
 	}
 
 	public function getName() {

@@ -12,9 +12,10 @@
 
 namespace W7\Core\Cache;
 
+use W7\Contract\Cache\CacheFactoryInterface;
 use Psr\SimpleCache\CacheInterface;
 
-class CacheFactory {
+class CacheFactory implements CacheFactoryInterface {
 	protected $cacheMap = [];
 	protected $defaultChannel;
 	/**

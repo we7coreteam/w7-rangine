@@ -12,7 +12,6 @@
 
 namespace W7\WebSocket\Listener;
 
-use W7\Core\Facades\Container;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Route\RouteDispatcher;
 use W7\Core\Server\ServerEnum;
@@ -30,7 +29,7 @@ class BeforeStartListener extends ListenerAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = Container::singleton(Dispatcher::class);
+		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
 		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, ServerEnum::TYPE_WEBSOCKET));
 	}
 
@@ -38,7 +37,7 @@ class BeforeStartListener extends ListenerAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = Container::singleton(Dispatcher::class);
+		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
 		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class, true);
 	}
 }

@@ -14,6 +14,7 @@ namespace W7\Core\Log;
 
 use Monolog\Logger as MonoLogger;
 use Psr\Log\LoggerInterface;
+use W7\Contract\Logger\LoggerFactoryInterface;
 use W7\Core\Log\Handler\HandlerAbstract;
 use W7\Core\Log\Processor\SwooleProcessor;
 
@@ -31,7 +32,7 @@ use W7\Core\Log\Processor\SwooleProcessor;
  * @method void debug(string $message, array $context = [])
  * @method void log($level, string $message, array $context = [])
  */
-class LoggerFactory {
+class LoggerFactory implements LoggerFactoryInterface {
 	protected $channelsConfig;
 	protected $defaultChannel;
 	protected $loggerMap = [];

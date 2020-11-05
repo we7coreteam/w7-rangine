@@ -13,7 +13,6 @@
 namespace W7\Core\Listener;
 
 use W7\App;
-use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEvent;
 
 class ManagerStartListener extends ListenerAbstract {
@@ -23,6 +22,6 @@ class ManagerStartListener extends ListenerAbstract {
 
 		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' manager process');
 
-		Event::dispatch(ServerEvent::ON_USER_AFTER_MANAGER_START, $params);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_MANAGER_START, $params);
 	}
 }

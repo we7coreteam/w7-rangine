@@ -13,17 +13,13 @@
 namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
+use W7\Contract\Task\TaskDispatcherInterface;
 use W7\Core\Exception\HandlerExceptions;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\Event;
-use W7\Core\Facades\Task;
 use W7\Core\Message\Message;
 use W7\Core\Message\TaskMessage;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Task\Event\AfterTaskExecutorEvent;
 use W7\Core\Task\Event\BeforeTaskExecutorEvent;
-use W7\Core\Task\TaskDispatcher;
 
 class PipeMessageListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -36,19 +32,16 @@ class PipeMessageListener extends ListenerAbstract {
 		$message = Message::unpack($data);
 
 		if ($message instanceof TaskMessage) {
-			/**
-			 * @var TaskDispatcher $taskDispatcher
-			 */
-			Event::dispatch(new BeforeTaskExecutorEvent($message));
+			$this->getEventDispatcher()->dispatch(new BeforeTaskExecutorEvent($message));
 			try {
-				$message = Task::dispatchNow($message, $server, Context::getCoroutineId(), $params[1]);
-				Event::dispatch(new AfterTaskExecutorEvent($message));
+				$message = $this->getContainer()->singleton(TaskDispatcherInterface::class)->dispatchNow($message, $server, $this->getContext()->getCoroutineId(), $params[1]);
+				$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message));
 			} catch (\Throwable $throwable) {
-				Event::dispatch(new AfterTaskExecutorEvent($message, $throwable));
-				Container::singleton(HandlerExceptions::class)->getHandler()->report($throwable);
+				$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message, $throwable));
+				$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
 			}
 		}
 
-		Event::dispatch(ServerEvent::ON_USER_AFTER_PIPE_MESSAGE, [$server, $workId, $message, $data]);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_PIPE_MESSAGE, [$server, $workId, $message, $data]);
 	}
 }

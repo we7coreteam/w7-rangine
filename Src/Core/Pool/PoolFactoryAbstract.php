@@ -12,7 +12,10 @@
 
 namespace W7\Core\Pool;
 
-abstract class PoolFactoryAbstract {
+use W7\Contract\Pool\PoolFactoryInterface;
+use W7\Contract\Pool\PoolInterface;
+
+abstract class PoolFactoryAbstract implements PoolFactoryInterface {
 	protected $poolConfig;
 	protected $pools;
 
@@ -30,17 +33,17 @@ abstract class PoolFactoryAbstract {
 
 	/**
 	 * @param $name
-	 * @return CoPoolAbstract
+	 * @return PoolInterface
 	 */
-	public function getCreatedPool($name) {
+	public function getCreatedPool($name) : PoolInterface {
 		return $this->pools[$name];
 	}
 
 	/**
 	 * @param $name
-	 * @return CoPoolAbstract
+	 * @return PoolInterface
 	 */
-	public function getPool($name) {
+	public function getPool($name) : PoolInterface {
 		if (!empty($this->pools[$name])) {
 			return $this->pools[$name];
 		}

@@ -10,13 +10,15 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Events;
+namespace W7\Core\Event;
 
 use Exception;
 use Illuminate\Events\Dispatcher as DispatcherAbstract;
 use Illuminate\Support\Str;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use ReflectionClass;
+use W7\Contract\Events\EventDispatcherInterface;
+use W7\Contract\Events\ShouldBroadcastInterface;
+use W7\Contract\Events\ShouldQueueInterface;
 
 class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface {
 	public function listen($events, $listener) {

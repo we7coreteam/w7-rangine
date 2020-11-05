@@ -12,8 +12,8 @@
 
 namespace W7\Core\Task;
 
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Task;
+use W7\App;
+use W7\Contract\Task\TaskDispatcherInterface;
 use W7\Core\Message\TaskMessage;
 
 class CallQueuedTask {
@@ -30,14 +30,15 @@ class CallQueuedTask {
 	}
 
 	public function handle() {
-		return Task::dispatchNow($this->taskMessage, null, null, Container::get('worker_id'));
+		$container = App::getApp()->getContainer();
+		return $container->singleton(TaskDispatcherInterface::class)->dispatchNow($this->taskMessage, null, null, $container->get('worker_id'));
 	}
 
 	/**
 	 * @param $e
 	 */
 	public function failed($e) {
-		$handler = Container::singleton($this->taskMessage->task);
+		$handler = App::getApp()->getContainer()->singleton($this->taskMessage->task);
 
 		if (method_exists($handler, 'failed')) {
 			call_user_func_array([$handler, 'failed'], [$e]);

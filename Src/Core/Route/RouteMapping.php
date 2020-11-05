@@ -12,13 +12,14 @@
 
 namespace W7\Core\Route;
 
+use W7\Contract\Router\RouterInterface;
 use W7\Core\Helper\FileLoader;
 
 class RouteMapping {
 	protected $routeConfig = [];
 	protected $routeKeyWords = ['prefix', 'method', 'middleware', 'name', 'namespace', 'uri', 'handler'];
 	/**
-	 * @var Router
+	 * @var RouterInterface
 	 */
 	protected $router;
 	/**
@@ -28,7 +29,7 @@ class RouteMapping {
 
 	private static $isInitRouteByConfig = false;
 
-	public function __construct(Router $router, FileLoader $fileLoader) {
+	public function __construct(RouterInterface $router, FileLoader $fileLoader) {
 		$this->router = $router;
 		$this->fileLoader = $fileLoader;
 	}

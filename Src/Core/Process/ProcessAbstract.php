@@ -16,11 +16,12 @@ use Swoole\Event;
 use Swoole\Process;
 use W7\App;
 use W7\Core\Exception\HandlerExceptions;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Logger;
-use W7\Core\Facades\Output;
+use W7\Core\Helper\Traiter\AppCommonTrait;
+use W7\Facade\Output;
 
 abstract class ProcessAbstract {
+	use AppCommonTrait;
+
 	protected $name = 'process';
 	protected $num = 1;
 	protected $workerId;
@@ -132,7 +133,7 @@ abstract class ProcessAbstract {
 			if ((ENV & DEBUG) == DEBUG) {
 				Output::error($throwable->getMessage() . ' at file ' . $throwable->getFile() . ' line ' . $throwable->getLine());
 			}
-			Container::singleton(HandlerExceptions::class)->getHandler()->report($throwable);
+			$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
 		}
 	}
 
@@ -155,6 +156,6 @@ abstract class ProcessAbstract {
 	}
 
 	public function onStop() {
-		Logger::debug('process ' . $this->getProcessName() . ' exit');
+		$this->getLogger()->debug('process ' . $this->getProcessName() . ' exit');
 	}
 }

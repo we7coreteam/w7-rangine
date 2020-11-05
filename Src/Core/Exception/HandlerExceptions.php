@@ -15,14 +15,15 @@ namespace W7\Core\Exception;
 use W7\App;
 use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
 use W7\Core\Exception\Handler\ExceptionHandler;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\Event;
-use W7\Core\Facades\Output;
+use W7\Core\Helper\Traiter\AppCommonTrait;
+use W7\Facade\Output;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Response;
 
 class HandlerExceptions {
+	use AppCommonTrait;
+
 	protected $exceptionHandler = ExceptionHandler::class;
 
 	public function setHandler(string $exceptionHandler) {
@@ -53,8 +54,8 @@ class HandlerExceptions {
 
 			$throwable = new ShutDownException($e['message'], 0, $e['type'], $e['file'], $e['line']);
 			if (App::$server && App::$server->server) {
-				Event::dispatch(ServerEvent::ON_WORKER_SHUTDOWN, [App::$server->getServer(), $throwable]);
-				Event::dispatch(ServerEvent::ON_WORKER_STOP, [App::$server->getServer(), App::$server->getServer()->worker_id]);
+				$this->getEventDispatcher()->dispatch(ServerEvent::ON_WORKER_SHUTDOWN, [App::$server->getServer(), $throwable]);
+				$this->getEventDispatcher()->dispatch(ServerEvent::ON_WORKER_STOP, [App::$server->getServer(), App::$server->getServer()->worker_id]);
 			} else {
 				throw $throwable;
 			}
@@ -89,7 +90,7 @@ class HandlerExceptions {
 
 	public function handle(\Throwable $throwable, $serverType = null) {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
-		if (!$serverType || !Context::getResponse()) {
+		if (!$serverType || !$this->getContext()->getResponse()) {
 			if (isCli()) {
 				Output::error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
 			} else {
@@ -105,7 +106,7 @@ class HandlerExceptions {
 			null;
 		}
 
-		$response = Context::getResponse();
+		$response = $this->getContext()->getResponse();
 		if (!$response) {
 			$response = new Response();
 		}

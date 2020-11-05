@@ -16,9 +16,6 @@ use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\Event;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -40,24 +37,24 @@ class RequestListener extends ListenerAbstract {
 	 * @throws \Exception
 	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
-		Context::setContextDataByKey('workid', $server->worker_id);
-		Context::setContextDataByKey('coid', Coroutine::getuid());
+		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
+		$this->getContext()->setContextDataByKey('coid', Coroutine::getuid());
 
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
 		$psr7Response = new Psr7Response();
 		$psr7Response->setOutputer(new SwooleResponseOutputer($response));
 
-		Event::dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_HTTP]);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_HTTP]);
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = Container::singleton(Dispatcher::class);
+		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
-		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_HTTP]);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_HTTP]);
 
 		$psr7Response->send();
 
-		Context::destroy();
+		$this->getContext()->destroy();
 	}
 }

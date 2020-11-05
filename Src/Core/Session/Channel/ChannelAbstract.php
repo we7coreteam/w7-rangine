@@ -29,13 +29,13 @@ abstract class ChannelAbstract {
 		$this->request = $request;
 	}
 
-	protected function getSessionName() {
+	public function getSessionName() {
 		if (!static::$sessionName) {
 			static::$sessionName = $this->config['name'] ?? session_name();
 		}
 		return static::$sessionName;
 	}
 
-	abstract public function getSessionId() : string ;
+	abstract public function getSessionId() : string;
 	abstract public function replenishResponse(ResponseInterface $response, $sessionId) : ResponseInterface;
 }

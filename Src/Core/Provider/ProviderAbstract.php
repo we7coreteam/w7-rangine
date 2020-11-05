@@ -13,30 +13,28 @@
 namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
-use W7\App;
 use W7\Console\Application;
-use W7\Core\Config\Config;
+use W7\Contract\Config\RepositoryInterface;
+use W7\Contract\Logger\LoggerFactoryInterface;
+use W7\Contract\Router\RouterInterface;
+use W7\Contract\View\ViewInterface;
 use W7\Core\Container\Container;
-use W7\Core\Facades\Event;
 use W7\Core\Helper\StringHelper;
-use W7\Core\Facades\Logger as LoggerFacade;
-use W7\Core\Facades\Router as RouterFacade;
-use W7\Core\Log\LoggerFactory;
-use W7\Core\Route\Router;
+use W7\Core\Helper\Traiter\AppCommonTrait;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
-use W7\Core\Facades\View as ViewFacade;
-use W7\Core\View\View;
 
 /**
  * Class ProviderAbstract
  * @package W7\Core\Provider
- * @property-read Config $config
- * @property-read Router $router
  * @property-read Container $container
- * @property-read LoggerFactory $logger
+ * @property-read RepositoryInterface $config
+ * @property-read LoggerFactoryInterface $logger
+ * @property-read RouterInterface $router
  */
 abstract class ProviderAbstract {
+	use AppCommonTrait;
+
 	protected $name;
 
 	//composer包名
@@ -139,7 +137,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerEvent($event, $listener) {
-		Event::listen($event, $listener);
+		$this->getEventDispatcher()->listen($event, $listener);
 	}
 
 	protected function registerView($namespace) {
@@ -291,24 +289,12 @@ abstract class ProviderAbstract {
 		return [];
 	}
 
-	protected function getContainer() {
-		return App::getApp()->getContainer();
+	protected function getRouter() : RouterInterface {
+		return $this->container->singleton(RouterInterface::class);
 	}
 
-	protected function getConfig() {
-		return App::getApp()->getConfigger();
-	}
-
-	protected function getRouter() : Router {
-		return RouterFacade::getFacadeRoot();
-	}
-
-	protected function getLogger() : LoggerFactory {
-		return LoggerFacade::getFacadeRoot();
-	}
-
-	protected function getView() : View {
-		return ViewFacade::getFacadeRoot();
+	protected function getView() : ViewInterface {
+		return $this->container->singleton(ViewInterface::class);
 	}
 
 	public function __get($name) {

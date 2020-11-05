@@ -12,12 +12,13 @@
 
 namespace W7\Core\Log\Processor;
 
-use W7\Core\Facades\Context;
+use W7\App;
 
 class SwooleProcessor {
 	public function __invoke(array $record) {
-		$workid = Context::getContextDataByKey('workid');
-		$coid = Context::getContextDataByKey('coid');
+		$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
+		$workid = $context->getContextDataByKey('workid');
+		$coid = $context->getContextDataByKey('coid');
 
 		$record['workid'] = $workid ? $workid : '0';
 		$record['coid'] = $coid ? $coid : '0';

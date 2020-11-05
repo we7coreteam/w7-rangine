@@ -15,8 +15,6 @@ namespace W7\Console\Command\Server;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
-use W7\Core\Facades\Config;
-use W7\Core\Facades\Container;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleServerAbstract;
 

@@ -13,10 +13,9 @@
 namespace W7\Core\Task;
 
 use W7\App;
+use W7\Contract\Task\TaskDispatcherInterface;
 use W7\Core\Dispatcher\DispatcherAbstract;
 use W7\Core\Exception\TaskException;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Context;
 use W7\Core\Message\Message;
 use W7\Core\Message\TaskMessage;
 use W7\Core\Task\Event\AfterTaskDispatchEvent;
@@ -27,7 +26,7 @@ use W7\Core\Task\Event\BeforeTaskDispatchEvent;
  * Class TaskDispatcher
  * @package W7\Core\Helper\Dispather
  */
-class TaskDispatcher extends DispatcherAbstract {
+class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterface {
 	protected $queueResolver;
 
 	public function setQueueResolver(\Closure $closure) {
@@ -125,7 +124,7 @@ class TaskDispatcher extends DispatcherAbstract {
 	 */
 	public function dispatchNow($message, $server = null, $taskId = null, $workerId = null) {
 		$server = $server ?? App::$server->getServer();
-		$taskId = $taskId ?? Context::getCoroutineId();
+		$taskId = $taskId ?? $this->getContext()->getCoroutineId();
 		$workId = $workerId ?? ($server ? $server->worker_id : $workerId);
 
 		/**
@@ -140,13 +139,13 @@ class TaskDispatcher extends DispatcherAbstract {
 		/**
 		 * @var TaskAbstract $task
 		 */
-		$task = Container::singleton($message->task);
+		$task = $this->getContainer()->singleton($message->task);
 		if (method_exists($task, 'finish')) {
 			$message->hasFinishCallback = true;
 		}
 
-		Context::setContextDataByKey('workid', $workId);
-		Context::setContextDataByKey('coid', $taskId);
+		$this->getContext()->setContextDataByKey('workid', $workId);
+		$this->getContext()->setContextDataByKey('coid', $taskId);
 		try {
 			$message->result = call_user_func_array([$task, $message->method], [$server, $taskId, $workId, $message->params ?? []]);
 		} catch (\Throwable $e) {

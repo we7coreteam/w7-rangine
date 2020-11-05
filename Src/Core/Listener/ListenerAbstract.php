@@ -12,5 +12,8 @@
 
 namespace W7\Core\Listener;
 
+use W7\Core\Helper\Traiter\AppCommonTrait;
+
 abstract class ListenerAbstract implements ListenerInterface {
+	use AppCommonTrait;
 }

@@ -12,17 +12,11 @@
 
 namespace W7\Core\Dispatcher;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
+use W7\Contract\Dispatcher\DispatcherInterface;
+use W7\Core\Helper\Traiter\AppCommonTrait;
 
-abstract class DispatcherAbstract {
-	/**
-	 * @var EventDispatcherInterface
-	 */
-	protected $eventDispatcher;
-
-	public function setEventDispatcher(EventDispatcherInterface $eventDispatcher) {
-		$this->eventDispatcher = $eventDispatcher;
-	}
+abstract class DispatcherAbstract implements DispatcherInterface {
+	use AppCommonTrait;
 
 	/**
 	 * 派发服务

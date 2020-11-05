@@ -15,6 +15,11 @@ namespace W7\Tcp\Route;
 use W7\Core\Route\Router;
 use W7\Core\Route\RouteMapping as RouteMappingAbstract;
 
+/**
+ * 这里需要优化处理 getRouterCollector
+ * Class RouteMapping
+ * @package W7\Tcp\Route
+ */
 class RouteMapping extends RouteMappingAbstract {
 	/**
 	 * @return array|mixed

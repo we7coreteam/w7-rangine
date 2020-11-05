@@ -12,12 +12,14 @@
 
 namespace W7\Core\Route;
 
+use W7\Contract\Router\RouterInterface;
+
 class ResourceRegister {
 	protected $router;
 	protected $parameters = [];
 	protected $resourceDefaults = ['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'];
 
-	public function __construct(Router $router) {
+	public function __construct(RouterInterface $router) {
 		$this->router = $router;
 	}
 
@@ -123,8 +125,11 @@ class ResourceRegister {
 	protected function prefixedResource($name, $controller, $options) {
 		[$name, $prefix] = $this->getResourcePrefix($name);
 
-		$callback = function ($route) use ($name, $controller, $options) {
-			$route->resource($name, $controller, $options);
+		$callback = function ($router) use ($name, $controller, $options) {
+			/**
+			 * @var RouterInterface $router
+			 */
+			$router->resource($name, $controller, $options);
 		};
 
 		return $this->router->group($prefix, $callback);

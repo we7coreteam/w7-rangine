@@ -13,14 +13,13 @@
 namespace W7\Core\Cache\Pool;
 
 use W7\Core\Cache\ConnectionResolver;
-use W7\Core\Facades\Container;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
 	protected $type = 'cache';
 
 	public function createConnection() {
-		return Container::get(ConnectionResolver::class)->createConnection($this->getPoolName(), false);
+		return $this->getContainer()->singleton(ConnectionResolver::class)->createConnection($this->getPoolName(), false);
 	}
 
 	public function getConnection() {

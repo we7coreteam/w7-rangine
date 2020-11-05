@@ -12,6 +12,7 @@
 
 namespace W7\Core\View;
 
+use W7\Contract\View\ViewInterface;
 use W7\Core\View\Handler\HandlerAbstract;
 use W7\Core\View\Handler\TwigHandler;
 
