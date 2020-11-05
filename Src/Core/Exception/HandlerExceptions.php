@@ -13,10 +13,10 @@
 namespace W7\Core\Exception;
 
 use W7\App;
+use W7\Console\Io\Output;
 use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
 use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Helper\Traiter\AppCommonTrait;
-use W7\Facade\Output;
 use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Response;
@@ -92,7 +92,7 @@ class HandlerExceptions {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
 		if (!$serverType || !$this->getContext()->getResponse()) {
 			if (isCli()) {
-				Output::error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
+				(new Output())->error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
 			} else {
 				trigger_error($throwable->getMessage());
 			}

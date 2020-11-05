@@ -18,7 +18,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use W7\Console\Io\Output;
 use W7\Core\Helper\Traiter\AppCommonTrait;
-use W7\Facade\Output as OutputFacade;
 use W7\Core\Config\Env;
 
 abstract class CommandAbstract extends Command {
@@ -87,7 +86,7 @@ abstract class CommandAbstract extends Command {
 		$input = new ArrayInput($arguments);
 		return $this->getApplication()->find($command)->run(
 			$input,
-			OutputFacade::getFacadeRoot()
+			new Output()
 		);
 	}
 }

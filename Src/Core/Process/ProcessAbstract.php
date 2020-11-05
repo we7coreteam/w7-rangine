@@ -15,9 +15,9 @@ namespace W7\Core\Process;
 use Swoole\Event;
 use Swoole\Process;
 use W7\App;
+use W7\Console\Io\Output;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Helper\Traiter\AppCommonTrait;
-use W7\Facade\Output;
 
 abstract class ProcessAbstract {
 	use AppCommonTrait;
@@ -131,7 +131,7 @@ abstract class ProcessAbstract {
 			$callback();
 		} catch (\Throwable $throwable) {
 			if ((ENV & DEBUG) == DEBUG) {
-				Output::error($throwable->getMessage() . ' at file ' . $throwable->getFile() . ' line ' . $throwable->getLine());
+				(new Output())->error($throwable->getMessage() . ' at file ' . $throwable->getFile() . ' line ' . $throwable->getLine());
 			}
 			$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
 		}

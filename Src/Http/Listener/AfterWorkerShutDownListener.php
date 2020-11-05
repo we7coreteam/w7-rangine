@@ -26,7 +26,7 @@ class AfterWorkerShutDownListener extends ListenerAbstract {
 				 * @var Response $cResponse
 				 */
 				$cResponse = $context[Context::RESPONSE_KEY];
-				$cResponse = $cResponse->withContent('发生致命错误，请在日志中查看错误原因，workid：' . ($context['data']['workid'] ?? '') . '，coid：' . ContextFacade::getLastCoId() . '。');
+				$cResponse = $cResponse->withContent('发生致命错误，请在日志中查看错误原因，workid：' . ($context['data']['workid'] ?? '') . '，coid：' . $this->getContext()->getLastCoId() . '。');
 				$cResponse->send();
 
 				$this->getContext()->destroy($id);

@@ -13,6 +13,7 @@
 namespace W7;
 
 use W7\Console\Application;
+use W7\Console\Io\Output;
 use W7\Core\Bootstrap\BootstrapInterface;
 use W7\Core\Bootstrap\LoadConfigBootstrap;
 use W7\Core\Bootstrap\ProviderBootstrap;
@@ -21,7 +22,6 @@ use W7\Core\Bootstrap\RegisterRuntimeEnvBootstrap;
 use W7\Core\Bootstrap\RegisterSecurityDirBootstrap;
 use W7\Core\Config\Config;
 use W7\Core\Container\Container;
-use W7\Facade\Output;
 use W7\Core\Server\ServerAbstract;
 
 class App {
@@ -75,7 +75,7 @@ class App {
 		try {
 			$this->getContainer()->singleton(Application::class)->run();
 		} catch (\Throwable $e) {
-			Output::error($e->getMessage());
+			(new Output())->error($e->getMessage());
 		}
 	}
 
