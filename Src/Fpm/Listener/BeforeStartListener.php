@@ -20,7 +20,7 @@ use W7\Fpm\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		if (Config::get('session.auto_start')) {
+		if (Config::get('app.session.auto_start')) {
 			$this->initSessionConfig();
 			$this->registerMiddleware();
 		}
