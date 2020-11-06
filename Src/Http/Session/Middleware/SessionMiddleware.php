@@ -26,7 +26,9 @@ class SessionMiddleware extends MiddlewareAbstract {
 		$request->session->start($request);
 		$request->session->gc();
 
-		Context::setResponse($request->session->replenishResponse(Context::getResponse()));
+		if ($request->session->all()) {
+			Context::setResponse($request->session->replenishResponse(Context::getResponse()));
+		}
 
 		return $handler->handle($request);
 	}

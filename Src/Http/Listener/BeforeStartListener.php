@@ -12,6 +12,7 @@
 
 namespace W7\Http\Listener;
 
+use W7\Core\Facades\Config;
 use W7\Core\Facades\Container;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Route\RouteDispatcher;
@@ -23,7 +24,7 @@ use W7\Http\Session\Middleware\SessionMiddleware;
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		$this->registerRouter();
-		$this->registerMiddleware();
+		Config::get('app.session.auto_start') && $this->registerMiddleware();
 	}
 
 	private function registerRouter() {
