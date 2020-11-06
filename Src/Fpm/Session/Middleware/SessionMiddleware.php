@@ -33,8 +33,6 @@ class SessionMiddleware extends MiddlewareAbstract {
 			throw new Exception('session startup fail, check the session configuration or the save_path directory permissions');
 		}
 
-		$this->getContext()->setResponse($request->session->replenishResponse($this->getContext()->getResponse()));
-
 		return $handler->handle($request);
 	}
 }
