@@ -12,6 +12,8 @@
 
 namespace W7\Core\Facades;
 
+use W7\App;
+
 /**
  * Class Container
  * @package W7\Core\Facades
@@ -24,7 +26,6 @@ namespace W7\Core\Facades;
  * @method static void append($dataKey, array $value, $default = [])
  * @method static mixed clone($name, array $params = [])
  * @method static void delete($name)
- * @method static mixed singleton($name, array $params = [])
  * @method static mixed clear()
  *
  * @see \W7\Core\Container\Container
@@ -36,5 +37,9 @@ class Container extends FacadeAbstract {
 
 	public static function getFacadeRoot() {
 		return self::getContainer();
+	}
+
+	public static function singleton($name, array $params = []) {
+		return App::getApp()->getContainer()->singleton($name, $params);
 	}
 }

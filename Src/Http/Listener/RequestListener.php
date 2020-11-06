@@ -40,6 +40,8 @@ class RequestListener extends ListenerAbstract {
 	 * @throws \Exception
 	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
+		xhprof_enable();
+
 		Context::setContextDataByKey('workid', $server->worker_id);
 		Context::setContextDataByKey('coid', Coroutine::getuid());
 
@@ -59,5 +61,8 @@ class RequestListener extends ListenerAbstract {
 		$psr7Response->send();
 
 		Context::destroy();
+
+		$data = xhprof_disable();
+		file_put_contents(ini_get('xhprof.output_dir') . '/' . uniqid() . '.rangine.xhprof', serialize($data));
 	}
 }
