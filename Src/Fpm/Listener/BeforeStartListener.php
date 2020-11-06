@@ -20,8 +20,10 @@ use W7\Fpm\Server\Dispatcher;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		$this->initSessionConfig();
-		$this->registerMiddleware();
+		if (Config::get('session.auto_start')) {
+			$this->initSessionConfig();
+			$this->registerMiddleware();
+		}
 	}
 
 	//把用户设置的session配置起作用到php.ini中
