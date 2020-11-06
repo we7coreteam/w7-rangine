@@ -12,6 +12,7 @@
 
 namespace W7\Fpm\Session\Middleware;
 
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -27,7 +28,10 @@ class SessionMiddleware extends MiddlewareAbstract {
 		session_set_save_handler($request->session->getHandler(), true);
 		//执行session_start才能触发php默认的gc
 		//启动”session_start” 会自动执行,open,read函数，然后页面执行完，会执行shutdown函数，最后会把session写入进去，然后执行close关闭文件
-		session_start();
+		session_status() != PHP_SESSION_ACTIVE && session_start();
+		if (session_status() != PHP_SESSION_ACTIVE) {
+			throw new Exception('session startup fail, check the session configuration or the save_path directory permissions');
+		}
 
 		$this->getContext()->setResponse($request->session->replenishResponse($this->getContext()->getResponse()));
 
