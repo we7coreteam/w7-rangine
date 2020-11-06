@@ -14,9 +14,10 @@ namespace W7\Core\Route;
 
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
-use W7\Core\Route\Validator\ValidatorInterface;
+use W7\Contract\Router\RouterInterface;
+use W7\Contract\Router\ValidatorInterface;
 
-class Router {
+class Router implements RouterInterface {
 	const METHOD_POST = 'POST';
 	const METHOD_GET = 'GET';
 	const METHOD_BOTH_GP = 'POST,GET';

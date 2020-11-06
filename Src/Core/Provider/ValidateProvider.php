@@ -12,10 +12,8 @@
 
 namespace W7\Core\Provider;
 
-use Illuminate\Translation\Translator;
 use Illuminate\Validation\DatabasePresenceVerifier;
 use Illuminate\Validation\Factory;
-use W7\Core\Facades\DB;
 
 class ValidateProvider extends ProviderAbstract {
 	public function register() {
@@ -24,12 +22,8 @@ class ValidateProvider extends ProviderAbstract {
 
 	public function registerFactory() {
 		$this->container->set(Factory::class, function () {
-			/**
-			 * @var Translator $translator
-			 */
-			$translator = $this->container->get('translator');
-			$validate = new Factory($translator);
-			$validate->setPresenceVerifier(new DatabasePresenceVerifier(DB::getFacadeRoot()));
+			$validate = new Factory($this->container->get('translator'));
+			$validate->setPresenceVerifier(new DatabasePresenceVerifier($this->container->get('db-factory')));
 			return $validate;
 		});
 	}

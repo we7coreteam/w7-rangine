@@ -15,8 +15,6 @@ namespace W7\Console\Command\Server;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
-use W7\Core\Facades\Config;
-use W7\Core\Facades\Container;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleServerAbstract;
 
@@ -35,7 +33,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	private function parseServer() {
-		$servers = trim(Config::get('app.setting.server'));
+		$servers = trim($this->getConfig()->get('app.setting.server'));
 		if (!$servers) {
 			throw new CommandException('please set the server to start');
 		}
@@ -98,7 +96,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			$server = array_values($this->aloneServers)[0];
 		}
 
-		return Container::singleton($server);
+		return $this->getContainer()->singleton($server);
 	}
 
 	private function addSubServer(SwooleServerAbstract $server) {
@@ -107,7 +105,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			/**
 			 * @var SwooleServerAbstract $subServer
 			 */
-			$subServer = Container::singleton($handle);
+			$subServer = $this->getContainer()->singleton($handle);
 			if ($subServer->listener($server->getServer()) === false) {
 				continue;
 			}
@@ -180,12 +178,12 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 	}
 
 	private function saveStartServer($type) {
-		$serverConfig = Config::get('app.setting.started_servers', []);
+		$serverConfig = $this->getConfig()->get('app.setting.started_servers', []);
 		$serverConfig[] = $type;
-		Config::set('app.setting.started_servers', $serverConfig);
+		$this->getConfig()->set('app.setting.started_servers', $serverConfig);
 	}
 
 	private function clearStartServer() {
-		Config::set('app.setting.started_servers', []);
+		$this->getConfig()->set('app.setting.started_servers', []);
 	}
 }

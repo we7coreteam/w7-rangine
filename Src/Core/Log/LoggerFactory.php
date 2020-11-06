@@ -14,11 +14,12 @@ namespace W7\Core\Log;
 
 use Monolog\Logger as MonoLogger;
 use Psr\Log\LoggerInterface;
+use W7\Contract\Logger\LoggerFactoryInterface;
 use W7\Core\Log\Handler\HandlerAbstract;
 use W7\Core\Log\Processor\SwooleProcessor;
 
 /**
- * Class LogManager
+ * Class LogFactory
  * @package W7\Core\Log
  *
  * @method void emergency(string $message, array $context = [])
@@ -31,10 +32,10 @@ use W7\Core\Log\Processor\SwooleProcessor;
  * @method void debug(string $message, array $context = [])
  * @method void log($level, string $message, array $context = [])
  */
-class LogManager {
+class LoggerFactory implements LoggerFactoryInterface {
 	protected $channelsConfig;
 	protected $defaultChannel;
-	protected $loggers = [];
+	protected $loggerMap = [];
 
 	public function __construct($channelsConfig = [], $defaultChannel = 'stack') {
 		$this->channelsConfig = $channelsConfig;
@@ -45,31 +46,7 @@ class LogManager {
 		$this->defaultChannel = $channel;
 	}
 
-	/**
-	 * 需调整
-	 * @param string $channel
-	 * @return LoggerInterface
-	 */
-	public function channel($channel = 'stack') : LoggerInterface {
-		return $this->getLogger($channel);
-	}
-
-	protected function getLogger($channel) : LoggerInterface {
-		if (empty($this->loggers[$channel]) && !empty($this->channelsConfig[$channel])) {
-			$this->registerLogger($channel, $this->channelsConfig[$channel]);
-		}
-		if (empty($this->loggers[$channel])) {
-			$channel = $this->defaultChannel;
-		}
-
-		if (!empty($this->loggers[$channel]) && $this->loggers[$channel] instanceof MonoLogger) {
-			return $this->loggers[$channel];
-		}
-
-		throw new \RuntimeException('logger channel ' . $channel . ' not support');
-	}
-
-	public function registerLogger($channel, array $config) {
+	public function createLogger($channel, array $config) {
 		$logger = new Logger($channel, [], []);
 		$logger->bufferLimit = $config['buffer_limit'] ?? 1;
 
@@ -99,9 +76,36 @@ class LogManager {
 			$logger->pushProcessor(new $processor);
 		}
 
-		$this->loggers[$channel] = $logger;
-
 		return $logger;
+	}
+
+	public function registerLogger($channel, LoggerInterface $logger) {
+		$this->loggerMap[$channel] = $logger;
+	}
+
+	/**
+	 * 需调整
+	 * @param string $channel
+	 * @return LoggerInterface
+	 */
+	public function channel($channel = 'stack') : LoggerInterface {
+		return $this->getLogger($channel);
+	}
+
+	protected function getLogger($channel) : LoggerInterface {
+		if (empty($this->loggerMap[$channel]) && !empty($this->channelsConfig[$channel])) {
+			$logger = $this->createLogger($channel, $this->channelsConfig[$channel]);
+			$this->registerLogger($channel, $logger);
+		}
+		if (empty($this->loggerMap[$channel])) {
+			$channel = $this->defaultChannel;
+		}
+
+		if (!empty($this->loggerMap[$channel]) && $this->loggerMap[$channel] instanceof MonoLogger) {
+			return $this->loggerMap[$channel];
+		}
+
+		throw new \RuntimeException('logger channel ' . $channel . ' not support');
 	}
 
 	public function __call($name, $arguments) {

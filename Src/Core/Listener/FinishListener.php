@@ -12,8 +12,6 @@
 
 namespace W7\Core\Listener;
 
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Event;
 use W7\Core\Message\MessageAbstract;
 use W7\Core\Message\TaskMessage;
 use W7\Core\Server\ServerEvent;
@@ -21,7 +19,7 @@ use W7\Core\Server\ServerEvent;
 /**
  * onFinish(\Swoole\Server $serv, int $task_id, string $data)
  */
-class FinishListener implements ListenerInterface {
+class FinishListener extends ListenerAbstract {
 	public function run(...$params) {
 		/**
 		 * @var TaskMessage $taskMessage
@@ -40,9 +38,10 @@ class FinishListener implements ListenerInterface {
 		}
 
 		if ($taskMessage->hasFinishCallback) {
-			$task = Container::singleton($taskMessage->task);
+			$task = $this->getContainer()->singleton($taskMessage->task);
 			call_user_func_array([$task, 'finish'], [$server, $task_id, $taskMessage->result, $taskMessage->params]);
 		}
-		Event::dispatch(ServerEvent::ON_USER_TASK_FINISH, [$taskMessage->result]);
+
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_TASK_FINISH, [$taskMessage->result]);
 	}
 }

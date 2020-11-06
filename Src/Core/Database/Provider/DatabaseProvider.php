@@ -28,8 +28,6 @@ use W7\Core\Database\Event\TransactionBeginningEvent;
 use W7\Core\Database\Event\TransactionCommittedEvent;
 use W7\Core\Database\Event\TransactionRolledBackEvent;
 use W7\Core\Database\Pool\PoolFactory;
-use W7\Core\Facades\Config;
-use W7\Core\Facades\Event;
 use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
@@ -37,12 +35,12 @@ class DatabaseProvider extends ProviderAbstract {
 		$this->registerConnectionResolver();
 		$this->registerDbEvent();
 
-		Model::setEventDispatcher(Event::getFacadeRoot());
-		Model::setConnectionResolver($this->container->get(ConnectionResolver::class));
+		Model::setEventDispatcher($this->getEventDispatcher());
+		Model::setConnectionResolver($this->container->singleton('db-factory'));
 	}
 
 	private function registerConnectionResolver() {
-		$this->container->set(ConnectionResolver::class, function () {
+		$this->container->set('db-factory', function () {
 			Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
 				return new PdoMysqlConnection($connection, $database, $prefix, $config);
 			});
@@ -50,14 +48,14 @@ class DatabaseProvider extends ProviderAbstract {
 			/**
 			 * @var Container $container
 			 */
-			$container = $this->container->get(Container::class);
+			$container = $this->container->singleton(Container::class);
 
 			$container['config']['database.default'] = 'default';
 			$container['config']['database.connections'] = $this->config->get('app.database', []);
 			$factory = new ConnectionFactory($container);
 
 			$connectionResolver = new ConnectionResolver($container, $factory);
-			$connectionResolver->setPoolFactory(new PoolFactory(Config::get('app.pool.database', [])));
+			$connectionResolver->setPoolFactory(new PoolFactory($this->config->get('app.pool.database', [])));
 			$container['db'] = $connectionResolver;
 			Facade::setFacadeApplication($container);
 
@@ -66,17 +64,17 @@ class DatabaseProvider extends ProviderAbstract {
 	}
 
 	private function registerDbEvent() {
-		Event::listen(QueryExecuted::class, function ($event) {
-			Event::dispatch(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
+		$this->getEventDispatcher()->listen(QueryExecuted::class, function ($event) {
+			$this->getEventDispatcher()->dispatch(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
 		});
-		Event::listen(TransactionBeginning::class, function ($event) {
-			Event::dispatch(new TransactionBeginningEvent($event->connection));
+		$this->getEventDispatcher()->listen(TransactionBeginning::class, function ($event) {
+			$this->getEventDispatcher()->dispatch(new TransactionBeginningEvent($event->connection));
 		});
-		Event::listen(TransactionCommitted::class, function ($event) {
-			Event::dispatch(new TransactionCommittedEvent($event->connection));
+		$this->getEventDispatcher()->listen(TransactionCommitted::class, function ($event) {
+			$this->getEventDispatcher()->dispatch(new TransactionCommittedEvent($event->connection));
 		});
-		Event::listen(TransactionRolledBack::class, function ($event) {
-			Event::dispatch(new TransactionRolledBackEvent($event->connection));
+		$this->getEventDispatcher()->listen(TransactionRolledBack::class, function ($event) {
+			$this->getEventDispatcher()->dispatch(new TransactionRolledBackEvent($event->connection));
 		});
 	}
 }

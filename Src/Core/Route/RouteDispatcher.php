@@ -14,10 +14,9 @@ namespace W7\Core\Route;
 
 use FastRoute\Dispatcher\GroupCountBased;
 use W7\App;
-use W7\Core\Facades\Container;
+use W7\Contract\Router\RouterInterface;
 use W7\Core\Helper\FileLoader;
 use W7\Core\Server\ServerEnum;
-use W7\Core\Facades\Router;
 
 class RouteDispatcher extends GroupCountBased {
 	public static $routeCacheFileName = 'route.php';
@@ -30,10 +29,11 @@ class RouteDispatcher extends GroupCountBased {
 				throw new \RuntimeException('Invalid cache file "' . $routeCacheFile . '"');
 			}
 		} else {
+			$container = App::getApp()->getContainer();
 			/**
 			 * @var RouteMapping $routeMapping
 			 */
-			$routeMapping = new $routeMapping(Router::getFacadeRoot(), Container::singleton(FileLoader::class));
+			$routeMapping = new $routeMapping($container->singleton(RouterInterface::class), $container->singleton(FileLoader::class));
 			$routeDefinitions = $routeMapping->getMapping();
 		}
 

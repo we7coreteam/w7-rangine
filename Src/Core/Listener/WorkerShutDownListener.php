@@ -13,27 +13,23 @@
 namespace W7\Core\Listener;
 
 use W7\App;
-use W7\Core\Facades\Config;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\Event;
-use W7\Core\Facades\Logger;
 use W7\Core\Server\ServerEvent;
 
 class WorkerShutDownListener extends ListenerAbstract {
 	public function run(...$params) {
 		$this->log($params[1]);
-		$startedServers = Config::get('app.setting.started_servers', [App::$server->getType()]);
+		$startedServers = $this->getConfig()->get('app.setting.started_servers', [App::$server->getType()]);
 		foreach ($startedServers as $startedServer) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst($startedServer), ucfirst(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN));
-			Event::listen(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $listener);
+			$this->getEventDispatcher()->listen(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $listener);
 		}
 
-		Event::dispatch(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $params);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $params);
 	}
 
 	protected function log(\Throwable $throwable) {
-		Context::setContextDataByKey('workid', App::$server->getServer()->worker_id);
-		Context::setContextDataByKey('coid', Context::getLastCoId());
+		$this->getContext()->setContextDataByKey('workid', App::$server->getServer()->worker_id);
+		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getLastCoId());
 		$errorMessage = sprintf(
 			'Uncaught Exception %s: "%s" at %s line %s',
 			get_class($throwable),
@@ -47,6 +43,6 @@ class WorkerShutDownListener extends ListenerAbstract {
 			$context = array('exception' => $throwable);
 		}
 
-		Logger::debug($errorMessage, $context);
+		$this->getLogger()->debug($errorMessage, $context);
 	}
 }

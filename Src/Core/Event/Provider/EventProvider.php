@@ -10,15 +10,16 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Events\Provider;
+namespace W7\Core\Event\Provider;
 
 use Illuminate\Container\Container;
-use W7\Core\Events\Dispatcher;
+use W7\Contract\Event\EventDispatcherInterface;
+use W7\Core\Event\Dispatcher;
 use W7\Core\Provider\ProviderAbstract;
 
 class EventProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set(Dispatcher::class, function () {
+		$this->container->set(EventDispatcherInterface::class, function () {
 			$eventDispatcher = new Dispatcher();
 
 			$events = $this->config->get('event', []);
@@ -32,7 +33,7 @@ class EventProvider extends ProviderAbstract {
 			/**
 			 * @var Container $container
 			 */
-			$container = $this->container->get(Container::class);
+			$container = $this->container->singleton(Container::class);
 			$container->instance('events', $eventDispatcher);
 			$eventDispatcher->setContainer($container);
 			$eventDispatcher->setQueueResolver(function () {

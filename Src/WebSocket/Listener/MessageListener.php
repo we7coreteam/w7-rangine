@@ -15,9 +15,6 @@ namespace W7\WebSocket\Listener;
 use Swoole\Coroutine;
 use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Core\Listener\ListenerAbstract;
@@ -33,10 +30,10 @@ class MessageListener extends ListenerAbstract {
 	}
 
 	private function onMessage(Server $server, SwooleFrame $frame): bool {
-		Context::setContextDataByKey('workid', $server->worker_id);
-		Context::setContextDataByKey('coid', Coroutine::getuid());
+		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
+		$this->getContext()->setContextDataByKey('coid', Coroutine::getuid());
 
-		$collector = Container::get('ws-client')[$frame->fd] ?? [];
+		$collector = $this->getContainer()->get('ws-client')[$frame->fd] ?? [];
 
 		/**
 		 * @var Psr7Request $psr7Request
@@ -51,19 +48,19 @@ class MessageListener extends ListenerAbstract {
 		//握手的Response只是为了响应握手，只处才是真正返回数据的Response
 		$psr7Response->setOutputer(new WebSocketResponseOutputer($server, $frame->fd));
 
-		Context::setResponse($psr7Response);
-		Context::setRequest($psr7Request);
+		$this->getContext()->setResponse($psr7Response);
+		$this->getContext()->setRequest($psr7Request);
 
-		Event::dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 
-		$dispatcher = Container::singleton(Dispatcher::class);
+		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
-		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 
 		$psr7Response->send();
 
-		Context::destroy();
+		$this->getContext()->destroy();
 
 		return true;
 	}

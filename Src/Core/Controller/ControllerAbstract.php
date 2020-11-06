@@ -14,19 +14,21 @@ namespace W7\Core\Controller;
 
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
+use W7\Contract\Translation\ValidatorFactoryInterface;
+use W7\Contract\View\ViewInterface;
 use W7\Core\Exception\ValidatorException;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\Validator;
-use W7\Core\Facades\View;
+use W7\Core\Helper\Traiter\AppCommonTrait;
 use W7\Http\Message\Server\Request;
 
 abstract class ControllerAbstract {
+	use AppCommonTrait;
+
 	/**
 	 * 获取一个response对象
 	 * @return null|\W7\Http\Message\Server\Response
 	 */
 	protected function response() {
-		$response = Context::getResponse();
+		$response = $this->getContext()->getResponse();
 		if (empty($response)) {
 			throw new \RuntimeException('There are no response objects in this context');
 		}
@@ -38,7 +40,7 @@ abstract class ControllerAbstract {
 	 * @return null|Request
 	 */
 	protected function request() {
-		$request = Context::getRequest();
+		$request = $this->getContext()->getRequest();
 		if (empty($request)) {
 			throw new \RuntimeException('There are no request objects in this context');
 		}
@@ -58,7 +60,7 @@ abstract class ControllerAbstract {
 	}
 
 	protected function render($name, $context = []) {
-		return $this->responseHtml(View::render($name, $context));
+		return $this->responseHtml($this->getContainer()->singleton(ViewInterface::class)->render($name, $context));
 	}
 
 	public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = []) {
@@ -71,7 +73,7 @@ abstract class ControllerAbstract {
 			/**
 			 * @var Factory $validate
 			 */
-			$result = Validator::make($requestData, $rules, $messages, $customAttributes)
+			$result = $this->getContainer()->singleton(ValidatorFactoryInterface::class)->make($requestData, $rules, $messages, $customAttributes)
 				->validate();
 		} catch (ValidationException $e) {
 			$errorMessage = [];

@@ -14,6 +14,8 @@
 		"ext-swoole": ">=4.4.0",
 		"ext-json": "*",
 		"w7/rangine-compat": "2.3.12",
+		"w7/rangine-contract": "dev-master",
+		"w7/rangine-facade": "dev-master",
 		"w7/rangine-http-message": "*",
 		"w7/rangine-database-tool": "*",
 		"w7/rangine-lang": "*",
@@ -37,8 +39,18 @@
 	},
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",
-		"w7/php-cs-fixer": "^1.0"
+		"w7/php-cs-fixer": "*"
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../w7-rangine-contract"
+		},
+		{
+			"type": "path",
+			"url": "../w7-rangine-facade"
+		}
+	],
 	"autoload": {
 		"psr-4": {
 			"W7\\": "Src/"

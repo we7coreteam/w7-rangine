@@ -13,16 +13,15 @@
 namespace W7\Core\Listener;
 
 use W7\App;
-use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEvent;
 
-class StartListener implements ListenerInterface {
+class StartListener extends ListenerAbstract {
 	public function run(...$params) {
 		//重新播种随机因子
 		mt_srand();
 
 		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' master process');
 
-		Event::dispatch(ServerEvent::ON_USER_AFTER_START, $params);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_START, $params);
 	}
 }

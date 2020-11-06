@@ -12,7 +12,7 @@
 
 namespace W7\Core\Message;
 
-use W7\Core\Facades\Container;
+use W7\App;
 
 /**
  * 投递一个任务时的消息结构
@@ -101,7 +101,7 @@ class TaskMessage extends MessageAbstract {
 			return false;
 		}
 
-		$object = Container::get($callback[0]);
+		$object = App::getApp()->getContainer()->get($callback[0]);
 		if (!method_exists($object, $callback[1])) {
 			return false;
 		}

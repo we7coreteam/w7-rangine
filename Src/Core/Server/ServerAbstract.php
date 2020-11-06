@@ -13,8 +13,11 @@
 namespace W7\Core\Server;
 
 use W7\App;
+use W7\Core\Helper\Traiter\AppCommonTrait;
 
 abstract class ServerAbstract implements ServerInterface {
+	use AppCommonTrait;
+
 	//表示当前服务是主服务
 	public static $masterServer = true;
 	//表示该服务只能跟随主服务启动

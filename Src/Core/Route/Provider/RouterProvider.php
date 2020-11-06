@@ -12,12 +12,13 @@
 
 namespace W7\Core\Route\Provider;
 
+use W7\Contract\Router\RouterInterface;
 use W7\Core\Provider\ProviderAbstract;
 use W7\Core\Route\Router;
 
 class RouterProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set(Router::class, function () {
+		$this->container->set(RouterInterface::class, function () {
 			$documentRoot = rtrim($this->config->get('server.common.document_root', BASE_PATH . '/public'), DIRECTORY_SEPARATOR);
 			$enableStatic = $this->config->get('server.common.enable_static_handler', true);
 
@@ -29,6 +30,6 @@ class RouterProvider extends ProviderAbstract {
 	}
 
 	public function providers(): array {
-		return [Router::class];
+		return [RouterInterface::class];
 	}
 }

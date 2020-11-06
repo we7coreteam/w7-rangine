@@ -25,15 +25,20 @@ class MiddlewareMapping {
 	 */
 	public $afterMiddleware = [];
 
-	public function __construct() {
+	public function addBeforeMiddleware(string $middleware, $unshift = false) {
+		if ($unshift) {
+			array_unshift($this->beforeMiddleware, $middleware);
+		} else {
+			$this->beforeMiddleware[] = [$middleware];
+		}
 	}
 
-	public function addBeforeMiddleware(string $middleware) {
-		$this->beforeMiddleware[] = [$middleware];
-	}
-
-	public function addAfterMiddleware(string $middleware) {
-		$this->afterMiddleware[] = [$middleware];
+	public function addAfterMiddleware(string $middleware, $unshift = false) {
+		if ($unshift) {
+			array_unshift($this->afterMiddleware, $middleware);
+		} else {
+			$this->afterMiddleware[] = [$middleware];
+		}
 	}
 
 	public function deleteBeforeMiddleware(string $middleware) {

@@ -14,8 +14,7 @@ namespace W7\Reload\Process;
 
 use Swoole\Process;
 use W7\App;
-use W7\Core\Facades\Config;
-use W7\Core\Facades\Output;
+use W7\Console\Io\Output;
 use W7\Core\Process\ProcessAbstract;
 
 class ReloadProcess extends ProcessAbstract {
@@ -46,7 +45,7 @@ class ReloadProcess extends ProcessAbstract {
 	public function __construct($name, $num = 1, Process $process = null) {
 		parent::__construct($name, $num, $process);
 
-		$reloadConfig = Config::get('reload');
+		$reloadConfig = $this->getConfig()->get('reload');
 		self::$watchDir = array_merge(self::$watchDir, $reloadConfig['path'] ?? []);
 		self::$fileTypes = array_merge(self::$fileTypes, $reloadConfig['type'] ?? []);
 	}
@@ -60,7 +59,7 @@ class ReloadProcess extends ProcessAbstract {
 	}
 
 	protected function beforeStart() {
-		Output::info('>> server hot reload start');
+		(new Output())->info('>> server hot reload start');
 	}
 
 	public function check() {
@@ -80,7 +79,7 @@ class ReloadProcess extends ProcessAbstract {
 				$server->isRun();
 				$server->getServer()->reload();
 
-				Output::writeln('Reloaded in ' . date('m-d H:i:s') . '...');
+				(new Output())->writeln('Reloaded in ' . date('m-d H:i:s') . '...');
 			}
 		});
 	}

@@ -18,9 +18,11 @@ use Illuminate\Database\DatabaseManager;
 use Swoole\Coroutine;
 use W7\Core\Database\Event\MakeConnectionEvent;
 use W7\Core\Database\Pool\PoolFactory;
-use W7\Core\Facades\Context;
+use W7\Core\Helper\Traiter\AppCommonTrait;
 
 class ConnectionResolver extends DatabaseManager {
+	use AppCommonTrait;
+
 	/**
 	 * @var PoolFactory
 	 */
@@ -54,17 +56,17 @@ class ConnectionResolver extends DatabaseManager {
 		$name = $name ?: $database;
 
 		$contextDbName = $this->getContextKey($name);
-		$connection = Context::getContextDataByKey($contextDbName);
+		$connection = $this->getContext()->getContextDataByKey($contextDbName);
 
 		if (! $connection instanceof ConnectionInterface) {
 			try {
 				$connection = $this->createConnection($name);
-				Context::setContextDataByKey($contextDbName, $connection);
+				$this->getContext()->setContextDataByKey($contextDbName, $connection);
 			} finally {
 				if ($connection && isCo()) {
 					Coroutine::defer(function () use ($connection, $contextDbName) {
 						$this->releaseConnection($connection);
-						Context::setContextDataByKey($contextDbName, null);
+						$this->getContext()->setContextDataByKey($contextDbName, null);
 					});
 				}
 			}
@@ -141,7 +143,7 @@ class ConnectionResolver extends DatabaseManager {
 		list($database, $type) = $this->parseConnectionName($name);
 		$contextDbName = $name ?: $database;
 		$contextDbName = $this->getContextKey($contextDbName);
-		return Context::getContextDataByKey($contextDbName);
+		return $this->getContext()->getContextDataByKey($contextDbName);
 	}
 
 	private function getContextKey($name): string {

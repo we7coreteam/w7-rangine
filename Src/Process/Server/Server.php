@@ -12,15 +12,14 @@
 
 namespace W7\Process\Server;
 
-use W7\Core\Facades\Config;
 use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Server\ServerEnum;
 
 class Server extends ProcessServerAbstract {
 	public function __construct() {
 		//添加process 到server.php中
-		$processSetting = Config::get($this->getType() . '.setting', []);
-		Config::set('server.' . $this->getType(), $processSetting);
+		$processSetting = $this->getConfig()->get($this->getType() . '.setting', []);
+		$this->getConfig()->set('server.' . $this->getType(), $processSetting);
 
 		parent::__construct();
 	}

@@ -12,8 +12,6 @@
 
 namespace W7\Fpm\Listener;
 
-use W7\Core\Facades\Config;
-use W7\Core\Facades\Container;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Fpm\Session\Middleware\SessionMiddleware;
 use W7\Fpm\Server\Dispatcher;
@@ -26,7 +24,7 @@ class BeforeStartListener extends ListenerAbstract {
 
 	//把用户设置的session配置起作用到php.ini中
 	private function initSessionConfig() {
-		$sessionConfig = Config::get('app.session', []);
+		$sessionConfig = $this->getConfig()->get('app.session', []);
 		if (empty($sessionConfig['save_path'])) {
 			//如果没设置，使用php默认的session目录
 			$sessionConfig['save_path'] = session_save_path();
@@ -45,14 +43,14 @@ class BeforeStartListener extends ListenerAbstract {
 		}
 		ini_set('session.auto_start', 'Off');
 
-		Config::set('app.session', $sessionConfig);
+		$this->getConfig()->set('app.session', $sessionConfig);
 	}
 
 	private function registerMiddleware() {
 		/**
 		 * @var \W7\Fpm\Server\Dispatcher $dispatcher
 		 */
-		$dispatcher = Container::singleton(Dispatcher::class);
-		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class);
+		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
+		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class, true);
 	}
 }

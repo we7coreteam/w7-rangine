@@ -14,10 +14,12 @@ namespace W7\Core\Exception\Handler;
 
 use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
 use W7\Core\Exception\ResponseExceptionAbstract;
-use W7\Core\Facades\Logger;
+use W7\Core\Helper\Traiter\AppCommonTrait;
 use W7\Http\Message\Server\Response;
 
 class ExceptionHandler {
+	use AppCommonTrait;
+
 	protected $serverType;
 	protected $response;
 	/**
@@ -68,7 +70,7 @@ class ExceptionHandler {
 			$context = array('exception' => $throwable);
 		}
 
-		Logger::debug($errorMessage, $context);
+		$this->getLogger()->debug($errorMessage, $context);
 	}
 
 	/**

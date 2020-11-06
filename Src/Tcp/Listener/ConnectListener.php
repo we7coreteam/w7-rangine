@@ -13,12 +13,10 @@
 namespace W7\Tcp\Listener;
 
 use Swoole\Server;
-use W7\Core\Facades\Container;
-use W7\Core\Facades\Event;
+use W7\Contract\Session\SessionInterface;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
-use W7\Core\Session\Session;
 use W7\Http\Message\Outputer\TcpResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
@@ -38,13 +36,13 @@ class ConnectListener extends ListenerAbstract {
 		$psr7Response->setOutputer(new TcpResponseOutputer($server, $fd));
 
 		//tcp session保证此次连接中是共享数据，Response没办法下放sessionid，不存在两次连接共用数据
-		$psr7Request->session = Container::clone(Session::class);
+		$psr7Request->session = $this->getContainer()->clone(SessionInterface::class);
 		$psr7Request->session->start($psr7Request);
 
-		Container::append('tcp-client', [
+		$this->getContainer()->append('tcp-client', [
 			$fd => [$psr7Request, $psr7Response]
 		], []);
 
-		Event::dispatch(ServerEvent::ON_USER_AFTER_OPEN, [$server, $fd, $psr7Request, ServerEnum::TYPE_TCP]);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_OPEN, [$server, $fd, $psr7Request, ServerEnum::TYPE_TCP]);
 	}
 }

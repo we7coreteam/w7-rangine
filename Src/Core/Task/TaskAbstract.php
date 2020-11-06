@@ -12,6 +12,8 @@
 
 namespace W7\Core\Task;
 
+use W7\Contract\Task\TaskInterface;
+
 abstract class TaskAbstract implements TaskInterface {
 	public static $connection;
 

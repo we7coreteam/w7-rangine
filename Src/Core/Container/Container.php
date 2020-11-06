@@ -62,6 +62,9 @@ class Container implements ContainerInterface {
 	}
 
 	public function has($name) {
+		//检测是否为延迟加载服务，并触发加载器
+		$this->loadDeferredService($name);
+
 		return $this->psrContainer->has($name);
 	}
 
@@ -84,9 +87,6 @@ class Container implements ContainerInterface {
 		if ($support && $params) {
 			$instanceKey = md5($instanceKey . json_encode($params));
 		}
-
-		//检测是否为延迟加载服务，并触发加载器
-		$this->loadDeferredService($name);
 
 		if (!$this->has($instanceKey)) {
 			//如果说这里的name不是类名的话，无法使用

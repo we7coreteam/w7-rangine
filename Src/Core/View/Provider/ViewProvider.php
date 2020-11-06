@@ -13,6 +13,7 @@
 namespace W7\Core\View\Provider;
 
 use W7\Console\Application;
+use W7\Contract\View\ViewInterface;
 use W7\Core\View\Handler\HandlerAbstract;
 use W7\Reload\Process\ReloadProcess;
 use W7\Core\Provider\ProviderAbstract;
@@ -26,7 +27,7 @@ class ViewProvider extends ProviderAbstract {
 			$config['handler'] = $this->config->get('handler.view.' . $config['handler'], $config['handler']);
 		}
 
-		$this->container->set(View::class, function () use ($config) {
+		$this->container->set(ViewInterface::class, function () use ($config) {
 			$view = new View($config);
 			$this->registerSystemConst($view, $config);
 			$this->registerSystemFunction($view);
@@ -37,7 +38,7 @@ class ViewProvider extends ProviderAbstract {
 		isCli() && $this->registerReloadDir($config);
 	}
 
-	protected function registerSystemFunction(View $view) {
+	protected function registerSystemFunction(ViewInterface $view) {
 		$view->registerFunction('getClientIp', function () {
 			return getClientIp();
 		});
@@ -46,7 +47,7 @@ class ViewProvider extends ProviderAbstract {
 		});
 	}
 
-	protected function registerSystemConst(View $view, $config) {
+	protected function registerSystemConst(ViewInterface $view, $config) {
 		$view->registerConst(HandlerAbstract::__STATIC__, $config['static'] ?? '/static/');
 		$view->registerConst(HandlerAbstract::__CSS__, $config['css'] ?? '/static/css/');
 		$view->registerConst(HandlerAbstract::__JS__, $config['js'] ?? '/static/js/');
@@ -66,6 +67,6 @@ class ViewProvider extends ProviderAbstract {
 	}
 
 	public function providers(): array {
-		return [View::class, Application::class];
+		return [ViewInterface::class, Application::class];
 	}
 }

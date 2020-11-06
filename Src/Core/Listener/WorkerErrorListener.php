@@ -12,11 +12,10 @@
 
 namespace W7\Core\Listener;
 
-use W7\Core\Facades\Event;
 use W7\Core\Server\ServerEvent;
 
-class WorkerErrorListener implements ListenerInterface {
+class WorkerErrorListener extends ListenerAbstract {
 	public function run(...$params) {
-		Event::dispatch(ServerEvent::ON_USER_AFTER_WORKER_ERROR, $params);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_WORKER_ERROR, $params);
 	}
 }
