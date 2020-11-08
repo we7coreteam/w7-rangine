@@ -27,7 +27,7 @@ class MiddlewareMapping {
 
 	public function addBeforeMiddleware(string $middleware, $unshift = false) {
 		if ($unshift) {
-			array_unshift($this->beforeMiddleware, $middleware);
+			array_unshift($this->beforeMiddleware, [$middleware]);
 		} else {
 			$this->beforeMiddleware[] = [$middleware];
 		}
@@ -35,7 +35,7 @@ class MiddlewareMapping {
 
 	public function addAfterMiddleware(string $middleware, $unshift = false) {
 		if ($unshift) {
-			array_unshift($this->afterMiddleware, $middleware);
+			array_unshift($this->afterMiddleware, [$middleware]);
 		} else {
 			$this->afterMiddleware[] = [$middleware];
 		}

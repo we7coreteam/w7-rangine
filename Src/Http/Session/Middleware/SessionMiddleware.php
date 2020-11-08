@@ -20,7 +20,7 @@ use W7\Core\Middleware\MiddlewareAbstract;
 
 class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		$request->session = $this->getConfigger()->clone(SessionInterface::class);
+		$request->session = $this->getContainer()->clone(SessionInterface::class);
 		$request->session->start($request);
 		$request->session->gc();
 
