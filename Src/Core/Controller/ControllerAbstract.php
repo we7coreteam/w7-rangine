@@ -14,7 +14,7 @@ namespace W7\Core\Controller;
 
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
-use W7\Contract\Translation\ValidatorFactoryInterface;
+use W7\Contract\Validation\ValidatorFactoryInterface;
 use W7\Contract\View\ViewInterface;
 use W7\Core\Exception\ValidatorException;
 use W7\Core\Helper\Traiter\AppCommonTrait;

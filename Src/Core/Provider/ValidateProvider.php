@@ -14,6 +14,7 @@ namespace W7\Core\Provider;
 
 use Illuminate\Validation\DatabasePresenceVerifier;
 use Illuminate\Validation\Factory;
+use W7\Contract\Validation\ValidatorFactoryInterface;
 
 class ValidateProvider extends ProviderAbstract {
 	public function register() {
@@ -21,7 +22,7 @@ class ValidateProvider extends ProviderAbstract {
 	}
 
 	public function registerFactory() {
-		$this->container->set(Factory::class, function () {
+		$this->container->set(ValidatorFactoryInterface::class, function () {
 			$validate = new Factory($this->container->get('translator'));
 			$validate->setPresenceVerifier(new DatabasePresenceVerifier($this->container->get('db-factory')));
 			return $validate;
@@ -29,6 +30,6 @@ class ValidateProvider extends ProviderAbstract {
 	}
 
 	public function providers(): array {
-		return [Factory::class];
+		return [ValidatorFactoryInterface::class];
 	}
 }
