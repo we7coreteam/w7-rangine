@@ -17,13 +17,15 @@ use W7\Core\Cache\Handler\HandlerAbstract;
 
 abstract class CacheAbstract implements CacheInterface {
 	protected $name;
+	protected $cacheOptions = [];
 	/**
 	 * @var ConnectionResolver
 	 */
 	protected $connectionResolver;
 
-	public function __construct($name) {
+	public function __construct($name, $cacheOptions = []) {
 		$this->name = $name;
+		$this->cacheOptions = $cacheOptions;
 	}
 
 	public function getName() {
@@ -45,5 +47,9 @@ abstract class CacheAbstract implements CacheInterface {
 		}
 
 		throw $e;
+	}
+
+	protected function warpKey($key) {
+		return ($this->cacheOptions['prefix'] ?? '') . $key;
 	}
 }

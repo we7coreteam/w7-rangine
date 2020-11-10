@@ -23,8 +23,8 @@ class ValidateProvider extends ProviderAbstract {
 
 	public function registerFactory() {
 		$this->container->set(ValidatorFactoryInterface::class, function () {
-			$validate = new Factory($this->container->get('translator'));
-			$validate->setPresenceVerifier(new DatabasePresenceVerifier($this->container->get('db-factory')));
+			$validate = new Factory($this->container->singleton('translator'));
+			$validate->setPresenceVerifier(new DatabasePresenceVerifier($this->container->singleton('db-factory')));
 			return $validate;
 		});
 	}
