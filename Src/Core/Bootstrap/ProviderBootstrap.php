@@ -19,10 +19,10 @@ use W7\Core\Event\Provider\EventProvider;
 use W7\Core\Log\Provider\LogProvider;
 use W7\Core\Provider\IlluminateProvider;
 use W7\Core\Provider\ProviderManager;
-use W7\Core\Provider\ValidateProvider;
 use W7\Core\Route\Provider\RouterProvider;
 use W7\Core\Session\Provider\SessionProvider;
 use W7\Core\Task\Provider\TaskProvider;
+use W7\Core\Validation\Provider\ValidationProvider;
 use W7\Core\View\Provider\ViewProvider;
 
 class ProviderBootstrap implements BootstrapInterface {
@@ -35,7 +35,7 @@ class ProviderBootstrap implements BootstrapInterface {
 		'cache' => CacheProvider::class,
 		'task' => TaskProvider::class,
 		'view' => ViewProvider::class,
-		'validate' => ValidateProvider::class,
+		'validate' => ValidationProvider::class,
 		'session' => SessionProvider::class
 	];
 
