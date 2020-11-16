@@ -34,8 +34,7 @@
 		"symfony/console": "^4.3",
 		"filp/whoops": "^2.7",
 		"twig/twig": "^3.0",
-		"pimple/pimple": "^3.2",
-		"psr/event-dispatcher": "^1.0"
+		"pimple/pimple": "^3.2"
 	},
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",
