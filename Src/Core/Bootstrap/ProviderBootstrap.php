@@ -46,14 +46,15 @@ class ProviderBootstrap implements BootstrapInterface {
 
 		$providers = $app->getConfigger()->get('provider.providers', []);
 		$providers = array_merge($this->providerMap, $providers);
+		$deferredProviders = $app->getConfigger()->get('provider.deferred', []);
+
+		$app->getContainer()->registerDeferredService(array_keys($deferredProviders));
 
 		/**
 		 * @var ProviderManager $providerManager
 		 */
 		$providerManager = $app->getContainer()->singleton(ProviderManager::class);
-		$deferredProviders = $app->getConfigger()->get('provider.deferred', []);
 		$providerManager->setDeferredProviders($deferredProviders);
-		$app->getContainer()->registerDeferredService(array_keys($deferredProviders));
 		$providerManager->register($providers)->boot();
 	}
 }
