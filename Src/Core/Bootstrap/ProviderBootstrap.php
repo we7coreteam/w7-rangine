@@ -26,7 +26,8 @@ use W7\Core\Validation\Provider\ValidationProvider;
 use W7\Core\View\Provider\ViewProvider;
 
 class ProviderBootstrap implements BootstrapInterface {
-	private $providerMap = [
+	//该map可优化,涉及到config:cache命令中的获取
+	public static $providerMap = [
 		'illuminate' => IlluminateProvider::class,
 		'event' => EventProvider::class,
 		'log' => LogProvider::class,
@@ -45,7 +46,7 @@ class ProviderBootstrap implements BootstrapInterface {
 		});
 
 		$providers = $app->getConfigger()->get('provider.providers', []);
-		$providers = array_merge($this->providerMap, $providers);
+		$providers = array_merge(self::$providerMap, $providers);
 		$deferredProviders = $app->getConfigger()->get('provider.deferred', []);
 
 		$app->getContainer()->registerDeferredService(array_keys($deferredProviders));
