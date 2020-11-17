@@ -15,6 +15,7 @@ namespace W7\Core\Server;
 use Swoole\Process;
 use Swoole\Server;
 use W7\App;
+use W7\Contract\Server\SwooleServerInterface;
 
 abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServerInterface {
 	/**
