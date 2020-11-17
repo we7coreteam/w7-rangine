@@ -14,6 +14,7 @@ namespace W7\Core\Event\Provider;
 
 use Illuminate\Container\Container;
 use W7\Contract\Event\EventDispatcherInterface;
+use W7\Contract\Queue\QueueFactoryInterface;
 use W7\Core\Event\Dispatcher;
 use W7\Core\Provider\ProviderAbstract;
 
@@ -37,8 +38,8 @@ class EventProvider extends ProviderAbstract {
 			$container->instance('events', $eventDispatcher);
 			$eventDispatcher->setContainer($container);
 			$eventDispatcher->setQueueResolver(function () {
-				if ($this->container->has('queue')) {
-					return $this->container->singleton('queue');
+				if ($this->container->has(QueueFactoryInterface::class)) {
+					return $this->container->singleton(QueueFactoryInterface::class);
 				}
 				return null;
 			});
