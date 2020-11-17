@@ -45,10 +45,10 @@ class ProcessFactory {
 	}
 
 	public function getByName($name, $index = 0) : ProcessAbstract {
-		if (empty($this->processNames[$name])) {
+		if (empty($this->processMapWithName[$name])) {
 			throw new \Exception('the process ' . $name . ' not exist');
 		}
-		if (empty($this->processNames[$name][$index])) {
+		if (empty($this->processMapWithName[$name][$index])) {
 			throw new \Exception('the process ' . $name . '[' . $index . '] not exist');
 		}
 
