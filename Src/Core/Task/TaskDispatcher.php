@@ -58,7 +58,7 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 			throw new TaskException('Task ' . $message->task . ' not found');
 		}
 
-		if ($message->isTaskAsync() || method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask()) {
+		if ((method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask())) {
 			return $this->dispatchAsync($message);
 		}
 
