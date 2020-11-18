@@ -12,6 +12,7 @@
 
 namespace W7\Core\Server;
 
+use Exception;
 use Swoole\Process;
 use Swoole\Server;
 use W7\App;
@@ -44,6 +45,8 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	public $setting;
 
 	public function __construct() {
+		$this->checkExtension();
+
 		parent::__construct();
 		$setting = $this->getConfig()->get('server');
 		if (!isset($setting[$this->getType()])) {
@@ -269,5 +272,13 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	}
 
 	public function listener(\Swoole\Server $server) {
+	}
+
+	private function checkExtension() {
+		if (extension_loaded('swoole') && version_compare(SWOOLE_VERSION, '4.4.0', '>=')) {
+			return true;
+		}
+
+		throw new Exception('please check if the Swoole extension is installed and if the version is greater than 4.4.0');
 	}
 }
