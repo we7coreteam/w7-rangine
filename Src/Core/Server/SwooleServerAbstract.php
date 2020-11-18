@@ -122,6 +122,31 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		return $result;
 	}
 
+	protected function getDefaultSetting() : array {
+		$logLevel = SWOOLE_LOG_TRACE;
+		if (SWOOLE_VERSION <= '4.4.16') {
+			$logLevel = SWOOLE_LOG_INFO;
+		}
+		return [
+			'pname' => 'w7-rangine',
+			'daemonize' => 0,
+			'dispatch_mode' => 3,
+			'worker_num' => swoole_cpu_num(),
+			'log_file' => RUNTIME_PATH . '/logs/run.log',
+			'log_level' => $logLevel,
+			'request_slowlog_timeout' => 2,
+			'request_slowlog_file' => RUNTIME_PATH . '/logs/slow.log',
+			'trace_event_worker' => true,
+			'upload_tmp_dir' => RUNTIME_PATH . '/upload',
+			'document_root' => BASE_PATH . '/public',
+			'enable_static_handler' => true,
+			'task_tmpdir' => RUNTIME_PATH . '/task',
+			'open_http2_protocol' => false,
+			'mode' => SWOOLE_PROCESS,
+			'sock_type' => SWOOLE_SOCK_TCP
+		];
+	}
+
 	protected function checkSetting() {
 		if (empty($this->setting['pid_file'])) {
 			throw new \RuntimeException('server pid_file error');
@@ -174,6 +199,15 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$this->setting['task_enable_coroutine'] = true;
 		$this->setting['task_ipc_mode'] = 1;
 		$this->setting['message_queue_key'] = '';
+	}
+
+	protected function filterServerSetting() {
+		if (version_compare(SWOOLE_VERSION, '4.5.5', '>=')) {
+			$supportSettings = Server\Helper::GLOBAL_OPTIONS + Server\Helper::SERVER_OPTIONS + Server\Helper::PORT_OPTIONS + Server\Helper::HELPER_OPTIONS;
+			return array_intersect_key($this->setting, $supportSettings);
+		}
+
+		return $this->setting;
 	}
 
 	protected function registerServerEvent($server) {
@@ -232,31 +266,6 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 
 	protected function getServerEventRealName($eventName, $eventType) {
 		return $eventType . ':' . $eventName;
-	}
-
-	protected function getDefaultSetting() : array {
-		$logLevel = SWOOLE_LOG_TRACE;
-		if (SWOOLE_VERSION <= '4.4.16') {
-			$logLevel = SWOOLE_LOG_INFO;
-		}
-		return [
-			'pname' => 'w7-rangine',
-			'daemonize' => 0,
-			'dispatch_mode' => 3,
-			'worker_num' => swoole_cpu_num(),
-			'log_file' => RUNTIME_PATH . '/logs/run.log',
-			'log_level' => $logLevel,
-			'request_slowlog_timeout' => 2,
-			'request_slowlog_file' => RUNTIME_PATH . '/logs/slow.log',
-			'trace_event_worker' => true,
-			'upload_tmp_dir' => RUNTIME_PATH . '/upload',
-			'document_root' => BASE_PATH . '/public',
-			'enable_static_handler' => true,
-			'task_tmpdir' => RUNTIME_PATH . '/task',
-			'open_http2_protocol' => false,
-			'mode' => SWOOLE_PROCESS,
-			'sock_type' => SWOOLE_SOCK_TCP
-		];
 	}
 
 	public function listener(\Swoole\Server $server) {

@@ -38,7 +38,7 @@ class Server extends SwooleServerAbstract {
 		$this->server = $this->getServer();
 		//自动打开POST消息解析
 		$this->setting['http_parse_post'] = true;
-		$this->server->set($this->setting);
+		$this->server->set($this->filterServerSetting());
 
 		//执行一些公共操作，注册事件等
 		$this->registerService();

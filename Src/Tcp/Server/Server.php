@@ -31,7 +31,7 @@ class Server extends SwooleServerAbstract {
 
 	public function start() {
 		$this->server = $this->getServer();
-		$this->server->set($this->setting);
+		$this->server->set($this->filterServerSetting());
 
 		//执行一些公共操作，注册事件等
 		$this->registerService();
