@@ -34,6 +34,7 @@ class PipeMessageListener extends ListenerAbstract {
 		if ($message instanceof TaskMessage) {
 			$this->getEventDispatcher()->dispatch(new BeforeTaskExecutorEvent($message));
 			try {
+				//这里的dispatchNow待优化
 				$message = $this->getContainer()->singleton(TaskDispatcherInterface::class)->dispatchNow($message, $server, $this->getContext()->getCoroutineId(), $params[1]);
 				$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message));
 			} catch (\Throwable $throwable) {
