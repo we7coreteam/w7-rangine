@@ -13,6 +13,7 @@
 namespace W7\Core\Server;
 
 use W7\App;
+use W7\Contract\Server\ServerInterface;
 use W7\Core\Helper\Traiter\AppCommonTrait;
 
 abstract class ServerAbstract implements ServerInterface {

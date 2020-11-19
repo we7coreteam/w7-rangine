@@ -136,6 +136,12 @@ abstract class ProviderAbstract {
 		}
 	}
 
+	/**
+	 * @deprecated
+	 * @param $event
+	 * @param $listener
+	 * @throws \Exception
+	 */
 	protected function registerEvent($event, $listener) {
 		$this->getEventDispatcher()->listen($event, $listener);
 	}

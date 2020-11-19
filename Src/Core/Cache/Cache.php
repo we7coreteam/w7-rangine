@@ -189,13 +189,13 @@ class Cache extends CacheAbstract {
 	public function set($key, $value, $ttl = null) {
 		return $this->call(function (HandlerAbstract $handler) use ($key, $value, $ttl) {
 			$value = $handler->pack($value);
-			return $handler->set($key, $value, $ttl);
+			return $handler->set($this->warpKey($key), $value, $ttl);
 		});
 	}
 
 	public function get($key, $default = null) {
 		return $this->call(function (HandlerAbstract $handler) use ($key, $default) {
-			$result = $handler->get($key, $default);
+			$result = $handler->get($this->warpKey($key), $default);
 			if ($result === false || $result === null) {
 				return $default;
 			}
@@ -206,24 +206,29 @@ class Cache extends CacheAbstract {
 
 	public function delete($key) {
 		return (bool)$this->call(function (HandlerAbstract $handler) use ($key) {
-			return (bool)$handler->delete($key);
+			return (bool)$handler->delete($this->warpKey($key));
 		});
 	}
 
 	public function setMultiple($values, $ttl = null) {
 		return $this->call(function (HandlerAbstract $handler) use ($values, $ttl) {
 			$values = (array)$values;
-			foreach ($values as $key => &$value) {
-				$value = $handler->pack($value);
+			$cacheValues = [];
+			foreach ($values as $key => $value) {
+				$cacheValues[$this->warpKey($key)] = $handler->pack($value);
 			}
-			return $handler->setMultiple($values, $ttl);
+			return $handler->setMultiple($cacheValues, $ttl);
 		});
 	}
 
 	public function getMultiple($keys, $default = null) {
 		return $this->call(function (HandlerAbstract $handler) use ($keys, $default) {
 			$keys = (array)$keys;
-			$mgetResult = $handler->getMultiple($keys, $default);
+			$cacheKeys = [];
+			foreach ($keys as $key) {
+				$cacheKeys[] = $this->warpKey($key);
+			}
+			$mgetResult = $handler->getMultiple($cacheKeys, $default);
 			if ($mgetResult === false) {
 				return $default;
 			}
@@ -239,13 +244,16 @@ class Cache extends CacheAbstract {
 	public function deleteMultiple($keys): bool {
 		return (bool)$this->call(function (HandlerAbstract $handler) use ($keys) {
 			$keys = (array)$keys;
+			foreach ($keys as &$key) {
+				$key = $this->warpKey($key);
+			}
 			return (bool)$handler->deleteMultiple($keys);
 		});
 	}
 
 	public function has($key) {
 		return (bool)$this->call(function (HandlerAbstract $handler) use ($key) {
-			return (bool)$handler->has($key);
+			return (bool)$handler->has($this->warpKey($key));
 		});
 	}
 

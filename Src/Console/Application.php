@@ -148,7 +148,7 @@ __      _______ _______                   _
 	private function version() {
 		$frameworkVersion = App::VERSION;
 		$phpVersion = PHP_VERSION;
-		$swooleVersion = SWOOLE_VERSION;
+		$swooleVersion = defined('SWOOLE_VERSION') ? SWOOLE_VERSION : 'unknown';
 		$version = "framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion";
 
 		return $version;

@@ -34,6 +34,10 @@ class ProviderManager {
 		});
 	}
 
+	public function setDeferredProviders(array $deferredProviders) {
+		$this->deferredProviders = $deferredProviders;
+	}
+
 	/**
 	 * @param array $providerMap
 	 * @return $this
@@ -70,29 +74,21 @@ class ProviderManager {
 			return false;
 		}
 
+		if (!$force) {
+			//检测是否已经在延迟加载service中
+			foreach ($this->deferredProviders as $providers) {
+				if (in_array($provider, $providers)) {
+					return false;
+				}
+			}
+		}
+
 		if (is_string($provider)) {
 			if ((ENV & DEBUG) === DEBUG && !class_exists($provider)) {
 				return false;
 			}
 			$params = isset($name) ? [$name] : [];
 			$provider = $this->container->singleton($provider, $params);
-		}
-
-		/**
-		 * @var ProviderAbstract $provider
-		 */
-		//如果是强制注册，不对是否有依赖服务进行检测,直接注册
-		if (!$force) {
-			$deferredServices = $provider->providers();
-			//如果有延迟加载服务，不对其进行注册
-			if ($deferredServices) {
-				foreach ($deferredServices as $deferredService) {
-					$this->deferredProviders[$deferredService] = $this->deferredProviders[$deferredService] ?? [];
-					$this->deferredProviders[$deferredService] = array_merge($this->deferredProviders[$deferredService], [get_class($provider)]);
-				}
-				$this->container->registerDeferredService($deferredServices);
-				return false;
-			}
 		}
 
 		$this->registeredProviders[get_class($provider)] = $provider;

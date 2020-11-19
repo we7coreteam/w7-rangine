@@ -12,6 +12,7 @@
 
 namespace W7\Core\Task\Provider;
 
+use W7\Contract\Queue\QueueFactoryInterface;
 use W7\Contract\Task\TaskDispatcherInterface;
 use W7\Core\Provider\ProviderAbstract;
 use W7\Core\Task\TaskDispatcher;
@@ -21,11 +22,11 @@ class TaskProvider extends ProviderAbstract {
 		$this->container->set(TaskDispatcherInterface::class, function () {
 			$taskDispatcher = new TaskDispatcher();
 
-			if ($this->container->has('queue')) {
-				$taskDispatcher->setQueueResolver(function () {
-					return $this->container->singleton('queue');
-				});
-			}
+			$taskDispatcher->setQueueResolver(function () {
+				if ($this->container->has(QueueFactoryInterface::class)) {
+					return $this->container->singleton(QueueFactoryInterface::class);
+				}
+			});
 
 			return $taskDispatcher;
 		});

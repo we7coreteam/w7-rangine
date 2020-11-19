@@ -10,11 +10,9 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Listener;
+namespace W7\Core\Validation;
 
-use W7\Contract\Listener\ListenerInterface;
-use W7\Core\Helper\Traiter\AppCommonTrait;
+use W7\Contract\Validation\ValidatorInterface;
 
-abstract class ListenerAbstract implements ListenerInterface {
-	use AppCommonTrait;
+class Validator extends \Illuminate\Validation\Validator implements ValidatorInterface {
 }

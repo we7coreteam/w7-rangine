@@ -12,6 +12,7 @@
 
 namespace W7\Core\Task;
 
+use Exception;
 use W7\App;
 use W7\Contract\Task\TaskDispatcherInterface;
 use W7\Core\Dispatcher\DispatcherAbstract;
@@ -58,7 +59,7 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 			throw new TaskException('Task ' . $message->task . ' not found');
 		}
 
-		if ($message->isTaskAsync() || method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask()) {
+		if ((method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask())) {
 			return $this->dispatchAsync($message);
 		}
 
@@ -88,6 +89,10 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		}
 
 		if ($this->queueResolver && (method_exists($message->task, 'shouldQueue') && $message->task::shouldQueue())) {
+			$queueResolver = $this->resolveQueue();
+			if (!$queueResolver) {
+				throw new Exception('the message queue resolver for task dispatch is empty');
+			}
 			$connection = $this->resolveQueue()->connection(
 				$message->task::$connection ?? null
 			);

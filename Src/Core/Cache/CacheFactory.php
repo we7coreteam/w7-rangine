@@ -17,14 +17,14 @@ use Psr\SimpleCache\CacheInterface;
 
 class CacheFactory implements CacheFactoryInterface {
 	protected $cacheMap = [];
-	protected $defaultChannel;
+	protected $cacheOptions = [];
 	/**
 	 * @var ConnectionResolver
 	 */
 	protected $connectionResolver;
 
-	public function __construct($defaultChannel = 'default') {
-		$this->defaultChannel = $defaultChannel;
+	public function __construct($cacheOptions = []) {
+		$this->cacheOptions = $cacheOptions;
 	}
 
 	public function setConnectionResolver($connectionResolver) {
@@ -41,7 +41,7 @@ class CacheFactory implements CacheFactoryInterface {
 
 	protected function getCache($channel) {
 		if (empty($this->cacheMap[$channel])) {
-			$cache = new Cache($channel);
+			$cache = new Cache($channel, $this->cacheOptions[$channel] ?? []);
 			$cache->setConnectionResolver($this->connectionResolver);
 			$this->cacheMap[$channel] = $cache;
 		}

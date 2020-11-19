@@ -12,13 +12,12 @@
 
 namespace W7\Core\Database\Pool;
 
-use W7\Core\Database\ConnectionResolver;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
 	protected $type = 'database';
 
 	public function createConnection() {
-		return $this->getContainer()->singleton(ConnectionResolver::class)->createConnection($this->getPoolName(), false);
+		return $this->getContainer()->singleton('db-factory')->createConnection($this->getPoolName(), false);
 	}
 }

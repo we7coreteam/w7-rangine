@@ -41,17 +41,25 @@ class ServerEnum {
 	];
 
 	const MODE_LIST = [
-		SWOOLE_BASE => 'base',
-		SWOOLE_PROCESS => 'process',
+		//SWOOLE_BASE
+		1 => 'base',
+		//SWOOLE_PROCESS
+		2 => 'process',
 	];
 
 	const SOCK_LIST = [
-		SWOOLE_SOCK_TCP => 'tcp',
-		SWOOLE_SOCK_TCP6 => 'tcp6',
-		SWOOLE_SOCK_UDP => 'udp',
-		SWOOLE_SOCK_UDP6 => 'udp6',
-		SWOOLE_SOCK_UNIX_DGRAM => 'dgram',
-		SWOOLE_SOCK_UNIX_STREAM => 'stream'
+		//SWOOLE_TCP
+		1 => 'tcp',
+		//SWOOLE_UDP
+		2 => 'udp',
+		//SWOOLE_TCP6
+		3 => 'tcp6',
+		//SWOOLE_UDP6
+		4 => 'udp6',
+		//SWOOLE_UNIX_STREAM
+		5 => 'unix_stream',
+		//SWOOLE_UNIX_DGRAM
+		6 => 'unix_dgram'
 	];
 
 	public static function registerServer($type, string $class) {

@@ -74,26 +74,12 @@ class Container implements ContainerInterface {
 	 * @return mixed
 	 */
 	public function get($name, array $params = []) {
-		$support = true;
-		foreach ($params as $param) {
-			if (!is_scalar($param) && !is_array($param)) {
-				$support = false;
-			}
-		}
-		if (!$support) {
-			throw new \RuntimeException('when an object is included in a parameter, it cannot be singularized by a parameter');
-		}
-		$instanceKey = $name;
-		if ($support && $params) {
-			$instanceKey = md5($instanceKey . json_encode($params));
-		}
-
-		if (!$this->has($instanceKey)) {
+		if (!$this->has($name)) {
 			//如果说这里的name不是类名的话，无法使用
-			$this->set($instanceKey, $name, ...$params);
+			$this->set($name, $name, ...$params);
 		}
 
-		return $this->psrContainer->get($instanceKey);
+		return $this->psrContainer->get($name);
 	}
 
 	/**

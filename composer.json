@@ -11,46 +11,32 @@
 	],
 	"require": {
 		"php": ">=7.2",
-		"ext-swoole": ">=4.4.0",
 		"ext-json": "*",
-		"w7/rangine-compat": "2.3.12",
-		"w7/rangine-contract": "dev-master",
-		"w7/rangine-facade": "dev-master",
-		"w7/rangine-http-message": "*",
-		"w7/rangine-database-tool": "*",
-		"w7/rangine-lang": "*",
-		"w7/rangine-command": "*",
+		"w7/rangine-compat": "2.4.0",
+		"w7/rangine-contract": "*",
+		"w7/rangine-facade": "*",
+		"w7/rangine-http-message": "~2.2.0",
+		"w7/rangine-database-tool": "~1.1.0",
+		"w7/rangine-lang": "~1.1.0",
+		"w7/rangine-command": "~2.1.0",
 		"w7/rangine-package-plugin": "*",
 		"illuminate/config": "~6.0",
 		"illuminate/database": "~6.0",
 		"illuminate/events": "~6.0",
 		"illuminate/validation": "~6.0",
 		"illuminate/pagination": "~6.0",
-		"guzzlehttp/guzzle": "~6.0",
 		"nikic/fast-route": "^1.3",
 		"monolog/monolog": "^1.23",
-		"psr/http-server-middleware": "^1.0",
 		"vlucas/phpdotenv": "^3.3",
 		"symfony/console": "^4.3",
 		"filp/whoops": "^2.7",
 		"twig/twig": "^3.0",
-		"pimple/pimple": "^3.2",
-		"psr/event-dispatcher": "^1.0"
+		"pimple/pimple": "^3.2"
 	},
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",
 		"w7/php-cs-fixer": "*"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../w7-rangine-contract"
-		},
-		{
-			"type": "path",
-			"url": "../w7-rangine-facade"
-		}
-	],
 	"autoload": {
 		"psr-4": {
 			"W7\\": "Src/"
