@@ -22,11 +22,11 @@ class TaskProvider extends ProviderAbstract {
 		$this->container->set(TaskDispatcherInterface::class, function () {
 			$taskDispatcher = new TaskDispatcher();
 
-			if ($this->container->has(QueueFactoryInterface::class)) {
-				$taskDispatcher->setQueueResolver(function () {
+			$taskDispatcher->setQueueResolver(function () {
+				if ($this->container->has(QueueFactoryInterface::class)) {
 					return $this->container->singleton(QueueFactoryInterface::class);
-				});
-			}
+				}
+			});
 
 			return $taskDispatcher;
 		});
