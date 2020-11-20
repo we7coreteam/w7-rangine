@@ -12,7 +12,6 @@
 
 namespace W7\Http\Listener;
 
-use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -38,7 +37,7 @@ class RequestListener extends ListenerAbstract {
 	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
-		$this->getContext()->setContextDataByKey('coid', Coroutine::getuid());
+		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 
 		$psr7Request = Psr7Request::loadFromSwooleRequest($request);
 		$psr7Response = new Psr7Response();

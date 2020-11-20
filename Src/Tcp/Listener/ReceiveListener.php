@@ -12,7 +12,6 @@
 
 namespace W7\Tcp\Listener;
 
-use Swoole\Coroutine;
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
@@ -32,7 +31,7 @@ class ReceiveListener extends ListenerAbstract {
 		$this->getContext()->setContextDataByKey('fd', $fd);
 		$this->getContext()->setContextDataByKey('reactorid', $reactorId);
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
-		$this->getContext()->setContextDataByKey('coid', Coroutine::getuid());
+		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 
 		$collector = $this->getContainer()->get('tcp-client')[$fd] ?? [];
 
