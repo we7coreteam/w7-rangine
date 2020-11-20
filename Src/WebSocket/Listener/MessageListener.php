@@ -60,8 +60,6 @@ class MessageListener extends ListenerAbstract {
 
 		$psr7Response->send();
 
-		$this->getContext()->destroy();
-
 		return true;
 	}
 }

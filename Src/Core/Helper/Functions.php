@@ -159,9 +159,6 @@ if (!function_exists('igo')) {
 		$result = null;
 		Coroutine::create(function () use ($callback, $coId, &$result, $context) {
 			$context->fork($coId);
-			Coroutine::defer(function () use ($context) {
-				$context->destroy();
-			});
 
 			try {
 				$result = $callback();
@@ -186,11 +183,6 @@ if (!function_exists('isleep')) {
 if (!function_exists('itimeTick')) {
 	function itimeTick($ms, \Closure $callback) {
 		return Timer::tick($ms, function () use ($callback) {
-			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
-			Coroutine::defer(function () use ($context) {
-				$context->destroy();
-			});
-
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
@@ -203,11 +195,6 @@ if (!function_exists('itimeTick')) {
 if (!function_exists('itimeAfter')) {
 	function itimeAfter($ms, \Closure $callback) {
 		return Timer::after($ms, function () use ($callback) {
-			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
-			Coroutine::defer(function () use ($context) {
-				$context->destroy();
-			});
-
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
