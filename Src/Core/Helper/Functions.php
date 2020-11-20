@@ -159,15 +159,15 @@ if (!function_exists('igo')) {
 		$result = null;
 		Coroutine::create(function () use ($callback, $coId, &$result, $context) {
 			$context->fork($coId);
+			Coroutine::defer(function () use ($context) {
+				$context->destroy();
+			});
+
 			try {
 				$result = $callback();
 			} catch (Throwable $throwable) {
 				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
-
-			Coroutine::defer(function () use ($context) {
-				$context->destroy();
-			});
 		});
 		return $result;
 	}
@@ -186,16 +186,16 @@ if (!function_exists('isleep')) {
 if (!function_exists('itimeTick')) {
 	function itimeTick($ms, \Closure $callback) {
 		return Timer::tick($ms, function () use ($callback) {
+			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
+			Coroutine::defer(function () use ($context) {
+				$context->destroy();
+			});
+
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
 				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
-
-			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
-			Coroutine::defer(function () use ($context) {
-				$context->destroy();
-			});
 		});
 	}
 }
@@ -203,16 +203,16 @@ if (!function_exists('itimeTick')) {
 if (!function_exists('itimeAfter')) {
 	function itimeAfter($ms, \Closure $callback) {
 		return Timer::after($ms, function () use ($callback) {
+			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
+			Coroutine::defer(function () use ($context) {
+				$context->destroy();
+			});
+
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
 				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
-
-			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
-			Coroutine::defer(function () use ($context) {
-				$context->destroy();
-			});
 		});
 	}
 }
