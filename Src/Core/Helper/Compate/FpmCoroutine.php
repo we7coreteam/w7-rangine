@@ -14,7 +14,7 @@ namespace W7\Core\Helper\Compate;
 
 use W7\Core\Exception\HandlerExceptions;
 
-class CgiCoroutine {
+class FpmCoroutine {
 	private $generatorMap = [];
 	private $hasRegisterTrigger;
 

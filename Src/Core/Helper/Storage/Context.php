@@ -12,6 +12,7 @@
 
 namespace W7\Core\Helper\Storage;
 
+use Closure;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Coroutine;
@@ -50,6 +51,10 @@ class Context {
 	 * @var 最后请求的协程号
 	 */
 	private $lastCoId;
+
+	public function defer(Closure $closure) {
+		Coroutine::defer($closure);
+	}
 
 	/**
 	 * @return Request|null
@@ -179,10 +184,15 @@ class Context {
 	 * @return int|null Return null when in non-coroutine context
 	 */
 	public function getCoroutineId() {
-		$coId = Coroutine::getuid();
+		if (method_exists(Coroutine::class, 'getuid')) {
+			$coId = Coroutine::getuid();
+		} else {
+			$coId = -1;
+		}
+
 		if ($coId > 0 && empty($this->recoverCallback[$coId])) {
 			$this->recoverCallback[$coId] = true;
-			Coroutine::defer(function () {
+			$this->defer(function () {
 				$this->destroy();
 				unset($this->recoverCallback[Coroutine::getuid()]);
 			});

@@ -12,7 +12,6 @@
 
 namespace W7\WebSocket\Listener;
 
-use Swoole\Coroutine;
 use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
 use W7\Core\Server\ServerEnum;
@@ -31,7 +30,7 @@ class MessageListener extends ListenerAbstract {
 
 	private function onMessage(Server $server, SwooleFrame $frame): bool {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
-		$this->getContext()->setContextDataByKey('coid', Coroutine::getuid());
+		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 
 		$collector = $this->getContainer()->get('ws-client')[$frame->fd] ?? [];
 
