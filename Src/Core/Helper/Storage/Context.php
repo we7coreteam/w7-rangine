@@ -180,6 +180,13 @@ class Context {
 	 */
 	public function getCoroutineId() {
 		$coId = Coroutine::getuid();
+		if ($coId > 0 && empty($this->recoverCallback[$coId])) {
+			$this->recoverCallback[$coId] = true;
+			Coroutine::defer(function () {
+				$this->destroy();
+				unset($this->recoverCallback[Coroutine::getuid()]);
+			});
+		}
 		if ($coId != -1) {
 			$this->lastCoId = $coId;
 		}

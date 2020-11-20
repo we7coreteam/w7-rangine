@@ -57,7 +57,5 @@ class RequestListener extends ListenerAbstract {
 		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_HTTP]);
 
 		$psr7Response->send();
-
-		Context::destroy();
 	}
 }

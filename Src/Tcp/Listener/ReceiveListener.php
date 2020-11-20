@@ -64,7 +64,5 @@ class ReceiveListener extends ListenerAbstract {
 		Event::dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
 
 		$psr7Response->send();
-
-		Context::destroy();
 	}
 }

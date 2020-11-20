@@ -165,10 +165,6 @@ if (!function_exists('igo')) {
 			} catch (Throwable $throwable) {
 				Logger::debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
-
-			Coroutine::defer(function () {
-				Context::destroy();
-			});
 		});
 		return $result;
 	}
@@ -192,10 +188,6 @@ if (!function_exists('itimeTick')) {
 			} catch (Throwable $throwable) {
 				Logger::debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
-
-			Coroutine::defer(function () {
-				Context::destroy();
-			});
 		});
 	}
 }
@@ -208,10 +200,6 @@ if (!function_exists('itimeAfter')) {
 			} catch (Throwable $throwable) {
 				Logger::debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
-
-			Coroutine::defer(function () {
-				Context::destroy();
-			});
 		});
 	}
 }
