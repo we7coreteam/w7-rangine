@@ -39,16 +39,12 @@ class MessageListener extends ListenerAbstract {
 		 */
 		$psr7Request = $collector[0];
 		$psr7Request = $psr7Request->loadFromWSFrame($frame);
-
 		/**
 		 * @var Psr7Response $psr7Response
 		 */
 		$psr7Response = $collector[1];
 		//握手的Response只是为了响应握手，只处才是真正返回数据的Response
 		$psr7Response->setOutputer(new WebSocketResponseOutputer($server, $frame->fd));
-
-		$this->getContext()->setResponse($psr7Response);
-		$this->getContext()->setRequest($psr7Request);
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 

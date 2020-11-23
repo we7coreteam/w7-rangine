@@ -76,7 +76,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			$route = $this->getRoute($psr7Request);
 			$this->getEventDispatcher()->dispatch(new RouteMatchedEvent($route, $psr7Request));
 			$psr7Request = $psr7Request->withAttribute('route', $route);
-			$this->getContext()->getRequest($psr7Request);
+			$this->getContext()->setRequest($psr7Request);
 
 			$middleWares = $this->middlewareMapping->getRouteMiddleWares($route);
 			$middlewareHandler = new MiddlewareHandler($middleWares);
