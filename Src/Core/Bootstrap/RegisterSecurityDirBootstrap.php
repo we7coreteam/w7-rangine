@@ -19,7 +19,7 @@ class RegisterSecurityDirBootstrap implements BootstrapInterface {
 		//设置安全限制目录
 		$openBaseDirConfig = $app->getConfigger()->get('app.setting.basedir', []);
 		if (is_array($openBaseDirConfig)) {
-			$openBaseDirConfig = implode(':', $openBaseDirConfig);
+			$openBaseDirConfig = implode(PATH_SEPARATOR, $openBaseDirConfig);
 		}
 
 		$openBaseDir = [
@@ -29,6 +29,6 @@ class RegisterSecurityDirBootstrap implements BootstrapInterface {
 			$openBaseDirConfig,
 			session_save_path()
 		];
-		ini_set('open_basedir', implode(':', $openBaseDir));
+		ini_set('open_basedir', implode(PATH_SEPARATOR, $openBaseDir));
 	}
 }
