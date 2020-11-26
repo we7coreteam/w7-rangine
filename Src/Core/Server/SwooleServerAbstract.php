@@ -131,7 +131,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 			$logLevel = SWOOLE_LOG_INFO;
 		}
 		return [
-			'pname' => 'w7-rangine',
+			'pname' => App::NAME,
 			'daemonize' => 0,
 			'dispatch_mode' => 3,
 			'worker_num' => swoole_cpu_num(),
