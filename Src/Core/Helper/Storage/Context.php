@@ -48,7 +48,8 @@ class Context {
 	private $recoverCallback;
 
 	/**
-	 * @var 最后请求的协程号
+	 * 最后请求的协程号
+	 * @var int
 	 */
 	private $lastCoId;
 
