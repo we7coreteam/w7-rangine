@@ -90,7 +90,7 @@ class Loader extends \Dotenv\Loader {
 		if (preg_match($pattern, $entry, $result) && !empty($result[1])) {
 			$paths = [];
 			foreach ($this->filePaths as $filePath) {
-				$paths[] = dirname($filePath) . DIRECTORY_SEPARATOR . $result[1];
+				$paths[] = dirname($filePath) . '/' . $result[1];
 			}
 			$this->filePaths = array_unique($paths);
 			$this->load();

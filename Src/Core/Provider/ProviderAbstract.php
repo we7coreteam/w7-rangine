@@ -53,7 +53,7 @@ abstract class ProviderAbstract {
 		$this->name = $name;
 		if ($this->packageName) {
 			$this->rootPath = BASE_PATH . '/vendor/' . $this->packageName;
-			!$this->packageNamespace && $this->packageNamespace = str_replace(DIRECTORY_SEPARATOR, '\\', StringHelper::studly($this->packageName));
+			!$this->packageNamespace && $this->packageNamespace = str_replace('/', '\\', StringHelper::studly($this->packageName));
 		} else {
 			$reflect = new \ReflectionClass($this);
 			$this->packageNamespace = $reflect->getNamespaceName();
@@ -128,10 +128,10 @@ abstract class ProviderAbstract {
 		}
 
 		$filesystem = new Filesystem();
-		$documentRoot = rtrim($documentRoot, DIRECTORY_SEPARATOR);
-		$flagFilePath = $documentRoot . DIRECTORY_SEPARATOR . $this->name . '/resource.lock';
+		$documentRoot = rtrim($documentRoot, '/');
+		$flagFilePath = $documentRoot . '/' . $this->name . '/resource.lock';
 		if ($filesystem->exists($this->rootPath . '/resource') && !$filesystem->exists($flagFilePath)) {
-			$filesystem->copyDirectory($this->rootPath . '/resource', $documentRoot . DIRECTORY_SEPARATOR . $this->name);
+			$filesystem->copyDirectory($this->rootPath . '/resource', $documentRoot . '/' . $this->name);
 			$filesystem->put($flagFilePath, '');
 		}
 	}

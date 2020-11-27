@@ -91,7 +91,7 @@ class App {
 	}
 
 	public function bootstrapCachePath($path = '') {
-		return BASE_PATH . DIRECTORY_SEPARATOR . 'bootstrap/cache' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+		return BASE_PATH . '/bootstrap/cache' . ($path ? '/' . $path : $path);
 	}
 
 	public function getRouteCachePath() {

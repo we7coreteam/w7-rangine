@@ -85,7 +85,7 @@ class View implements ViewInterface {
 
 	private function parseViewName($name) {
 		if (isset($name[0]) && '@' == $name[0]) {
-			if (false === $pos = strpos($name, DIRECTORY_SEPARATOR)) {
+			if (false === $pos = strpos($name, '/')) {
 				throw new \RuntimeException(sprintf('Malformed namespaced template name "%s" (expecting "@namespace/template_name").', $name));
 			}
 

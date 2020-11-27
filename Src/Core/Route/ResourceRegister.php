@@ -28,7 +28,7 @@ class ResourceRegister {
 			$this->parameters = $options['parameters'];
 		}
 
-		if (strpos($name, DIRECTORY_SEPARATOR) !== false) {
+		if (strpos($name, '/') !== false) {
 			$this->prefixedResource($name, $controller, $options);
 			return $this;
 		}
@@ -82,7 +82,7 @@ class ResourceRegister {
 		if (!$name) {
 			return '';
 		}
-		return DIRECTORY_SEPARATOR . $name;
+		return '/' . $name;
 	}
 
 	/**
@@ -110,8 +110,8 @@ class ResourceRegister {
 	}
 
 	protected function getResourcePrefix($name) {
-		$segments = explode(DIRECTORY_SEPARATOR, $name);
-		$prefix = implode(DIRECTORY_SEPARATOR, array_slice($segments, 0, -1));
+		$segments = explode('/', $name);
+		$prefix = implode('/', array_slice($segments, 0, -1));
 		return [end($segments), $prefix];
 	}
 
