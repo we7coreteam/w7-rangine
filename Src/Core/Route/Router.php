@@ -168,7 +168,7 @@ class Router implements RouterInterface {
 			$documentRoot = $this->config['document_root'] ?? '';
 			$enableStatic = $this->config['enable_static_handler'] ?? false;
 			if ($enableStatic && $documentRoot) {
-				$module = $this->getModule() === $this->defaultModule ? '' : '/' . $this->getModule();
+				$module = $this->getModule() === $this->defaultModule ? '' : ('/' . $this->getModule());
 				$path = $documentRoot . $module . '/' . ltrim($resource, '/');
 				return file_exists($path);
 			}
