@@ -31,7 +31,12 @@ class CallQueuedTask {
 
 	public function handle() {
 		$container = App::getApp()->getContainer();
-		return $container->singleton(TaskDispatcherInterface::class)->dispatchNow($this->taskMessage, null, null, $container->get('worker_id'));
+		/**
+		 * @var TaskDispatcherInterface $taskDispatcher
+		 */
+		$taskDispatcher = $container->singleton(TaskDispatcherInterface::class);
+		$this->taskMessage->type = TaskMessage::OPERATION_TASK_NOW;
+		return $taskDispatcher->dispatch($this->taskMessage);
 	}
 
 	/**
