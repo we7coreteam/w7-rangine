@@ -26,7 +26,7 @@ use W7\Core\Server\ServerAbstract;
 
 class App {
 	const NAME = 'w7-rangine';
-	const VERSION = '2.4.3';
+	const VERSION = '2.4.4';
 
 	public static $self;
 	/**
