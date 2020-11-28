@@ -134,7 +134,7 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 	 * @throws \Throwable
 	 */
 	protected function dispatchNow($message, $server = null, $taskId = null, $workerId = null) {
-		$server = $server ?? App::$server->getServer();
+		$server = $server ?? (App::$server ? App::$server->getServer() : null);
 		$taskId = $taskId ?? $this->getContext()->getCoroutineId();
 		$workId = $workerId ?? ($server ? $server->worker_id : $workerId);
 
