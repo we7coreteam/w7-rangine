@@ -14,19 +14,19 @@ namespace W7;
 
 use W7\Console\Application;
 use W7\Console\Io\Output;
+use W7\Contract\Config\RepositoryInterface;
 use W7\Core\Bootstrap\BootstrapInterface;
 use W7\Core\Bootstrap\LoadConfigBootstrap;
 use W7\Core\Bootstrap\ProviderBootstrap;
 use W7\Core\Bootstrap\RegisterHandleExceptionsBootstrap;
 use W7\Core\Bootstrap\RegisterRuntimeEnvBootstrap;
 use W7\Core\Bootstrap\RegisterSecurityDirBootstrap;
-use W7\Core\Config\Config;
 use W7\Core\Container\Container;
 use W7\Core\Server\ServerAbstract;
 
 class App {
 	const NAME = 'w7-rangine';
-	const VERSION = '2.4.2';
+	const VERSION = '2.4.3';
 
 	public static $self;
 	/**
@@ -86,12 +86,12 @@ class App {
 		return $this->container;
 	}
 
-	public function getConfigger() : Config {
-		return $this->getContainer()->singleton(Config::class);
+	public function getConfigger() : RepositoryInterface {
+		return $this->getContainer()->singleton(RepositoryInterface::class);
 	}
 
 	public function bootstrapCachePath($path = '') {
-		return BASE_PATH . '/bootstrap/cache' . ($path ? '/' . $path : $path);
+		return BASE_PATH . '/bootstrap/cache' . ($path ? ('/' . $path) : $path);
 	}
 
 	public function getRouteCachePath() {

@@ -26,7 +26,6 @@ class Env {
 		if (empty($path) || !is_dir($path)) {
 			throw new \RuntimeException('Invalid env path');
 		}
-		$this->envPath = rtrim($path, '/');
 		$this->hostName = gethostname();
 	}
 
@@ -85,7 +84,7 @@ class Env {
 	 */
 	protected function getFilePaths(array $paths, $file) {
 		return array_map(function ($path) use ($file) {
-			return rtrim($path, '/').'/'.$file;
+			return $path . '/' . $file;
 		}, $paths);
 	}
 }

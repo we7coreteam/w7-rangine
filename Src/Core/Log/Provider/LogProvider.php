@@ -47,7 +47,7 @@ class LogProvider extends ProviderAbstract {
 		if ((ENV & CLEAR_LOG) !== CLEAR_LOG) {
 			return false;
 		}
-		$logPath = RUNTIME_PATH . DS. 'logs/*';
+		$logPath = RUNTIME_PATH . '/logs/*';
 		$tree = glob($logPath);
 		if (!empty($tree)) {
 			foreach ($tree as $file) {

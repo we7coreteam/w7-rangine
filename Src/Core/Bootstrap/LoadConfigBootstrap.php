@@ -13,6 +13,7 @@
 namespace W7\Core\Bootstrap;
 
 use W7\App;
+use W7\Contract\Config\RepositoryInterface;
 use W7\Core\Config\Config;
 use W7\Core\Config\Env\Env;
 
@@ -33,7 +34,7 @@ class LoadConfigBootstrap implements BootstrapInterface {
 		$this->loadConfigFile($this->getBuiltInConfigPath());
 		$this->loadConfigFile($loadDir);
 
-		$app->getContainer()->set(Config::class, function () {
+		$app->getContainer()->set(RepositoryInterface::class, function () {
 			$config = new Config($this->payload);
 			$this->payload = [];
 			return $config;
