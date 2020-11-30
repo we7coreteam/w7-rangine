@@ -27,6 +27,7 @@ class Env {
 			throw new \RuntimeException('Invalid env path');
 		}
 		$this->hostName = gethostname();
+		$this->envPath = $path;
 	}
 
 	public function load() {
