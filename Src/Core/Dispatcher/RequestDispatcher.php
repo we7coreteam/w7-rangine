@@ -39,10 +39,10 @@ class RequestDispatcher extends DispatcherAbstract {
 		$this->serverType = lcfirst(explode('\\', static::class)[1]);
 		$this->middlewareMapping = new MiddlewareMapping();
 
-		foreach ($this->getConfig()->get('middleware.' . strtotime($this->serverType) . '.before', []) as $middleware) {
+		foreach ($this->getConfig()->get('middleware.' . strtolower($this->serverType) . '.before', []) as $middleware) {
 			$this->middlewareMapping->addBeforeMiddleware($middleware);
 		}
-		foreach ($this->getConfig()->get('middleware.' . strtotime($this->serverType) . '.after', []) as $middleware) {
+		foreach ($this->getConfig()->get('middleware.' . strtolower($this->serverType) . '.after', []) as $middleware) {
 			$this->middlewareMapping->addAfterMiddleware($middleware);
 		}
 	}
