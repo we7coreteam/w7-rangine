@@ -25,7 +25,7 @@ class BeforeStartListener extends ListenerAbstract {
 	//把用户设置的session配置起作用到php.ini中
 	private function initSessionConfig() {
 		$sessionConfig = $this->getConfig()->get('app.session', []);
-		if (empty($sessionConfig['save_path'])) {
+		if (empty($sessionConfig['save_path']) && (empty($sessionConfig['handler']) || $sessionConfig['handler'] == 'file')) {
 			//如果没设置，使用php默认的session目录
 			$sessionConfig['save_path'] = session_save_path();
 		}
