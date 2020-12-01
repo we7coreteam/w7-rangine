@@ -167,8 +167,8 @@ class Router {
 			$documentRoot = $this->config['document_root'] ?? '';
 			$enableStatic = $this->config['enable_static_handler'] ?? false;
 			if ($enableStatic && $documentRoot) {
-				$module = $this->getModule() === $this->defaultModule ? '' : DIRECTORY_SEPARATOR . $this->getModule();
-				$path = $documentRoot . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . ltrim($resource, DIRECTORY_SEPARATOR);
+				$module = $this->getModule() === $this->defaultModule ? '' : ('/' . $this->getModule());
+				$path = $documentRoot . $module . '/' . ltrim($resource, '/');
 				return file_exists($path);
 			}
 		}
@@ -178,12 +178,12 @@ class Router {
 
 	private function getStaticResourcePath($destination) {
 		$module = $this->getModule();
-		$destination = ltrim($destination, DIRECTORY_SEPARATOR);
+		$destination = ltrim($destination, '/');
 		//如果是通过provider注册的，自动补充前缀
 		if ($module !== $this->defaultModule) {
-			$destination = $module . DIRECTORY_SEPARATOR . $destination;
+			$destination = $module . '/' . $destination;
 		}
-		$destination = DIRECTORY_SEPARATOR . $destination;
+		$destination = '/' . $destination;
 		return $destination;
 	}
 

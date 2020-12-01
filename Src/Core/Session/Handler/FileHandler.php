@@ -64,7 +64,7 @@ class FileHandler extends HandlerAbstract {
 	private function getSavePath($key) {
 		$parts = array_slice(str_split($hash = sha1($key), 2), 0, 2);
 
-		return $this->directory . DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR . $hash;
+		return $this->directory . '/'.implode('/', $parts) . '/' . $hash;
 	}
 
 	private function expiration($seconds) {

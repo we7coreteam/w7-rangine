@@ -26,7 +26,7 @@ class ReloadProcess extends ProcessAbstract {
 	 */
 	private static $watchDir = [
 		APP_PATH,
-		BASE_PATH. DIRECTORY_SEPARATOR. 'config'
+		BASE_PATH. '/config'
 	];
 
 	private static $fileTypes = [
@@ -101,12 +101,12 @@ class ReloadProcess extends ProcessAbstract {
 		$d = dir($dir);
 		while (false !== ($entry = $d->read())) {
 			if ($entry !== '.' && $entry !== '..') {
-				if (is_dir($dir . DIRECTORY_SEPARATOR . $entry)) {
-					$md5File[] = $this->md5File($dir . DIRECTORY_SEPARATOR . $entry);
+				if (is_dir($dir . '/' . $entry)) {
+					$md5File[] = $this->md5File($dir . '/' . $entry);
 				}
 				$extension = pathinfo($entry, PATHINFO_EXTENSION);
 				if (in_array($extension, self::$fileTypes)) {
-					$md5File[] = md5_file($dir . DIRECTORY_SEPARATOR . $entry);
+					$md5File[] = md5_file($dir . '/' . $entry);
 				}
 				$md5File[] = $entry;
 			}
