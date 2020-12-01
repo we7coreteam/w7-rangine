@@ -28,4 +28,8 @@ class IlluminateProvider extends ProviderAbstract {
 			return $container;
 		});
 	}
+
+	public function providers(): array {
+		return [Container::class];
+	}
 }
