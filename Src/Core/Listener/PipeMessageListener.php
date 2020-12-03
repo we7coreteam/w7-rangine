@@ -13,13 +13,8 @@
 namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
-use W7\Contract\Task\TaskDispatcherInterface;
-use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Message\Message;
-use W7\Core\Message\TaskMessage;
 use W7\Core\Server\ServerEvent;
-use W7\Core\Task\Event\AfterTaskExecutorEvent;
-use W7\Core\Task\Event\BeforeTaskExecutorEvent;
 
 class PipeMessageListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -28,26 +23,7 @@ class PipeMessageListener extends ListenerAbstract {
 		 */
 		list($server, $workId, $data) = $params;
 
-		//管道不一定只能发送任务消息，需要先判断一下
 		$message = Message::unpack($data);
-
-		if ($message instanceof TaskMessage) {
-			try {
-				$this->getEventDispatcher()->dispatch(new BeforeTaskExecutorEvent($message));
-
-				/**
-				 * @var TaskDispatcherInterface $taskDispatcher
-				 */
-				$taskDispatcher = $this->getContainer()->singleton(TaskDispatcherInterface::class);
-				$message->type = TaskMessage::OPERATION_TASK_NOW;
-				$message = $taskDispatcher->dispatch($message, $server, $this->getContext()->getCoroutineId(), $params[1]);
-
-				$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message));
-			} catch (\Throwable $throwable) {
-				$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message, $throwable));
-				$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
-			}
-		}
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_PIPE_MESSAGE, [$server, $workId, $message, $data]);
 	}
