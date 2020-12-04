@@ -20,6 +20,8 @@ use W7\Core\Provider\ProviderAbstract;
 
 class LogProvider extends ProviderAbstract {
 	public function register() {
+		$this->clearLog();
+
 		$this->container->set(LoggerFactoryInterface::class, function () {
 			$config = $this->config->get('log', []);
 			$config['channel'] = $config['channel'] ?? [];
@@ -37,10 +39,6 @@ class LogProvider extends ProviderAbstract {
 
 			return new LoggerFactory($config['channel'], $config['default'] ?? 'stack');
 		});
-	}
-
-	public function boot() {
-		$this->clearLog();
 	}
 
 	private function clearLog() {
