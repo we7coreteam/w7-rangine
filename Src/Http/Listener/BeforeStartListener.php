@@ -34,9 +34,6 @@ class BeforeStartListener extends ListenerAbstract {
 	}
 
 	private function registerMiddleware() {
-		if (!$this->getConfig()->get('app.session.auto_start')) {
-			return false;
-		}
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
