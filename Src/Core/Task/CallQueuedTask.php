@@ -13,10 +13,12 @@
 namespace W7\Core\Task;
 
 use W7\App;
-use W7\Contract\Task\TaskDispatcherInterface;
+use W7\Core\Helper\Traiter\TaskDispatchTrait;
 use W7\Core\Message\TaskMessage;
 
 class CallQueuedTask {
+	use TaskDispatchTrait;
+
 	/**
 	 * @var TaskMessage
 	 */
@@ -30,13 +32,7 @@ class CallQueuedTask {
 	}
 
 	public function handle() {
-		$container = App::getApp()->getContainer();
-		/**
-		 * @var TaskDispatcherInterface $taskDispatcher
-		 */
-		$taskDispatcher = $container->singleton(TaskDispatcherInterface::class);
-		$this->taskMessage->type = TaskMessage::OPERATION_TASK_NOW;
-		return $taskDispatcher->dispatch($this->taskMessage);
+		return $this->dispatchNow($this->taskMessage);
 	}
 
 	/**
