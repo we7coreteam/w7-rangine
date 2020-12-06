@@ -28,11 +28,11 @@ class DependentPool extends PoolAbstract {
 		}
 
 		for ($i = 0; $i < $this->processFactory->count(); $i++) {
-			$process = $this->processFactory->makeById($i);
+			$process = $this->processFactory->getById($i);
 			$swooleProcess = new Process(function (Process $worker) use ($process, $i) {
 				//这里不能通过event触发
 				$process->setProcess($worker);
-				(new ProcessStartListener())->run(null, $process, $i, [
+				(new ProcessStartListener())->run($process, $i, [
 					'message_queue_key' => $this->mqKey
 				]);
 			}, false, SOCK_DGRAM, true);

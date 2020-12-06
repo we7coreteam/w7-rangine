@@ -12,15 +12,20 @@
 
 namespace W7\Core\Process;
 
+use Swoole\Coroutine;
 use Swoole\Event;
 use Swoole\Process;
 use W7\App;
 use W7\Console\Io\Output;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Helper\Traiter\AppCommonTrait;
+use W7\Core\Helper\Traiter\TaskDispatchTrait;
+use W7\Core\Message\Message;
+use W7\Core\Message\TaskMessage;
 
 abstract class ProcessAbstract {
 	use AppCommonTrait;
+	use TaskDispatchTrait;
 
 	protected $name = 'process';
 	protected $num = 1;
@@ -91,6 +96,31 @@ abstract class ProcessAbstract {
 
 	public function onStart() {
 		$this->beforeStart();
+
+		Coroutine::create(function () {
+			$socket = $this->getProcess()->exportSocket();
+			while ($socket) {
+				try {
+					$data = $socket->recv();
+					if ($data === '') {
+						throw new \Exception('Socket is closed', $socket->errCode);
+					}
+
+					if ($data === false && $socket->errCode !== SOCKET_ETIMEDOUT) {
+						throw new \Exception('Socket is closed', $socket->errCode);
+					}
+
+					$message = Message::unpack($data);
+					if ($message instanceof TaskMessage) {
+						$this->dispatchNow($message);
+					}
+				} catch (\Throwable $e) {
+					$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($e);
+				}
+
+				Coroutine::sleep(1);
+			}
+		});
 
 		if (method_exists($this, 'read')) {
 			$this->startByEvent();

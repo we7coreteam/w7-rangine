@@ -22,7 +22,7 @@ use W7\App;
  * @package W7\Core\Process\Pool
  */
 class IndependentPool extends PoolAbstract {
-	private $ipcType = SWOOLE_IPC_NONE;
+	private $ipcType = SWOOLE_IPC_UNIXSOCK;
 	/**
 	 * @var Process\Pool
 	 */
@@ -68,10 +68,10 @@ class IndependentPool extends PoolAbstract {
 		$this->events[$event] = $handler;
 	}
 
-	public function getByProcessId($id) {
-		$process = parent::getByProcessId($id);
-		if ($this->swooleProcessPool) {
-			$swooleProcess = $this->swooleProcessPool->getProcess();
+	public function getProcess($id) {
+		$process = parent::getProcess($id);
+		if (!$process->getProcess() && $this->swooleProcessPool) {
+			$swooleProcess = $this->swooleProcessPool->getProcess($id);
 			$swooleProcess && $process->setProcess($swooleProcess);
 		}
 

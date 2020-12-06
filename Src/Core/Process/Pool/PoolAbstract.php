@@ -63,7 +63,7 @@ abstract class PoolAbstract {
 		return $this->mqKey;
 	}
 
-	public function getByProcessId($id) {
+	public function getProcess($id) {
 		return $this->processFactory->getById($id);
 	}
 

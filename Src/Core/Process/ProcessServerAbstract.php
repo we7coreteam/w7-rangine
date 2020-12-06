@@ -61,7 +61,9 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 	}
 
 	public function getPool() {
-		if ($this->pool) {
+		//这里的逻辑在depend模式下有问题
+		if (!empty(App::$server->processPool)) {
+			$this->pool = App::$server->processPool;
 			return $this->pool;
 		}
 
@@ -112,7 +114,6 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 			if (in_array($eventName, [ServerEvent::ON_WORKER_START, ServerEvent::ON_WORKER_STOP, ServerEvent::ON_MESSAGE])) {
 				$this->pool->on($eventName, function (PoolManager $pool, $workerId) use ($eventName, $eventType) {
 					$process = $this->pool->getProcessFactory()->getById($workerId);
-					!$process && $process = $this->pool->getProcessFactory()->makeById($workerId);
 					$process->setProcess($pool->getProcess());
 
 					$this->getEventDispatcher()->dispatch($this->getServerEventRealName($eventName, $eventType), [$process, $workerId, [
