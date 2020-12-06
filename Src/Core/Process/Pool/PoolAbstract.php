@@ -12,12 +12,10 @@
 
 namespace W7\Core\Process\Pool;
 
-use Swoole\Process;
 use W7\Core\Process\ProcessAbstract;
 use W7\Core\Process\ProcessFactory;
 
 abstract class PoolAbstract {
-	protected $serverType;
 	/**
 	 * @var ProcessFactory
 	 */
@@ -26,10 +24,9 @@ abstract class PoolAbstract {
 	//该值为进程间通信的消息队列key, 暂不设置
 	protected $mqKey = 0;
 
-	public function __construct($serverType, $config) {
-		$this->serverType = $serverType;
+	public function __construct(ProcessFactory $processFactory, $config) {
+		$this->processFactory = $processFactory;
 		$this->config = $config;
-		$this->processFactory = new ProcessFactory();
 		$this->mqKey = (int)($config['message_queue_key'] ?? 0);
 		$this->init();
 	}
@@ -58,17 +55,16 @@ abstract class PoolAbstract {
 		$this->processFactory->add($name, $handle, $num);
 	}
 
-	public function get($name, $index = 0) : Process {
-		$process = $this->processFactory->getByName($name, $index);
-		return $process->getProcess();
-	}
-
 	public function getProcessFactory() {
 		return $this->processFactory;
 	}
 
 	public function getMqKey() {
 		return $this->mqKey;
+	}
+
+	public function getByProcessId($id) {
+		return $this->processFactory->getById($id);
 	}
 
 	abstract public function start();

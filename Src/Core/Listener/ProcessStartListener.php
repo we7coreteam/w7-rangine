@@ -14,26 +14,20 @@ namespace W7\Core\Listener;
 
 use W7\App;
 use W7\Core\Process\ProcessAbstract;
-use W7\Core\Process\ProcessFactory;
 
 class ProcessStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		/**
-		 * @var ProcessFactory $processFactory
-		 */
-		list($serverType, $process, $workerId, $processFactory, $mqKey) = $params;
+		list($processInstance, $workerId, $options) = $params;
 		//重新播种随机因子
 		mt_srand();
 
 		/**
 		 * @var ProcessAbstract $processInstance
 		 */
-		$processInstance = $processFactory->makeById($workerId);
-		$processInstance->setProcess($process);
-		$processInstance->setServerType($serverType);
 		$processInstance->setWorkerId($workerId);
 		$name = $processInstance->getName();
 
+		$mqKey = $options['message_queue_key'] ?? 0;
 		$mqKey = $this->getConfig()->get("process.process.$name.message_queue_key", $mqKey);
 		$mqKey = (int)$mqKey;
 		$processInstance->setMq($mqKey);

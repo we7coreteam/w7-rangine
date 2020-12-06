@@ -26,7 +26,6 @@ abstract class ProcessAbstract {
 	protected $num = 1;
 	protected $workerId;
 	protected $mqKey;
-	protected $serverType;
 	/**
 	 * @var Process
 	 */
@@ -63,14 +62,6 @@ abstract class ProcessAbstract {
 
 	public function getProcess() {
 		return $this->process;
-	}
-
-	public function setServerType($serverType) {
-		$this->serverType = $serverType;
-	}
-
-	public function getServerType() {
-		return $this->serverType;
 	}
 
 	public function getProcessName() {

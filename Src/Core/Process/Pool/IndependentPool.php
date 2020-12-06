@@ -23,6 +23,10 @@ use W7\App;
  */
 class IndependentPool extends PoolAbstract {
 	private $ipcType = SWOOLE_IPC_NONE;
+	/**
+	 * @var Process\Pool
+	 */
+	protected $swooleProcessPool;
 	private $pidFile;
 	private $daemon;
 	private $events = [];
@@ -45,10 +49,10 @@ class IndependentPool extends PoolAbstract {
 
 		$this->setDaemon();
 
-		$server = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey, true);
+		$this->swooleProcessPool = new PoolManager($this->processFactory->count(), $this->ipcType, $this->mqKey, true);
 		foreach ($this->events as $event => $handler) {
 			try {
-				$server->on($event, $handler);
+				$this->swooleProcessPool->on($event, $handler);
 			} catch (\Throwable $e) {
 				null;
 			}
@@ -57,10 +61,20 @@ class IndependentPool extends PoolAbstract {
 		file_put_contents($this->pidFile, getmypid());
 
 		isetProcessTitle(App::$server->getPname() . 'process manager');
-		$server->start();
+		$this->swooleProcessPool->start();
 	}
 
 	public function on($event, \Closure $handler) {
 		$this->events[$event] = $handler;
+	}
+
+	public function getByProcessId($id) {
+		$process = parent::getByProcessId($id);
+		if ($this->swooleProcessPool) {
+			$swooleProcess = $this->swooleProcessPool->getProcess();
+			$swooleProcess && $process->setProcess($swooleProcess);
+		}
+
+		return $process;
 	}
 }
