@@ -15,6 +15,7 @@ namespace W7\Core\Process;
 use Swoole\Coroutine;
 use Swoole\Event;
 use Swoole\Process;
+use Swoole\Timer;
 use W7\App;
 use W7\Console\Io\Output;
 use W7\Core\Exception\HandlerExceptions;
@@ -37,6 +38,11 @@ abstract class ProcessAbstract {
 	protected $process;
 	// event 模式下支持用户自定义pipe
 	protected $pipe;
+
+	/**
+	 * @var Coroutine\Channel
+	 */
+	protected $channel;
 
 	public function __construct($name, $num = 1, Process $process = null) {
 		$this->name = $name;
@@ -97,20 +103,21 @@ abstract class ProcessAbstract {
 	public function onStart() {
 		$this->beforeStart();
 
+		$this->channel = new Coroutine\Channel(1);
 		Coroutine::create(function () {
 			/**
 			 * @var Coroutine\Socket $socket
 			 */
-			$socket = $this->getProcess()->exportSocket();
-			while ($socket) {
+			while ($this->channel->pop(0.01) !== true) {
+				$socket = $this->getProcess()->exportSocket();
 				try {
 					$data = $socket->recv();
 					if ($data === '') {
-						throw new \Exception('Socket is closed', $socket->errCode);
+						throw new \Exception('process socket is closed', $socket->errCode);
 					}
 
 					if ($data === false && $socket->errCode !== SOCKET_ETIMEDOUT) {
-						throw new \Exception('Socket is closed', $socket->errCode);
+						throw new \Exception('process socket is closed', $socket->errCode);
 					}
 
 					$message = Message::unpack($data);
@@ -120,9 +127,8 @@ abstract class ProcessAbstract {
 				} catch (\Throwable $e) {
 					$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($e);
 				}
-
-				Coroutine::sleep(1);
 			}
+			$this->channel->close();
 		});
 
 		if (method_exists($this, 'read')) {
@@ -159,6 +165,8 @@ abstract class ProcessAbstract {
 			}
 			$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
 
+			$this->channel->push(true);
+			Timer::clearAll();
 			$this->getProcess()->exit();
 		}
 	}
