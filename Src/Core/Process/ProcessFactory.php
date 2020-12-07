@@ -15,11 +15,8 @@ namespace W7\Core\Process;
 class ProcessFactory {
 	private $processMap = [];
 
-	public function add($name, $handle, $num = 1) {
-		for ($i = 0; $i < $num; $i++) {
-			$process = new $handle($name, $num);
-			$this->processMap[] = $process;
-		}
+	public function add(ProcessAbstract $process) {
+		$this->processMap[] = $process;
 	}
 
 	public function count() {

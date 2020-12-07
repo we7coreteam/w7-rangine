@@ -98,6 +98,9 @@ abstract class ProcessAbstract {
 		$this->beforeStart();
 
 		Coroutine::create(function () {
+			/**
+			 * @var Coroutine\Socket $socket
+			 */
 			$socket = $this->getProcess()->exportSocket();
 			while ($socket) {
 				try {
@@ -155,6 +158,8 @@ abstract class ProcessAbstract {
 				(new Output())->error($throwable->getMessage() . ' at file ' . $throwable->getFile() . ' line ' . $throwable->getLine());
 			}
 			$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
+
+			$this->getProcess()->exit();
 		}
 	}
 

@@ -52,7 +52,10 @@ abstract class PoolAbstract {
 			return false;
 		}
 
-		$this->processFactory->add($name, $handle, $num);
+		for ($i = 0; $i < $num; $i++) {
+			$process = clone $handleObj;
+			$this->processFactory->add($process);
+		}
 	}
 
 	public function getProcessFactory() {
@@ -71,5 +74,9 @@ abstract class PoolAbstract {
 
 	public function stop() {
 		return true;
+	}
+
+	public function __clone() {
+		$this->processFactory = clone $this->processFactory;
 	}
 }
