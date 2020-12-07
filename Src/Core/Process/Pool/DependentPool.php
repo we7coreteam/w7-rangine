@@ -29,6 +29,10 @@ class DependentPool extends PoolAbstract {
 
 		for ($i = 0; $i < $this->processFactory->count(); $i++) {
 			$process = $this->processFactory->getById($i);
+			if ($process->getProcess()) {
+				continue;
+			}
+
 			$swooleProcess = new Process(function (Process $worker) use ($process, $i) {
 				//这里不能通过event触发
 				$process->setProcess($worker);

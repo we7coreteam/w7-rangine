@@ -59,18 +59,19 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 	}
 
 	public function getPool() {
-		if ($this->pool) {
+		if (!empty(App::$server->processPool)) {
+			$this->pool = App::$server->processPool;
 			return $this->pool;
 		}
 
 		$processFactory = new ProcessFactory();
 		if (App::$server instanceof ProcessServerAbstract) {
 			$this->pool = new IndependentPool($processFactory, $this->setting);
-			App::$server->processPool = $this->pool;
 		} else {
 			$this->pool = new DependentPool($processFactory, $this->setting);
 			empty(App::$server->processPool) ? (App::$server->processPool = clone $this->pool) : '';
 		}
+		App::$server->processPool = $this->pool;
 
 		return $this->pool;
 	}
@@ -89,11 +90,9 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 	}
 
 	public function listener(\Swoole\Server $server = null) {
-		//如果主服务是进程服务，需要注册进程到主服务进程池中
 		if (App::$server instanceof ProcessServerAbstract) {
 			$pool = $this->pool = App::$server->getPool();
 		} else {
-			//如果主服务不是进程服务，每次新建自己的进程池，最火再合并到全局进程池中（可优化）
 			$pool = $this->getPool();
 		}
 
@@ -101,10 +100,6 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 
 		if (!App::$server instanceof ProcessServerAbstract) {
 			$pool->start();
-
-			for ($processId = 0; $processId < $pool->getProcessFactory()->count(); ++$processId) {
-				App::$server->processPool->getProcessFactory()->add($pool->getProcessFactory()->getById($processId));
-			}
 		}
 
 		return true;
