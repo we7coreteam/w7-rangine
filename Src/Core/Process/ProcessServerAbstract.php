@@ -69,7 +69,6 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 			$this->pool = new IndependentPool($processFactory, $this->setting);
 		} else {
 			$this->pool = new DependentPool($processFactory, $this->setting);
-			empty(App::$server->processPool) ? (App::$server->processPool = clone $this->pool) : '';
 		}
 		App::$server->processPool = $this->pool;
 
