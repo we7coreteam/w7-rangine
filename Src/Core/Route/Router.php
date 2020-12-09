@@ -370,9 +370,11 @@ class Router implements RouterInterface {
 				$class = [$class];
 			}
 
-			$namespace = $this->getNamespace() . '\Middleware\\';
-			$class[0] = $this->prependGroupNamespace($namespace, $class[0]);
-			$middleware[$index] = $class;
+			# 如果中间件本身不存在，再去默认的命名空间下去找
+			if (!class_exists($class[0])) {
+				$namespace = $this->getNamespace() . '\Middleware\\';
+				$class[0] = $this->prependGroupNamespace($namespace, $class[0]);
+			}
 		}
 		return $middleware;
 	}
