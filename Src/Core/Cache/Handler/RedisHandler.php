@@ -21,6 +21,8 @@ class RedisHandler extends HandlerAbstract {
 	public static function connect($config) : HandlerAbstract {
 		if (!empty($config['cluster']['enable'])) {
 			$redis = static::createRedisClusterInstance($config);
+		} elseif (!empty($config['cluster']['enable'])) {
+			$redis = static::createRedisSentinel($config);
 		} else {
 			$redis = static::createRedis($config);
 		}
@@ -92,6 +94,31 @@ class RedisHandler extends HandlerAbstract {
 		}
 
 		return new \RedisCluster(...$parameters);
+	}
+
+	protected static function createRedisSentinel(array $config) {
+		$host = '';
+		$port = 0;
+		foreach ($config['sentinel']['nodes'] ?? [] as $node) {
+			[$sentinelHost, $sentinelPort] = explode(':', $node);
+			$sentinel = new \RedisSentinel(
+				(string)$sentinelHost,
+				(int)$sentinelPort,
+				$config['sentinel']['timeout'] ?? 0,
+				$config['sentinel']['persistent'] ?? null,
+				$config['sentinel']['retry_interval'] ?? 0,
+				$config['sentinel']['read_timeout'] ?? 0
+			);
+			$masterInfo = $sentinel->getMasterAddrByName($config['sentinel']['master_name']);
+			if (is_array($masterInfo) && count($masterInfo) >= 2) {
+				[$host, $port] = $masterInfo;
+				break;
+			}
+		}
+
+		$config['host'] = $host;
+		$config['port'] = $port;
+		return static::createRedis($config);
 	}
 
 	public function set($key, $value, $ttl = null) {
