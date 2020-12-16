@@ -19,19 +19,79 @@ class RedisHandler extends HandlerAbstract {
 	protected $storage;
 
 	public static function connect($config) : HandlerAbstract {
-		$redis  = new \Redis();
-		$result = $redis->connect($config['host'], $config['port'], $config['timeout']);
-		if ($result === false) {
-			$error = sprintf('Redis connection failure host=%s port=%d', $config['host'], $config['port']);
-			throw new \RuntimeException($error);
+		if (!empty($config['cluster']['enable'])) {
+			$redis = static::createRedisClusterInstance($config);
+		} else {
+			$redis = static::createRedis($config);
 		}
-		if (!empty($config['password'])) {
-			$redis->auth($config['password']);
+
+		$options = $config['options'] ?? [];
+		foreach ($options as $name => $value) {
+			$redis->setOption($name, $value);
 		}
+
 		if (!empty($config['database'])) {
 			$redis->select(intval($config['database']));
 		}
 		return new static($redis);
+	}
+
+	protected static function createRedis(array $config) {
+		$redis = new \Redis();
+
+		$persistent = $config['persistent'] ?? false;
+		$parameters = [
+			(string) $config['host'],
+			(int) $config['port'],
+			$config['timeout'] ?? 0,
+			null,
+			$config['retry_interval'] ?? 0,
+		];
+
+		if (version_compare(phpversion('redis'), '3.1.3', '>=')) {
+			$parameters[] = $config['read_timeout'] ?? 0;
+		}
+
+		if (version_compare(phpversion('redis'), '5.3.0', '>=')) {
+			$config['context'] = $config['context'] ?? null;
+			if (!is_null($config['context'])) {
+				$parameters[] = $config['context'];
+			}
+		}
+
+		if (!$redis->{($persistent ? 'pconnect' : 'connect')}(...$parameters)) {
+			$error = sprintf('Redis connection failure host=%s port=%d', $config['host'], $config['port']);
+			throw new \RuntimeException($error);
+		}
+
+		if (!empty($config['password'])) {
+			$redis->auth($config['password']);
+		}
+
+		return $redis;
+	}
+
+	protected static function createRedisClusterInstance(array $config) {
+		$parameters = [
+			null,
+			$config['cluster']['servers'] ?? [],
+			$config['cluster']['timeout'] ?? null,
+			$config['cluster']['read_timeout'] ?? null,
+			$config['cluster']['persistent'] ?? false
+		];
+
+		if (version_compare(phpversion('redis'), '4.3.0', '>=')) {
+			$parameters[] = $options['password'] ?? null;
+		}
+
+		if (version_compare(phpversion('redis'), '5.3.2', '>=')) {
+			$config['cluster']['context'] = $config['cluster']['context'] ?? null;
+			if (!is_null($config['cluster']['context'])) {
+				$parameters[] = $config['cluster']['context'];
+			}
+		}
+
+		return new \RedisCluster(...$parameters);
 	}
 
 	public function set($key, $value, $ttl = null) {
