@@ -21,7 +21,7 @@ class RedisHandler extends HandlerAbstract {
 	public static function connect($config) : HandlerAbstract {
 		if (!empty($config['cluster']['enable'])) {
 			$redis = static::createRedisClusterInstance($config);
-		} elseif (!empty($config['cluster']['enable'])) {
+		} elseif (!empty($config['sentinel']['enable'])) {
 			$redis = static::createRedisSentinel($config);
 		} else {
 			$redis = static::createRedis($config);
