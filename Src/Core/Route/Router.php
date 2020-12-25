@@ -246,7 +246,6 @@ class Router implements RouterInterface {
 			'handler' => $handler,
 			'module' => $this->getModule(),
 			'controller_namespace' => $this->getNamespace() . '\Controller\\',
-			'middleware_namespace' => $this->getNamespace() . '\Middleware\\',
 			'middleware' => [
 				'before' => [],
 				'after' => []
@@ -370,8 +369,6 @@ class Router implements RouterInterface {
 				$class = [$class];
 			}
 
-			$namespace = $this->getNamespace() . '\Middleware\\';
-			$class[0] = $this->prependGroupNamespace($namespace, $class[0]);
 			$middleware[$index] = $class;
 		}
 		return $middleware;
