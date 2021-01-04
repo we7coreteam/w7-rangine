@@ -25,6 +25,7 @@ class BeforeStartListener extends ListenerAbstract {
 	//把用户设置的session配置起作用到php.ini中
 	private function initSessionConfig() {
 		$sessionConfig = $this->getConfig()->get('app.session', []);
+		$cookieConfig = $this->getConfig()->get('app.cookie', []);
 		if (empty($sessionConfig['save_path']) && (empty($sessionConfig['handler']) || $sessionConfig['handler'] == 'file')) {
 			//如果没设置，使用php默认的session目录
 			$sessionConfig['save_path'] = session_save_path();
@@ -40,6 +41,19 @@ class BeforeStartListener extends ListenerAbstract {
 		}
 		if (!empty($sessionConfig['expires'])) {
 			ini_set('session.gc_maxlifetime', $sessionConfig['expires']);
+			ini_set('session.cookie_lifetime', $sessionConfig['expires']);
+		}
+		if (!empty($cookieConfig['domain'])) {
+			ini_set('session.cookie_domain', $cookieConfig['domain']);
+		}
+		if (isset($cookieConfig['secure'])) {
+			ini_set('session.cookie_secure', $cookieConfig['secure']);
+		}
+		if (!empty($cookieConfig['path'])) {
+			ini_set('session.cookie_path', $cookieConfig['path']);
+		}
+		if (isset($cookieConfig['http_only'])) {
+			ini_set('session.cookie_httponly', $cookieConfig['http_only']);
 		}
 		ini_set('session.auto_start', 'Off');
 
