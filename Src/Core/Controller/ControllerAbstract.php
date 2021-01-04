@@ -18,10 +18,33 @@ use W7\Contract\Validation\ValidatorFactoryInterface;
 use W7\Contract\View\ViewInterface;
 use W7\Core\Exception\ValidatorException;
 use W7\Core\Helper\Traiter\AppCommonTrait;
+use W7\Core\Middleware\ControllerMiddlewareOptions;
 use W7\Http\Message\Server\Request;
 
 abstract class ControllerAbstract {
 	use AppCommonTrait;
+
+	/**
+	 * The middleware registered on the controller.
+	 *
+	 * @var array
+	 */
+	protected $middleware = [];
+
+	public function middleware($middleware, array $options = []) {
+		foreach ((array) $middleware as $m) {
+			$this->middleware[] = [
+				'middleware' => $m,
+				'options' => &$options,
+			];
+		}
+
+		return new ControllerMiddlewareOptions($options);
+	}
+
+	public function getMiddleware() {
+		return $this->middleware;
+	}
 
 	/**
 	 * 获取一个response对象
