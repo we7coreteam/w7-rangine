@@ -46,7 +46,7 @@ class SwooleHelper {
 			try {
 				$result = $callback();
 			} catch (Throwable $throwable) {
-				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+				App::getApp()->getContainer()->singleton(LoggerFactoryInterface::class)->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 		});
 	}
@@ -61,7 +61,7 @@ class SwooleHelper {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
-				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+				App::getApp()->getContainer()->singleton(LoggerFactoryInterface::class)->debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 		});
 	}
@@ -72,7 +72,7 @@ class SwooleHelper {
 			try {
 				$callback();
 			} catch (Throwable $throwable) {
-				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+				App::getApp()->getContainer()->singleton(LoggerFactoryInterface::class)->debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 		});
 	}
