@@ -37,15 +37,13 @@ class Route {
 		if (!$this->handler instanceof \Closure) {
 			list($controller, $method) = $this->handler;
 			$classObj = App::getApp()->getContainer()->singleton($controller);
-			if (! method_exists($classObj, 'getMiddleware')) {
-				return [];
+			if (method_exists($classObj, 'getMiddleware')) {
+				$controllerMiddleware = collect($classObj->getMiddleware())->reject(function ($data) use ($method) {
+					return static::methodExcludedByOptions($method, $data['options']);
+				})->pluck('middleware')->all();
+
+				$middleware = array_merge($middleware, $controllerMiddleware);
 			}
-
-			$controllerMiddleware = collect($classObj->getMiddleware())->reject(function ($data) use ($method) {
-				return static::methodExcludedByOptions($method, $data['options']);
-			})->pluck('middleware')->all();
-
-			$middleware = array_merge($middleware, $controllerMiddleware);
 		}
 
 		return $middleware;
