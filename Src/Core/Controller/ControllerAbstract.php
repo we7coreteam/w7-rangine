@@ -34,7 +34,7 @@ abstract class ControllerAbstract {
 	public function middleware($middleware, array $options = []) {
 		foreach ((array) $middleware as $m) {
 			$this->middleware[] = [
-				'middleware' => $m,
+				'middleware' => [$m],
 				'options' => &$options,
 			];
 		}
