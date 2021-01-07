@@ -15,7 +15,14 @@ namespace W7\Core\Server;
 use W7\App;
 use W7\Contract\Server\ServerInterface;
 use W7\Core\Helper\Traiter\AppCommonTrait;
+use W7\Core\Process\Pool\PoolAbstract;
 
+/**
+ * Class ServerAbstract
+ * @package W7\Core\Server
+ *
+ * @property PoolAbstract $processPool
+ */
 abstract class ServerAbstract implements ServerInterface {
 	use AppCommonTrait;
 

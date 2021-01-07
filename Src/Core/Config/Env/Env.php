@@ -26,8 +26,8 @@ class Env {
 		if (empty($path) || !is_dir($path)) {
 			throw new \RuntimeException('Invalid env path');
 		}
-		$this->envPath = rtrim($path, DIRECTORY_SEPARATOR);
 		$this->hostName = gethostname();
+		$this->envPath = $path;
 	}
 
 	public function load() {
@@ -35,7 +35,7 @@ class Env {
 		$envName = getenv('ENV_NAME') ?: 'default';
 
 		$envFileName = $this->getEnvFileByHostName($envName);
-		if (!empty($envFileName) && file_exists($this->envPath . DIRECTORY_SEPARATOR . $envFileName)) {
+		if (!empty($envFileName) && file_exists($this->envPath . '/' . $envFileName)) {
 			putenv('ENV_NAME=' . $envFileName);
 			$_ENV['ENV_NAME'] = $envFileName;
 			
@@ -85,7 +85,7 @@ class Env {
 	 */
 	protected function getFilePaths(array $paths, $file) {
 		return array_map(function ($path) use ($file) {
-			return rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file;
+			return $path . '/' . $file;
 		}, $paths);
 	}
 }

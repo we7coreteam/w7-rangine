@@ -10,14 +10,23 @@
  * visited https://www.rangine.com/ for more details
  */
 
-use Swoole\Coroutine;
 use W7\App;
-use W7\Contract\Logger\LoggerFactoryInterface;
-use Swoole\Timer;
+use W7\Core\Helper\Compate\FpmHelper;
+use W7\Core\Helper\Compate\SwooleHelper;
 
 if (!function_exists('isCli')) {
 	function isCli() {
 		return PHP_SAPI == 'cli';
+	}
+}
+
+if (!function_exists('isCo')) {
+	/**
+	 * 是否是在协成
+	 * @return bool
+	 */
+	function isCo():bool {
+		return App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class)->getCoroutineId() > 0;
 	}
 }
 
@@ -27,6 +36,7 @@ if (!function_exists('getClientIp')) {
 		$serverParams = $request->getServerParams();
 		$xForwardedFor = !empty($serverParams['HTTP_X_FORWARDED_FOR']) ? $serverParams['HTTP_X_FORWARDED_FOR'] : ($request->getHeader('X-Forwarded-For')[0] ?? '');
 
+		$ip = '';
 		if (!empty($xForwardedFor)) {
 			$arr = explode(',', $xForwardedFor);
 			$pos = array_search('unknown', $arr);
@@ -40,7 +50,7 @@ if (!function_exists('getClientIp')) {
 			$ip = $request->getHeader('X-Real-IP')[0];
 		} elseif (!empty($serverParams['REMOTE_ADDR'])) {
 			$ip = $serverParams['REMOTE_ADDR'];
-		} else {
+		} elseif ($request->getSwooleRequest()) {
 			$ip = $request->getSwooleRequest()->server['remote_addr'];
 		}
 
@@ -96,16 +106,6 @@ if (!function_exists('ienv')) {
 	}
 }
 
-if (!function_exists('isCo')) {
-	/**
-	 * 是否是在协成
-	 * @return bool
-	 */
-	function isCo():bool {
-		return App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class)->getCoroutineId() > 0;
-	}
-}
-
 if (!function_exists('isWorkerStatus')) {
 	function isWorkerStatus() {
 		if (App::$server === null) {
@@ -143,76 +143,33 @@ if (!function_exists('isetProcessTitle')) {
 if (!function_exists('igo')) {
 	function igo(Closure $callback) {
 		if (!isCo()) {
-			$generatorFunc = function () use ($callback) {
-				try {
-					yield $callback();
-				} catch (Throwable $e) {
-					App::getApp()->getContainer()->singleton(LoggerFactoryInterface::class)->debug($e->getMessage(), ['exception' => $e]);
-				}
-			};
-			App::getApp()->getContainer()->singleton(\W7\Core\Helper\Compate\CgiCoroutine::class)->add($generatorFunc());
+			FpmHelper::createCoroutine($callback);
 			return true;
 		}
 
-		$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
-		$coId = $context->getCoroutineId();
-		$result = null;
-		Coroutine::create(function () use ($callback, $coId, &$result, $context) {
-			$context->fork($coId);
-			try {
-				$result = $callback();
-			} catch (Throwable $throwable) {
-				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
-			}
-
-			Coroutine::defer(function () use ($context) {
-				$context->destroy();
-			});
-		});
-		return $result;
+		SwooleHelper::createCoroutine($callback);
 	}
 }
 
 if (!function_exists('isleep')) {
 	function isleep($seconds) {
 		if (!isCo()) {
-			sleep($seconds);
+			FpmHelper::sleep($seconds);
 			return true;
 		}
-		\Swoole\Coroutine\System::sleep($seconds);
+
+		SwooleHelper::sleep($seconds);
 	}
 }
 
 if (!function_exists('itimeTick')) {
 	function itimeTick($ms, \Closure $callback) {
-		return Timer::tick($ms, function () use ($callback) {
-			try {
-				$callback();
-			} catch (Throwable $throwable) {
-				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('timer-tick error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
-			}
-
-			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
-			Coroutine::defer(function () use ($context) {
-				$context->destroy();
-			});
-		});
+		return SwooleHelper::timeTick($ms, $callback);
 	}
 }
 
 if (!function_exists('itimeAfter')) {
 	function itimeAfter($ms, \Closure $callback) {
-		return Timer::after($ms, function () use ($callback) {
-			try {
-				$callback();
-			} catch (Throwable $throwable) {
-				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('time-after error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
-			}
-
-			$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
-			Coroutine::defer(function () use ($context) {
-				$context->destroy();
-			});
-		});
+		return SwooleHelper::timeAfter($ms, $callback);
 	}
 }

@@ -14,6 +14,7 @@ namespace W7\Core\Middleware;
 
 use W7\App;
 use W7\Core\Helper\StringHelper;
+use W7\Core\Route\Route;
 
 class MiddlewareMapping {
 	/**
@@ -88,10 +89,10 @@ class MiddlewareMapping {
 		}
 	}
 
-	public function getRouteMiddleWares($route) {
+	public function getRouteMiddleWares(Route $route) {
 		return array_merge(
 			$this->beforeMiddleware,
-			$route['middleware'],
+			$route->getMiddleware(),
 			$this->getControllerMiddleware(),
 			$this->afterMiddleware,
 			$this->getLastMiddleware()

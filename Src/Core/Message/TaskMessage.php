@@ -21,6 +21,11 @@ class TaskMessage extends MessageAbstract {
 	use MessageTraiter;
 
 	public $messageType = Message::MESSAGE_TYPE_TASK;
+
+	/**
+	 * 发起同步任务
+	 */
+	const OPERATION_TASK_NOW = '0';
 	/**
 	 * 发起异步任务
 	 */

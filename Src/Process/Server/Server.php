@@ -30,8 +30,8 @@ class Server extends ProcessServerAbstract {
 
 	protected function checkSetting() {
 		//获取要启动的process
-		$supportProcess = Config::get('process.process', []);
-		$servers = trim(Config::get('app.setting.server'));
+		$supportProcess = $this->getConfig()->get('process.process', []);
+		$servers = trim($this->getConfig()->get('app.setting.server'));
 		$servers = explode('|', $servers);
 
 		//获取需要启动的process
@@ -53,7 +53,7 @@ class Server extends ProcessServerAbstract {
 			//如果是全部启动的话，enable和配置中的值保持一致
 			$supportProcess[$processName]['enable'] = $startAll ? ($supportProcess[$processName]['enable'] ?? true) : true;
 		}
-		Config::set('process.process', $supportProcess);
+		$this->getConfig()->set('process.process', $supportProcess);
 
 		$this->setting['worker_num'] = $this->getWorkerNum();
 		if ($this->setting['worker_num'] == 0) {
@@ -65,7 +65,7 @@ class Server extends ProcessServerAbstract {
 
 	private function getWorkerNum() {
 		$workerNum = 0;
-		$configProcess = Config::get('process.process', []);
+		$configProcess = $this->getConfig()->get('process.process', []);
 		foreach ($configProcess as $key => $process) {
 			if (empty($process['enable'])) {
 				continue;
@@ -77,7 +77,7 @@ class Server extends ProcessServerAbstract {
 	}
 
 	protected function register() {
-		$configProcess = Config::get('process.process', []);
+		$configProcess = $this->getConfig()->get('process.process', []);
 		foreach ($configProcess as $name => $process) {
 			if (empty($process['enable'])) {
 				continue;

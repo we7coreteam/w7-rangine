@@ -111,7 +111,7 @@ class StringHelper {
 	 * @return string
 	 */
 	public static function finish($value, $cap) {
-		$quoted = preg_quote($cap, DIRECTORY_SEPARATOR);
+		$quoted = preg_quote($cap, '/');
 
 		return preg_replace('/(?:' . $quoted . ')+$/', '', $value) . $cap;
 	}
@@ -218,7 +218,7 @@ class StringHelper {
 
 			$bytes = static::randomBytes($size);
 
-			$string .= substr(str_replace([DIRECTORY_SEPARATOR, '+', '='], '', base64_encode($bytes)), 0, $size);
+			$string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
 		}
 
 		return $string;

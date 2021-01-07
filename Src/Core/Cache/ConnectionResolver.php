@@ -12,7 +12,6 @@
 
 namespace W7\Core\Cache;
 
-use Swoole\Coroutine;
 use W7\Core\Cache\Event\MakeConnectionEvent;
 use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\PoolFactory;
@@ -66,7 +65,7 @@ class ConnectionResolver {
 				$this->getContext()->setContextDataByKey($contextCacheName, $connection);
 			} finally {
 				if ($connection && isCo()) {
-					Coroutine::defer(function () use ($connection, $contextCacheName) {
+					$this->getContext()->defer(function () use ($connection, $contextCacheName) {
 						$this->releaseConnection($connection);
 						$this->getContext()->setContextDataByKey($contextCacheName, null);
 					});

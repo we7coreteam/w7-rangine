@@ -15,37 +15,19 @@ namespace W7\Core\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Helper\StringHelper;
+use W7\Core\Route\Route;
 use W7\Http\Message\Server\Response;
 
 class ControllerMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		//此处处理调用控制器操作
+		/**
+		 * @var Route $route
+		 */
 		$route = $request->getAttribute('route');
+		array_unshift($route->args, $request);
 
-		//非闭包函数时实列化对象
-		if ($route['controller'] instanceof \Closure) {
-			$controllerHandler = $route['controller'];
-		} else {
-			$method = StringHelper::studly($route['method']);
-			$classObj = $this->getContainer()->singleton($route['controller']);
-			if (!method_exists($classObj, $method)) {
-				throw new \BadMethodCallException("method {$method} not available at class {$route['controller']}");
-			}
-			$controllerHandler = [$classObj, $method];
-		}
-
-		$funArgs = [];
-		$funArgs[] = $request;
-		if (is_array($route['args'])) {
-			$funArgs = array_merge($funArgs, $route['args']);
-		}
-		if (!empty($route['defaults'])) {
-			$funArgs = array_merge($funArgs, $route['defaults']);
-		}
-
-		$response = call_user_func_array($controllerHandler, $funArgs);
-		$this->getContext()->setResponse($this->parseResponse($response));
+		$this->getContext()->setResponse($this->parseResponse($route->run()));
 
 		return $handler->handle($request);
 	}

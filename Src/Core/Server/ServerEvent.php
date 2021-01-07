@@ -85,6 +85,7 @@ class ServerEvent {
 	const ON_USER_AFTER_PIPE_MESSAGE = 'afterPipeMessage';
 	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
 	const ON_USER_AFTER_REQUEST = 'afterRequest';
+	const ON_USER_AFTER_TASK = 'afterTask';
 	const ON_USER_TASK_FINISH = 'afterTaskFinish';
 	const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandShake';
 	const ON_USER_AFTER_OPEN = 'afterOpen';

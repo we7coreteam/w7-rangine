@@ -14,13 +14,17 @@ namespace W7\Core\Listener;
 
 use Swoole\Http\Server;
 use Swoole\Server\Task;
-use W7\Contract\Task\TaskDispatcherInterface;
 use W7\Core\Exception\HandlerExceptions;
+use W7\Core\Helper\Traiter\TaskDispatchTrait;
 use W7\Core\Message\Message;
+use W7\Core\Message\TaskMessage;
+use W7\Core\Server\ServerEvent;
 use W7\Core\Task\Event\AfterTaskExecutorEvent;
 use W7\Core\Task\Event\BeforeTaskExecutorEvent;
 
 class TaskListener extends ListenerAbstract {
+	use TaskDispatchTrait;
+
 	public function run(...$params) {
 		list($server, $task) = $params;
 
@@ -29,16 +33,25 @@ class TaskListener extends ListenerAbstract {
 
 	private function dispatchTask(Server $server, Task $task) {
 		$message = Message::unpack($task->data);
-		$this->getEventDispatcher()->dispatch(new BeforeTaskExecutorEvent($message));
-		try {
-			$message = $this->getContainer()->singleton(TaskDispatcherInterface::class)->dispatchNow($message, $server, $task->id, $task->worker_id);
-			$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message));
-		} catch (\Throwable $throwable) {
-			$message->result = $throwable->getMessage();
-			$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message, $throwable));
-			$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
+
+		if ($message instanceof TaskMessage) {
+			try {
+				$this->getEventDispatcher()->dispatch(new BeforeTaskExecutorEvent($message));
+
+				$message = $this->dispatchNow($message, $server, $task->worker_id, $task->id);
+
+				$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message));
+			} catch (\Throwable $throwable) {
+				$message->result = $throwable->getMessage();
+
+				$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message, $throwable));
+
+				$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
+			}
+
+			$task->finish($message->result);
 		}
 
-		$task->finish($message->result);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_TASK, [$server, $task]);
 	}
 }

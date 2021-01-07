@@ -12,7 +12,6 @@
 
 namespace W7\Tcp\Listener;
 
-use Swoole\Coroutine;
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
@@ -32,7 +31,7 @@ class ReceiveListener extends ListenerAbstract {
 		$this->getContext()->setContextDataByKey('fd', $fd);
 		$this->getContext()->setContextDataByKey('reactorid', $reactorId);
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
-		$this->getContext()->setContextDataByKey('coid', Coroutine::getuid());
+		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 
 		$collector = $this->getContainer()->get('tcp-client')[$fd] ?? [];
 
@@ -41,14 +40,10 @@ class ReceiveListener extends ListenerAbstract {
 		 */
 		$psr7Request = $collector[0];
 		$psr7Request = $psr7Request->loadFromTcpData($data);
-
 		/**
 		 * @var Psr7Response $psr7Response
 		 */
 		$psr7Response = $collector[1];
-
-		$this->getContext()->setResponse($psr7Response);
-		$this->getContext()->setRequest($psr7Request);
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
 
@@ -61,7 +56,5 @@ class ReceiveListener extends ListenerAbstract {
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
 
 		$psr7Response->send();
-
-		$this->getContext()->destroy();
 	}
 }

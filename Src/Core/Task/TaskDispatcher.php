@@ -59,20 +59,26 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 			throw new TaskException('Task ' . $message->task . ' not found');
 		}
 
-		if ((method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask())) {
+		if ($message->type != TaskMessage::OPERATION_TASK_NOW && (method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask())) {
 			return $this->dispatchAsync($message);
 		}
 
-		if (!isWorkerStatus()) {
+		if ($message->type == TaskMessage::OPERATION_TASK_NOW || !isWorkerStatus()) {
 			$this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeTaskDispatchEvent($message, 'default'));
-			$message = $this->dispatchNow($message);
+
+			array_shift($params);
+			$message = $this->dispatchNow($message, ...$params);
+
 			$this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterTaskDispatchEvent($message, 'default', $message->result));
 			return $message;
 		}
 
 		$message->type = TaskMessage::OPERATION_TASK_CO;
+
 		$this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeTaskDispatchEvent($message, 'co'));
+
 		$result = App::$server->getServer()->taskCo($message->pack(), $message->timeout);
+
 		$this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterTaskDispatchEvent($message, 'co', $result));
 		return $result;
 	}
@@ -127,8 +133,8 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 	 * @throws TaskException
 	 * @throws \Throwable
 	 */
-	public function dispatchNow($message, $server = null, $taskId = null, $workerId = null) {
-		$server = $server ?? App::$server->getServer();
+	protected function dispatchNow($message, $server = null, $taskId = null, $workerId = null) {
+		$server = $server ?? (App::$server ? App::$server->getServer() : null);
 		$taskId = $taskId ?? $this->getContext()->getCoroutineId();
 		$workId = $workerId ?? ($server ? $server->worker_id : $workerId);
 

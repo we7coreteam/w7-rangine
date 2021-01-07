@@ -12,7 +12,6 @@
 
 namespace W7\WebSocket\Listener;
 
-use Swoole\Coroutine;
 use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
 use W7\Core\Server\ServerEnum;
@@ -31,7 +30,7 @@ class MessageListener extends ListenerAbstract {
 
 	private function onMessage(Server $server, SwooleFrame $frame): bool {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
-		$this->getContext()->setContextDataByKey('coid', Coroutine::getuid());
+		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 
 		$collector = $this->getContainer()->get('ws-client')[$frame->fd] ?? [];
 
@@ -40,16 +39,12 @@ class MessageListener extends ListenerAbstract {
 		 */
 		$psr7Request = $collector[0];
 		$psr7Request = $psr7Request->loadFromWSFrame($frame);
-
 		/**
 		 * @var Psr7Response $psr7Response
 		 */
 		$psr7Response = $collector[1];
 		//握手的Response只是为了响应握手，只处才是真正返回数据的Response
 		$psr7Response->setOutputer(new WebSocketResponseOutputer($server, $frame->fd));
-
-		$this->getContext()->setResponse($psr7Response);
-		$this->getContext()->setRequest($psr7Request);
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 
@@ -59,8 +54,6 @@ class MessageListener extends ListenerAbstract {
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 
 		$psr7Response->send();
-
-		$this->getContext()->destroy();
 
 		return true;
 	}

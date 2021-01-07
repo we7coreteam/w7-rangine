@@ -15,7 +15,6 @@ namespace W7\Core\Database;
 use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
-use Swoole\Coroutine;
 use W7\Core\Database\Event\MakeConnectionEvent;
 use W7\Core\Database\Pool\PoolFactory;
 use W7\Core\Helper\Traiter\AppCommonTrait;
@@ -64,7 +63,7 @@ class ConnectionResolver extends DatabaseManager {
 				$this->getContext()->setContextDataByKey($contextDbName, $connection);
 			} finally {
 				if ($connection && isCo()) {
-					Coroutine::defer(function () use ($connection, $contextDbName) {
+					$this->getContext()->defer(function () use ($connection, $contextDbName) {
 						$this->releaseConnection($connection);
 						$this->getContext()->setContextDataByKey($contextDbName, null);
 					});

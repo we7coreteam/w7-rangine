@@ -12,11 +12,11 @@
 
 namespace W7\Core\Server;
 
-use Exception;
 use Swoole\Process;
 use Swoole\Server;
 use W7\App;
 use W7\Contract\Server\SwooleServerInterface;
+use W7\Core\Helper\Compate\SwooleHelper;
 
 abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServerInterface {
 	/**
@@ -45,7 +45,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	public $setting;
 
 	public function __construct() {
-		$this->checkExtension();
+		SwooleHelper::checkLoadSwooleExtension();
 
 		parent::__construct();
 		$setting = $this->getConfig()->get('server');
@@ -131,7 +131,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 			$logLevel = SWOOLE_LOG_INFO;
 		}
 		return [
-			'pname' => 'w7-rangine',
+			'pname' => App::NAME,
 			'daemonize' => 0,
 			'dispatch_mode' => 3,
 			'worker_num' => swoole_cpu_num(),
@@ -192,7 +192,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	protected function resetPidFile() {
 		$pathInfo = pathinfo($this->setting['pid_file']);
 		$pathInfo['basename'] = $this->getType() . '_' .  ($this->setting['port'] ?? '') . '_' . $pathInfo['basename'];
-		$pidFile = rtrim($pathInfo['dirname'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $pathInfo['basename'];
+		$pidFile = rtrim($pathInfo['dirname'], '/') . '/' . $pathInfo['basename'];
 
 		$this->setting['pid_file'] = $pidFile;
 	}
@@ -272,13 +272,5 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	}
 
 	public function listener(\Swoole\Server $server) {
-	}
-
-	private function checkExtension() {
-		if (extension_loaded('swoole') && version_compare(SWOOLE_VERSION, '4.4.0', '>=')) {
-			return true;
-		}
-
-		throw new Exception('please check if the Swoole extension is installed and if the version is greater than 4.4.0');
 	}
 }

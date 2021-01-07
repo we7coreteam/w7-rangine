@@ -37,7 +37,7 @@ trait AppCommonTrait {
 			if (!App::getApp()->getContainer()->has(EventDispatcherInterface::class)) {
 				throw new Exception('the target instance ' . EventDispatcherInterface::class . ' does not exist');
 			}
-			$this->eventDispatcher = App::getApp()->getContainer()->get(EventDispatcherInterface::class);
+			$this->eventDispatcher = App::getApp()->getContainer()->singleton(EventDispatcherInterface::class);
 		}
 
 		return $this->eventDispatcher;
@@ -52,7 +52,7 @@ trait AppCommonTrait {
 			if (!App::getApp()->getContainer()->has(LoggerFactoryInterface::class)) {
 				throw new Exception('the target instance ' . LoggerFactoryInterface::class . ' does not exist');
 			}
-			$this->loggerFactory = App::getApp()->getContainer()->get(LoggerFactoryInterface::class);
+			$this->loggerFactory = App::getApp()->getContainer()->singleton(LoggerFactoryInterface::class);
 		}
 
 		return $this->loggerFactory;
