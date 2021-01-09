@@ -85,7 +85,6 @@ abstract class ProcessAbstract {
 	}
 
 	/**
-	 * process->push(msg) 有bug
 	 * 默认的消息队列消费方式为争抢方式
 	 * @param int $key
 	 * @param int $mode
@@ -173,6 +172,11 @@ abstract class ProcessAbstract {
 
 	abstract protected function run(Process $process);
 
+	/**
+	 * process->push(msg) 有bug
+	 * @param $msg
+	 * @return bool|mixed
+	 */
 	public function sendMsg($msg) {
 		if (version_compare(SWOOLE_VERSION, '4.4.5', '>=')) {
 			$result = $this->process->push($msg);
