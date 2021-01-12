@@ -32,6 +32,22 @@ class Route {
 		$this->defaults = $defaults;
 	}
 
+	public function getController() {
+		if ($this->handler instanceof \Closure) {
+			return $this->handler;
+		}
+
+		return $this->handler[0];
+	}
+
+	public function getAction() {
+		if ($this->handler instanceof \Closure) {
+			return '';
+		}
+
+		return $this->handler[1];
+	}
+
 	public function getMiddleware() {
 		$middleware = $this->middleware;
 		if (!$this->handler instanceof \Closure) {
