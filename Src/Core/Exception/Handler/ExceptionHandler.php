@@ -82,7 +82,7 @@ class ExceptionHandler {
 	public function handle(\Throwable $e) : Response {
 		// ResponseExceptionAbstract 为特殊的异常，此异常不管何时都将反馈给客户端
 		if ($e instanceof ResponseExceptionAbstract) {
-			return $this->getResponse()->withStatus($e->getCode() ?? '500')->withContent($e->getMessage());
+			return $this->getResponse()->withStatus(empty($e->getCode()) ? 500 : $e->getCode())->withContent($e->getMessage());
 		}
 
 		if ((ENV & DEBUG) === DEBUG) {
