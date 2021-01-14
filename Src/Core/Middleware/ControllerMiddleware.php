@@ -15,19 +15,18 @@ namespace W7\Core\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Route\Route;
+use W7\Contract\Router\RouteInterface;
 use W7\Http\Message\Server\Response;
 
 class ControllerMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		//此处处理调用控制器操作
 		/**
-		 * @var Route $route
+		 * @var RouteInterface $route
 		 */
 		$route = $request->getAttribute('route');
-		array_unshift($route->args, $request);
 
-		$this->getContext()->setResponse($this->parseResponse($route->run()));
+		$this->getContext()->setResponse($this->parseResponse($route->run($request)));
 
 		return $handler->handle($request);
 	}

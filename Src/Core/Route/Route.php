@@ -12,10 +12,12 @@
 
 namespace W7\Core\Route;
 
+use Psr\Http\Message\RequestInterface;
 use W7\App;
+use W7\Contract\Router\RouteInterface;
 use W7\Core\Helper\StringHelper;
 
-class Route {
+class Route implements RouteInterface {
 	public $name;
 	public $module;
 	public $handler;
@@ -30,6 +32,14 @@ class Route {
 		$this->args = $args;
 		$this->middleware = $middleware;
 		$this->defaults = $defaults;
+	}
+
+	public function getName() {
+		return $this->name;
+	}
+
+	public function getModule() {
+		return $this->module;
 	}
 
 	public function getController() {
@@ -48,7 +58,15 @@ class Route {
 		return $this->handler[1];
 	}
 
-	public function getMiddleware() {
+	public function getArgs(): array {
+		return $this->args;
+	}
+
+	public function getDefaults(): array {
+		return $this->defaults;
+	}
+
+	public function getMiddleware() : array {
 		$middleware = $this->middleware;
 		if (!$this->handler instanceof \Closure) {
 			list($controller, $method) = $this->handler;
@@ -70,7 +88,7 @@ class Route {
 			(! empty($options['except']) && in_array($method, (array) $options['except']));
 	}
 
-	public function run() {
+	public function run(RequestInterface $request) {
 		//非闭包函数时实列化对象
 		if ($this->handler instanceof \Closure) {
 			$controllerHandler = $this->handler;
@@ -84,6 +102,7 @@ class Route {
 			$controllerHandler = [$classObj, $method];
 		}
 
+		array_unshift($this->args, $request);
 		$funArgs = $this->args;
 		if (!empty($this->defaults)) {
 			$funArgs = array_merge($funArgs, $this->defaults);
