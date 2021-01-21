@@ -49,7 +49,7 @@ class TaskListener extends ListenerAbstract {
 				$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
 			}
 
-			$task->finish($message->result);
+			$task->finish($message);
 		}
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_TASK, [$server, $task]);

@@ -160,6 +160,7 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		try {
 			$message->result = call_user_func_array([$task, $message->method], [$server, $taskId, $workId, $message->params ?? []]);
 		} catch (\Throwable $e) {
+			$message->result = $e->getMessage();
 			$task->fail($e);
 			throw $e;
 		}
