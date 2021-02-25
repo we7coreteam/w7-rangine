@@ -25,10 +25,11 @@ class LoadConfigBootstrap implements BootstrapInterface {
 	}
 
 	public function bootstrap(App $app) {
-		$loadDir = $app->getConfigCachePath();
-		if (!file_exists($loadDir)) {
+		if (!$app->configurationIsCached()) {
 			$loadDir = BASE_PATH . '/config';
 			(new Env(BASE_PATH))->load();
+		} else {
+			$loadDir = $app->getConfigCachePath();
 		}
 
 		$this->loadConfigFile($this->getBuiltInConfigPath());

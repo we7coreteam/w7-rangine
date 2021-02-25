@@ -13,6 +13,7 @@
 namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
+use W7\App;
 use W7\Console\Application;
 use W7\Contract\Config\RepositoryInterface;
 use W7\Contract\Logger\LoggerFactoryInterface;
@@ -109,6 +110,9 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerRoute($fileName, $options = []) {
+		if (App::getApp()->routeIsCached()) {
+			return true;
+		}
 		$routeConfig = [
 			'namespace' => $this->packageNamespace,
 			'module' => $this->name,
@@ -188,6 +192,9 @@ abstract class ProviderAbstract {
 	 * @param $key
 	 */
 	protected function mergeConfigFrom($path, $key) {
+		if (App::getApp()->configurationIsCached()) {
+			return true;
+		}
 		$config = $this->getConfig()->get($key, []);
 		$this->getConfig()->set($key, array_merge(require $path, $config));
 	}
@@ -198,6 +205,9 @@ abstract class ProviderAbstract {
 	 * @param $path
 	 */
 	protected function loadRouteFrom($path) {
+		if (App::getApp()->routeIsCached()) {
+			return true;
+		}
 		include $path;
 	}
 

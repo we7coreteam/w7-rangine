@@ -102,6 +102,14 @@ class App {
 		return $this->bootstrapCachePath('config/');
 	}
 
+	public function configurationIsCached() {
+		return is_dir($this->getConfigCachePath());
+	}
+
+	public function routeIsCached() {
+		return is_dir($this->getRouteCachePath());
+	}
+
 	public function exit() {
 		$this->container->clear();
 	}

@@ -22,8 +22,8 @@ class RouteDispatcher extends GroupCountBased {
 	public static $routeCacheFileName = 'route.php';
 
 	public static function getDispatcherWithRouteMapping(string $routeMapping, $routeCacheGroup = ServerEnum::TYPE_HTTP) {
-		$routeCacheFile = App::getApp()->getRouteCachePath() . $routeCacheGroup . '.' . self::$routeCacheFileName;
-		if (file_exists($routeCacheFile)) {
+		if (App::getApp()->routeIsCached()) {
+			$routeCacheFile = App::getApp()->getRouteCachePath() . $routeCacheGroup . '.' . self::$routeCacheFileName;
 			$routeDefinitions = require $routeCacheFile;
 			if (!is_array($routeDefinitions)) {
 				throw new \RuntimeException('Invalid cache file "' . $routeCacheFile . '"');
