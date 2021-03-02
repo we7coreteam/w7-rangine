@@ -76,7 +76,14 @@ abstract class ProviderAbstract {
 	public function boot() {
 	}
 
+	/**
+	 * @deprecated
+	 */
 	protected function registerBaseDir($dir) {
+		$this->registerOpenBaseDir($dir);
+	}
+
+	protected function registerOpenBaseDir($dir) {
 		$dir = (array)$dir;
 		$appBasedir = $this->getConfig()->get('app.setting.basedir', []);
 		$appBasedir = array_merge($appBasedir, $dir);
