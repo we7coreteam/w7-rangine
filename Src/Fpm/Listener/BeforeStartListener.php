@@ -57,6 +57,7 @@ class BeforeStartListener extends ListenerAbstract {
 		}
 		ini_set('session.auto_start', 'Off');
 
+		$sessionConfig['prefix'] = '';
 		$this->getConfig()->set('app.session', $sessionConfig);
 	}
 
