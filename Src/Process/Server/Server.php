@@ -35,9 +35,9 @@ class Server extends ProcessServerAbstract {
 		$servers = explode('|', $servers);
 
 		//获取需要启动的process
-		$processMap = array_diff($servers, array_intersect(array_keys(ServerEnum::$ALL_SERVER), $servers));
+		$processMap = array_diff($servers, (array)array_intersect(array_keys(ServerEnum::$ALL_SERVER), $servers));
 		//获取不在process配置列表中的process
-		$notSupportProcess = array_diff($processMap, array_intersect(array_keys($supportProcess), $processMap));
+		$notSupportProcess = array_diff((array)$processMap, array_intersect(array_keys($supportProcess), (array)$processMap));
 		if ($notSupportProcess) {
 			throw new \RuntimeException('process ' . implode(', ', $notSupportProcess) . ' not exist, please check the configuration in config/process.php');
 		}
