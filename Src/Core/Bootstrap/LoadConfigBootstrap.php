@@ -19,6 +19,7 @@ use W7\Core\Config\Env\Env;
 
 class LoadConfigBootstrap implements BootstrapInterface {
 	private $payload = [];
+	protected $ignoreFileNameMap = ['define'];
 
 	public function getBuiltInConfigPath() {
 		return BASE_PATH . '/vendor/composer/rangine/autoload/config';
@@ -50,6 +51,9 @@ class LoadConfigBootstrap implements BootstrapInterface {
 
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
+			if (in_array($key, $this->ignoreFileNameMap)) {
+				continue;
+			}
 			$config = include $path;
 			if (is_array($config)) {
 				$this->payload[$key] = $this->payload[$key] ?? [];
