@@ -99,7 +99,7 @@ class RequestDispatcher extends DispatcherAbstract {
 				throw new RouteNotFoundException('Route not found, ' . $url, 404);
 				break;
 			case RouteDispatcher::METHOD_NOT_ALLOWED:
-				throw new RouteNotAllowException('Route not allowed, ' . $url, 405);
+				throw new RouteNotAllowException('Route not allowed, ' . $url . ' with method ' . $httpMethod, 405);
 				break;
 			case RouteDispatcher::FOUND:
 				break;
