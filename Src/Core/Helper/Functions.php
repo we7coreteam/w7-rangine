@@ -173,3 +173,11 @@ if (!function_exists('itimeAfter')) {
 		return SwooleHelper::timeAfter($ms, $callback);
 	}
 }
+
+if (!function_exists('isafeMakeDir')) {
+	function isafeMakeDir($dir, $permissions = 0777, $recursive = false) {
+		if (!mkdir($dir, $permissions, $recursive) && !is_dir($dir)) {
+			throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+		}
+	}
+}
