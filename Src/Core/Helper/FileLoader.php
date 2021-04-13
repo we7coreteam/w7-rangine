@@ -19,7 +19,7 @@ class FileLoader {
 	protected $loadRules;
 	protected $loadDir;
 
-	public function __construct($loadDir = BASE_PATH) {
+	public function __construct($loadDir) {
 		$this->loadDir = $loadDir;
 		$this->loadRules = App::getApp()->getConfigger()->get('app.setting.file_ignore', []);
 	}
