@@ -25,7 +25,7 @@ class RegisterRuntimeEnvBootstrap implements BootstrapInterface {
 		if (!is_readable(RUNTIME_PATH)) {
 			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no read permission');
 		}
-		if (!is_writeable(RUNTIME_PATH)) {
+		if (!is_writable(RUNTIME_PATH)) {
 			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no write permission');
 		}
 
