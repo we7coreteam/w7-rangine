@@ -29,6 +29,7 @@ class ViewProvider extends ProviderAbstract {
 
 		$this->container->set(ViewInterface::class, function () use ($config) {
 			$view = new View($config);
+			$view->addTemplatePath(HandlerAbstract::DEFAULT_NAMESPACE, APP_PATH . '/View');
 			$this->registerSystemConst($view, $config);
 			$this->registerSystemFunction($view);
 

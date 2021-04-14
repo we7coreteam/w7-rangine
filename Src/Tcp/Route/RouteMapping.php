@@ -24,8 +24,8 @@ class RouteMapping extends RouteMappingAbstract {
 	/**
 	 * @return array|mixed
 	 */
-	public function getMapping() {
-		$routes = parent::getMapping();
+	public function getMapping($routeFileDir) {
+		$routes = parent::getMapping($routeFileDir);
 		$this->router = new Router();
 		$this->processRoutes($routes);
 

@@ -20,7 +20,7 @@ class RegisterRuntimeEnvBootstrap implements BootstrapInterface {
 		date_default_timezone_set($defaultTimezone);
 
 		if (!is_dir(RUNTIME_PATH)) {
-			mkdir(RUNTIME_PATH, 0777, true);
+			isafeMakeDir(RUNTIME_PATH, 0777, true);
 		}
 		if (!is_readable(RUNTIME_PATH)) {
 			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no read permission');

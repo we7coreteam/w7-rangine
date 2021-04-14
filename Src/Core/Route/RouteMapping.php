@@ -41,10 +41,10 @@ class RouteMapping {
 	/**
 	 * @return array|mixed
 	 */
-	public function getMapping() {
+	public function getMapping($routeFileDir) {
 		if (!self::$isInitRouteByConfig) {
 			//在多个服务同时启动的时候，防止重复注册
-			$this->routeConfig = empty($this->routeConfig) ? $this->getRouteConfig() : $this->routeConfig;
+			$this->routeConfig = empty($this->routeConfig) ? $this->getRouteConfig($routeFileDir) : $this->routeConfig;
 			self::$isInitRouteByConfig = true;
 		}
 		foreach ($this->routeConfig as $index => $routeConfig) {
@@ -54,9 +54,9 @@ class RouteMapping {
 		return $this->router->getData();
 	}
 
-	protected function getRouteConfig() {
+	protected function getRouteConfig($routeFileDir) {
 		$routeConfigs = [];
-		$configFileTree = glob(BASE_PATH . '/route/*.php');
+		$configFileTree = glob($routeFileDir . '/*.php');
 		if (empty($configFileTree)) {
 			return $routeConfigs;
 		}
