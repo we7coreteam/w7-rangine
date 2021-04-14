@@ -78,7 +78,7 @@ class Application extends SymfontApplication {
 
 	private function registerCommands() {
 		$this->autoRegisterCommands(__DIR__. '/Command', '\\W7\\Console');
-		$this->autoRegisterCommands(APP_PATH  . '/Command', '\\W7\\App');
+		$this->autoRegisterCommands(App::getApp()->getAppPath()  . '/Command', '\\W7\\App');
 	}
 
 	public function autoRegisterCommands($path, $classNamespace, $commandNamespace = null) {

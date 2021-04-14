@@ -130,20 +130,21 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		if (SWOOLE_VERSION <= '4.4.16') {
 			$logLevel = SWOOLE_LOG_INFO;
 		}
+		$runtimePath = App::getApp()->getRuntimePath();
 		return [
 			'pname' => App::NAME,
 			'daemonize' => 0,
 			'dispatch_mode' => 3,
 			'worker_num' => swoole_cpu_num(),
-			'log_file' => RUNTIME_PATH . '/logs/run.log',
+			'log_file' => $runtimePath . '/logs/run.log',
 			'log_level' => $logLevel,
 			'request_slowlog_timeout' => 2,
-			'request_slowlog_file' => RUNTIME_PATH . '/logs/slow.log',
+			'request_slowlog_file' => $runtimePath . '/logs/slow.log',
 			'trace_event_worker' => true,
-			'upload_tmp_dir' => RUNTIME_PATH . '/upload',
-			'document_root' => BASE_PATH . '/public',
+			'upload_tmp_dir' => $runtimePath . '/upload',
+			'document_root' => App::getApp()->getBasePath() . '/public',
 			'enable_static_handler' => true,
-			'task_tmpdir' => RUNTIME_PATH . '/task',
+			'task_tmpdir' => $runtimePath . '/task',
 			'open_http2_protocol' => false,
 			'mode' => SWOOLE_PROCESS,
 			'sock_type' => SWOOLE_SOCK_TCP

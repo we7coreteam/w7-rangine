@@ -53,7 +53,7 @@ abstract class ProviderAbstract {
 		}
 		$this->name = $name;
 		if ($this->packageName) {
-			$this->rootPath = BASE_PATH . '/vendor/' . $this->packageName;
+			$this->rootPath = App::getApp()->getBasePath() . '/vendor/' . $this->packageName;
 			!$this->packageNamespace && $this->packageNamespace = str_replace('/', '\\', StringHelper::studly($this->packageName));
 		} else {
 			$reflect = new \ReflectionClass($this);
@@ -107,7 +107,7 @@ abstract class ProviderAbstract {
 			$targetFileName = $sourceFileName;
 		}
 		$this->publishes([
-			$this->rootPath . '/config/' . $sourceFileName => BASE_PATH . '/config/' . $targetFileName
+			$this->rootPath . '/config/' . $sourceFileName => App::getApp()->getBasePath() . '/config/' . $targetFileName
 		], $group);
 	}
 

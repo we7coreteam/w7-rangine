@@ -33,9 +33,10 @@ class RouteDispatcher extends GroupCountBased {
 			/**
 			 * @var RouteMapping $routeMapping
 			 */
-			$fileLoader = new FileLoader(BASE_PATH);
+			$basePath = App::getApp()->getBasePath();
+			$fileLoader = new FileLoader($basePath);
 			$routeMapping = new $routeMapping($container->singleton(RouterInterface::class), $fileLoader);
-			$routeDefinitions = $routeMapping->getMapping(BASE_PATH . '/route');
+			$routeDefinitions = $routeMapping->getMapping($basePath . '/route');
 		}
 
 		return new static($routeDefinitions);

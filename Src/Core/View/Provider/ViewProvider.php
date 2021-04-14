@@ -12,6 +12,7 @@
 
 namespace W7\Core\View\Provider;
 
+use W7\App;
 use W7\Console\Application;
 use W7\Contract\View\ViewInterface;
 use W7\Core\View\Handler\HandlerAbstract;
@@ -29,7 +30,7 @@ class ViewProvider extends ProviderAbstract {
 
 		$this->container->set(ViewInterface::class, function () use ($config) {
 			$view = new View($config);
-			$view->addTemplatePath(HandlerAbstract::DEFAULT_NAMESPACE, APP_PATH . '/View');
+			$view->addTemplatePath(HandlerAbstract::DEFAULT_NAMESPACE, App::getApp()->getAppPath() . '/View');
 			$this->registerSystemConst($view, $config);
 			$this->registerSystemFunction($view);
 

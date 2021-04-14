@@ -23,10 +23,7 @@ class ReloadProcess extends ProcessAbstract {
 	 *
 	 * @var string
 	 */
-	private static $watchDir = [
-		APP_PATH,
-		BASE_PATH. '/'. 'config'
-	];
+	private static $watchDir = [];
 
 	private static $fileTypes = [
 		'php'
@@ -43,6 +40,10 @@ class ReloadProcess extends ProcessAbstract {
 	 * 初始化方法
 	 */
 	public function __construct($name, $num = 1, Process $process = null) {
+		self::$watchDir = [
+			App::getApp()->getAppPath(),
+			App::getApp()->getBasePath() . '/'. 'config'
+		];
 		parent::__construct($name, $num, $process);
 
 		$reloadConfig = $this->getConfig()->get('reload');

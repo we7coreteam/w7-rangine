@@ -22,13 +22,13 @@ class LoadConfigBootstrap implements BootstrapInterface {
 	protected $ignoreFileNameMap = ['define'];
 
 	public function getBuiltInConfigPath() {
-		return BASE_PATH . '/vendor/composer/rangine/autoload/config';
+		return App::getApp()->getBasePath() . '/vendor/composer/rangine/autoload/config';
 	}
 
 	public function bootstrap(App $app) {
 		if (!$app->configurationIsCached()) {
-			$loadDir = BASE_PATH . '/config';
-			(new Env(BASE_PATH))->load();
+			$loadDir = $app->getBasePath() . '/config';
+			(new Env($app->getBasePath()))->load();
 		} else {
 			$loadDir = $app->getConfigCachePath();
 		}

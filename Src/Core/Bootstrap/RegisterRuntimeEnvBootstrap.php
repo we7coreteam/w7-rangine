@@ -19,14 +19,15 @@ class RegisterRuntimeEnvBootstrap implements BootstrapInterface {
 		$defaultTimezone = $app->getConfigger()->get('app.setting.timezone', 'Asia/Shanghai');
 		date_default_timezone_set($defaultTimezone);
 
-		if (!is_dir(RUNTIME_PATH)) {
-			isafeMakeDir(RUNTIME_PATH, 0777, true);
+		$runtimePath = $app->getRuntimePath();
+		if (!is_dir($runtimePath)) {
+			isafeMakeDir($runtimePath, 0777, true);
 		}
-		if (!is_readable(RUNTIME_PATH)) {
-			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no read permission');
+		if (!is_readable($runtimePath)) {
+			throw new \RuntimeException('path ' . $runtimePath . ' no read permission');
 		}
-		if (!is_writable(RUNTIME_PATH)) {
-			throw new \RuntimeException('path ' . RUNTIME_PATH . ' no write permission');
+		if (!is_writable($runtimePath)) {
+			throw new \RuntimeException('path ' . $runtimePath . ' no write permission');
 		}
 
 		$env = $app->getConfigger()->get('app.setting.env', DEVELOPMENT);

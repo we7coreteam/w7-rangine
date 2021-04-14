@@ -90,8 +90,20 @@ class App {
 		return $this->getContainer()->singleton(RepositoryInterface::class);
 	}
 
+	public function getAppPath() {
+		return APP_PATH;
+	}
+
+	public function getBasePath() {
+		return BASE_PATH;
+	}
+
+	public function getRuntimePath() {
+		return RUNTIME_PATH;
+	}
+
 	public function bootstrapCachePath($path = '') {
-		return BASE_PATH . '/bootstrap/cache' . ($path ? ('/' . $path) : $path);
+		return $this->getBasePath() . '/bootstrap/cache' . ($path ? ('/' . $path) : $path);
 	}
 
 	public function getRouteCachePath() {

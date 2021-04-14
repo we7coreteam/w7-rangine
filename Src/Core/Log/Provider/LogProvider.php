@@ -13,6 +13,7 @@
 namespace W7\Core\Log\Provider;
 
 use Monolog\Logger as MonoLogger;
+use W7\App;
 use W7\Contract\Logger\LoggerFactoryInterface;
 use W7\Core\Log\LoggerFactory;
 use W7\Core\Log\Processor\SwooleProcessor;
@@ -45,7 +46,7 @@ class LogProvider extends ProviderAbstract {
 		if ((ENV & CLEAR_LOG) !== CLEAR_LOG) {
 			return false;
 		}
-		$logPath = RUNTIME_PATH . '/logs/*';
+		$logPath = App::getApp()->getRuntimePath() . '/logs/*';
 		$tree = glob($logPath);
 		if (!empty($tree)) {
 			foreach ($tree as $file) {

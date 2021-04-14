@@ -25,7 +25,7 @@ class RegisterSecurityDirBootstrap implements BootstrapInterface {
 		$openBaseDir = [
 			'/tmp',
 			sys_get_temp_dir(),
-			BASE_PATH,
+			$app->getBasePath(),
 			$openBaseDirConfig,
 			session_save_path()
 		];
