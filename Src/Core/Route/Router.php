@@ -16,6 +16,7 @@ use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
 use W7\Contract\Router\RouterInterface;
 use W7\Contract\Router\ValidatorInterface;
+use W7\Core\Middleware\MiddlewareMapping;
 
 class Router implements RouterInterface {
 	const METHOD_POST = 'POST';
@@ -273,9 +274,9 @@ class Router implements RouterInterface {
 		$groupMiddleware = [];
 		$middleWares = array_filter(array_column($this->groupStack, 'middleware'));
 		array_walk($middleWares, function ($value) use (&$groupMiddleware) {
-			$groupMiddleware = array_merge($groupMiddleware, $this->checkMiddleware($value));
+			$groupMiddleware = array_merge($groupMiddleware, $value);
 		});
-		$routeHandler['middleware']['before'] = array_merge($groupMiddleware, $routeHandler['middleware']['before'], $this->checkMiddleware($this->currentMiddleware));
+		$routeHandler['middleware']['before'] = array_merge($groupMiddleware, $routeHandler['middleware']['before'], $this->currentMiddleware);
 		$this->currentMiddleware = [];
 
 		try {
@@ -307,16 +308,7 @@ class Router implements RouterInterface {
 	}
 
 	public function middleware($name) {
-		if (!is_array($name)) {
-			$name = func_get_args();
-			$name = [$name];
-		}
-		foreach ($name as $i => $row) {
-			if (!is_array($row)) {
-				$row = [$row];
-			}
-			$this->currentMiddleware[] = $row;
-		}
+		$this->currentMiddleware = MiddlewareMapping::pretreatmentMiddlewares($name);
 
 		return $this;
 	}
@@ -358,20 +350,6 @@ class Router implements RouterInterface {
 			$className,
 			$action,
 		];
-	}
-
-	private function checkMiddleware($middleware) {
-		if (!is_array($middleware)) {
-			$middleware = [$middleware];
-		}
-		foreach ($middleware as $index => $class) {
-			if (!is_array($class)) {
-				$class = [$class];
-			}
-
-			$middleware[$index] = $class;
-		}
-		return $middleware;
 	}
 
 	private function getNamespace() {

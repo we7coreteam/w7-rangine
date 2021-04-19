@@ -16,6 +16,7 @@ use Psr\Http\Message\RequestInterface;
 use W7\App;
 use W7\Contract\Router\RouteInterface;
 use W7\Core\Helper\StringHelper;
+use W7\Core\Middleware\MiddlewareMapping;
 
 class Route implements RouteInterface {
 	public $name;
@@ -76,7 +77,7 @@ class Route implements RouteInterface {
 					return static::methodExcludedByOptions($method, $data['options']);
 				})->pluck('middleware')->all();
 
-				$middleware = array_merge($middleware, $controllerMiddleware);
+				$middleware = array_merge($middleware, MiddlewareMapping::pretreatmentMiddlewares($controllerMiddleware));
 			}
 		}
 

@@ -32,6 +32,9 @@ abstract class ControllerAbstract {
 	protected $middleware = [];
 
 	public function middleware($middleware, array $options = []) {
+		if (isset($middleware['class'])) {
+			$middleware = [$middleware];
+		}
 		foreach ((array) $middleware as $m) {
 			$this->middleware[] = [
 				'middleware' => [$m],

@@ -26,54 +26,53 @@ class MiddlewareMapping {
 	 */
 	public $afterMiddleware = [];
 
+	public static function pretreatmentMiddlewares($middlewares) {
+		if (!is_array($middlewares) || isset($middlewares['class'])) {
+			$middlewares = func_get_args();
+			$middlewares = [$middlewares];
+		}
+		$pretreatmentMiddlewares = [];
+		foreach ($middlewares as $i => $middleware) {
+			if (!is_array($middleware) || isset($middleware['class'])) {
+				$middleware = [$middleware];
+			}
+			if (!isset($middleware[0]['class'])) {
+				$middleware = [self::pretreatmentMiddleware($middleware[0])];
+			}
+			$pretreatmentMiddlewares[] = $middleware;
+		}
+
+		return $pretreatmentMiddlewares;
+	}
+
+	public static function pretreatmentMiddleware(string $middleware, array $arguments = []) {
+		return [
+			'class' => $middleware,
+			'arg' => array_values($arguments)
+		];
+	}
+
 	public function addBeforeMiddleware(string $middleware, $unshift = false) {
 		if ($unshift) {
-			array_unshift($this->beforeMiddleware, [$middleware]);
+			array_unshift($this->beforeMiddleware, [self::pretreatmentMiddleware($middleware)]);
 		} else {
-			$this->beforeMiddleware[] = [$middleware];
+			$this->beforeMiddleware[] = [self::pretreatmentMiddleware($middleware)];
 		}
 	}
 
 	public function addAfterMiddleware(string $middleware, $unshift = false) {
 		if ($unshift) {
-			array_unshift($this->afterMiddleware, [$middleware]);
+			array_unshift($this->afterMiddleware, [self::pretreatmentMiddleware($middleware)]);
 		} else {
-			$this->afterMiddleware[] = [$middleware];
+			$this->afterMiddleware[] = [self::pretreatmentMiddleware($middleware)];
 		}
-	}
-
-	public function deleteBeforeMiddleware(string $middleware) {
-		foreach ($this->beforeMiddleware as $index => $item) {
-			if (in_array($middleware, $item)) {
-				unset($item[array_search($middleware, $item)]);
-				if (count($item) == 0) {
-					unset($this->beforeMiddleware[$index]);
-				}
-			}
-		}
-	}
-
-	public function deleteAfterMiddleware(string $middleware) {
-		foreach ($this->afterMiddleware as $index => $item) {
-			if (in_array($middleware, $item)) {
-				unset($item[array_search($middleware, $item)]);
-				if (count($item) == 0) {
-					unset($this->afterMiddleware[$index]);
-				}
-			}
-		}
-	}
-
-	public function deleteMiddleware(string $middleware) {
-		$this->deleteBeforeMiddleware($middleware);
-		$this->deleteAfterMiddleware($middleware);
 	}
 
 	/**
 	 * 获取系统最后的中间件
 	 */
 	protected function getLastMiddleware() {
-		return [[LastMiddleware::class]];
+		return [[self::pretreatmentMiddleware(LastMiddleware::class)]];
 	}
 
 	protected function getControllerMiddleware() {
@@ -83,9 +82,9 @@ class MiddlewareMapping {
 
 		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', StringHelper::studly(App::$server->getType()));
 		if (class_exists($class)) {
-			return [[$class]];
+			return [[self::pretreatmentMiddleware($class)]];
 		} else {
-			return [[ControllerMiddleware::class]];
+			return [[self::pretreatmentMiddleware(ControllerMiddleware::class)]];
 		}
 	}
 

@@ -21,6 +21,10 @@ use W7\Core\Helper\Traiter\AppCommonTrait;
 abstract class MiddlewareAbstract implements MiddlewareInterface {
 	use AppCommonTrait;
 
+	public static function withArguments($arguments): array {
+		return MiddlewareMapping::pretreatmentMiddleware(static::class, $arguments);
+	}
+
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		return $handler->handle($request);
 	}
