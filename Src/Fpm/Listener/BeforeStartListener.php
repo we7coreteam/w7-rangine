@@ -55,7 +55,7 @@ class BeforeStartListener extends ListenerAbstract {
 		if (isset($cookieConfig['http_only'])) {
 			ini_set('session.cookie_httponly', $cookieConfig['http_only']);
 		}
-		ini_set('session.auto_start', 'Off');
+		ini_set('session.serialize_handler', 'php_serialize');
 
 		$sessionConfig['prefix'] = '';
 		$this->getConfig()->set('app.session', $sessionConfig);
