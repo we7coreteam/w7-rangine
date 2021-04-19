@@ -193,7 +193,7 @@ class Session implements SessionInterface {
 			return true;
 		}
 
-		return $this->handler->close($this->getId());
+		return $this->handler->close($this->prefix . $this->getId());
 	}
 
 	public function gc() {
