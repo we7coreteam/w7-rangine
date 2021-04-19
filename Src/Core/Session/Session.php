@@ -12,6 +12,7 @@
 
 namespace W7\Core\Session;
 
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Contract\Session\SessionInterface;
@@ -34,6 +35,7 @@ class Session implements SessionInterface {
 	protected $handler;
 	protected $cache;
 	protected $sessionId;
+	protected $useBuiltInUsage = null;
 
 	public function __construct($config = []) {
 		$this->config = $config;
@@ -66,11 +68,23 @@ class Session implements SessionInterface {
 		return $this->handler;
 	}
 
-	public function start(ServerRequestInterface $request) {
+	public function start(ServerRequestInterface $request, $useBuiltUsage = false) {
 		$this->cache = null;
+		$this->useBuiltInUsage = $useBuiltUsage;
 
 		$this->initChannel($request);
 		$this->initHandler();
+
+		if ($useBuiltUsage) {
+			//第二个参数表示shudown后，保存session数据并执行close，释放session锁，不释放会导致同一个sessionid的请求处于等待状态(session_start被调用的时候，该文件是被锁住的)
+			session_set_save_handler($this->getHandler(), true);
+			//执行session_start才能触发php默认的gc
+			//启动”session_start” 会自动执行,open,read函数，然后页面执行完，会执行shutdown函数，最后会把session写入进去，然后执行close关闭文件
+			session_status() != PHP_SESSION_ACTIVE && session_start();
+			if (session_status() != PHP_SESSION_ACTIVE) {
+				throw new Exception('session startup fail, check the session configuration or the save_path directory permissions');
+			}
+		}
 	}
 
 	public function getName() {
@@ -87,7 +101,7 @@ class Session implements SessionInterface {
 			//１：fpm下session_start会自动触发create_sid,再次调用会报错
 			//２：保证handler的create_sid功能单一
 			//３：不在fpm下单独处理，涉及到channel setSessionId问题
-			if (isCli()) {
+			if (!$this->useBuiltInUsage) {
 				$sessionId = $this->handler->create_sid();
 			} else {
 				$sessionId = session_id();
@@ -104,11 +118,19 @@ class Session implements SessionInterface {
 	public function setId($sessionId) {
 		$this->sessionId = $sessionId;
 		$this->cache = null;
+
+		if ($this->useBuiltInUsage) {
+			session_id($sessionId);
+		}
 	}
 
 	public function set($key, $value) {
-		$data = $this->readSession();
+		if ($this->useBuiltInUsage) {
+			$_SESSION[$key] = $value;
+			return true;
+		}
 
+		$data = $this->readSession();
 		$data[$key] = $value;
 		$this->cache[$key] = $value;
 		return $this->handler->write($this->prefix . $this->getId(), $this->handler->pack($data));
@@ -128,6 +150,15 @@ class Session implements SessionInterface {
 
 	public function delete($keys) {
 		$keys = (array)$keys;
+		if ($this->useBuiltInUsage) {
+			foreach ($keys as $key) {
+				if (isset($_SESSION[$key])) {
+					unset($_SESSION[$key]);
+				}
+			}
+			return true;
+		}
+
 		$sessionData = $this->readSession();
 		foreach ($keys as $key) {
 			if (isset($sessionData[$key])) {
@@ -147,12 +178,22 @@ class Session implements SessionInterface {
 	}
 
 	public function destroy() {
+		if ($this->useBuiltInUsage) {
+			session_destroy();
+			return true;
+		}
+
 		$this->cache = null;
 		return $this->handler->destroy($this->prefix . $this->getId());
 	}
 
 	public function close() {
-		return $this->handler->close($this->getRealId());
+		if ($this->useBuiltInUsage) {
+			session_write_close();
+			return true;
+		}
+
+		return $this->handler->close($this->prefix . $this->getId());
 	}
 
 	public function gc() {
@@ -171,12 +212,11 @@ class Session implements SessionInterface {
 		return $this->channel->replenishResponse($response, $this->getId());
 	}
 
-	protected function getRealId() {
-		return $this->prefix . $this->getId();
-	}
-
 	protected function readSession() {
-		//只读一次, 防止在临界点上,第一次读有数据,第二次读不到
+		if ($this->useBuiltInUsage) {
+			return $_SESSION;
+		}
+
 		if (isset($this->cache)) {
 			return $this->cache;
 		}
