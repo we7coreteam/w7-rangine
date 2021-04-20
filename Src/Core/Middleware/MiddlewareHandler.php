@@ -50,7 +50,7 @@ class MiddlewareHandler implements RequestHandlerInterface {
 	public function handle(ServerRequestInterface $request): ResponseInterface {
 		$handlerMiddleware = $this->middlewares[$this->offset];
 
-		$handler = $handlerMiddleware[0]['class'];
+		$handler = $handlerMiddleware['class'];
 		if (!class_exists($handler)) {
 			throw new \InvalidArgumentException($handler . ' Handler not found.');
 		}
@@ -60,7 +60,7 @@ class MiddlewareHandler implements RequestHandlerInterface {
 			throw new \InvalidArgumentException('Invalid Handler. It must be an instance of MiddlewareInterface');
 		}
 
-		return $handler->process($request, $this->next(), ...($handlerMiddleware[0]['arg'] ?? []));
+		return $handler->process($request, $this->next(), ...($handlerMiddleware['arg'] ?? []));
 	}
 
 	/**

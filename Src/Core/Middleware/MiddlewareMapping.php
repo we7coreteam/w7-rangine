@@ -28,16 +28,12 @@ class MiddlewareMapping {
 
 	public static function pretreatmentMiddlewares($middlewares) {
 		if (!is_array($middlewares) || isset($middlewares['class'])) {
-			$middlewares = func_get_args();
 			$middlewares = [$middlewares];
 		}
 		$pretreatmentMiddlewares = [];
 		foreach ($middlewares as $i => $middleware) {
-			if (!is_array($middleware) || isset($middleware['class'])) {
-				$middleware = [$middleware];
-			}
-			if (!isset($middleware[0]['class'])) {
-				$middleware = [self::pretreatmentMiddleware($middleware[0])];
+			if (!isset($middleware['class'])) {
+				$middleware = self::pretreatmentMiddleware($middleware);
 			}
 			$pretreatmentMiddlewares[] = $middleware;
 		}
@@ -54,17 +50,17 @@ class MiddlewareMapping {
 
 	public function addBeforeMiddleware(string $middleware, $unshift = false) {
 		if ($unshift) {
-			array_unshift($this->beforeMiddleware, [self::pretreatmentMiddleware($middleware)]);
+			array_unshift($this->beforeMiddleware, self::pretreatmentMiddleware($middleware));
 		} else {
-			$this->beforeMiddleware[] = [self::pretreatmentMiddleware($middleware)];
+			$this->beforeMiddleware[] = self::pretreatmentMiddleware($middleware);
 		}
 	}
 
 	public function addAfterMiddleware(string $middleware, $unshift = false) {
 		if ($unshift) {
-			array_unshift($this->afterMiddleware, [self::pretreatmentMiddleware($middleware)]);
+			array_unshift($this->afterMiddleware, self::pretreatmentMiddleware($middleware));
 		} else {
-			$this->afterMiddleware[] = [self::pretreatmentMiddleware($middleware)];
+			$this->afterMiddleware[] = self::pretreatmentMiddleware($middleware);
 		}
 	}
 
@@ -72,7 +68,7 @@ class MiddlewareMapping {
 	 * 获取系统最后的中间件
 	 */
 	protected function getLastMiddleware() {
-		return [[self::pretreatmentMiddleware(LastMiddleware::class)]];
+		return [self::pretreatmentMiddleware(LastMiddleware::class)];
 	}
 
 	protected function getControllerMiddleware() {
@@ -82,9 +78,9 @@ class MiddlewareMapping {
 
 		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', StringHelper::studly(App::$server->getType()));
 		if (class_exists($class)) {
-			return [[self::pretreatmentMiddleware($class)]];
+			return [self::pretreatmentMiddleware($class)];
 		} else {
-			return [[self::pretreatmentMiddleware(ControllerMiddleware::class)]];
+			return [self::pretreatmentMiddleware(ControllerMiddleware::class)];
 		}
 	}
 
