@@ -13,10 +13,11 @@
 use W7\App;
 use W7\Core\Helper\Compate\FpmHelper;
 use W7\Core\Helper\Compate\SwooleHelper;
+use W7\Core\Helper\Storage\Context;
 
 if (!function_exists('isCli')) {
 	function isCli() {
-		return PHP_SAPI == 'cli';
+		return PHP_SAPI === 'cli';
 	}
 }
 
@@ -26,13 +27,13 @@ if (!function_exists('isCo')) {
 	 * @return bool
 	 */
 	function isCo():bool {
-		return App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class)->getCoroutineId() > 0;
+		return App::getApp()->getContainer()->singleton(Context::class)->getCoroutineId() > 0;
 	}
 }
 
 if (!function_exists('getClientIp')) {
 	function getClientIp() {
-		$request = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class)->getRequest();
+		$request = App::getApp()->getContainer()->singleton(Context::class)->getRequest();
 		$serverParams = $request->getServerParams();
 		$xForwardedFor = !empty($serverParams['HTTP_X_FORWARDED_FOR']) ? $serverParams['HTTP_X_FORWARDED_FOR'] : ($request->getHeader('X-Forwarded-For')[0] ?? '');
 
@@ -126,7 +127,7 @@ if (!function_exists('isWorkerStatus')) {
 
 if (!function_exists('isetProcessTitle')) {
 	function isetProcessTitle($title) {
-		if (\stripos(PHP_OS, 'Darwin') !== false) {
+		if (\stripos(PHP_OS_FAMILY, 'Darwin') !== false) {
 			return true;
 		}
 		if (\function_exists('cli_set_process_title')) {

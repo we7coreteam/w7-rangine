@@ -19,11 +19,13 @@ use W7\Core\Helper\FileLoader;
 use W7\Core\Server\ServerEnum;
 
 class RouteDispatcher extends GroupCountBased {
-	public static $routeCacheFileName = 'route.php';
+	public static function getRouteCacheFileName() {
+		return 'route.php';
+	}
 
 	public static function getDispatcherWithRouteMapping(string $routeMapping, $routeCacheGroup = ServerEnum::TYPE_HTTP) {
 		if (App::getApp()->routeIsCached()) {
-			$routeCacheFile = App::getApp()->getRouteCachePath() . $routeCacheGroup . '.' . self::$routeCacheFileName;
+			$routeCacheFile = App::getApp()->getRouteCachePath() . $routeCacheGroup . '.' . self::getRouteCacheFileName();
 			$routeDefinitions = require $routeCacheFile;
 			if (!is_array($routeDefinitions)) {
 				throw new \RuntimeException('Invalid cache file "' . $routeCacheFile . '"');
@@ -34,7 +36,7 @@ class RouteDispatcher extends GroupCountBased {
 			 * @var RouteMapping $routeMapping
 			 */
 			$basePath = App::getApp()->getBasePath();
-			$fileLoader = new FileLoader($basePath);
+			$fileLoader = new FileLoader($basePath, App::getApp()->getConfigger()->get('app.setting.file_ignore', []));
 			$routeMapping = new $routeMapping($container->singleton(RouterInterface::class), $fileLoader);
 			$routeDefinitions = $routeMapping->getMapping($basePath . '/route');
 		}

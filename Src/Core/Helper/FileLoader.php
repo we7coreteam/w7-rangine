@@ -12,16 +12,14 @@
 
 namespace W7\Core\Helper;
 
-use W7\App;
-
 class FileLoader {
-	protected $ignoreFiles;
-	protected $loadRules;
-	protected $loadDir;
+	protected $ignoreFiles = null;
+	protected $ignoreRules;
+	protected $rootDir;
 
-	public function __construct($loadDir) {
-		$this->loadDir = $loadDir;
-		$this->loadRules = App::getApp()->getConfigger()->get('app.setting.file_ignore', []);
+	public function __construct($rootDir, array $ignoreRules = []) {
+		$this->rootDir = $rootDir;
+		$this->ignoreRules = $ignoreRules;
 	}
 
 	public function getIgnoreFiles() {
@@ -29,30 +27,30 @@ class FileLoader {
 			return $this->ignoreFiles;
 		}
 
-		$loadDir = $this->loadDir;
+		$rootDir = $this->rootDir;
 		$matches = array();
-		foreach ($this->loadRules as $loadRule) {
-			$loadRule = trim($loadRule);
-			if ($loadRule === '') {
+		foreach ($this->ignoreRules as $ignoreRule) {
+			$ignoreRule = trim($ignoreRule);
+			if ($ignoreRule === '') {
 				continue;
 			}
-			if (substr($loadRule, 0, 1) == '#') {
+			if (substr($ignoreRule, 0, 1) == '#') {
 				continue;
 			}
-			if (substr($loadRule, 0, 1) == '!') {
-				$loadRule = substr($loadRule, 1);
+			if (substr($ignoreRule, 0, 1) == '!') {
+				$ignoreRule = substr($ignoreRule, 1);
 
 				//!route/test.php 只会处理route目录下的包含关系
-				$parentDir = dirname($loadRule);
-				$parentLoadRule = $loadDir;
+				$parentDir = dirname($ignoreRule);
+				$parentLoadDir = $rootDir;
 				if ($parentDir != '.' && $parentDir != '..') {
-					$parentLoadRule .= '/' . $parentDir;
+					$parentLoadDir .= '/' . $parentDir;
 				}
-				$files = array_diff(glob("$parentLoadRule/*"), glob("$loadDir/$loadRule"));
+				$files = array_diff(glob("$parentLoadDir/*"), glob("$rootDir/$ignoreRule"));
 			} else {
-				$files = glob("$loadDir/$loadRule");
+				$files = glob("$rootDir/$ignoreRule");
 			}
-			$matches = array_merge($matches, $files);
+			$matches = array_merge($matches, (array)$files);
 		}
 
 		return $this->ignoreFiles = $matches;
