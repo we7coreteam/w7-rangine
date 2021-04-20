@@ -34,16 +34,16 @@ class FileLoader {
 			if ($ignoreRule === '') {
 				continue;
 			}
-			if (substr($ignoreRule, 0, 1) == '#') {
+			if ($ignoreRule[0] === '#') {
 				continue;
 			}
-			if (substr($ignoreRule, 0, 1) == '!') {
+			if ($ignoreRule[0] === '!') {
 				$ignoreRule = substr($ignoreRule, 1);
 
 				//!route/test.php 只会处理route目录下的包含关系
 				$parentDir = dirname($ignoreRule);
 				$parentLoadDir = $rootDir;
-				if ($parentDir != '.' && $parentDir != '..') {
+				if ($parentDir !== '.' && $parentDir !== '..') {
 					$parentLoadDir .= '/' . $parentDir;
 				}
 				$files = array_diff(glob("$parentLoadDir/*"), glob("$rootDir/$ignoreRule"));
@@ -59,7 +59,7 @@ class FileLoader {
 	public function isIgnoreFile($file) {
 		$ignoreFiles = $this->getIgnoreFiles();
 		foreach ($ignoreFiles as $ignoreFile) {
-			if ($file == $ignoreFile || strpos($file, $ignoreFile) === 0) {
+			if ($file === $ignoreFile || strpos($file, $ignoreFile) === 0) {
 				return true;
 			}
 		}

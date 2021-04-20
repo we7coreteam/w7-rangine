@@ -12,12 +12,12 @@
 
 namespace W7\Core\Exception;
 
+use Illuminate\Support\Str;
 use W7\App;
 use W7\Console\Io\Output;
 use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
 use W7\Core\Exception\Handler\ExceptionHandler;
 use W7\Core\Helper\Traiter\AppCommonTrait;
-use W7\Core\Helper\StringHelper;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Response;
 
@@ -84,7 +84,7 @@ class HandlerExceptions {
 	}
 
 	protected function getServerExceptionFormatter($serverType) : ExceptionFormatterInterface {
-		$class = sprintf('W7\\%s\\Exception\\Formatter\\ExceptionFormatter', StringHelper::studly($serverType));
+		$class = sprintf('W7\\%s\\Exception\\Formatter\\ExceptionFormatter', Str::studly($serverType));
 		return new $class();
 	}
 
@@ -103,7 +103,6 @@ class HandlerExceptions {
 		try {
 			$handler->report($throwable);
 		} catch (\Throwable $e) {
-			null;
 		}
 
 		$response = $this->getContext()->getResponse();

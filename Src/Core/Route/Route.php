@@ -12,10 +12,10 @@
 
 namespace W7\Core\Route;
 
+use Illuminate\Support\Str;
 use Psr\Http\Message\RequestInterface;
 use W7\App;
 use W7\Contract\Router\RouteInterface;
-use W7\Core\Helper\StringHelper;
 use W7\Core\Middleware\MiddlewareMapping;
 
 class Route implements RouteInterface {
@@ -95,7 +95,7 @@ class Route implements RouteInterface {
 			$controllerHandler = $this->handler;
 		} else {
 			list($controller, $method) = $this->handler;
-			$method = StringHelper::studly($method);
+			$method = Str::studly($method);
 			$classObj = App::getApp()->getContainer()->singleton($controller);
 			if (!method_exists($classObj, $method)) {
 				throw new \BadMethodCallException("method {$method} not available at class {$controller}");

@@ -13,6 +13,7 @@
 namespace W7\Core\Provider;
 
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 use W7\App;
 use W7\Console\Application;
 use W7\Contract\Config\RepositoryInterface;
@@ -20,7 +21,6 @@ use W7\Contract\Logger\LoggerFactoryInterface;
 use W7\Contract\Router\RouterInterface;
 use W7\Contract\View\ViewInterface;
 use W7\Core\Container\Container;
-use W7\Core\Helper\StringHelper;
 use W7\Core\Helper\Traiter\AppCommonTrait;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
@@ -54,7 +54,7 @@ abstract class ProviderAbstract {
 		$this->name = $name;
 		if ($this->packageName) {
 			$this->rootPath = App::getApp()->getBasePath() . '/vendor/' . $this->packageName;
-			!$this->packageNamespace && $this->packageNamespace = str_replace('/', '\\', StringHelper::studly($this->packageName));
+			!$this->packageNamespace && $this->packageNamespace = str_replace('/', '\\', Str::studly($this->packageName));
 		} else {
 			$reflect = new \ReflectionClass($this);
 			$this->packageNamespace = $reflect->getNamespaceName();

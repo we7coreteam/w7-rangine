@@ -12,8 +12,8 @@
 
 namespace W7\Core\Server;
 
+use Illuminate\Support\Str;
 use W7\Core\Helper\Traiter\AppCommonTrait;
-use W7\Core\Helper\StringHelper;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
 use W7\Core\Listener\ManagerStopListener;
@@ -191,7 +191,7 @@ class ServerEvent {
 	public function registerServerCustomEvent($server) {
 		//注册server下的自定义事件
 		foreach ($this->getUserEvent() as $eventName) {
-			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', StringHelper::studly($server), ucfirst($eventName));
+			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', Str::studly($server), ucfirst($eventName));
 			$this->getEventDispatcher()->listen($eventName, $listener);
 		}
 	}

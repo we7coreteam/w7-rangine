@@ -12,8 +12,8 @@
 
 namespace W7\Core\Middleware;
 
+use Illuminate\Support\Str;
 use W7\App;
-use W7\Core\Helper\StringHelper;
 use W7\Core\Route\Route;
 
 class MiddlewareMapping {
@@ -76,7 +76,7 @@ class MiddlewareMapping {
 			return [];
 		}
 
-		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', StringHelper::studly(App::$server->getType()));
+		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', Str::studly(App::$server->getType()));
 		if (class_exists($class)) {
 			return [self::pretreatmentMiddleware($class)];
 		} else {
