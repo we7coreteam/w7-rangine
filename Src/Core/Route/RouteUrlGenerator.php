@@ -134,8 +134,18 @@ class RouteUrlGenerator {
 	 */
 	protected function formatDomain($route, &$parameters) {
 		return $this->addPortToDomain(
-			$this->getRouteScheme($route)
+			$this->getRouteRoot($route, $this->getRouteScheme($route))
 		);
+	}
+
+	/**
+	 * Get the scheme for the given route.
+	 *
+	 * @param  Route  $route
+	 * @return string
+	 */
+	protected function getRouteRoot($route, $secheme) {
+		return $this->url->formatRoot($secheme);
 	}
 
 	/**
@@ -252,7 +262,7 @@ class RouteUrlGenerator {
 
 		$uri .= $this->getRouteQueryString($parameters);
 
-		return is_null($fragment) ? $uri : $uri."#{$fragment}";
+		return (is_null($fragment) || $fragment === false) ? $uri : $uri."#{$fragment}";
 	}
 
 	/**

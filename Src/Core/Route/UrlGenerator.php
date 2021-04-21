@@ -135,9 +135,9 @@ class UrlGenerator {
 		$tail = implode(
 			'/',
 			array_map(
-			'rawurlencode',
-			(array) $this->formatParameters($extra)
-		)
+				'rawurlencode',
+				(array) $this->formatParameters($extra)
+			)
 		);
 
 		// Once we have the scheme we will compile the "tail" by collapsing the values
@@ -241,8 +241,7 @@ class UrlGenerator {
 		return $this->cachedScheme;
 	}
 
-	public function route($name, $parameters = []) {
-		$absolute = false;
+	public function route($name, $parameters = [], $absolute = false) {
 		if (! is_null($route = $this->routeCollector->getRouteByName($name))) {
 			return $this->toRoute($route, $parameters, $absolute);
 		}
@@ -295,7 +294,7 @@ class UrlGenerator {
 	public function formatRoot($scheme, $root = null) {
 		if (is_null($root)) {
 			if (is_null($this->cachedRoot)) {
-				$this->cachedRoot = $this->forcedRoot ?: $this->request->getUri()->getHost();
+				$this->cachedRoot = $this->forcedRoot ?: ($this->getRequest()->getUri()->getScheme() . '://' . $this->request->getUri()->getHost());
 			}
 
 			$root = $this->cachedRoot;
