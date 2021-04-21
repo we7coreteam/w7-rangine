@@ -19,8 +19,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use Psr\Http\Message\RequestInterface;
 use RuntimeException;
+use W7\Contract\Router\UrlGeneratorInterface;
 
-class UrlGenerator {
+class UrlGenerator implements UrlGeneratorInterface {
 	use InteractsWithTime, Macroable;
 
 	/**
@@ -31,9 +32,9 @@ class UrlGenerator {
 	protected $routeCollector;
 
 	/**
-	 * @var RequestInterface
+	 * @var Closure
 	 */
-	protected $request;
+	protected $requestResolver;
 
 	/**
 	 * The asset root URL.
@@ -91,20 +92,10 @@ class UrlGenerator {
 	 */
 	protected $routeGenerator;
 
-	public function __construct(RouteCollector $routeCollector, RequestInterface $request, $assetRoot = null) {
+	public function __construct(RouteCollector $routeCollector, Closure $requestResolver, $assetRoot = null) {
 		$this->routeCollector = $routeCollector;
 		$this->assetRoot = $assetRoot;
-
-		$this->setRequest($request);
-	}
-
-	/**
-	 * Get the full URL for the current request.
-	 *
-	 * @return string
-	 */
-	public function full() {
-		return $this->request->fullUrl();
+		$this->requestResolver = $requestResolver;
 	}
 
 	/**
@@ -113,7 +104,7 @@ class UrlGenerator {
 	 * @return string
 	 */
 	public function current() {
-		return $this->to($this->request->getUri()->getPath());
+		return $this->to($this->getRequest()->getUri()->getPath());
 	}
 
 	/**
@@ -235,14 +226,14 @@ class UrlGenerator {
 		}
 
 		if (is_null($this->cachedScheme)) {
-			$this->cachedScheme = $this->forceScheme ?: $this->request->getUri()->getScheme().'://';
+			$this->cachedScheme = $this->forceScheme ?: $this->getRequest()->getUri()->getScheme().'://';
 		}
 
 		return $this->cachedScheme;
 	}
 
 	public function route($name, $parameters = [], $absolute = false) {
-		if (! is_null($route = $this->routeCollector->getRouteByName($name))) {
+		if (!is_null($route = $this->routeCollector->getRouteByName($name))) {
 			return $this->toRoute($route, $parameters, $absolute);
 		}
 
@@ -294,7 +285,7 @@ class UrlGenerator {
 	public function formatRoot($scheme, $root = null) {
 		if (is_null($root)) {
 			if (is_null($this->cachedRoot)) {
-				$this->cachedRoot = $this->forcedRoot ?: ($this->getRequest()->getUri()->getScheme() . '://' . $this->request->getUri()->getHost());
+				$this->cachedRoot = $this->forcedRoot ?: ($this->getRequest()->getUri()->getScheme() . '://' . $this->getRequest()->getUri()->getHost());
 			}
 
 			$root = $this->cachedRoot;
@@ -343,7 +334,7 @@ class UrlGenerator {
 
 	protected function routeUrl() {
 		if (! $this->routeGenerator) {
-			$this->routeGenerator = new RouteUrlGenerator($this, $this->request);
+			$this->routeGenerator = new RouteUrlGenerator($this, $this->getRequest());
 		}
 
 		return $this->routeGenerator;
@@ -376,7 +367,6 @@ class UrlGenerator {
 	 */
 	public function forceScheme($scheme) {
 		$this->cachedScheme = null;
-
 		$this->forceScheme = $scheme ? $scheme.'://' : null;
 	}
 
@@ -388,7 +378,6 @@ class UrlGenerator {
 	 */
 	public function forceRootUrl($root) {
 		$this->forcedRoot = $root ? rtrim($root, '/') : null;
-
 		$this->cachedRoot = null;
 	}
 
@@ -400,7 +389,6 @@ class UrlGenerator {
 	 */
 	public function formatHostUsing(Closure $callback) {
 		$this->formatHostUsing = $callback;
-
 		return $this;
 	}
 
@@ -412,7 +400,6 @@ class UrlGenerator {
 	 */
 	public function formatPathUsing(Closure $callback) {
 		$this->formatPathUsing = $callback;
-
 		return $this;
 	}
 
@@ -427,23 +414,12 @@ class UrlGenerator {
 		};
 	}
 
+	/**
+	 * @return RequestInterface
+	 */
 	public function getRequest() {
-		return $this->request;
-	}
-
-	public function setRequest(RequestInterface $request) {
-		$this->request = $request;
-
-		$this->cachedRoot = null;
-		$this->cachedScheme = null;
-
-		tap(optional($this->routeGenerator)->defaultParameters ?: [], function ($defaults) {
-			$this->routeGenerator = null;
-
-			if (! empty($defaults)) {
-				$this->defaults($defaults);
-			}
-		});
+		$requestResolver = $this->requestResolver;
+		return $requestResolver();
 	}
 
 	public function getRouteCollector() {
@@ -452,7 +428,6 @@ class UrlGenerator {
 
 	public function setRouteCollector(RouteCollector $routeCollector) {
 		$this->routeCollector = $routeCollector;
-
 		return $this;
 	}
 }
