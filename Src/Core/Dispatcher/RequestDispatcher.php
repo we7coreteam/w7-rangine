@@ -111,6 +111,7 @@ class RequestDispatcher extends DispatcherAbstract {
 
 		return new Route(
 			$routeData[1]['name'],
+			$url,
 			$routeData[1]['module'],
 			$routeData[1]['handler'],
 			$routeData[2] ?? [],

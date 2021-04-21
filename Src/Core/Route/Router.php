@@ -289,6 +289,7 @@ class Router implements RouterInterface {
 					throw new \RuntimeException('route "' . $routeHandler['uri'] . '" for method "' . $method . '" exists in ' . $route[1]['module']);
 				}
 			}
+			throw $e;
 		}
 
 		return true;
