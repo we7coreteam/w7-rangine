@@ -218,7 +218,7 @@ class RouteUrlGenerator {
 	 * @return string
 	 */
 	protected function replaceNamedParameters($path, &$parameters) {
-		$path = preg_replace_callback('/\[\/\{(.*?)\}\]/', function ($m) use (&$parameters) {
+		$path = preg_replace_callback('/\[\/\{(.*?)(:.*)?\}\]/', function ($m) use (&$parameters) {
 			if (isset($parameters[$m[1]]) && $parameters[$m[1]] !== '') {
 				return '/' . Arr::pull($parameters, $m[1]);
 			}
