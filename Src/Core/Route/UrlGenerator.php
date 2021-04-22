@@ -233,7 +233,17 @@ class UrlGenerator implements UrlGeneratorInterface {
 	}
 
 	public function route($name, $parameters = [], $absolute = false) {
-		if (!is_null($route = $this->routeCollector->getRouteByName($name))) {
+		$routeData = $this->routeCollector->getRouteByName($name);
+		if (!is_null($routeData)) {
+			$route = new Route(
+				$routeData['name'],
+				$routeData['uri'],
+				$routeData['module'],
+				$routeData['handler'],
+				[],
+				$routeData['middleware']['before'] ?? [],
+				$routeData['defaults'] ?? []
+			);
 			return $this->toRoute($route, $parameters, $absolute);
 		}
 

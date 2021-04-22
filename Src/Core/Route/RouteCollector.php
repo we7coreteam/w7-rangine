@@ -23,20 +23,16 @@ class RouteCollector extends \FastRoute\RouteCollector {
 		return $this->currentGroupPrefix;
 	}
 
+	public function addRouteByName($name, array $routeData) {
+		$this->routeNameMap[$name] = $routeData;
+	}
+
 	public function getRouteByName($name) {
 		if (!$routeData = ($this->routeNameMap[$name] ?? [])) {
 			throw new RuntimeException('route name ' . $name . ' not exists');
 		}
 
-		return new Route(
-			$routeData['name'],
-			$routeData['uri'],
-			$routeData['module'],
-			$routeData['handler'],
-			[],
-			$routeData['middleware']['before'] ?? [],
-			$routeData['defaults'] ?? []
-		);
+		return $routeData;
 	}
 
 	public function registerValidator(ValidatorInterface $validator) {
@@ -46,9 +42,6 @@ class RouteCollector extends \FastRoute\RouteCollector {
 	public function addRoute($httpMethod, $route, $handler) {
 		if ($this->validate($httpMethod, $route, $handler)) {
 			parent::addRoute($httpMethod, $route, $handler);
-			if (!empty($handler['name'])) {
-				$this->routeNameMap[$handler['name']] = $handler;
-			}
 		}
 	}
 

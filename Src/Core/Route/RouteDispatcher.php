@@ -19,11 +19,17 @@ use W7\Core\Helper\FileLoader;
 use W7\Core\Server\ServerEnum;
 
 class RouteDispatcher extends GroupCountBased {
+	protected static $routeDefinitionMap = [];
+
 	public static function getRouteCacheFileName() {
 		return 'route.php';
 	}
 
-	public static function getDispatcherWithRouteMapping(string $routeMapping, $routeCacheGroup = ServerEnum::TYPE_HTTP) {
+	public static function getRouteDefinetions(string $routeMapping, $routeCacheGroup = ServerEnum::TYPE_HTTP) {
+		if (isset(static::$routeDefinitionMap[$routeCacheGroup])) {
+			return static::$routeDefinitionMap[$routeCacheGroup];
+		}
+
 		if (App::getApp()->routeIsCached()) {
 			$routeCacheFile = App::getApp()->getRouteCachePath() . $routeCacheGroup . '.' . self::getRouteCacheFileName();
 			$routeDefinitions = require $routeCacheFile;
@@ -40,6 +46,13 @@ class RouteDispatcher extends GroupCountBased {
 			$routeMapping = new $routeMapping($container->singleton(RouterInterface::class), $fileLoader);
 			$routeDefinitions = $routeMapping->getMapping($basePath . '/route');
 		}
+		static::$routeDefinitionMap[$routeCacheGroup] = $routeDefinitions;
+
+		return $routeDefinitions;
+	}
+
+	public static function getDispatcherWithRouteMapping(string $routeMapping, $routeCacheGroup = ServerEnum::TYPE_HTTP) {
+		$routeDefinitions = static::getRouteDefinetions($routeMapping, $routeCacheGroup);
 
 		return new static($routeDefinitions);
 	}

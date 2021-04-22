@@ -19,6 +19,8 @@ use W7\Contract\Router\RouterInterface;
 use W7\Contract\Router\UrlGeneratorInterface;
 use W7\Core\Provider\ProviderAbstract;
 use W7\Core\Route\RouteCollector;
+use W7\Core\Route\RouteDispatcher;
+use W7\Core\Route\RouteMapping;
 use W7\Core\Route\Router;
 use W7\Core\Route\UrlGenerator;
 
@@ -36,6 +38,24 @@ class RouterProvider extends ProviderAbstract {
 		});
 
 		$this->container->set(UrlGeneratorInterface::class, function () use ($routeCollector) {
+			$routeDefinitions = RouteDispatcher::getRouteDefinetions(RouteMapping::class, App::$server->getType());
+			foreach ($routeDefinitions[0] as $method => $routes) {
+				foreach ($routes as $key => $route) {
+					if (!empty($route['name'])) {
+						$routeCollector->addRouteByName($route['name'], $route);
+					}
+				}
+			}
+			foreach ($routeDefinitions[1] as $method => $routeGroup) {
+				foreach ($routeGroup as $routes) {
+					foreach ($routes['routeMap'] as $route) {
+						$route = $route[0];
+						if (!empty($route['name'])) {
+							$routeCollector->addRouteByName($route['name'], $route);
+						}
+					}
+				}
+			}
 			return new UrlGenerator($routeCollector, function () {
 				return $this->getContext()->getRequest();
 			});
