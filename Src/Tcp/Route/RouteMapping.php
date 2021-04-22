@@ -50,6 +50,7 @@ class RouteMapping extends RouteMappingAbstract {
 					if (!in_array($route['uri'], $registerRoutes)) {
 						$this->router->getRouterCollector()->addRoute('POST', $route['uri'], $route);
 					}
+					$registerRoutes[] = $route['uri'];
 				}
 			}
 		}
