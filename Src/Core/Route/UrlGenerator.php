@@ -14,16 +14,12 @@ namespace W7\Core\Route;
 
 use Closure;
 use Illuminate\Support\Arr;
-use Illuminate\Support\InteractsWithTime;
 use Illuminate\Support\Str;
-use Illuminate\Support\Traits\Macroable;
 use Psr\Http\Message\RequestInterface;
 use RuntimeException;
 use W7\Contract\Router\UrlGeneratorInterface;
 
 class UrlGenerator implements UrlGeneratorInterface {
-	use InteractsWithTime, Macroable;
-
 	/**
 	 * The route collection.
 	 *
@@ -186,23 +182,6 @@ class UrlGenerator implements UrlGeneratorInterface {
 	}
 
 	/**
-	 * Generate the URL to an asset from a custom root domain such as CDN, etc.
-	 *
-	 * @param  string  $root
-	 * @param  string  $path
-	 * @param  bool|null  $secure
-	 * @return string
-	 */
-	public function assetFrom($root, $path, $secure = null) {
-		// Once we get the root URL, we will check to see if it contains an index.php
-		// file in the paths. If it does, we will remove it since it is not needed
-		// for asset paths, but only for routes to endpoints in the application.
-		$root = $this->formatRoot($this->formatScheme($secure), $root);
-
-		return $this->removeIndex($root).'/'.trim($path, '/');
-	}
-
-	/**
 	 * Remove the index.php file from a path.
 	 *
 	 * @param  string  $root
@@ -359,70 +338,6 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 */
 	public function defaults(array $defaults) {
 		$this->routeUrl()->defaults($defaults);
-	}
-
-	/**
-	 * Get the default named parameters used by the URL generator.
-	 *
-	 * @return array
-	 */
-	public function getDefaultParameters() {
-		return $this->routeUrl()->defaultParameters;
-	}
-
-	/**
-	 * Force the scheme for URLs.
-	 *
-	 * @param  string|null  $scheme
-	 * @return void
-	 */
-	public function forceScheme($scheme) {
-		$this->cachedScheme = null;
-		$this->forceScheme = $scheme ? $scheme.'://' : null;
-	}
-
-	/**
-	 * Set the forced root URL.
-	 *
-	 * @param  string|null  $root
-	 * @return void
-	 */
-	public function forceRootUrl($root) {
-		$this->forcedRoot = $root ? rtrim($root, '/') : null;
-		$this->cachedRoot = null;
-	}
-
-	/**
-	 * Set a callback to be used to format the host of generated URLs.
-	 *
-	 * @param  \Closure  $callback
-	 * @return $this
-	 */
-	public function formatHostUsing(Closure $callback) {
-		$this->formatHostUsing = $callback;
-		return $this;
-	}
-
-	/**
-	 * Set a callback to be used to format the path of generated URLs.
-	 *
-	 * @param  \Closure  $callback
-	 * @return $this
-	 */
-	public function formatPathUsing(Closure $callback) {
-		$this->formatPathUsing = $callback;
-		return $this;
-	}
-
-	/**
-	 * Get the path formatter being used by the URL generator.
-	 *
-	 * @return \Closure
-	 */
-	public function pathFormatter() {
-		return $this->formatPathUsing ?: function ($path) {
-			return $path;
-		};
 	}
 
 	/**
