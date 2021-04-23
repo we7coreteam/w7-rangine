@@ -211,7 +211,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 		return $this->cachedScheme;
 	}
 
-	public function route($name, $parameters = [], $absolute = false) {
+	public function route($name, $parameters = [], $absolute = true) {
 		$routeData = $this->routeCollector->getRouteByName($name);
 		if (!is_null($routeData)) {
 			$route = new Route(
@@ -274,8 +274,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	public function formatRoot($scheme, $root = null) {
 		if (is_null($root)) {
 			if (is_null($this->cachedRoot)) {
-//				$this->cachedRoot = $this->forcedRoot ?: ($this->getRequest()->getUri()->getScheme() . '://' . $this->getRequest()->getUri()->getHost());
-				$this->cachedRoot = $this->forcedRoot ?: '';
+				$this->cachedRoot = $this->forcedRoot ?: ($this->getRequest()->getUri()->getScheme() . '://' . $this->getRequest()->getUri()->getHost());
 			}
 
 			$root = $this->cachedRoot;
