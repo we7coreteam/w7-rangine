@@ -295,7 +295,8 @@ class UrlGenerator implements UrlGeneratorInterface {
 	public function formatRoot($scheme, $root = null) {
 		if (is_null($root)) {
 			if (is_null($this->cachedRoot)) {
-				$this->cachedRoot = $this->forcedRoot ?: ($this->getRequest()->getUri()->getScheme() . '://' . $this->getRequest()->getUri()->getHost());
+//				$this->cachedRoot = $this->forcedRoot ?: ($this->getRequest()->getUri()->getScheme() . '://' . $this->getRequest()->getUri()->getHost());
+				$this->cachedRoot = $this->forcedRoot ?: '';
 			}
 
 			$root = $this->cachedRoot;
@@ -325,7 +326,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 			$path = call_user_func($this->formatPathUsing, $path, $route);
 		}
 
-		return trim($root.$path, '/');
+		return rtrim($root.$path, '/');
 	}
 
 	/**
