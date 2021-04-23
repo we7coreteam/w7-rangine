@@ -15,7 +15,7 @@ namespace W7\Core\Route;
 use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use W7\Contract\Router\UrlGeneratorInterface;
 
@@ -274,7 +274,8 @@ class UrlGenerator implements UrlGeneratorInterface {
 	public function formatRoot($scheme, $root = null) {
 		if (is_null($root)) {
 			if (is_null($this->cachedRoot)) {
-				$this->cachedRoot = $this->forcedRoot ?: ($this->getRequest()->getUri()->getScheme() . '://' . $this->getRequest()->getUri()->getHost());
+				$this->cachedRoot = $this->forcedRoot ?:
+					($this->getRequest()->getUri()->getScheme() . '://' . $this->getRequest()->getUri()->getHost() . ($this->getRequest()->getServerParams()['REQUEST_BASE_URL'] ?? ''));
 			}
 
 			$root = $this->cachedRoot;
@@ -340,7 +341,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	}
 
 	/**
-	 * @return RequestInterface
+	 * @return ServerRequestInterface
 	 */
 	public function getRequest() {
 		$requestResolver = $this->requestResolver;
