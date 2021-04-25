@@ -208,7 +208,7 @@ class Session implements SessionInterface {
 		}
 	}
 
-	public function replenishResponse(ResponseInterface $response) {
+	public function replenishResponse(ResponseInterface $response) : ResponseInterface {
 		return $this->channel->replenishResponse($response, $this->getId());
 	}
 
