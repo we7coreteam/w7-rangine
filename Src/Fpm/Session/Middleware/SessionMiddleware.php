@@ -22,6 +22,9 @@ class SessionMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		$request->session = $this->getContainer()->clone(SessionInterface::class);
 		$request->session->start($request, true);
+		$request->session->gc();
+
+		$this->getContext()->setResponse($request->session->replenishResponse($this->getContext()->getResponse()));
 
 		return $handler->handle($request);
 	}

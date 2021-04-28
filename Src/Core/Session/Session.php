@@ -12,7 +12,6 @@
 
 namespace W7\Core\Session;
 
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Contract\Session\SessionInterface;
@@ -78,13 +77,11 @@ class Session implements SessionInterface {
 		if ($useBuiltUsage) {
 			//第二个参数表示shudown后，保存session数据并执行close，释放session锁，不释放会导致同一个sessionid的请求处于等待状态(session_start被调用的时候，该文件是被锁住的)
 			session_set_save_handler($this->getHandler(), true);
-			//执行session_start才能触发php默认的gc
-			//启动”session_start” 会自动执行,open,read函数，然后页面执行完，会执行shutdown函数，最后会把session写入进去，然后执行close关闭文件
-			session_status() != PHP_SESSION_ACTIVE && session_start();
-			if (session_status() != PHP_SESSION_ACTIVE) {
-				throw new Exception('session startup fail, check the session configuration or the save_path directory permissions');
-			}
 		}
+	}
+
+	private function builtSessionIsStart() {
+		return session_status() == PHP_SESSION_ACTIVE;
 	}
 
 	public function getName() {
@@ -119,13 +116,13 @@ class Session implements SessionInterface {
 		$this->sessionId = $sessionId;
 		$this->cache = null;
 
-		if ($this->useBuiltInUsage) {
+		if ($this->useBuiltInUsage && !$this->builtSessionIsStart()) {
 			session_id($sessionId);
 		}
 	}
 
 	public function set($key, $value) {
-		if ($this->useBuiltInUsage) {
+		if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 			$_SESSION[$key] = $value;
 			return true;
 		}
@@ -150,7 +147,7 @@ class Session implements SessionInterface {
 
 	public function delete($keys) {
 		$keys = (array)$keys;
-		if ($this->useBuiltInUsage) {
+		if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 			foreach ($keys as $key) {
 				if (isset($_SESSION[$key])) {
 					unset($_SESSION[$key]);
@@ -178,7 +175,7 @@ class Session implements SessionInterface {
 	}
 
 	public function destroy() {
-		if ($this->useBuiltInUsage) {
+		if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 			session_destroy();
 			return true;
 		}
@@ -188,7 +185,7 @@ class Session implements SessionInterface {
 	}
 
 	public function close() {
-		if ($this->useBuiltInUsage) {
+		if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 			session_write_close();
 			return true;
 		}
@@ -203,6 +200,9 @@ class Session implements SessionInterface {
 		if ($requestNum > $condition) {
 			$requestNum = 0;
 			igo(function () {
+				if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
+					return true;
+				}
 				$this->handler->gc($this->handler->getExpires());
 			});
 		}
@@ -213,7 +213,7 @@ class Session implements SessionInterface {
 	}
 
 	protected function readSession() {
-		if ($this->useBuiltInUsage) {
+		if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 			return $_SESSION;
 		}
 
