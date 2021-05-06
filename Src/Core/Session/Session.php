@@ -23,7 +23,8 @@ use W7\Core\Session\Handler\HandlerAbstract;
 class Session implements SessionInterface {
 	protected $config;
 	protected $prefix;
-	protected static $gcCondition;
+	protected static $gcDivisor;
+	protected static $gcProbability;
 	/**
 	 * @var ChannelAbstract
 	 */
@@ -194,11 +195,7 @@ class Session implements SessionInterface {
 	}
 
 	public function gc() {
-		static $requestNum;
-		++$requestNum;
-		$condition = $this->getGcCondition();
-		if ($requestNum > $condition) {
-			$requestNum = 0;
+		if ($this->satisfyGcCondition()) {
 			igo(function () {
 				if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 					return true;
@@ -232,16 +229,16 @@ class Session implements SessionInterface {
 		return $data;
 	}
 
-	protected function getGcCondition() {
-		if (!self::$gcCondition) {
+	protected function satisfyGcCondition() {
+		if (!self::$gcDivisor) {
 			$gcDivisor = (int)($this->config['gc_divisor'] ?? ini_get('session.gc_divisor'));
-			$gcDivisor = $gcDivisor <= 0 ? 1 : $gcDivisor;
+			self::$gcDivisor = $gcDivisor <= 0 ? 1 : $gcDivisor;
+		}
+		if (!self::$gcProbability) {
 			$gcProbability = (int)($this->config['gc_probability'] ?? ini_get('session.gc_probability'));
-			$gcProbability = $gcProbability <= 0 ? 1 : $gcProbability;
-
-			self::$gcCondition = $gcDivisor / $gcProbability;
+			self::$gcProbability = $gcProbability <= 0 ? 1 : $gcProbability;
 		}
 
-		return self::$gcCondition;
+		return random_int(1, self::$gcDivisor) <= self::$gcProbability;
 	}
 }
