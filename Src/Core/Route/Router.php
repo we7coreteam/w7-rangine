@@ -258,9 +258,6 @@ class Router implements RouterInterface {
 		if (!$name) {
 			$name = $this->name;
 		}
-		if (!$name && !($handler instanceof \Closure)) {
-			$name = trim(implode('.', array_filter(array_column($this->groupStack, 'name'))) . '.' . $handler[1], '.');
-		}
 		$routeHandler['name'] = $name;
 		$this->name = '';
 
