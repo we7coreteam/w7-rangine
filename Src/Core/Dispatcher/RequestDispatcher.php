@@ -88,26 +88,26 @@ class RequestDispatcher extends DispatcherAbstract {
 
 	protected function getRoute(ServerRequestInterface $request) {
 		$httpMethod = $request->getMethod();
-		$url = $request->getUri()->getPath();
+		$uri = $request->getUri()->getPath();
 
-		return $this->getRouteByMethodAndUrl($httpMethod, $url);
+		return $this->getRouteByMethodAndUrl($httpMethod, $uri);
 	}
 
-	protected function getRouteByMethodAndUrl($httpMethod, $url) {
-		$routeData = $this->routerDispatcher->dispatch($httpMethod, $url);
+	protected function getRouteByMethodAndUrl($httpMethod, $uri) {
+		$routeData = $this->routerDispatcher->dispatch($httpMethod, $uri);
 
 		switch ($routeData[0]) {
 			case RouteDispatcher::NOT_FOUND:
-				throw new RouteNotFoundException('Route not found, ' . $url, 404);
+				throw new RouteNotFoundException('Route not found, ' . $uri, 404);
 			case RouteDispatcher::METHOD_NOT_ALLOWED:
-				throw new RouteNotAllowException('Route not allowed, ' . $url . ' with method ' . $httpMethod, 405);
+				throw new RouteNotAllowException('Route not allowed, ' . $uri . ' with method ' . $httpMethod, 405);
 			case RouteDispatcher::FOUND:
 				break;
 		}
 
 		return new Route(
 			$routeData[1]['name'],
-			$url,
+			$uri,
 			$routeData[1]['module'],
 			$routeData[1]['handler'],
 			$routeData[2] ?? [],

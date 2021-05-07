@@ -18,13 +18,13 @@ use W7\Core\Dispatcher\RequestDispatcher;
 class Dispatcher extends RequestDispatcher {
 	protected function getRoute(ServerRequestInterface $request) {
 		$httpMethod = $request->getMethod();
-		$pathInfo = $request->getUri()->getPath();
-		if ($pathInfo == '/' && !empty($request->getQueryParams()['r'])) {
-			$url = $request->getQueryParams()['r'];
+		$path = $request->getUri()->getPath();
+		if ($path === '/' && !empty($request->getQueryParams()['r'])) {
+			$uri = $request->getQueryParams()['r'];
 		} else {
-			$url = $pathInfo;
+			$uri = $path;
 		}
 
-		return $this->getRouteByMethodAndUrl($httpMethod, $url);
+		return $this->getRouteByMethodAndUrl($httpMethod, $uri);
 	}
 }
