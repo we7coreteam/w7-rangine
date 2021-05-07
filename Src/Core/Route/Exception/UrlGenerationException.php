@@ -31,7 +31,7 @@ class UrlGenerationException extends Exception {
 			'Missing required %s for [Route: %s] [URI: %s]',
 			$parameterLabel,
 			$route->getName(),
-			$route->getUrl()
+			$route->getUri()
 		);
 
 		if (count($parameters) > 0) {

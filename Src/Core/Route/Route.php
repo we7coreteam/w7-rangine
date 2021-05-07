@@ -20,16 +20,16 @@ use W7\Core\Middleware\MiddlewareMapping;
 
 class Route implements RouteInterface {
 	public $name;
-	public $url;
+	public $uri;
 	public $module;
 	public $handler;
 	public $args = [];
 	public $middleware = [];
 	public $defaults = [];
 
-	public function __construct($name, $url, $module, $handler, array $args = [], array $middleware = [], array $defaults = []) {
+	public function __construct($name, $uri, $module, $handler, array $args = [], array $middleware = [], array $defaults = []) {
 		$this->name = $name;
-		$this->url = $url;
+		$this->uri = $uri;
 		$this->module = $module;
 		$this->handler = $handler;
 		$this->args = $args;
@@ -41,8 +41,8 @@ class Route implements RouteInterface {
 		return $this->name;
 	}
 
-	public function getUrl() {
-		return $this->url;
+	public function getUri() {
+		return $this->uri;
 	}
 
 	public function getModule() {
