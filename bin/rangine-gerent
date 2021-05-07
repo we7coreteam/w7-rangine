@@ -35,7 +35,7 @@ foreach ($_SERVER['argv'] as $index => $value) {
 $argv = $_SERVER['argv'];
 
 require_once $dir . '/config/define.php';
-$loader = require_once BASE_PATH . '/vendor/autoload.php';
+require_once BASE_PATH . '/vendor/autoload.php';
 
 $app = \W7\App::getApp();
 $app->runConsole();
