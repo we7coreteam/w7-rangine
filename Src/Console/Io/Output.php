@@ -18,14 +18,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Output extends SymfonyStyle {
-	/**
-	 * 间隙字符
-	 */
 	const GAP_CHAR = '  ';
-
-	/**
-	 * 左边字符
-	 */
 	const LEFT_CHAR = '  ';
 
 	public function __construct() {
@@ -43,21 +36,11 @@ class Output extends SymfonyStyle {
 		$table->render();
 	}
 
-	/**
-	 * 输出一个列表
-	 *
-	 * @param array	   $list	   列表数据
-	 * @param string	  $titleStyle 标题样式
-	 * @param string	  $cmdStyle   命令样式
-	 * @param string|null $descStyle  描述样式
-	 */
 	public function writeList($list) {
 		foreach ($list as $title => $items) {
-			// 标题
 			$title = "$title";
 			$this->writeln($title);
 
-			// 输出块内容
 			$this->writeItems((array)$items);
 			$this->writeln('');
 		}
@@ -68,14 +51,8 @@ class Output extends SymfonyStyle {
 		$this->newLine();
 	}
 
-	/**
-	 * 显示命令列表一块数据
-	 *
-	 * @param array  $items	数据
-	 */
 	private function writeItems($items, $level = 1) {
 		foreach ($items as $cmd => $desc) {
-			// 没有命令，只是一行数据
 			if (\is_int($cmd)) {
 				$cmd = '';
 			}
@@ -113,12 +90,6 @@ class Output extends SymfonyStyle {
 		return $left;
 	}
 
-	/**
-	 * 所有命令最大宽度
-	 *
-	 * @param array $commands 所有命令
-	 * @return int
-	 */
 	private function getCmdMaxLength($commands) {
 		$max = 0;
 

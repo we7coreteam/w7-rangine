@@ -30,25 +30,25 @@ abstract class CoPoolAbstract implements PoolInterface {
 	protected $type;
 
 	/**
-	 * 最大连接数据
+	 * Maximum number of connections
 	 * @var int
 	 */
 	protected $maxActive = 100;
 
 	/**
-	 * 执行中连接队列
+	 * Connection in execution
 	 * @var \SplQueue $busyQueue
 	 */
 	protected $busyCount;
 
 	/**
-	 * 空间连接队列
+	 * Idle connection queue
 	 * @var \SplQueue $idleQueue
 	 */
 	protected $idleQueue;
 
 	/**
-	 * 挂起协程ID队列，恢复时按顺序恢复
+	 * Suspend the coroutine ID queue and restore in order
 	 * @var \SplQueue
 	 */
 	protected $waitQueue;
@@ -75,19 +75,19 @@ abstract class CoPoolAbstract implements PoolInterface {
 	abstract public function createConnection();
 
 	public function getConnection() {
-		//如果 执行队列数 等于 最大连接数，则挂起协程
+		//If the number of execution queues is equal to the maximum number of connections, the coroutine is suspended
 		if ($this->busyCount >= $this->getMaxCount()) {
-			//等待进程数++
+			//No. of waiting processes++
 			$this->waitCount++;
 
 			$this->getEventDispatcher()->dispatch(new SuspendConnectionEvent($this->type, $this->poolName, $this));
 
 			if ($this->suspendCurrentCo() == false) {
-				//挂起失败时，抛出异常，恢复等待数
+				//When a hang fails, an exception is thrown to restore the wait count
 				$this->waitCount--;
 				throw new \RuntimeException('Reach max connections! Cann\'t pending fetch!');
 			}
-			//回收连接时，恢复了协程，则从空闲中取出连接继续执行
+			//When the connection is retracted, the coroutine is restored, and the connection is removed from idle to continue execution
 			$this->getEventDispatcher()->dispatch(new ResumeConnectionEvent($this->type, $this->poolName, $this));
 		}
 
@@ -125,27 +125,17 @@ abstract class CoPoolAbstract implements PoolInterface {
 		return $this->maxActive;
 	}
 
-	/**
-	 * @param int $maxActive
-	 */
 	public function setMaxCount(int $maxActive) {
 		$this->maxActive = $maxActive;
 		$this->idleQueue = new Channel($this->maxActive);
 	}
 
-	/**
-	 * 挂起当前协程，以便之后恢复
-	 */
 	private function suspendCurrentCo() {
 		$coid = Coroutine::getuid();
 		$this->waitQueue->push($coid);
 		return Coroutine::suspend($coid);
 	}
 
-	/**
-	 * 从队列里恢复一个挂起的协程继续执行
-	 * @return bool
-	 */
 	private function resumeCo() {
 		$coid = $this->waitQueue->shift();
 		if (!empty($coid)) {

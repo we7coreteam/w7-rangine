@@ -23,26 +23,11 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	 * @var Server
 	 */
 	public $server;
-	/**
-	 * 判断是否已经注册master类的事件
-	 * @var bool
-	 */
-	protected static $isRegisterMasterServerEvent;
-	/**
-	 * 判断是否已经注册server用户层类的事件
-	 * @var bool
-	 */
-	protected static $isRegisterServerCommonEvent;
-	/**
-	 * master服务类型,如 manager worker,task, 在注册事件时使用
-	 * @var array
-	 */
-	protected $masterServerType = ['manage', 'worker', 'task'];
-	/**
-	 * 配置
-	 * @var
-	 */
 	public $setting;
+
+	protected static $isRegisterMasterServerEvent;
+	protected static $isRegisterServerCommonEvent;
+	protected $masterServerType = ['manage', 'worker', 'task'];
 
 	public function __construct() {
 		SwooleHelper::checkLoadSwooleExtension();
@@ -221,23 +206,23 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		 */
 		$eventRegister = $this->getContainer()->singleton(ServerEvent::class);
 
-		//注册master manager事件,这些事件只注册一次
+		//Register Master Manager events, which are registered only once
 		if (!self::$isRegisterMasterServerEvent && $server instanceof Server) {
 			$eventTypes = $this->masterServerType;
 			$eventRegister->registerServerEvent($eventTypes);
 			self::$isRegisterMasterServerEvent = true;
 		}
 
-		//注册该服务的事件
+		//Register events for the service
 		$eventRegister->registerServerEvent($this->getType());
 
-		//注册server用户事件,只注册一次
+		//Register the Server user event once
 		if (!self::$isRegisterServerCommonEvent && $server instanceof Server) {
 			$eventRegister->registerServerUserEvent();
 			self::$isRegisterServerCommonEvent = true;
 		}
 
-		//注册server自定义事件，即在每个server目录下的事件
+		//Register for Server custom events, that is, events under each Server directory
 		$eventRegister->registerServerCustomEvent($this->getType());
 		$eventTypes[] = $this->getType();
 

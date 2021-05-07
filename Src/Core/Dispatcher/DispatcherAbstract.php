@@ -19,7 +19,7 @@ abstract class DispatcherAbstract implements DispatcherInterface {
 	use AppCommonTrait;
 
 	/**
-	 * 派发服务
+	 * Distributed task
 	 * @param mixed ...$params
 	 */
 	public function dispatch(...$params) {

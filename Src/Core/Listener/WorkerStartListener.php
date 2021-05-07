@@ -17,7 +17,6 @@ use W7\Core\Server\ServerEvent;
 
 class WorkerStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		//重新播种随机因子
 		mt_srand();
 
 		if (ini_get('opcache.enable') || ini_get('opcache.enable_cli')) {

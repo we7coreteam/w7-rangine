@@ -16,7 +16,7 @@ use W7\Core\Route\Router;
 use W7\Core\Route\RouteMapping as RouteMappingAbstract;
 
 /**
- * 这里需要优化处理 getRouterCollector
+ * You need to optimize the processing of the GetRouterCollector
  * Class RouteMapping
  * @package W7\Tcp\Route
  */

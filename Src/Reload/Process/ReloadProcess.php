@@ -18,13 +18,7 @@ use W7\Console\Io\Output;
 use W7\Core\Process\ProcessAbstract;
 
 class ReloadProcess extends ProcessAbstract {
-	/**
-	 * 监听文件变化的路径
-	 *
-	 * @var string
-	 */
 	private static $watchDir = [];
-
 	private static $fileTypes = [
 		'php'
 	];
@@ -36,9 +30,6 @@ class ReloadProcess extends ProcessAbstract {
 	 */
 	private $md5File = '';
 
-	/**
-	 * 初始化方法
-	 */
 	public function __construct($name, $num = 1, Process $process = null) {
 		self::$watchDir = [
 			App::getApp()->getAppPath(),

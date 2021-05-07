@@ -35,7 +35,7 @@ class ConnectListener extends ListenerAbstract {
 		$psr7Response = new Psr7Response();
 		$psr7Response->setOutputer(new TcpResponseOutputer($server, $fd));
 
-		//tcp session保证此次连接中是共享数据，Response没办法下放sessionid，不存在两次连接共用数据
+		//TCP session guarantees that data is shared in this connection, and Response cannot delegate SessionID, so there is no data shared between two connections
 		$psr7Request->session = $this->getContainer()->clone(SessionInterface::class);
 		$psr7Request->session->start($psr7Request);
 

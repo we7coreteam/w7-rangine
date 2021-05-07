@@ -17,7 +17,7 @@ use Swoole\Process\Pool as PoolManager;
 use W7\App;
 
 /**
- * 该进程池由独立的process manager管理
+ * The process pool is managed by a separate Process Manager
  * Class IndependentPool
  * @package W7\Core\Process\Pool
  */
@@ -54,7 +54,6 @@ class IndependentPool extends PoolAbstract {
 			try {
 				$this->swooleProcessPool->on($event, $handler);
 			} catch (\Throwable $e) {
-				null;
 			}
 		}
 

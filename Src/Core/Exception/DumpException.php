@@ -15,7 +15,7 @@ namespace W7\Core\Exception;
 use Throwable;
 
 /**
- * idd抛出的异常
+ * idd
  * Class DumpException
  * @package W7\Core\Exception
  */

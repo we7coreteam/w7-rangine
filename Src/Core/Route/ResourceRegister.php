@@ -61,7 +61,7 @@ class ResourceRegister {
 	}
 
 	/**
-	 * 替换参数名称
+	 * Replace parameter names
 	 * @param  string  $value
 	 * @return string
 	 */
@@ -74,7 +74,7 @@ class ResourceRegister {
 	}
 
 	/**
-	 * 暂不支持多参数，也就是name格式为app.module.test
+	 * Multiple parameters are not currently supported, which means the name format is app.module.test
 	 * @param $name
 	 * @return string
 	 */
@@ -85,12 +85,6 @@ class ResourceRegister {
 		return '/' . $name;
 	}
 
-	/**
-	 * @param $controller
-	 * @param $action
-	 * @param $options
-	 * @return string
-	 */
 	protected function getResourceHandler($controller, $action, $options) {
 		$name = null;
 		if (isset($options['names'])) {
@@ -116,7 +110,7 @@ class ResourceRegister {
 	}
 
 	/**
-	 *如果输入的是/app/module/test 的话，按照分组/app/module为上级分组
+	 * If /app/module/test is entered, the parent group is /app/module
 	 * @param $name
 	 * @param $controller
 	 * @param $options

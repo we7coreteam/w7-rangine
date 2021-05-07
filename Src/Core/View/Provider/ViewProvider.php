@@ -58,7 +58,7 @@ class ViewProvider extends ProviderAbstract {
 
 	protected function registerReloadDir($config) {
 		ReloadProcess::addType(empty($config['suffix']) ? 'html' : $config['suffix']);
-		//用户自定义目录
+
 		$userTemplatePath = (array)($config['template_path'] ?? []);
 		foreach ($userTemplatePath as $path) {
 			$path = (array)$path;

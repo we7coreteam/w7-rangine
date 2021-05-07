@@ -40,7 +40,6 @@ class FileLoader {
 			if ($ignoreRule[0] === '!') {
 				$ignoreRule = substr($ignoreRule, 1);
 
-				//!route/test.php 只会处理route目录下的包含关系
 				$parentDir = dirname($ignoreRule);
 				$parentLoadDir = $rootDir;
 				if ($parentDir !== '.' && $parentDir !== '..') {

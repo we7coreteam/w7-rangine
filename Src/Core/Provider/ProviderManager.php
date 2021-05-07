@@ -53,7 +53,7 @@ class ProviderManager {
 	}
 
 	/**
-	 * 扩展包全部注册完成后执行
+	 * Execute the extension package after all registration is completed
 	 */
 	public function boot() {
 		foreach ($this->registeredProviders as $name => $provider) {
@@ -75,7 +75,7 @@ class ProviderManager {
 		}
 
 		if (!$force) {
-			//检测是否已经在延迟加载service中
+			//Checks if the service is already loaded lazily
 			foreach ($this->deferredProviders as $providers) {
 				if (in_array($provider, $providers)) {
 					return false;

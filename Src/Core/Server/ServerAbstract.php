@@ -26,11 +26,11 @@ use W7\Core\Process\Pool\PoolAbstract;
 abstract class ServerAbstract implements ServerInterface {
 	use AppCommonTrait;
 
-	//表示当前服务是主服务
+	//Indicates that the current service is the master service
 	public static $masterServer = true;
-	//表示该服务只能跟随主服务启动
+	//Indicates that the service can only be started with the master service
 	public static $onlyFollowMasterServer = false;
-	//表示该服务可以单独启动
+	//Indicates that the service can be started separately
 	public static $aloneServer = false;
 
 	public $server;
@@ -46,9 +46,6 @@ abstract class ServerAbstract implements ServerInterface {
 		return $this->server;
 	}
 
-	/**
-	 * //执行一些公共操作，注册事件,provider等
-	 */
 	public function registerService() {
 		$this->registerServerEvent($this->getServer());
 	}

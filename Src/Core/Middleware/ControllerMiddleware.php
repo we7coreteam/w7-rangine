@@ -20,7 +20,6 @@ use W7\Http\Message\Server\Response;
 
 class ControllerMiddleware extends MiddlewareAbstract {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
-		//此处处理调用控制器操作
 		/**
 		 * @var RouteInterface $route
 		 */
@@ -32,7 +31,6 @@ class ControllerMiddleware extends MiddlewareAbstract {
 	}
 
 	protected function parseResponse($response) {
-		//如果结果是一个response对象，则直接输出，否则按json输出
 		if ($response instanceof Response) {
 			return $response;
 		} elseif (is_object($response)) {

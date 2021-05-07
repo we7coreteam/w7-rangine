@@ -17,7 +17,7 @@ use W7\App;
 use W7\Core\Listener\ProcessStartListener;
 
 /**
- * 该进程池会随server一起启动,并由server管理
+ * The process pool starts with and is managed by the server
  * Class DependentPool
  * @package W7\Core\Process\Pool
  */
@@ -34,7 +34,6 @@ class DependentPool extends PoolAbstract {
 			}
 
 			$swooleProcess = new Process(function (Process $worker) use ($process, $i) {
-				//这里不能通过event触发
 				$process->setProcess($worker);
 				(new ProcessStartListener())->run($process, $i, [
 					'message_queue_key' => $this->mqKey

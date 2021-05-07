@@ -57,12 +57,6 @@ class Server extends ServerAbstract {
 		return $this->server;
 	}
 
-	/**
-	 * 分发请求
-	 * @param $request
-	 * @param $response
-	 * @return \Psr\Http\Message\ResponseInterface|void
-	 */
 	private function dispatch($request, $response) {
 		/**
 		 * @var Dispatcher $dispatcher

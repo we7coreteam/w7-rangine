@@ -29,17 +29,12 @@ class Router implements RouterInterface {
 	const METHOD_OPTIONS = 'OPTIONS';
 	const METHOD_ALL = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 
-	//保存document_root这些配置
 	protected $config = [];
 
 	private $routerCollector;
 
 	private $groupStack = [];
 
-	/**
-	 * 当前路由中间件
-	 * @var array
-	 */
 	private $currentMiddleware = [];
 	private $defaultNamespace = 'W7\App';
 	private $defaultModule = 'system';
@@ -80,12 +75,6 @@ class Router implements RouterInterface {
 		];
 	}
 
-	/**
-	 * middleware按照分组隔开，子分组的middleware始终含有父的middleware
-	 * @param $prefix
-	 * @param callable $callback
-	 * @return bool
-	 */
 	public function group($option, callable $callback) {
 		$option = $this->parseGroupOption($option);
 
@@ -109,15 +98,6 @@ class Router implements RouterInterface {
 		return true;
 	}
 
-	/**
-	 * 注册一个允许所有协议的路由
-	 * @param $uri
-	 * @param $handler
-	 * @param string $name
-	 * @param array $defaults
-	 * @return bool
-	 * @throws \ErrorException
-	 */
 	public function any($uri, $handler, $name = '', $defaults = []) {
 		return $this->add(self::METHOD_ALL, $uri, $handler, $name, $defaults);
 	}
@@ -126,9 +106,6 @@ class Router implements RouterInterface {
 		$this->any($uri, $handler);
 	}
 
-	/**
-	 * 注册一个Post 路由
-	 */
 	public function post($uri, $handler) {
 		$result = $this->add(self::METHOD_POST, $uri, $handler);
 		return $result;
@@ -181,7 +158,6 @@ class Router implements RouterInterface {
 	private function getStaticResourcePath($destination) {
 		$module = $this->getModule();
 		$destination = ltrim($destination, '/');
-		//如果是通过provider注册的，自动补充前缀
 		if ($module !== $this->defaultModule) {
 			$destination = $module . '/' . $destination;
 		}
@@ -189,13 +165,6 @@ class Router implements RouterInterface {
 		return $destination;
 	}
 
-	/**
-	 * 注册一个直接跳转路由
-	 * @param $uri
-	 * @param $destination
-	 * @param int $status
-	 * @throws \ErrorException
-	 */
 	public function redirect($uri, $destination, $status = 302) {
 		if ($this->isStaticResource($destination)) {
 			$destination = $this->getStaticResourcePath($destination);
@@ -204,26 +173,10 @@ class Router implements RouterInterface {
 		$this->any($uri, ['\W7\Core\Controller\RedirectController', 'index'], '', [$destination, $status]);
 	}
 
-	/**
-	 * 注册一个直接显示的静态页
-	 * @param $uri
-	 * @param string $view
-	 * @throws \ErrorException
-	 */
 	public function view($uri, string $view) {
 		$this->add([self::METHOD_GET, self::METHOD_HEAD], $uri, $view);
 	}
 
-	/**
-	 * 注册一个支持多种协议的路由
-	 * @param $methods
-	 * @param $uri
-	 * @param $handler
-	 * @param string $name
-	 * @param array $defaults
-	 * @return bool
-	 * @throws \ErrorException
-	 */
 	public function add($methods, $uri, $handler, $name = '', $defaults = []) {
 		if ($this->isStaticResource($handler)) {
 			$defaults = [$this->config['document_root'] . $this->getStaticResourcePath($handler)];
@@ -237,7 +190,6 @@ class Router implements RouterInterface {
 		if (!is_array($methods)) {
 			$methods = [$methods];
 		}
-		//清除掉Method两边的空格
 		foreach ($methods as &$value) {
 			$value = strtoupper(trim($value));
 		}
@@ -261,13 +213,10 @@ class Router implements RouterInterface {
 		$routeHandler['name'] = $name;
 		$this->name = '';
 
-		//处理namespace
 		if (!($routeHandler['handler'] instanceof \Closure)) {
 			$routeHandler['handler'][0] = $this->prependGroupNamespace($routeHandler['controller_namespace'], $routeHandler['handler'][0]);
 		}
 
-		//先获取上级的middleware
-		//添加完本次路由后，要清空掉当前Middleware值，以便下次使用
 		$groupMiddleware = [];
 		$middleWares = array_filter(array_column($this->groupStack, 'middleware'));
 		array_walk($middleWares, function ($value) use (&$groupMiddleware) {
@@ -311,20 +260,11 @@ class Router implements RouterInterface {
 		return $this;
 	}
 
-	/**
-	 * 指定该路由的名字，用于验权之类的操作
-	 * @param $name
-	 * @return $this
-	 */
 	public function name($name) {
 		$this->name = $name;
 		return $this;
 	}
 
-	/**
-	 * 获取路由列表
-	 * @return array
-	 */
 	public function getData() {
 		return $this->routerCollector->getData();
 	}

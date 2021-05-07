@@ -39,7 +39,7 @@ abstract class CommandAbstract extends Command {
 	}
 
 	/**
-	 * 命令参数覆盖配置，例如 --config-app-setting-env=1 会覆盖config/app中的setting/env的值
+	 * Command arguments that override configurations, such as --config-app-setting-env=1, override the setting/env value in config/app
 	 */
 	private function overwriteConfigByOptions() {
 		foreach ($this->input->getOptions() as $option => $value) {
@@ -49,7 +49,7 @@ abstract class CommandAbstract extends Command {
 			if (strpos($option, 'config') !== false) {
 				$option = explode('-', $option);
 				array_shift($option);
-				//这里count>2的原因是保证option的结构中至少有配置分组
+				//The reason for counting >2 here is to ensure that there are at least configuration groups in the structure of the option
 				if (count($option) >= 2) {
 					$key = implode('.', $option);
 					putenv($key . '=' . Env\Loader::parseValue($value));

@@ -76,7 +76,6 @@ class Session implements SessionInterface {
 		$this->initHandler();
 
 		if ($useBuiltUsage) {
-			//第二个参数表示shudown后，保存session数据并执行close，释放session锁，不释放会导致同一个sessionid的请求处于等待状态(session_start被调用的时候，该文件是被锁住的)
 			session_set_save_handler($this->getHandler(), true);
 		}
 	}
@@ -95,10 +94,6 @@ class Session implements SessionInterface {
 		}
 
 		if (empty($sessionId = $this->channel->getSessionId())) {
-			//加环境检测原因
-			//１：fpm下session_start会自动触发create_sid,再次调用会报错
-			//２：保证handler的create_sid功能单一
-			//３：不在fpm下单独处理，涉及到channel setSessionId问题
 			if (!$this->useBuiltInUsage) {
 				$sessionId = $this->handler->create_sid();
 			} else {

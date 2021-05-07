@@ -50,7 +50,6 @@ abstract class ControllerAbstract {
 	}
 
 	/**
-	 * 获取一个response对象
 	 * @return null|\W7\Http\Message\Server\Response
 	 */
 	protected function response() {
@@ -62,7 +61,6 @@ abstract class ControllerAbstract {
 	}
 
 	/**
-	 * 获取一个Request对象
 	 * @return null|Request
 	 */
 	protected function request() {

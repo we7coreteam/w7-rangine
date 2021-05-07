@@ -31,7 +31,7 @@ class Env {
 	}
 
 	public function load() {
-		//加载当前环境的.env，覆盖默认的.env数据
+		//Loads the.env of the current environment, overriding the default.env data
 		$envName = getenv('ENV_NAME') ?: 'default';
 
 		$envFileName = $this->getEnvFileByHostName($envName);
@@ -75,7 +75,7 @@ class Env {
 	}
 
 	/**
-	 * 覆盖dotenv的方法，dotenv支持自定义load,但是不支持文件格式处理
+	 * Override the method of dotenv, which supports custom load but does not support file format processing
 	 * Returns the full paths to the files.
 	 *
 	 * @param string[] $paths

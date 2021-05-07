@@ -48,7 +48,6 @@ class Server extends SwooleServerAbstract {
 		$this->setting['open_websocket_close_frame'] = false;
 		$this->server->set($this->filterServerSetting());
 
-		//执行一些公共操作，注册事件等
 		$this->registerService();
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
@@ -56,10 +55,6 @@ class Server extends SwooleServerAbstract {
 		$this->server->start();
 	}
 
-	/**
-	 * @var \Swoole\Server $server
-	 * 通过侦听端口的方法创建服务
-	 */
 	public function listener(\Swoole\Server $server) {
 		throw new \RuntimeException('websocket server not support create by listener');
 	}

@@ -30,8 +30,7 @@ class FinishListener extends ListenerAbstract {
 			throw new \RuntimeException($taskMessage);
 		}
 
-		//echo '这里是回调函数' . $task_id . PHP_EOL;
-		//处理在消息中设置的回调方法，如果未指定，则看任务中是否包含 finish 函数，否则什么不执行
+		//Process the callback method set in the message. If not specified, see if the task contains the Finish function. Otherwise, what is not executed
 		$callback = $taskMessage->getFinishCallback();
 		if (!empty($callback)) {
 			call_user_func_array($callback, [$server, $task_id, $taskMessage->result, $taskMessage->params]);

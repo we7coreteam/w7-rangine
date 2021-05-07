@@ -36,7 +36,6 @@ abstract class ProcessAbstract {
 	 * @var Process
 	 */
 	protected $process;
-	// event 模式下支持用户自定义pipe
 	protected $pipe;
 
 	/**
@@ -84,11 +83,6 @@ abstract class ProcessAbstract {
 		return $name;
 	}
 
-	/**
-	 * 默认的消息队列消费方式为争抢方式
-	 * @param int $key
-	 * @param int $mode
-	 */
 	public function setMq($key = 0, $mode = 2 | Process::IPC_NOWAIT) {
 		$this->mqKey = $key;
 		$this->process->useQueue($key, $mode);
@@ -190,7 +184,7 @@ abstract class ProcessAbstract {
 	abstract protected function run(Process $process);
 
 	/**
-	 * process->push(msg) 有bug
+	 * process->push(msg) bug
 	 * @param $msg
 	 * @return bool|mixed
 	 */

@@ -36,7 +36,6 @@ class CloseListener extends ListenerAbstract {
 			}
 		}
 
-		//删除数据绑定记录
 		$this->getContainer()->append('ws-client', [
 			$fd => []
 		], []);

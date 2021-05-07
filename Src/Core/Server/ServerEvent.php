@@ -39,9 +39,6 @@ use W7\WebSocket\Listener\OpenListener;
 class ServerEvent {
 	use AppCommonTrait;
 
-	/**
-	 * swoole 事件
-	 */
 	const ON_START = 'start';
 	const ON_SHUTDOWN = 'shutdown';
 
@@ -69,9 +66,6 @@ class ServerEvent {
 	const ON_OPEN = 'open';
 	const ON_MESSAGE = 'message';
 
-	/**
-	 * 自定义事件
-	 */
 	const ON_USER_BEFORE_START = 'beforeStart';
 	const ON_USER_AFTER_START = 'afterStart';
 	const ON_USER_AFTER_SHUTDOWN = 'afterShutDown';
@@ -155,10 +149,6 @@ class ServerEvent {
 		];
 	}
 
-	/**
-	 * 注册服务必须的事件
-	 * @param $eventTypes
-	 */
 	public function registerServerEvent($eventTypes) {
 		$swooleEvents = $this->getDefaultEvent();
 		foreach ((array)$eventTypes as $eventType) {
@@ -169,10 +159,6 @@ class ServerEvent {
 		}
 	}
 
-	/**
-	 * 注册服务用户层事件
-	 * @param $servers
-	 */
 	public function registerServerUserEvent() {
 		//注册用户层和系统的公共事件
 		foreach ($this->getUserEvent() as $eventName) {
@@ -184,10 +170,6 @@ class ServerEvent {
 		}
 	}
 
-	/**
-	 * 注册服务的自定义事件
-	 * @param $server
-	 */
 	public function registerServerCustomEvent($server) {
 		//注册server下的自定义事件
 		foreach ($this->getUserEvent() as $eventName) {

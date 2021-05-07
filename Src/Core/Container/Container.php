@@ -38,7 +38,7 @@ class Container implements ContainerInterface {
 
 	public function loadDeferredService($service) {
 		if (in_array($service, $this->deferredServices)) {
-			//如果触发过一次后，不再进行下次触发
+			//If triggered once, do not trigger the next time
 			unset($this->deferredServices[array_search($service, $this->deferredServices)]);
 			foreach ($this->deferredServiceLoaders as $loader) {
 				$loader($service);
@@ -62,7 +62,7 @@ class Container implements ContainerInterface {
 	}
 
 	public function has($name) {
-		//检测是否为延迟加载服务，并触发加载器
+		//Detects whether a lazy load service is present and triggers the loader
 		$this->loadDeferredService($name);
 
 		return $this->psrContainer->has($name);
@@ -70,28 +70,18 @@ class Container implements ContainerInterface {
 
 	/**
 	 * @param $name
-	 * @param array $params  当参数为标量或者数组时，可按参数进行单例
+	 * @param array $params  When the argument is a scalar or an array, the singleton can be performed by the argument
 	 * @return mixed
 	 */
 	public function get($name, array $params = []) {
 		if (!$this->has($name)) {
-			//如果说这里的name不是类名的话，无法使用
+			//If the name here is not the class name, it cannot be used
 			$this->set($name, $name, ...$params);
 		}
 
 		return $this->psrContainer->get($name);
 	}
 
-	/**
-	 * 往键值上追回数据，只允许往数组和对象上追加。
-	 * 键值不存的时候新建一个空数组
-	 *
-	 * 对象上追回等于设置属性
-	 * @param $dataKey
-	 * @param $value
-	 * @param array $default
-	 * @return void
-	 */
 	public function append($dataKey, array $value, $default = []) {
 		if (!$this->has($dataKey)) {
 			$this->set($dataKey, $default);
@@ -123,7 +113,7 @@ class Container implements ContainerInterface {
 	}
 
 	/**
-	 * 语义上的别名，用于处理单例对象
+	 * Semantic alias used to handle singleton objects
 	 * @param $name
 	 * @param array $params
 	 * @return mixed

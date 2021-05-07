@@ -117,11 +117,6 @@ class ConnectionResolver extends DatabaseManager {
 			->setReadPdo($fresh->getRawReadPdo());
 	}
 
-	/**
-	 * @deprecated
-	 * @param null $name
-	 * @throws \Exception
-	 */
 	public function beginTransaction($name = null) {
 		return $this->connection($name)->beginTransaction();
 	}

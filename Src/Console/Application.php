@@ -93,8 +93,8 @@ class Application extends SymfontApplication {
 	}
 
 	/**
-	 * 自动在指定的目录下找command, 命令文件必须保存在command下的目录中, 最后的command名称，是按照目录和文件名称命名
-	 * 例如 app/Command/Test/FirstCommand.php  命令名称为 test:first
+	 * The command file must be saved in the directory under the command. The last command name is named according to the directory and file name
+	 * For example app/Command/Test/FirstCommand. PHP Command name for the Test: first
 	 * @param $path
 	 * @param $classNamespace
 	 * @param $commandNamespace
@@ -117,7 +117,7 @@ class Application extends SymfontApplication {
 			if (!$dir) {
 				continue;
 			}
-			//如果command没有组,默认属于$defaultGroup下
+			//If command does not have a group, it defaults to $defaultGroup
 			$parent = str_replace('\\', ':', $commandNamespace ? $commandNamespace . ':' . $dir  :  $dir);
 			$name = strtolower($parent . ':' . $file->getBasename('Command.php'));
 

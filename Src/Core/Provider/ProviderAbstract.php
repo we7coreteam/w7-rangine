@@ -37,10 +37,7 @@ abstract class ProviderAbstract {
 	use AppCommonTrait;
 
 	protected $name;
-
-	//composer包名
 	protected $packageName;
-	//composer包的namespace
 	protected $packageNamespace;
 
 	public static $publishes = [];
@@ -74,13 +71,6 @@ abstract class ProviderAbstract {
 	 * @return mixed
 	 */
 	public function boot() {
-	}
-
-	/**
-	 * @deprecated
-	 */
-	protected function registerBaseDir($dir) {
-		$this->registerOpenBaseDir($dir);
 	}
 
 	protected function registerOpenBaseDir($dir) {
@@ -147,16 +137,6 @@ abstract class ProviderAbstract {
 		}
 	}
 
-	/**
-	 * @deprecated
-	 * @param $event
-	 * @param $listener
-	 * @throws \Exception
-	 */
-	protected function registerEvent($event, $listener) {
-		$this->getEventDispatcher()->listen($event, $listener);
-	}
-
 	protected function registerView($namespace) {
 		$this->getView()->addTemplatePath($namespace, $this->rootPath . '/view/');
 	}
@@ -176,11 +156,6 @@ abstract class ProviderAbstract {
 		ServerEnum::registerServer($name, $class);
 	}
 
-	/**
-	 * @param $name
-	 * @param array $events
-	 * @param bool $cover 是否覆盖已注册的事件
-	 */
 	protected function registerServerEvent($name, array $events, $cover = false) {
 		/**
 		 * @var ServerEvent $event
@@ -208,7 +183,7 @@ abstract class ProviderAbstract {
 
 	/**
 	 * Load the given routes file
-	 * 不支持配置文件的路由配置方式
+	 * Configuration file routing configuration is not supported
 	 * @param $path
 	 */
 	protected function loadRouteFrom($path) {

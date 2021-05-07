@@ -79,7 +79,7 @@ class ResourceRoute {
 	}
 
 	/**
-	 * 如果没有手动注册的话执行自动注册
+	 * Perform automatic registration if manual registration is not available
 	 */
 	public function __destruct() {
 		if (! $this->registered) {

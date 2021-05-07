@@ -25,7 +25,7 @@ class ServerEnum {
 	const TYPE_RPC = 'rpc';
 	const TYPE_TCP = 'tcp';
 	const TYPE_WEBSOCKET = 'webSocket';
-	//处理用户输入的小写websocket找不到server的问题
+	//Fixed bug MC-115716 - User input of a lowercase websocket cannot find the server
 	const TYPE_LOWER_WEBSOCKET = 'websocket';
 	const TYPE_PROCESS = 'process';
 	const TYPE_RELOAD = 'reload';

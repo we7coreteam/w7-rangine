@@ -79,23 +79,7 @@ abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	}
 
 	/**
-	 * <没有重写功能，只是增加一下注释>
-	 * 处理三张表关联的情况，使用此方法
-	 *
-	 * @param string $related 最终要关联的的表
-	 * @param string $through 关联最终表时，需要关联的中间表
-	 * @param null $firstKey 中间表关联主表的字段
-	 * @param null $secondKey 最终表对应中间表的字段
-	 * @param null $localKey 主表中对应中间表的字段
-	 * @param null $secondLocalKey 中间表对应最终表的字段
-	 * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
-	 */
-	public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null) {
-		return parent::hasManyThrough($related, $through, $firstKey, $secondKey, $localKey, $secondLocalKey);
-	}
-
-	/**
-	 * 增加当前表的字段表前缀
+	 * Adds the field table prefix of the current table
 	 * @param array $columns
 	 * @return array
 	 */

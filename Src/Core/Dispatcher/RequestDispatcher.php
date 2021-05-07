@@ -36,7 +36,7 @@ class RequestDispatcher extends DispatcherAbstract {
 	protected $routerDispatcher;
 
 	public function __construct() {
-		//当不同类型的server一起启动时，需要区分middleware
+		//Middleware needs to be separated when different types of servers are started together
 		$this->serverType = lcfirst(explode('\\', static::class)[1]);
 		$this->middlewareMapping = new MiddlewareMapping();
 
@@ -72,8 +72,6 @@ class RequestDispatcher extends DispatcherAbstract {
 			$this->getContext()->setResponse($psr7Response);
 			$this->getContext()->setContextDataByKey('server-type', $this->serverType);
 
-			//根据router配置，获取到匹配的controller信息
-			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
 			$route = $this->getRoute($psr7Request);
 			$this->getEventDispatcher()->dispatch(new RouteMatchedEvent($route, $psr7Request));
 			$psr7Request = $psr7Request->withAttribute('route', $route);
@@ -101,10 +99,8 @@ class RequestDispatcher extends DispatcherAbstract {
 		switch ($routeData[0]) {
 			case RouteDispatcher::NOT_FOUND:
 				throw new RouteNotFoundException('Route not found, ' . $url, 404);
-				break;
 			case RouteDispatcher::METHOD_NOT_ALLOWED:
 				throw new RouteNotAllowException('Route not allowed, ' . $url . ' with method ' . $httpMethod, 405);
-				break;
 			case RouteDispatcher::FOUND:
 				break;
 		}

@@ -17,7 +17,6 @@ use W7\Core\Server\ServerEvent;
 
 class StartListener extends ListenerAbstract {
 	public function run(...$params) {
-		//重新播种随机因子
 		mt_srand();
 
 		\isetProcessTitle(App::$server->getPname() . App::$server->getType() . ' master process');

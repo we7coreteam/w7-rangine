@@ -17,13 +17,7 @@ use W7\App;
 use W7\Core\Route\Route;
 
 class MiddlewareMapping {
-	/**
-	 * 前置的中间件，用于定义一些系统的操作
-	 */
 	public $beforeMiddleware = [];
-	/**
-	 * 后置的中间件，用于定义一些系统的操作
-	 */
 	public $afterMiddleware = [];
 
 	public static function pretreatmentMiddlewares($middlewares) {
@@ -64,9 +58,6 @@ class MiddlewareMapping {
 		}
 	}
 
-	/**
-	 * 获取系统最后的中间件
-	 */
 	protected function getLastMiddleware() {
 		return [self::pretreatmentMiddleware(LastMiddleware::class)];
 	}

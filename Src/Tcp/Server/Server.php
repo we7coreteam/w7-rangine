@@ -33,7 +33,6 @@ class Server extends SwooleServerAbstract {
 		$this->server = $this->getServer();
 		$this->server->set($this->filterServerSetting());
 
-		//执行一些公共操作，注册事件等
 		$this->registerService();
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
@@ -48,13 +47,8 @@ class Server extends SwooleServerAbstract {
 		return $this->server;
 	}
 
-	/**
-	 * @var \Swoole\Server $server
-	 * 通过侦听端口的方法创建服务
-	 */
 	public function listener(\Swoole\Server $server) {
 		$this->server = $server->addListener($this->setting['host'], $this->setting['port'], $this->setting['sock_type']);
-		//tcp需要强制关闭其它协议支持，否则继续父服务
 		$this->server->set([
 			'open_http2_protocol' => false,
 			'open_http_protocol' => false,

@@ -18,7 +18,6 @@ use W7\Core\Dispatcher\RequestDispatcher;
 class Dispatcher extends RequestDispatcher {
 	protected function getRoute(ServerRequestInterface $request) {
 		$httpMethod = $request->getMethod();
-		//该方法最后在http-message中做兼容
 		$pathInfo = $request->getUri()->getPath();
 		if ($pathInfo == '/' && !empty($request->getQueryParams()['r'])) {
 			$url = $request->getQueryParams()['r'];

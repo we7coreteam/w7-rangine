@@ -16,7 +16,7 @@ use Illuminate\Database\MySqlConnection;
 
 class PdoMysqlConnection extends MySqlConnection {
 	/**
-	 * 获取当前活动的查询连接
+	 * Gets the currently active query connection
 	 */
 	public function getActiveConnection() {
 		if ($this->pdo instanceof \PDO) {

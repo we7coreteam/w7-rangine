@@ -37,15 +37,6 @@ abstract class HandlerAbstract implements CacheInterface {
 
 	abstract public static function connect($config) : HandlerAbstract;
 
-	/**
-	 * @deprecated
-	 * @param $config
-	 * @return HandlerAbstract
-	 */
-	public static function getHandler($config) : HandlerAbstract {
-		return static::connect($config);
-	}
-
 	public function pack($data) {
 		return is_numeric($data) ? $data : serialize($data);
 	}

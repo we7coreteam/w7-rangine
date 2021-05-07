@@ -48,7 +48,7 @@ class Context {
 	private $recoverCallback;
 
 	/**
-	 * 最后请求的协程号
+	 * The coroutine number last requested
 	 * @var int
 	 */
 	private $lastCoId;

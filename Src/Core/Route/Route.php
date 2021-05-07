@@ -96,7 +96,6 @@ class Route implements RouteInterface {
 	}
 
 	public function run(RequestInterface $request) {
-		//非闭包函数时实列化对象
 		if ($this->handler instanceof \Closure) {
 			$controllerHandler = $this->handler;
 		} else {

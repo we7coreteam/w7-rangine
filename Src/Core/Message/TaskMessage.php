@@ -14,64 +14,61 @@ namespace W7\Core\Message;
 
 use W7\App;
 
-/**
- * 投递一个任务时的消息结构
- */
 class TaskMessage extends MessageAbstract {
 	use MessageTraiter;
 
 	public $messageType = Message::MESSAGE_TYPE_TASK;
 
 	/**
-	 * 发起同步任务
+	 * Synchronization task
 	 */
 	const OPERATION_TASK_NOW = '0';
 	/**
-	 * 发起异步任务
+	 * Asynchronous tasks
 	 */
 	const OPERATION_TASK_ASYNC = '1';
 	/**
-	 * 发起协程任务
+	 * Coroutines task
 	 */
 	const OPERATION_TASK_CO = '2';
 
 	/**
-	 * 发起的任务类型
+	 * Task type
 	 */
 	public $type;
 
 	/**
-	 * @var mixed 发起任务操作时，此为任务名
+	 * @var mixed Task name
 	 */
 	public $task = '';
 
 	/**
-	 * 任务超时，仅当协程，异步阻塞任务时有用
+	 * Task timeout, useful only if the coroutine blocks the task asynchronously
 	 * @var int
 	 */
 	public $timeout = 3;
 
 	/**
-	 * 一些附加参数
+	 * Additional parameters
 	 * @var array
 	 */
 	public $params = [];
 
 	/**
-	 * 派发任务时，指定任务中的默认方法
+	 * When a task is dispatched, specify the default method in the task
 	 */
 	public $method = 'run';
 
 	/**
-	 * 保存任务执行结果，
-	 * 因为需要将消息继续传递给onFinish事件
-	 * 在onFinish事件中，需要处理回调和其它工作
+	 * Save the result of task execution,
+	 * Because you need to continue passing the message to the onFinish event
+	 * In the onFinish event, you need to handle callbacks and other work
 	 * @var array
 	 */
 	public $result = [];
 
 	/**
-	 * 是否包含回调finish函数
+	 * Whether to include the call back to the Finish function
 	 * @var bool
 	 */
 	public $hasFinishCallback = false;

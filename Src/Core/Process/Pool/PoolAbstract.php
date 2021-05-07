@@ -21,7 +21,6 @@ abstract class PoolAbstract {
 	 */
 	protected $processFactory;
 	protected $config;
-	//该值为进程间通信的消息队列key, 暂不设置
 	protected $mqKey = 0;
 
 	public function __construct(ProcessFactory $processFactory, $config) {
@@ -34,20 +33,11 @@ abstract class PoolAbstract {
 	protected function init() {
 	}
 
-	/**
-	 * 保存添加的process
-	 * 这里用普通变量保存的原因是 1:worker启动时所有的注册信息已全部保存. 2:worker重新启动时workerid是保持不变的
-	 * @param $name
-	 * @param $handle
-	 * @param $num
-	 * @return bool
-	 */
 	public function registerProcess($name, $handle, $num) {
 		/**
 		 * @var ProcessAbstract $handleObj
 		 */
 		$handleObj = new $handle($name, $num);
-		//检测是否要启动该进程
 		if (!$handleObj->check()) {
 			return false;
 		}

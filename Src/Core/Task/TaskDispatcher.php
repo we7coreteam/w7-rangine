@@ -22,11 +22,6 @@ use W7\Core\Message\TaskMessage;
 use W7\Core\Task\Event\AfterTaskDispatchEvent;
 use W7\Core\Task\Event\BeforeTaskDispatchEvent;
 
-/**
- * 派发任务的时候，需要先注册任务，然后在OnTask事件中具体调用
- * Class TaskDispatcher
- * @package W7\Core\Helper\Dispather
- */
 class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterface {
 	protected $queueResolver;
 
@@ -38,13 +33,6 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		return call_user_func($this->queueResolver);
 	}
 
-	/**
-	 * 派发任务
-	 * @param mixed ...$params
-	 * @return mixed|void
-	 * @throws TaskException
-	 * @throws \Throwable
-	 */
 	public function dispatch(...$params) {
 		/**
 		 * @var TaskMessage $message
@@ -83,12 +71,6 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		return $result;
 	}
 
-	/**
-	 * 派发异步任务
-	 * @param TaskMessage $message
-	 * @return mixed
-	 * @throws TaskException
-	 */
 	public function dispatchAsync(TaskMessage $message) {
 		if (!class_exists($message->task)) {
 			throw new TaskException('Task ' . $message->task . ' not found');
@@ -124,15 +106,6 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		return $result;
 	}
 
-	/**
-	 * @param $message
-	 * @param null $server
-	 * @param null $taskId
-	 * @param null $workerId
-	 * @return TaskMessage
-	 * @throws TaskException
-	 * @throws \Throwable
-	 */
 	protected function dispatchNow($message, $server = null, $taskId = null, $workerId = null) {
 		$server = $server ?? (App::$server ? App::$server->getServer() : null);
 		$taskId = $taskId ?? $this->getContext()->getCoroutineId();
@@ -165,8 +138,6 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 			throw $e;
 		}
 
-		//return 时将消息传递给 onFinish 事件
-		//在task进程中执行完成后,onFinish 回调还需要处理一下用户定义的任务回调方法
 		if (!($server && \property_exists($server, 'taskworker') && ($server->taskworker) && $message->isTaskAsync())) {
 			$task->finish($server, $taskId, $message->result, $message->params ?? []);
 		}

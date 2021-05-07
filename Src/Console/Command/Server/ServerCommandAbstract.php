@@ -43,7 +43,6 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$followServers = [];
 		$masterServers = [];
 
-		// 当指定的server中包含自定义process的时候，补充process
 		if (count(array_intersect(array_keys(ServerEnum::$ALL_SERVER), $servers)) !== count($servers)) {
 			$servers[] = ServerEnum::TYPE_PROCESS;
 		}
@@ -64,7 +63,6 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			}
 		}
 
-		//添加框架内置的跟随服务
 		if ($masterServers) {
 			foreach (ServerEnum::$ALL_SERVER as $key => $server) {
 				if ($server::$onlyFollowMasterServer) {
@@ -139,7 +137,6 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			$statusInfo .= " $key: $value, ";
 		}
 
-		// 信息面板
 		$lines = [
 			'			 Server Information					  ',
 			'********************************************************************',
@@ -149,7 +146,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$lines = array_merge($lines, $this->addSubServer($server));
 
 		$lines[] = '********************************************************************';
-		// 启动服务器
+
 		$this->output->writeln(implode("\n", $lines));
 		$server->start();
 	}

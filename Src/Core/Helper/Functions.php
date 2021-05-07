@@ -23,7 +23,7 @@ if (!function_exists('isCli')) {
 
 if (!function_exists('isCo')) {
 	/**
-	 * 是否是在协成
+	 * Whether it is in a coroutine environment
 	 * @return bool
 	 */
 	function isCo():bool {
@@ -82,7 +82,7 @@ if (!function_exists('ienv')) {
 				return;
 		}
 
-		//约定如要env中要写常量名称的话必须要大写
+		//Constant names must be capitalized if they are written in env
 		if (preg_match('/([A-Z]+[\|\^\&])+/', $value)) {
 			//常量解析
 			$exec = 'return ' . $value . ';';

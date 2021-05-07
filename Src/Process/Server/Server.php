@@ -17,7 +17,6 @@ use W7\Core\Server\ServerEnum;
 
 class Server extends ProcessServerAbstract {
 	public function __construct() {
-		//添加process 到server.php中
 		$processSetting = $this->getConfig()->get($this->getType() . '.setting', []);
 		$this->getConfig()->set('server.' . $this->getType(), $processSetting);
 
@@ -29,28 +28,22 @@ class Server extends ProcessServerAbstract {
 	}
 
 	protected function checkSetting() {
-		//获取要启动的process
 		$supportProcess = $this->getConfig()->get('process.process', []);
 		$servers = trim($this->getConfig()->get('app.setting.server'));
 		$servers = explode('|', $servers);
 
-		//获取需要启动的process
 		$processMap = array_diff($servers, (array)array_intersect(array_keys(ServerEnum::$ALL_SERVER), $servers));
-		//获取不在process配置列表中的process
 		$notSupportProcess = array_diff((array)$processMap, array_intersect(array_keys($supportProcess), (array)$processMap));
 		if ($notSupportProcess) {
 			throw new \RuntimeException('process ' . implode(', ', $notSupportProcess) . ' not exist, please check the configuration in config/process.php');
 		}
 
-		//如果processMap为空，表示输入的指令是bin/server process start，将启动所有enable的process
 		$startAll = false;
 		if (empty($processMap)) {
 			$startAll = true;
 			$processMap = empty($processMap) ? array_keys($supportProcess) : $processMap;
 		}
-		//设置要启动的process的enable属性为true
 		foreach ($processMap as $processName) {
-			//如果是全部启动的话，enable和配置中的值保持一致
 			$supportProcess[$processName]['enable'] = $startAll ? ($supportProcess[$processName]['enable'] ?? true) : true;
 		}
 		$this->getConfig()->set('process.process', $supportProcess);

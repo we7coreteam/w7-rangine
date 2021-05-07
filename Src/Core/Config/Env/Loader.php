@@ -69,7 +69,7 @@ class Loader extends \Dotenv\Loader {
 		$vars = [];
 
 		foreach ($entries as $entry) {
-			//判断是否是include(env),如果是，先加载该env
+			//Include (env). If so, load the env first
 			if ($this->checkAndLoadIncludeEnv($entry)) {
 				continue;
 			}

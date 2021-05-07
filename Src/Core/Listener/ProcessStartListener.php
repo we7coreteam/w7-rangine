@@ -18,7 +18,6 @@ use W7\Core\Process\ProcessAbstract;
 class ProcessStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		list($processInstance, $workerId, $options) = $params;
-		//重新播种随机因子
 		mt_srand();
 
 		/**
@@ -34,7 +33,7 @@ class ProcessStartListener extends ListenerAbstract {
 
 		isetProcessTitle($processInstance->getProcessName());
 
-		//用临时变量保存该进程中的用户进程对象
+		//A temporary variable is used to hold the user process object in the process
 		App::getApp()->process = $processInstance;
 
 		$processInstance->onStart();

@@ -29,12 +29,6 @@ class RequestListener extends ListenerAbstract {
 		return $this->dispatch($server, $request, $response);
 	}
 
-	/**
-	 * @param Server $server
-	 * @param Request $request
-	 * @param Response $response
-	 * @throws \Exception
-	 */
 	private function dispatch(Server $server, Request $request, Response $response) {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
 		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());

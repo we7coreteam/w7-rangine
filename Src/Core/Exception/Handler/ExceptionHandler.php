@@ -73,14 +73,8 @@ class ExceptionHandler {
 		$this->getLogger()->debug($errorMessage, $context);
 	}
 
-	/**
-	 * 此函数用于接管代码中抛出的异常，根据情况来做处理
-	 * 业务层也可替换此类
-	 * @param \Throwable $e
-	 * @return Response
-	 */
 	public function handle(\Throwable $e) : Response {
-		// ResponseExceptionAbstract 为特殊的异常，此异常不管何时都将反馈给客户端
+		// ResponseExceptionAbstract as a special exception, the exception whenever will feedback to the client
 		if ($e instanceof ResponseExceptionAbstract) {
 			return $this->getResponse()->withStatus(empty($e->getCode()) ? 500 : $e->getCode())->withContent($e->getMessage());
 		}
@@ -92,20 +86,10 @@ class ExceptionHandler {
 		}
 	}
 
-	/**
-	 * 用于处理正式环境的错误返回
-	 * @param \Throwable $e
-	 * @return Response
-	 */
 	protected function handleRelease(\Throwable $e) : Response {
 		return $this->getResponse()->withStatus(500)->withContent($this->exceptionFormatter->formatReleaseExceptionToString($e));
 	}
 
-	/**
-	 * 用于处理开发环境的错误返回
-	 * @param \Throwable $e
-	 * @return Response
-	 */
 	protected function handleDevelopment(\Throwable $e) : Response {
 		return $this->getResponse()->withStatus(500)->withContent($this->exceptionFormatter->formatDevelopmentExceptionToString($e));
 	}

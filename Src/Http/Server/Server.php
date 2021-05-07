@@ -36,11 +36,9 @@ class Server extends SwooleServerAbstract {
 			$this->setting['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
 		$this->server = $this->getServer();
-		//自动打开POST消息解析
 		$this->setting['http_parse_post'] = true;
 		$this->server->set($this->filterServerSetting());
 
-		//执行一些公共操作，注册事件等
 		$this->registerService();
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_START, [$this->server, $this->getType()]);
@@ -48,15 +46,11 @@ class Server extends SwooleServerAbstract {
 		$this->server->start();
 	}
 
-	/**
-	 * @var \Swoole\Server $server
-	 * 通过侦听端口的方法创建服务
-	 */
 	public function listener(\Swoole\Server $server) {
 		if (App::$server instanceof WebSocketServer) {
 			if ($server->port != $this->setting['port']) {
 				$this->server = $server->addListener($this->setting['host'], $this->setting['port'], $this->setting['sock_type']);
-				//tcp需要强制关闭其它协议支持，否则继续父服务
+				//TCP needs to force other protocol support to be turned off, or the parent service will continue
 				$this->server->set([
 					'open_http2_protocol' => false,
 					'open_http_protocol' => true,
