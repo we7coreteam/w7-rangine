@@ -59,7 +59,7 @@ class ConnectionResolver {
 
 		if (! $connection instanceof HandlerAbstract) {
 			try {
-				$this->getEventDispatcher()->dispatch(new BeforeMakeConnectionEvent($name, $connection));
+				$this->getEventDispatcher()->dispatch(new BeforeMakeConnectionEvent($name));
 				$connection = $this->createConnection($name);
 				$this->getEventDispatcher()->dispatch(new AfterMakeConnectionEvent($name, $connection));
 				$this->getContext()->setContextDataByKey($contextCacheName, $connection);
