@@ -12,11 +12,10 @@
 
 namespace W7\Core\Cache\Event;
 
-/**
- * Class MakeConnectionEvent
- * @package W7\Core\Cache\Event
- *
- * @deprecated
- */
-class MakeConnectionEvent extends AfterMakeConnectionEvent {
+class BeforeMakeConnectionEvent {
+	public $name;
+
+	public function __construct($name) {
+		$this->name = $name;
+	}
 }

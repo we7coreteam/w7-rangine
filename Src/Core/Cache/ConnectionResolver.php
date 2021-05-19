@@ -12,7 +12,8 @@
 
 namespace W7\Core\Cache;
 
-use W7\Core\Cache\Event\MakeConnectionEvent;
+use W7\Core\Cache\Event\AfterMakeConnectionEvent;
+use W7\Core\Cache\Event\BeforeMakeConnectionEvent;
 use W7\Core\Cache\Handler\HandlerAbstract;
 use W7\Core\Cache\Pool\PoolFactory;
 use W7\Core\Helper\Traiter\AppCommonTrait;
@@ -49,10 +50,7 @@ class ConnectionResolver {
 		/**
 		 * @var HandlerAbstract $connection
 		 */
-		$connection = $connection::connect($this->connectionConfig[$name]);
-		$this->getEventDispatcher()->dispatch(new MakeConnectionEvent($name, $connection));
-
-		return $connection;
+		return $connection::connect($this->connectionConfig[$name]);
 	}
 
 	public function connection($name) {
@@ -61,7 +59,9 @@ class ConnectionResolver {
 
 		if (! $connection instanceof HandlerAbstract) {
 			try {
+				$this->getEventDispatcher()->dispatch(new BeforeMakeConnectionEvent($name, $connection));
 				$connection = $this->createConnection($name);
+				$this->getEventDispatcher()->dispatch(new AfterMakeConnectionEvent($name, $connection));
 				$this->getContext()->setContextDataByKey($contextCacheName, $connection);
 			} finally {
 				if ($connection && isCo()) {

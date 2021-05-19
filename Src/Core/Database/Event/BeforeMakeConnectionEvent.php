@@ -10,13 +10,12 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Cache\Event;
+namespace W7\Core\Database\Event;
 
-/**
- * Class MakeConnectionEvent
- * @package W7\Core\Cache\Event
- *
- * @deprecated
- */
-class MakeConnectionEvent extends AfterMakeConnectionEvent {
+class BeforeMakeConnectionEvent {
+	public $name;
+
+	public function __construct($name) {
+		$this->name = $name;
+	}
 }

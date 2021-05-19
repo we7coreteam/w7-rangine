@@ -12,11 +12,18 @@
 
 namespace W7\Core\Database\Event;
 
-/**
- * Class MakeConnectionEvent
- * @package W7\Core\Database\Event
- *
- * @deprecated
- */
-class MakeConnectionEvent extends AfterMakeConnectionEvent {
+use Illuminate\Database\Connection;
+
+class AfterMakeConnectionEvent {
+	public $name;
+
+	/**
+	 * @var Connection
+	 */
+	public $connection;
+
+	public function __construct($name, Connection $connection) {
+		$this->name = $name;
+		$this->connection = $connection;
+	}
 }
