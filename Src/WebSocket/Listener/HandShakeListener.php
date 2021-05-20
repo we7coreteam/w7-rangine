@@ -22,6 +22,7 @@ use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Outputer\SwooleResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
+use W7\WebSocket\Collector\FdCollector;
 
 class HandShakeListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -90,9 +91,7 @@ class HandShakeListener extends ListenerAbstract {
 			return false;
 		}
 
-		$this->getContainer()->append('ws-client', [
-			$request->fd => [$psr7Request, $response]
-		], []);
+		FdCollector::instance()->set($request->fd, [$psr7Request, $response]);
 
 		$response->send();
 		return true;

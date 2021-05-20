@@ -27,7 +27,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 
 	protected static $isRegisterMasterServerEvent;
 	protected static $isRegisterServerCommonEvent;
-	protected $masterServerType = ['manage', 'worker', 'task'];
+	protected $masterServerEventType = ['manage', 'worker', 'task'];
 
 	public function __construct() {
 		SwooleHelper::checkLoadSwooleExtension();
@@ -208,7 +208,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 
 		//Register Master Manager events, which are registered only once
 		if (!self::$isRegisterMasterServerEvent && $server instanceof Server) {
-			$eventTypes = $this->masterServerType;
+			$eventTypes = $this->masterServerEventType;
 			$eventRegister->registerServerEvent($eventTypes);
 			self::$isRegisterMasterServerEvent = true;
 		}

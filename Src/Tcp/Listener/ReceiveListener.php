@@ -18,6 +18,7 @@ use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
+use W7\Tcp\Collector\FdCollector;
 use W7\Tcp\Server\Dispatcher as RequestDispatcher;
 
 class ReceiveListener extends ListenerAbstract {
@@ -33,7 +34,7 @@ class ReceiveListener extends ListenerAbstract {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
 		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 
-		$collector = $this->getContainer()->get('tcp-client')[$fd] ?? [];
+		$collector = FdCollector::instance()->get($fd, []);
 
 		/**
 		 * @var Psr7Request $psr7Request

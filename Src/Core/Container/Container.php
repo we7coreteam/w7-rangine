@@ -12,20 +12,9 @@
 
 namespace W7\Core\Container;
 
-use Pimple\Container as PimpleContainer;
-use Pimple\Psr11\Container as PsrContainer;
-use Psr\Container\ContainerInterface;
-
-class Container implements ContainerInterface {
-	private $container;
-	private $psrContainer;
+class Container extends \Illuminate\Container\Container {
 	private $deferredServices = [];
 	private $deferredServiceLoaders = [];
-
-	public function __construct() {
-		$this->container = new PimpleContainer();
-		$this->psrContainer = new PsrContainer($this->container);
-	}
 
 	public function registerDeferredService($services) {
 		$services = (array)$services;
@@ -58,14 +47,14 @@ class Container implements ContainerInterface {
 				return new $handle(...$params);
 			};
 		}
-		$this->container[$name] = $handle;
+		$this->singleton($name, $handle);
 	}
 
 	public function has($name) {
 		//Detects whether a lazy load service is present and triggers the loader
 		$this->loadDeferredService($name);
 
-		return $this->psrContainer->has($name);
+		return parent::has($name);
 	}
 
 	/**
@@ -79,37 +68,11 @@ class Container implements ContainerInterface {
 			$this->set($name, $name, ...$params);
 		}
 
-		return $this->psrContainer->get($name);
-	}
-
-	public function append($dataKey, array $value, $default = []) {
-		if (!$this->has($dataKey)) {
-			$this->set($dataKey, $default);
-		}
-		$data = $this->get($dataKey) ?? [];
-
-		if (is_object($data)) {
-			foreach ($value as $key => $item) {
-				$data->$key = $item;
-			}
-		} elseif (is_array($data)) {
-			foreach ($value as $key => $item) {
-				$data[$key] = $item;
-			}
-		} else {
-			throw new \RuntimeException('Only append data to array and object');
-		}
-		$this->set($dataKey, $data);
+		return parent::get($name);
 	}
 
 	public function clone($name, array $params = []) {
 		return clone $this->get($name, $params);
-	}
-
-	public function delete($name) {
-		if ($this->has($name)) {
-			unset($this->container[$name]);
-		}
 	}
 
 	/**
@@ -119,16 +82,10 @@ class Container implements ContainerInterface {
 	 * @return mixed
 	 */
 	public function singleton($name, array $params = []) {
-		return $this->get($name, $params);
+		return parent::singleton($name);
 	}
 
 	public function clear() {
-		foreach ($this->container->keys() as $key) {
-			$this->delete($key);
-		}
-	}
-
-	public function __call($name, $arguments) {
-		return $this->container->$name(...$arguments);
+		$this->flush();
 	}
 }

@@ -14,14 +14,11 @@ namespace W7\Tcp\Listener;
 
 use W7\App;
 use W7\Core\Listener\ListenerAbstract;
+use W7\Tcp\Collector\FdCollector;
 
 class AfterWorkerStopListener extends ListenerAbstract {
 	public function run(...$params) {
-		if ($this->getContainer()->has('tcp-client')) {
-			$clientCollector = $this->getContainer()->get('tcp-client') ?? [];
-		} else {
-			$clientCollector = [];
-		}
+		$clientCollector = FdCollector::instance()->all();
 		if (empty($clientCollector)) {
 			return true;
 		}
@@ -30,6 +27,6 @@ class AfterWorkerStopListener extends ListenerAbstract {
 			App::$server->getServer()->exists($fd) && App::$server->getServer()->close($fd);
 		}
 
-		$this->getContainer()->delete('tcp-client');
+		FdCollector::instance()->clear();
 	}
 }

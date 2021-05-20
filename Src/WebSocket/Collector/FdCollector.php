@@ -10,13 +10,7 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Cache\Event;
+namespace W7\WebSocket\Collector;
 
-/**
- * Class MakeConnectionEvent
- * @package W7\Core\Cache\Event
- *
- * @deprecated
- */
-class MakeConnectionEvent extends AfterMakeConnectionEvent {
+class FdCollector extends \W7\Tcp\Collector\FdCollector {
 }

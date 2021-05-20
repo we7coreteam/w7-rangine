@@ -17,6 +17,7 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
+use W7\WebSocket\Collector\FdCollector;
 
 class CloseListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -25,20 +26,17 @@ class CloseListener extends ListenerAbstract {
 	}
 
 	private function onClose(Server $server, int $fd, int $reactorId): void {
-		if ($this->getContainer()->has('ws-client')) {
-			$collector = $this->getContainer()->get('ws-client')[$fd] ?? [];
-			if ($collector) {
-				/**
-				 * @var Psr7Request $psr7Request
-				 */
-				$psr7Request = $collector[0];
-				$psr7Request->session->close();
-			}
+		$fdCollector = FdCollector::instance();
+		$collector =  $fdCollector->get($fd, []);
+		if ($collector) {
+			/**
+			 * @var Psr7Request $psr7Request
+			 */
+			$psr7Request = $collector[0];
+			$psr7Request->session->close();
 		}
 
-		$this->getContainer()->append('ws-client', [
-			$fd => []
-		], []);
+		$fdCollector->delete($fd);
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_WEBSOCKET]);
 	}

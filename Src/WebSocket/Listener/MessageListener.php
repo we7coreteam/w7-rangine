@@ -20,6 +20,7 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Http\Message\Outputer\WebSocketResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
+use W7\WebSocket\Collector\FdCollector;
 use W7\WebSocket\Server\Dispatcher;
 
 class MessageListener extends ListenerAbstract {
@@ -32,7 +33,7 @@ class MessageListener extends ListenerAbstract {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
 		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 
-		$collector = $this->getContainer()->get('ws-client')[$frame->fd] ?? [];
+		$collector = FdCollector::instance()->get($frame->fd, []);
 
 		/**
 		 * @var Psr7Request $psr7Request

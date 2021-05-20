@@ -20,6 +20,7 @@ use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Outputer\TcpResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
+use W7\Tcp\Collector\FdCollector;
 
 class ConnectListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -39,9 +40,7 @@ class ConnectListener extends ListenerAbstract {
 		$psr7Request->session = $this->getContainer()->clone(SessionInterface::class);
 		$psr7Request->session->start($psr7Request);
 
-		$this->getContainer()->append('tcp-client', [
-			$fd => [$psr7Request, $psr7Response]
-		], []);
+		FdCollector::instance()->set($fd, [$psr7Request, $psr7Response]);
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_OPEN, [$server, $fd, $psr7Request, ServerEnum::TYPE_TCP]);
 	}

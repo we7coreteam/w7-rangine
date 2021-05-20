@@ -16,7 +16,7 @@ use W7\App;
 
 trait InstanceTraiter {
 	public static function instance() {
-		$instance = App::getApp()->getContainer()->singleton(static::class);
+		$instance = App::getApp()->getContainer()->get(static::class);
 
 		/**
 		 * @var static $instance

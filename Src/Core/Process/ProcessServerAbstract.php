@@ -21,7 +21,7 @@ use W7\Core\Server\ServerEvent;
 use W7\Core\Server\SwooleServerAbstract;
 
 abstract class ProcessServerAbstract extends SwooleServerAbstract {
-	protected $masterServerType = ['manage'];
+	protected $masterServerEventType = ['manage'];
 
 	public static $masterServer = true;
 	public static $onlyFollowMasterServer = false;
