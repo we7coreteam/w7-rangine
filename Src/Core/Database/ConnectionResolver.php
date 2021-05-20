@@ -15,7 +15,8 @@ namespace W7\Core\Database;
 use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
-use W7\Core\Database\Event\MakeConnectionEvent;
+use W7\Core\Database\Event\AfterMakeConnectionEvent;
+use W7\Core\Database\Event\BeforeMakeConnectionEvent;
 use W7\Core\Database\Pool\PoolFactory;
 use W7\Core\Helper\Traiter\AppCommonTrait;
 
@@ -41,13 +42,10 @@ class ConnectionResolver extends DatabaseManager {
 			return $connection;
 		}
 
-		$connection = $this->configure(
+		return $this->configure(
 			$this->makeConnection($database),
 			$type
 		);
-		$this->app['events'] && $this->app['events']->dispatch(new MakeConnectionEvent($name, $connection));
-
-		return $connection;
 	}
 
 	public function connection($name = null) {
@@ -59,7 +57,9 @@ class ConnectionResolver extends DatabaseManager {
 
 		if (! $connection instanceof ConnectionInterface) {
 			try {
+				$this->app['events'] && $this->app['events']->dispatch(new BeforeMakeConnectionEvent($name));
 				$connection = $this->createConnection($name);
+				$this->app['events'] && $this->app['events']->dispatch(new AfterMakeConnectionEvent($name, $connection));
 				$this->getContext()->setContextDataByKey($contextDbName, $connection);
 			} finally {
 				if ($connection && isCo()) {

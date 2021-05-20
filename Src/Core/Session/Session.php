@@ -14,6 +14,7 @@ namespace W7\Core\Session;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use W7\Contract\Session\SessionInterface;
 use W7\Core\Session\Channel\ChannelAbstract;
 use W7\Core\Session\Channel\CookieChannel;
@@ -103,12 +104,14 @@ class Session implements SessionInterface {
 				}
 			}
 		}
+		$this->validateSessionId($sessionId);
 		$this->sessionId = $sessionId;
 
 		return $this->sessionId;
 	}
 
 	public function setId($sessionId) {
+		$this->validateSessionId($sessionId);
 		$this->sessionId = $sessionId;
 		$this->cache = null;
 
@@ -235,5 +238,11 @@ class Session implements SessionInterface {
 		}
 
 		return random_int(1, self::$gcDivisor) <= self::$gcProbability;
+	}
+
+	public function validateSessionId($sessionId) {
+		if (!is_string($sessionId) || !ctype_alnum($sessionId)) {
+			throw new RuntimeException('Session_id can only be made up of letters or numbers');
+		}
 	}
 }

@@ -12,11 +12,18 @@
 
 namespace W7\Core\Cache\Event;
 
-/**
- * Class MakeConnectionEvent
- * @package W7\Core\Cache\Event
- *
- * @deprecated
- */
-class MakeConnectionEvent extends AfterMakeConnectionEvent {
+use W7\Core\Cache\Handler\HandlerAbstract;
+
+class AfterMakeConnectionEvent {
+	public $name;
+
+	/**
+	 * @var HandlerAbstract
+	 */
+	public $handler;
+
+	public function __construct($name, $handler) {
+		$this->name = $name;
+		$this->handler = $handler;
+	}
 }
