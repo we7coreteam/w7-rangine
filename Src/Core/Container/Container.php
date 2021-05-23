@@ -41,7 +41,6 @@ class Container extends \Illuminate\Container\Container {
 	/**
 	 * @param $name
 	 * @param $handle
-	 * @param mixed ...$params
 	 * @return void
 	 */
 	public function set($name, $handle) {
@@ -61,20 +60,19 @@ class Container extends \Illuminate\Container\Container {
 
 	/**
 	 * @param $name
-	 * @param array $params  When the argument is a scalar or an array, the singleton can be performed by the argument
 	 * @return mixed
 	 */
-	public function get($name, array $params = []) {
+	public function get($name) {
 		if (!$this->has($name)) {
 			//If the name here is not the class name, it cannot be used
-			$this->set($name, $name, ...$params);
+			$this->set($name, $name);
 		}
 
 		return parent::get($name);
 	}
 
-	public function clone($name, array $params = []) {
-		return clone $this->get($name, $params);
+	public function clone($name) {
+		return clone $this->get($name);
 	}
 
 	public function clear() {
