@@ -28,7 +28,7 @@ class ViewProvider extends ProviderAbstract {
 			$config['handler'] = $this->config->get('handler.view.' . $config['handler'], $config['handler']);
 		}
 
-		$this->container->set(ViewInterface::class, function () use ($config) {
+		$this->container->singleton(ViewInterface::class, function () use ($config) {
 			$view = new View($config);
 			$view->addTemplatePath(HandlerAbstract::DEFAULT_NAMESPACE, App::getApp()->getAppPath() . '/View');
 			$this->registerSystemConst($view, $config);

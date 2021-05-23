@@ -18,7 +18,7 @@ use W7\Core\Session\Session;
 
 class SessionProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set(SessionInterface::class, function () {
+		$this->container->singleton(SessionInterface::class, function () {
 			$config = $this->config->get('app.session', []);
 			if (!empty($config['handler'])) {
 				$config['handler'] = $this->config->get('handler.session.' . $config['handler'], $config['handler']);

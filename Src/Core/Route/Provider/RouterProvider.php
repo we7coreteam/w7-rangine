@@ -27,7 +27,7 @@ use W7\Core\Route\UrlGenerator;
 class RouterProvider extends ProviderAbstract {
 	public function register() {
 		$routeCollector = new RouteCollector(new Std(), new GroupCountBased());
-		$this->container->set(RouterInterface::class, function () use ($routeCollector) {
+		$this->container->singleton(RouterInterface::class, function () use ($routeCollector) {
 			$documentRoot = rtrim($this->config->get('server.common.document_root', App::getApp()->getBasePath() . '/public'), '/');
 			$enableStatic = $this->config->get('server.common.enable_static_handler', true);
 
@@ -37,7 +37,7 @@ class RouterProvider extends ProviderAbstract {
 			]);
 		});
 
-		$this->container->set(UrlGeneratorInterface::class, function () use ($routeCollector) {
+		$this->container->singleton(UrlGeneratorInterface::class, function () use ($routeCollector) {
 			$routeDefinitions = RouteDispatcher::getRouteDefinetions(RouteMapping::class, App::$server->getType());
 			foreach ($routeDefinitions[0] as $method => $routes) {
 				foreach ($routes as $key => $route) {

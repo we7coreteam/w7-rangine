@@ -20,7 +20,7 @@ use W7\Core\Provider\ProviderAbstract;
 
 class EventProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set(EventDispatcherInterface::class, function () {
+		$this->container->singleton(EventDispatcherInterface::class, function () {
 			$eventDispatcher = new Dispatcher();
 
 			$events = $this->config->get('event', []);

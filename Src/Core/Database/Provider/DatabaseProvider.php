@@ -40,7 +40,7 @@ class DatabaseProvider extends ProviderAbstract {
 	}
 
 	private function registerConnectionResolver() {
-		$this->container->set('db-factory', function () {
+		$this->container->singleton('db-factory', function () {
 			Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
 				return new PdoMysqlConnection($connection, $database, $prefix, $config);
 			});

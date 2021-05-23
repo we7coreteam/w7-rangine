@@ -21,7 +21,7 @@ use W7\Core\Validation\ValidationFactory;
 
 class ValidationProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set(ValidatorFactoryInterface::class, function () {
+		$this->container->singleton(ValidatorFactoryInterface::class, function () {
 			$validationFactory = new ValidationFactory($this->container->singleton(TranslatorInterface::class), $this->container->singleton(Container::class));
 			$validationFactory->setPresenceVerifier(new DatabasePresenceVerifier($this->container->singleton('db-factory')));
 			return $validationFactory;

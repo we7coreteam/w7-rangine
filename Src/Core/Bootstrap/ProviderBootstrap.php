@@ -41,7 +41,7 @@ class ProviderBootstrap implements BootstrapInterface {
 	];
 
 	public function bootstrap(App $app) {
-		$app->getContainer()->set(ProviderManager::class, function () use ($app) {
+		$app->getContainer()->singleton(ProviderManager::class, function () use ($app) {
 			return new ProviderManager($app->getContainer());
 		});
 

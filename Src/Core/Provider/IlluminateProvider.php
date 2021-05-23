@@ -17,8 +17,8 @@ use Illuminate\Container\Container;
 
 class IlluminateProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set(Container::class, function () {
-			$container = new Container();
+		$this->container->singleton(Container::class, function () {
+			$container = $this->container;
 			$container->instance('config', new Repository());
 
 			$container->singleton(\Illuminate\Contracts\Container\Container::class, function () use ($container) {
