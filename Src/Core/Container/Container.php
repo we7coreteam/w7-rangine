@@ -48,7 +48,7 @@ class Container extends \Illuminate\Container\Container {
 	 * @return void
 	 */
 	public function set($name, $handle) {
-		if (is_object($handle)) {
+		if (is_object($handle) && (!$handle instanceof \Closure)) {
 			$this->instance($name, $handle);
 		} else {
 			$this->bind($name, $handle, true);
