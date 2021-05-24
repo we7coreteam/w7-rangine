@@ -77,7 +77,7 @@ class Route implements RouteInterface {
 		$middleware = $this->middleware;
 		if (!$this->handler instanceof \Closure) {
 			list($controller, $method) = $this->handler;
-			$classObj = App::getApp()->getContainer()->singleton($controller);
+			$classObj = App::getApp()->getContainer()->get($controller);
 			if (method_exists($classObj, 'getMiddleware')) {
 				$controllerMiddleware = collect($classObj->getMiddleware())->reject(function ($data) use ($method) {
 					return static::methodExcludedByOptions($method, $data['options']);
@@ -101,7 +101,7 @@ class Route implements RouteInterface {
 		} else {
 			list($controller, $method) = $this->handler;
 			$method = Str::studly($method);
-			$classObj = App::getApp()->getContainer()->singleton($controller);
+			$classObj = App::getApp()->getContainer()->get($controller);
 			if (!method_exists($classObj, $method)) {
 				throw new \BadMethodCallException("method {$method} not available at class {$controller}");
 			}

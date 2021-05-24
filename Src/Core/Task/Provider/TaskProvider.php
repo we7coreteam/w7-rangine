@@ -24,7 +24,7 @@ class TaskProvider extends ProviderAbstract {
 
 			$taskDispatcher->setQueueResolver(function () {
 				if ($this->container->has(QueueFactoryInterface::class)) {
-					return $this->container->singleton(QueueFactoryInterface::class);
+					return $this->container->get(QueueFactoryInterface::class);
 				}
 			});
 

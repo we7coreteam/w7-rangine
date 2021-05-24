@@ -87,10 +87,14 @@ class ProviderManager {
 			if ((ENV & DEBUG) === DEBUG && !class_exists($provider)) {
 				return false;
 			}
-			$params = isset($name) ? [$name] : [];
-			$provider = $this->container->singleton($provider, $params);
+			$providerClass = $provider;
+			$provider = new $providerClass($name);
+			$provider = $this->container->instance($providerClass, $provider);
 		}
 
+		/**
+		 * @var ProviderAbstract $provider
+		 */
 		$this->registeredProviders[get_class($provider)] = $provider;
 		$provider->register();
 

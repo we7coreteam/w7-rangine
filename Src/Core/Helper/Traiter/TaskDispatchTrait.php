@@ -21,7 +21,7 @@ trait TaskDispatchTrait {
 		/**
 		 * @var TaskDispatcherInterface $taskDispatcher
 		 */
-		$taskDispatcher = App::getApp()->getContainer()->singleton(TaskDispatcherInterface::class);
+		$taskDispatcher = App::getApp()->getContainer()->get(TaskDispatcherInterface::class);
 		$message->type = TaskMessage::OPERATION_TASK_NOW;
 		return $taskDispatcher->dispatch($message, $server, $taskId, $workerId);
 	}

@@ -73,7 +73,7 @@ class App {
 
 	public function runConsole() {
 		try {
-			$this->getContainer()->singleton(Application::class)->run();
+			$this->getContainer()->get(Application::class)->run();
 		} catch (\Throwable $e) {
 			(new Output())->error($e->getMessage());
 		}
@@ -87,7 +87,7 @@ class App {
 	}
 
 	public function getConfigger() : RepositoryInterface {
-		return $this->getContainer()->singleton(RepositoryInterface::class);
+		return $this->getContainer()->get(RepositoryInterface::class);
 	}
 
 	public function getAppPath() {

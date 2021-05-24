@@ -39,7 +39,7 @@ class CallQueuedTask {
 	 * @param $e
 	 */
 	public function failed($e) {
-		$handler = App::getApp()->getContainer()->singleton($this->taskMessage->task);
+		$handler = App::getApp()->getContainer()->get($this->taskMessage->task);
 
 		if (method_exists($handler, 'failed')) {
 			call_user_func_array([$handler, 'failed'], [$e]);

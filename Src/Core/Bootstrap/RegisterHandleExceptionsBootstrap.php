@@ -31,13 +31,13 @@ class RegisterHandleExceptionsBootstrap implements BootstrapInterface {
 		/**
 		 * 设置错误信息接管
 		 */
-		$app->getContainer()->singleton(HandlerExceptions::class)->registerErrorHandle();
+		$app->getContainer()->get(HandlerExceptions::class)->registerErrorHandle();
 	}
 
 	private function registerUserExceptionHandler(App $app) {
 		$userHandler = 'W7\App\Handler\Exception\ExceptionHandler';
 		if (class_exists($userHandler)) {
-			$app->getContainer()->singleton(HandlerExceptions::class)->setHandler($userHandler);
+			$app->getContainer()->get(HandlerExceptions::class)->setHandler($userHandler);
 		}
 	}
 }

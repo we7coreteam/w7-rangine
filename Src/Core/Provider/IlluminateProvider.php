@@ -13,19 +13,9 @@
 namespace W7\Core\Provider;
 
 use Illuminate\Config\Repository;
-use Illuminate\Container\Container;
 
 class IlluminateProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->singleton(Container::class, function () {
-			$container = $this->container;
-			$container->instance('config', new Repository());
-
-			$container->singleton(\Illuminate\Contracts\Container\Container::class, function () use ($container) {
-				return $container;
-			});
-
-			return $container;
-		});
+		$this->container->instance('config', new Repository());
 	}
 }

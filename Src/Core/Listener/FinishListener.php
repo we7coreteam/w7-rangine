@@ -37,7 +37,7 @@ class FinishListener extends ListenerAbstract {
 		}
 
 		if ($taskMessage->hasFinishCallback) {
-			$task = $this->getContainer()->singleton($taskMessage->task);
+			$task = $this->getContainer()->get($taskMessage->task);
 			call_user_func_array([$task, 'finish'], [$server, $task_id, $taskMessage->result, $taskMessage->params]);
 		}
 

@@ -12,7 +12,6 @@
 
 namespace W7\Core\Validation\Provider;
 
-use Illuminate\Container\Container;
 use Illuminate\Validation\DatabasePresenceVerifier;
 use W7\Contract\Translation\TranslatorInterface;
 use W7\Contract\Validation\ValidatorFactoryInterface;
@@ -22,8 +21,8 @@ use W7\Core\Validation\ValidationFactory;
 class ValidationProvider extends ProviderAbstract {
 	public function register() {
 		$this->container->singleton(ValidatorFactoryInterface::class, function () {
-			$validationFactory = new ValidationFactory($this->container->singleton(TranslatorInterface::class), $this->container->singleton(Container::class));
-			$validationFactory->setPresenceVerifier(new DatabasePresenceVerifier($this->container->singleton('db-factory')));
+			$validationFactory = new ValidationFactory($this->container->get(TranslatorInterface::class), $this->container);
+			$validationFactory->setPresenceVerifier(new DatabasePresenceVerifier($this->container->get('db-factory')));
 			return $validationFactory;
 		});
 	}

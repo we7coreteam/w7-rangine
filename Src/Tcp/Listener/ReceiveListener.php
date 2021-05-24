@@ -51,7 +51,7 @@ class ReceiveListener extends ListenerAbstract {
 		/**
 		 * @var RequestDispatcher $dispatcher
 		 */
-		$dispatcher = $this->getContainer()->singleton(RequestDispatcher::class);
+		$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);

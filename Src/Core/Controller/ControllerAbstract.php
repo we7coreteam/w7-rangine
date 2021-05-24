@@ -84,7 +84,7 @@ abstract class ControllerAbstract {
 	}
 
 	protected function render($name, $context = []) {
-		return $this->responseHtml($this->getContainer()->singleton(ViewInterface::class)->render($name, $context));
+		return $this->responseHtml($this->getContainer()->get(ViewInterface::class)->render($name, $context));
 	}
 
 	public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = []) {
@@ -97,7 +97,7 @@ abstract class ControllerAbstract {
 			/**
 			 * @var Factory $validate
 			 */
-			$result = $this->getContainer()->singleton(ValidatorFactoryInterface::class)->make($requestData, $rules, $messages, $customAttributes)
+			$result = $this->getContainer()->get(ValidatorFactoryInterface::class)->make($requestData, $rules, $messages, $customAttributes)
 				->validate();
 		} catch (ValidationException $e) {
 			$errorMessage = [];

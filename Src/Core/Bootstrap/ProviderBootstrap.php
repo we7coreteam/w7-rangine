@@ -19,6 +19,7 @@ use W7\Core\Event\Provider\EventProvider;
 use W7\Core\Log\Provider\LogProvider;
 use W7\Core\Provider\IlluminateProvider;
 use W7\Core\Provider\ProviderManager;
+use W7\Core\Provider\ServerProvider;
 use W7\Core\Route\Provider\RouterProvider;
 use W7\Core\Session\Provider\SessionProvider;
 use W7\Core\Task\Provider\TaskProvider;
@@ -37,14 +38,11 @@ class ProviderBootstrap implements BootstrapInterface {
 		'task' => TaskProvider::class,
 		'view' => ViewProvider::class,
 		'validate' => ValidationProvider::class,
-		'session' => SessionProvider::class
+		'session' => SessionProvider::class,
+		'server' => ServerProvider::class
 	];
 
 	public function bootstrap(App $app) {
-		$app->getContainer()->singleton(ProviderManager::class, function () use ($app) {
-			return new ProviderManager($app->getContainer());
-		});
-
 		$providers = $app->getConfigger()->get('provider.providers', []);
 		$providers = array_merge(self::$providerMap, $providers);
 		$deferredProviders = $app->getConfigger()->get('provider.deferred', []);
@@ -54,7 +52,8 @@ class ProviderBootstrap implements BootstrapInterface {
 		/**
 		 * @var ProviderManager $providerManager
 		 */
-		$providerManager = $app->getContainer()->singleton(ProviderManager::class);
+		$providerManager = new ProviderManager($app->getContainer());
+		$app->getContainer()->instance(ProviderManager::class, $providerManager);
 		$providerManager->setDeferredProviders($deferredProviders);
 		$providerManager->register($providers)->boot();
 	}

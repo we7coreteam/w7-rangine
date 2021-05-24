@@ -34,7 +34,7 @@ class CacheProvider extends ProviderAbstract {
 		});
 		$this->container->singleton(CacheFactoryInterface::class, function () {
 			$cacheFactory = new CacheFactory($this->config->get('app.cache', []));
-			$cacheFactory->setConnectionResolver($this->container->singleton(ConnectionResolver::class));
+			$cacheFactory->setConnectionResolver($this->container->get(ConnectionResolver::class));
 			return $cacheFactory;
 		});
 	}

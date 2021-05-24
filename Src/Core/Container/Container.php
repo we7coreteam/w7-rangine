@@ -16,6 +16,10 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use W7\Core\Helper\Storage\Context;
 
 class Container extends \Illuminate\Container\Container {
+	/**
+	 * @var Context
+	 */
+	protected $context;
 	private $deferredServices = [];
 	private $deferredServiceLoaders = [];
 
@@ -216,7 +220,8 @@ class Container extends \Illuminate\Container\Container {
 	 */
 	protected function getLastParameterOverride() {
 		$cId = $this->getContext()->getCoroutineId();
-		return count($this->with[$cId]) ? end($this->with[$cId]) : [];
+		$with = $this->with[$cId] ?? [];
+		return count($with) ? end($with) : [];
 	}
 
 	/**
@@ -226,7 +231,8 @@ class Container extends \Illuminate\Container\Container {
 	 * @return \Closure|string|null
 	 */
 	protected function findInContextualBindings($abstract) {
-		return $this->contextual[end($this->buildStack[$this->getContext()->getCoroutineId()])][$abstract] ?? null;
+		$buildStack = $this->buildStack[$this->getContext()->getCoroutineId()] ?? [];
+		return $this->contextual[end($buildStack)][$abstract] ?? null;
 	}
 
 	/**
@@ -251,6 +257,10 @@ class Container extends \Illuminate\Container\Container {
 	}
 
 	protected function getContext() : Context {
-		return $this->get(Context::class);
+		if (!$this->context) {
+			$this->context = new Context();
+			$this->instance(Context::class, $this->context);
+		}
+		return $this->context;
 	}
 }
