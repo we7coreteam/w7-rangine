@@ -27,7 +27,7 @@ class CookieChannel extends ChannelAbstract {
 		$sessionCookie = Cookie::create(
 			$this->getSessionName(),
 			$sessionId,
-			0,
+			null,
 			null,
 			null,
 			null,
