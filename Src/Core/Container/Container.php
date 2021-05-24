@@ -83,6 +83,7 @@ class Container implements ContainerInterface {
 	}
 
 	/**
+	 * @deprecated
 	 * 往键值上追回数据，只允许往数组和对象上追加。
 	 * 键值不存的时候新建一个空数组
 	 *
@@ -123,6 +124,7 @@ class Container implements ContainerInterface {
 	}
 
 	/**
+	 * @deprecated
 	 * 语义上的别名，用于处理单例对象
 	 * @param $name
 	 * @param array $params
@@ -138,6 +140,12 @@ class Container implements ContainerInterface {
 		}
 	}
 
+	/**
+	 * @deprecated
+	 * @param $name
+	 * @param $arguments
+	 * @return mixed
+	 */
 	public function __call($name, $arguments) {
 		return $this->container->$name(...$arguments);
 	}
