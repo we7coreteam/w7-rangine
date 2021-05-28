@@ -16,6 +16,6 @@ use Illuminate\Config\Repository;
 
 class IlluminateProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->instance('config', new Repository());
+		$this->container->set('config', new Repository());
 	}
 }

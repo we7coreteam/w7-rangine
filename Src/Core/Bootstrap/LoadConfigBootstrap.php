@@ -38,7 +38,7 @@ class LoadConfigBootstrap implements BootstrapInterface {
 
 		$config = new Config($this->payload);
 		$this->payload = [];
-		$app->getContainer()->instance(RepositoryInterface::class, $config);
+		$app->getContainer()->set(RepositoryInterface::class, $config);
 	}
 
 	public function loadConfigFile($configDir) {

@@ -30,7 +30,7 @@ class EventProvider extends ProviderAbstract {
 				}
 			}
 
-			$this->container->instance('events', $eventDispatcher);
+			$this->container->set('events', $eventDispatcher);
 			$eventDispatcher->setContainer($this->container);
 			$eventDispatcher->setQueueResolver(function () {
 				if ($this->container->has(QueueFactoryInterface::class)) {

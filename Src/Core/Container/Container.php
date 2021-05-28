@@ -259,7 +259,7 @@ class Container extends \Illuminate\Container\Container {
 	protected function getContext() : Context {
 		if (!$this->context) {
 			$this->context = new Context();
-			$this->instance(Context::class, $this->context);
+			$this->set(Context::class, $this->context);
 		}
 		return $this->context;
 	}
