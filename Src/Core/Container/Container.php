@@ -23,6 +23,10 @@ class Container extends \Illuminate\Container\Container {
 	private $deferredServices = [];
 	private $deferredServiceLoaders = [];
 
+	public function __construct() {
+		static::$instance = $this;
+	}
+
 	public function registerDeferredService($services) {
 		$services = (array)$services;
 		$this->deferredServices = array_unique(array_merge($this->deferredServices, $services));
@@ -47,11 +51,11 @@ class Container extends \Illuminate\Container\Container {
 	 * @param $handle
 	 * @return void
 	 */
-	public function set($name, $handle) {
+	public function set($name, $handle, $shared = true) {
 		if (is_object($handle) && (!$handle instanceof \Closure)) {
 			$this->instance($name, $handle);
 		} else {
-			$this->bind($name, $handle, true);
+			$this->bind($name, $handle, $shared);
 		}
 	}
 
@@ -77,6 +81,11 @@ class Container extends \Illuminate\Container\Container {
 
 	public function clone($name) {
 		return clone $this->get($name);
+	}
+
+	public function delete($name) {
+		$abstract = $this->getAlias($name);
+		unset($this[$abstract]);
 	}
 
 	public function clear() {
@@ -259,7 +268,7 @@ class Container extends \Illuminate\Container\Container {
 	protected function getContext() : Context {
 		if (!$this->context) {
 			$this->context = new Context();
-			$this->instance(Context::class, $this->context);
+			$this->set(Context::class, $this->context);
 		}
 		return $this->context;
 	}

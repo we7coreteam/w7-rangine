@@ -12,6 +12,7 @@
 
 namespace W7\Core\Database\Provider;
 
+use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -39,19 +40,20 @@ class DatabaseProvider extends ProviderAbstract {
 	}
 
 	private function registerConnectionResolver() {
-		$this->container->singleton('db-factory', function () {
+		$this->container->set('db-factory', function () {
 			Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
 				return new PdoMysqlConnection($connection, $database, $prefix, $config);
 			});
 
-			$this->container['config']['database.default'] = 'default';
-			$this->container['config']['database.connections'] = $this->config->get('app.database', []);
-			$factory = new ConnectionFactory($this->container);
+			$container = Container::getInstance();
+			$container['config']['database.default'] = 'default';
+			$container['config']['database.connections'] = $this->config->get('app.database', []);
+			$factory = new ConnectionFactory($container);
 
-			$connectionResolver = new ConnectionResolver($this->container, $factory);
+			$connectionResolver = new ConnectionResolver($container, $factory);
 			$connectionResolver->setPoolFactory(new PoolFactory($this->config->get('app.pool.database', [])));
-			$this->container['db'] = $connectionResolver;
-			Facade::setFacadeApplication($this->container);
+			$container['db'] = $connectionResolver;
+			Facade::setFacadeApplication($container);
 
 			return $connectionResolver;
 		});

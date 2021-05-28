@@ -36,10 +36,6 @@ class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface 
 		return Str::parseCallback($listener, 'run');
 	}
 
-	public function setContainer($container) {
-		$this->container = $container;
-	}
-
 	public function createClassListener($listener, $wildcard = false) {
 		return function ($event, $payload) use ($listener, $wildcard) {
 			if ($wildcard) {

@@ -89,7 +89,7 @@ class ProviderManager {
 			}
 			$providerClass = $provider;
 			$provider = new $providerClass($name);
-			$provider = $this->container->instance($providerClass, $provider);
+			$this->container->set($providerClass, $provider);
 		}
 
 		/**

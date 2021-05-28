@@ -19,7 +19,7 @@ use W7\Core\Task\TaskDispatcher;
 
 class TaskProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->singleton(TaskDispatcherInterface::class, function () {
+		$this->container->set(TaskDispatcherInterface::class, function () {
 			$taskDispatcher = new TaskDispatcher();
 
 			$taskDispatcher->setQueueResolver(function () {
