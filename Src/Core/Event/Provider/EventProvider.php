@@ -21,7 +21,7 @@ use W7\Core\Provider\ProviderAbstract;
 class EventProvider extends ProviderAbstract {
 	public function register() {
 		$this->container->set(EventDispatcherInterface::class, function () {
-			$eventDispatcher = new Dispatcher();
+			$eventDispatcher = new Dispatcher(Container::getInstance());
 
 			$events = $this->config->get('event', []);
 			foreach ($events as $event => $listeners) {
@@ -32,7 +32,6 @@ class EventProvider extends ProviderAbstract {
 			}
 
 			Container::getInstance()->instance('events', $eventDispatcher);
-			$eventDispatcher->setContainer(Container::getInstance());
 			$eventDispatcher->setQueueResolver(function () {
 				if ($this->container->has(QueueFactoryInterface::class)) {
 					return $this->container->get(QueueFactoryInterface::class);
