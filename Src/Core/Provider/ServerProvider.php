@@ -17,10 +17,10 @@ use W7\Http\Message\Server\Response;
 
 class ServerProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->bind(Request::class, function () {
+		$this->container->set(Request::class, function () {
 			return $this->getContext()->getRequest();
 		});
-		$this->container->bind(Response::class, function () {
+		$this->container->set(Response::class, function () {
 			return $this->getContext()->getResponse();
 		});
 	}
