@@ -23,6 +23,10 @@ class Container extends \Illuminate\Container\Container {
 	private $deferredServices = [];
 	private $deferredServiceLoaders = [];
 
+	public function __construct() {
+		static::$instance = $this;
+	}
+
 	public function registerDeferredService($services) {
 		$services = (array)$services;
 		$this->deferredServices = array_unique(array_merge($this->deferredServices, $services));

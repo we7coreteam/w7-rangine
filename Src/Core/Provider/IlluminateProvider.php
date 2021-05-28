@@ -13,9 +13,10 @@
 namespace W7\Core\Provider;
 
 use Illuminate\Config\Repository;
+use Illuminate\Container\Container;
 
 class IlluminateProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set('config', new Repository());
+		Container::getInstance()->instance('config', new Repository());
 	}
 }
