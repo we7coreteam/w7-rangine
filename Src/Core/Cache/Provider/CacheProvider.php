@@ -20,7 +20,7 @@ use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->singleton(ConnectionResolver::class, function () {
+		$this->container->set(ConnectionResolver::class, function () {
 			$connectionConfig = $this->config->get('app.cache', []);
 			foreach ($connectionConfig as &$config) {
 				$config['driver'] = $this->config->get('handler.cache.' . $config['driver'], $config['driver']);
@@ -32,7 +32,7 @@ class CacheProvider extends ProviderAbstract {
 
 			return $connectionResolver;
 		});
-		$this->container->singleton(CacheFactoryInterface::class, function () {
+		$this->container->set(CacheFactoryInterface::class, function () {
 			$cacheFactory = new CacheFactory($this->config->get('app.cache', []));
 			$cacheFactory->setConnectionResolver($this->container->get(ConnectionResolver::class));
 			return $cacheFactory;

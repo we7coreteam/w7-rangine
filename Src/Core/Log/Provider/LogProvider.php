@@ -23,7 +23,7 @@ class LogProvider extends ProviderAbstract {
 	public function register() {
 		$this->clearLog();
 
-		$this->container->singleton(LoggerFactoryInterface::class, function () {
+		$this->container->set(LoggerFactoryInterface::class, function () {
 			$config = $this->config->get('log', []);
 			$config['channel'] = $config['channel'] ?? [];
 			foreach ($config['channel'] as $name => &$setting) {
