@@ -79,6 +79,11 @@ class Container extends \Illuminate\Container\Container {
 		return clone $this->get($name);
 	}
 
+	public function delete($name) {
+		$abstract = $this->getAlias($name);
+		unset($this[$abstract]);
+	}
+
 	public function clear() {
 		$this->flush();
 	}
