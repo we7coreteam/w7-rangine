@@ -47,11 +47,11 @@ class Container extends \Illuminate\Container\Container {
 	 * @param $handle
 	 * @return void
 	 */
-	public function set($name, $handle) {
+	public function set($name, $handle, $shared = true) {
 		if (is_object($handle) && (!$handle instanceof \Closure)) {
 			$this->instance($name, $handle);
 		} else {
-			$this->bind($name, $handle, true);
+			$this->bind($name, $handle, $shared);
 		}
 	}
 
