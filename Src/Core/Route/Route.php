@@ -16,9 +16,12 @@ use Illuminate\Support\Str;
 use Psr\Http\Message\RequestInterface;
 use W7\App;
 use W7\Contract\Router\RouteInterface;
+use W7\Core\Helper\Traiter\MethodDependencyResolverTrait;
 use W7\Core\Middleware\MiddlewareMapping;
 
 class Route implements RouteInterface {
+	use MethodDependencyResolverTrait;
+
 	public $name;
 	public $uri;
 	public $module;
@@ -97,23 +100,38 @@ class Route implements RouteInterface {
 
 	public function run(RequestInterface $request) {
 		if ($this->handler instanceof \Closure) {
-			$controllerHandler = $this->handler;
+			return $this->runCallable();
 		} else {
-			list($controller, $method) = $this->handler;
-			$method = Str::studly($method);
-			$classObj = App::getApp()->getContainer()->get($controller);
-			if (!method_exists($classObj, $method)) {
-				throw new \BadMethodCallException("method {$method} not available at class {$controller}");
-			}
-			$controllerHandler = [$classObj, $method];
+			return $this->runController();
+		}
+	}
+
+	protected function runController() {
+		list($controller, $method) = $this->handler;
+		$method = Str::studly($method);
+		$classObj = App::getApp()->getContainer()->get($controller);
+		if (!method_exists($classObj, $method)) {
+			throw new \BadMethodCallException("method {$method} not available at class {$controller}");
 		}
 
-		array_unshift($this->args, $request);
 		$funArgs = $this->args;
 		if (!empty($this->defaults)) {
 			$funArgs = array_merge($funArgs, $this->defaults);
 		}
+		$funArgs = $this->resolveClassMethodDependencies($funArgs, $classObj, $method);
 
+		$controllerHandler = [$classObj, $method];
 		return call_user_func_array($controllerHandler, $funArgs);
+	}
+
+	protected function runCallable() {
+		$callable = $this->handler;
+		$funArgs = $this->args;
+		if (!empty($this->defaults)) {
+			$funArgs = array_merge($funArgs, $this->defaults);
+		}
+		$funArgs = $this->resolveMethodDependencies($funArgs, new \ReflectionFunction($callable));
+
+		return call_user_func_array($callable, $funArgs);
 	}
 }
