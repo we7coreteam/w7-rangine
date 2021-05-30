@@ -23,7 +23,7 @@ use W7\Contract\Logger\LoggerFactoryInterface;
 class SwooleHelper {
 	public static function checkLoadSwooleExtension($exitIfNotLoad = true):bool {
 		static $hasLoadSwooleExtension = true;
-		if ($hasLoadSwooleExtension && extension_loaded('swoole') && version_compare(SWOOLE_VERSION, '4.4.0', '>=')) {
+		if ($hasLoadSwooleExtension && isCli() && extension_loaded('swoole') && version_compare(SWOOLE_VERSION, '4.4.0', '>=')) {
 			$hasLoadSwooleExtension = true;
 			return true;
 		}
