@@ -28,8 +28,7 @@ use W7\Core\Server\ServerAbstract;
  * Class App
  * @package W7
  */
-class App
-{
+class App {
 	public const NAME = 'w7-rangine';
 	public const VERSION = '2.5.0';
 
@@ -53,15 +52,13 @@ class App
 		RegisterSecurityDirBootstrap::class
 	];
 
-	public function __construct()
-	{
+	public function __construct() {
 		self::$self = $this;
 
 		$this->bootstrap();
 	}
 
-	protected function bootstrap()
-	{
+	protected function bootstrap() {
 		foreach ($this->bootstrapMap as $bootstrap) {
 			/**
 			 * @var BootstrapInterface $bootstrap
@@ -71,16 +68,14 @@ class App
 		}
 	}
 
-	public static function getApp()
-	{
+	public static function getApp() {
 		if (!self::$self) {
 			new static();
 		}
 		return self::$self;
 	}
 
-	public function runConsole()
-	{
+	public function runConsole() {
 		try {
 			$this->getContainer()->get(Application::class)->run();
 		} catch (\Throwable $e) {
@@ -88,65 +83,51 @@ class App
 		}
 	}
 
-	public function getContainer()
-	{
+	public function getContainer() {
 		if (empty($this->container)) {
 			$this->container = new Container();
 		}
 		return $this->container;
 	}
 
-	public function getConfigger(): RepositoryInterface
-	{
+	public function getConfigger(): RepositoryInterface {
 		return $this->getContainer()->get(RepositoryInterface::class);
 	}
 
-	public function getAppPath()
-	{
+	public function getAppPath() {
 		return APP_PATH;
 	}
 
-	public function getBasePath()
-	{
+	public function getBasePath() {
 		return BASE_PATH;
 	}
 
-
-
-
-	public function getRuntimePath()
-	{
+	public function getRuntimePath() {
 		return
 			RUNTIME_PATH;
 	}
 
-	public function bootstrapCachePath($path = '')
-	{
+	public function bootstrapCachePath($path = '') {
 		return $this->getBasePath() . '/bootstrap/cache' . ($path ? ('/' . $path) : $path);
 	}
 
-	public function getRouteCachePath()
-	{
+	public function getRouteCachePath() {
 		return $this->bootstrapCachePath('route/');
 	}
 
-	public function getConfigCachePath()
-	{
+	public function getConfigCachePath() {
 		return $this->bootstrapCachePath('config/');
 	}
 
-	public function configurationIsCached()
-	{
+	public function configurationIsCached() {
 		return is_dir($this->getConfigCachePath());
 	}
 
-	public function routeIsCached()
-	{
+	public function routeIsCached() {
 		return is_dir($this->getRouteCachePath());
 	}
 
-	public function exit()
-	{
+	public function exit() {
 		$this->container->clear();
 	}
 }
