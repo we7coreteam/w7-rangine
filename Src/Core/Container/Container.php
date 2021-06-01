@@ -70,13 +70,13 @@ class Container extends \Illuminate\Container\Container {
 	 * @param $name
 	 * @return mixed
 	 */
-	public function get($name) {
+	public function get($name, $parameters = []) {
 		if (!$this->has($name)) {
 			//If the name here is not the class name, it cannot be used
 			$this->set($name, $name);
 		}
 
-		return parent::get($name);
+		return $this->resolve($name, $parameters);
 	}
 
 	public function clone($name) {
