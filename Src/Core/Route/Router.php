@@ -279,7 +279,7 @@ class Router implements RouterInterface {
 		if (count($handler) != 2) {
 			throw new \RuntimeException('route handler ' . $handler[0] . ' error');
 		}
-		list($className, $action) = $handler;
+		[$className, $action] = $handler;
 		if (empty($action)) {
 			$action = 'index';
 		}

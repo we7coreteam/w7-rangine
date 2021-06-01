@@ -20,7 +20,7 @@ use W7\Http\Message\Server\Request as Psr7Request;
 
 class OpenListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($server, $psr7Request) = $params;
+		[$server, $psr7Request] = $params;
 		$this->onOpen($server, $psr7Request);
 	}
 

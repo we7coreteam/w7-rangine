@@ -21,7 +21,7 @@ class PipeMessageListener extends ListenerAbstract {
 		/**
 		 * @var Server $server
 		 */
-		list($server, $workId, $data) = $params;
+		[$server, $workId, $data] = $params;
 
 		$message = Message::unpack($data);
 

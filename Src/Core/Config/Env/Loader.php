@@ -43,7 +43,7 @@ class Loader extends \Dotenv\Loader {
 		$value = null;
 
 		if (strpos($line, '=') !== false) {
-			list($name, $value) = array_map('trim', explode('=', $line, 2));
+			[$name, $value] = array_map('trim', explode('=', $line, 2));
 		}
 
 		if ($name === '') {
@@ -74,10 +74,10 @@ class Loader extends \Dotenv\Loader {
 				continue;
 			}
 
-			list($name, $value) = $this->splitStringIntoParts($entry);
+			[$name, $value] = $this->splitStringIntoParts($entry);
 			$entry = $name . ' = ' . self::parseValue($value);
 
-			list($name, $value) = Parser::parse($entry);
+			[$name, $value] = Parser::parse($entry);
 			$vars[$name] = $this->resolveNestedVariables($value);
 			$this->setEnvironmentVariable($name, $vars[$name]);
 		}

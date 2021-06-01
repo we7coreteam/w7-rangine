@@ -26,7 +26,7 @@ use W7\WebSocket\Collector\FdCollector;
 
 class HandShakeListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($request, $response) = $params;
+		[$request, $response] = $params;
 		$this->handshake($request, $response);
 	}
 

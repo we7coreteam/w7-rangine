@@ -37,7 +37,7 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		/**
 		 * @var TaskMessage $message
 		 */
-		list($message) = $params;
+		[$message] = $params;
 
 		if (!($message instanceof TaskMessage)) {
 			throw new \RuntimeException('Invalid task message');

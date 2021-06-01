@@ -17,7 +17,7 @@ use W7\Core\Process\ProcessAbstract;
 
 class ProcessStartListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($processInstance, $workerId, $options) = $params;
+		[$processInstance, $workerId, $options] = $params;
 		mt_srand();
 
 		/**

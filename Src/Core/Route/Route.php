@@ -79,7 +79,7 @@ class Route implements RouteInterface {
 	public function getMiddleware() : array {
 		$middleware = $this->middleware;
 		if (!$this->handler instanceof \Closure) {
-			list($controller, $method) = $this->handler;
+			[$controller, $method] = $this->handler;
 			$classObj = App::getApp()->getContainer()->get($controller);
 			if (method_exists($classObj, 'getMiddleware')) {
 				$controllerMiddleware = collect($classObj->getMiddleware())->reject(function ($data) use ($method) {
@@ -101,13 +101,12 @@ class Route implements RouteInterface {
 	public function run(RequestInterface $request) {
 		if ($this->handler instanceof \Closure) {
 			return $this->runCallable();
-		} else {
-			return $this->runController();
 		}
+		return $this->runController();
 	}
 
 	protected function runController() {
-		list($controller, $method) = $this->handler;
+		[$controller, $method] = $this->handler;
 		$method = Str::studly($method);
 		$classObj = App::getApp()->getContainer()->get($controller);
 		if (!method_exists($classObj, $method)) {

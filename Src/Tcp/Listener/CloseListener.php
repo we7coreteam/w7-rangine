@@ -20,7 +20,7 @@ use W7\Tcp\Collector\FdCollector;
 
 class CloseListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($server, $fd, $reactorId) = $params;
+		[$server, $fd, $reactorId] = $params;
 		$this->onClose($server, $fd, $reactorId);
 	}
 

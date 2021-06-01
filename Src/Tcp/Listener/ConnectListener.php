@@ -24,7 +24,7 @@ use W7\Tcp\Collector\FdCollector;
 
 class ConnectListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($server, $fd, $reactorId) = $params;
+		[$server, $fd, $reactorId] = $params;
 		return $this->onConnect($server, $fd, $reactorId);
 	}
 

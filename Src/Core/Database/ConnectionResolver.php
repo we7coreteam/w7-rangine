@@ -33,7 +33,7 @@ class ConnectionResolver extends DatabaseManager {
 	}
 
 	public function createConnection($name = null, $usePool = true) {
-		list($database, $type) = $this->parseConnectionName($name);
+		[$database, $type] = $this->parseConnectionName($name);
 		$name = $name ?: $database;
 
 		if ($usePool && isCo() && $this->poolFactory && !empty($this->poolFactory->getPoolConfig($name)['enable'])) {
@@ -49,7 +49,7 @@ class ConnectionResolver extends DatabaseManager {
 	}
 
 	public function connection($name = null) {
-		list($database, $type) = $this->parseConnectionName($name);
+		[$database, $type] = $this->parseConnectionName($name);
 		$name = $name ?: $database;
 
 		$contextDbName = $this->getContextKey($name);
@@ -134,7 +134,7 @@ class ConnectionResolver extends DatabaseManager {
 	}
 
 	private function getConnectionByNameFromContext($name = null) {
-		list($database, $type) = $this->parseConnectionName($name);
+		[$database, $type] = $this->parseConnectionName($name);
 		$contextDbName = $name ?: $database;
 		$contextDbName = $this->getContextKey($contextDbName);
 		return $this->getContext()->getContextDataByKey($contextDbName);

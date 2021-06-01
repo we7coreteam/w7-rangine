@@ -23,7 +23,7 @@ use W7\Tcp\Server\Dispatcher as RequestDispatcher;
 
 class ReceiveListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($server, $fd, $reactorId, $data) = $params;
+		[$server, $fd, $reactorId, $data] = $params;
 
 		$this->dispatch($server, $reactorId, $fd, $data);
 	}

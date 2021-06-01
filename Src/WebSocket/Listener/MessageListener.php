@@ -25,7 +25,7 @@ use W7\WebSocket\Server\Dispatcher;
 
 class MessageListener extends ListenerAbstract {
 	public function run(...$params) {
-		list($server, $frame) = $params;
+		[$server, $frame] = $params;
 		$this->onMessage($server, $frame);
 	}
 

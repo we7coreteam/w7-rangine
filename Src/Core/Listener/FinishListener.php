@@ -24,7 +24,7 @@ class FinishListener extends ListenerAbstract {
 		/**
 		 * @var TaskMessage $taskMessage
 		 */
-		list($server, $task_id, $taskMessage) = $params;
+		[$server, $task_id, $taskMessage] = $params;
 
 		if (!($taskMessage instanceof MessageAbstract)) {
 			throw new \RuntimeException($taskMessage);
