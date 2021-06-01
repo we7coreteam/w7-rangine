@@ -61,7 +61,7 @@ class Container extends \Illuminate\Container\Container {
 
 	public function has($name) {
 		//Detects whether a lazy load service is present and triggers the loader
-		$this->loadDeferredService($name);
+		$this->loadDeferredService($this->getAlias($name));
 
 		return parent::has($name);
 	}
@@ -105,8 +105,6 @@ class Container extends \Illuminate\Container\Container {
 	 */
 	protected function resolve($abstract, $parameters = [], $raiseEvents = true) {
 		$abstract = $this->getAlias($abstract);
-
-		$this->loadDeferredService($abstract);
 
 		$needsContextualBuild = ! empty($parameters) || ! is_null(
 			$this->getContextualConcrete($abstract)
