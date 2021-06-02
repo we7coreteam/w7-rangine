@@ -103,8 +103,7 @@ class App {
 	}
 
 	public function getRuntimePath() {
-		return
-			RUNTIME_PATH;
+		return RUNTIME_PATH;
 	}
 
 	public function bootstrapCachePath($path = '') {
