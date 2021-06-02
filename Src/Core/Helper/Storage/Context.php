@@ -40,12 +40,7 @@ class Context {
 	 */
 	private static $context;
 
-	/**
-	 * 中间件
-	 */
-	const MIDDLEWARE_KEY = 'lastMiddleware';
-
-	private $recoverCallback;
+	private $corDeferRegisterMap;
 
 	/**
 	 * The coroutine number last requested
@@ -191,11 +186,11 @@ class Context {
 			$coId = -1;
 		}
 
-		if ($coId > 0 && empty($this->recoverCallback[$coId])) {
-			$this->recoverCallback[$coId] = true;
+		if ($coId > 0 && empty($this->corDeferRegisterMap[$coId])) {
+			$this->corDeferRegisterMap[$coId] = true;
 			$this->defer(function () {
 				$this->destroy();
-				unset($this->recoverCallback[Coroutine::getuid()]);
+				unset($this->corDeferRegisterMap[Coroutine::getuid()]);
 			});
 		}
 		if ($coId != -1) {
