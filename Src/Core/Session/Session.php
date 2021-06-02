@@ -82,7 +82,7 @@ class Session implements SessionInterface {
 	}
 
 	private function builtSessionIsStart() {
-		return session_status() == PHP_SESSION_ACTIVE;
+		return session_status() === PHP_SESSION_ACTIVE;
 	}
 
 	public function getName() {

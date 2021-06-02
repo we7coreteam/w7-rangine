@@ -21,8 +21,7 @@ class ValidationFactory extends Factory implements ValidatorFactoryInterface {
 		/**
 		 * @var ValidatorInterface $validator
 		 */
-		$validator = parent::make($data, $rules, $messages, $customAttributes);
-		return $validator;
+		return parent::make($data, $rules, $messages, $customAttributes);
 	}
 
 	protected function resolve(array $data, array $rules, array $messages, array $customAttributes) {
