@@ -19,9 +19,9 @@ class ServerProvider extends ProviderAbstract {
 	public function register() {
 		$this->container->set(Request::class, function () {
 			return $this->getContext()->getRequest();
-		});
+		}, false);
 		$this->container->set(Response::class, function () {
 			return $this->getContext()->getResponse();
-		});
+		}, false);
 	}
 }
