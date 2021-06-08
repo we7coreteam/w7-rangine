@@ -26,7 +26,7 @@ use W7\Core\Server\ServerAbstract;
 
 class App {
 	const NAME = 'w7-rangine';
-	const VERSION = '2.4.17';
+	const VERSION = '2.4.18';
 
 	public static $self;
 	/**
@@ -73,7 +73,7 @@ class App {
 
 	public function runConsole() {
 		try {
-			$this->getContainer()->singleton(Application::class)->run();
+			$this->getContainer()->get(Application::class)->run();
 		} catch (\Throwable $e) {
 			(new Output())->error($e->getMessage());
 		}
@@ -87,7 +87,7 @@ class App {
 	}
 
 	public function getConfigger() : RepositoryInterface {
-		return $this->getContainer()->singleton(RepositoryInterface::class);
+		return $this->getContainer()->get(RepositoryInterface::class);
 	}
 
 	public function getAppPath() {

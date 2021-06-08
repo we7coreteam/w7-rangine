@@ -16,7 +16,7 @@ use W7\App;
 
 class SwooleProcessor {
 	public function __invoke(array $record) {
-		$context = App::getApp()->getContainer()->singleton(\W7\Core\Helper\Storage\Context::class);
+		$context = App::getApp()->getContainer()->get(\W7\Core\Helper\Storage\Context::class);
 		$workid = $context->getContextDataByKey('workid');
 		$coid = $context->getContextDataByKey('coid');
 

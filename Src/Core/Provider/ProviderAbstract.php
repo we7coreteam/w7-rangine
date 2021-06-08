@@ -91,7 +91,7 @@ abstract class ProviderAbstract {
 	}
 
 	protected function registerProvider($provider) {
-		$this->getContainer()->singleton(ProviderManager::class)->registerProvider($provider);
+		$this->getContainer()->get(ProviderManager::class)->registerProvider($provider);
 	}
 
 	protected function registerConfig($fileName, $key) {
@@ -168,7 +168,7 @@ abstract class ProviderAbstract {
 		/**
 		 * @var  Application $application
 		 */
-		$application = $this->getContainer()->singleton(Application::class);
+		$application = $this->getContainer()->get(Application::class);
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->packageNamespace, $namespace);
 	}
 
@@ -185,7 +185,7 @@ abstract class ProviderAbstract {
 		/**
 		 * @var ServerEvent $event
 		 */
-		$event = $this->getContainer()->singleton(ServerEvent::class);
+		$event = $this->getContainer()->get(ServerEvent::class);
 		$event->addServerEvents($name, $events, $cover);
 	}
 
@@ -313,11 +313,11 @@ abstract class ProviderAbstract {
 	}
 
 	protected function getRouter() : RouterInterface {
-		return $this->container->singleton(RouterInterface::class);
+		return $this->container->get(RouterInterface::class);
 	}
 
 	protected function getView() : ViewInterface {
-		return $this->container->singleton(ViewInterface::class);
+		return $this->container->get(ViewInterface::class);
 	}
 
 	public function __get($name) {

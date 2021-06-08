@@ -23,10 +23,10 @@ class FpmHelper {
 			try {
 				yield $callback();
 			} catch (Throwable $e) {
-				App::getApp()->getContainer()->singleton(LoggerFactoryInterface::class)->debug($e->getMessage(), ['exception' => $e]);
+				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug($e->getMessage(), ['exception' => $e]);
 			}
 		};
-		App::getApp()->getContainer()->singleton(\W7\Core\Helper\Compate\FpmCoroutine::class)->add($generatorFunc());
+		App::getApp()->getContainer()->get(\W7\Core\Helper\Compate\FpmCoroutine::class)->add($generatorFunc());
 		return true;
 	}
 

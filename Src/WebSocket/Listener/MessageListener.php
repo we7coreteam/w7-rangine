@@ -48,7 +48,7 @@ class MessageListener extends ListenerAbstract {
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 
-		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
+		$dispatcher = $this->getContainer()->get(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);

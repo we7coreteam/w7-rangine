@@ -36,7 +36,7 @@ class DatabaseProvider extends ProviderAbstract {
 		$this->registerDbEvent();
 
 		Model::setEventDispatcher($this->getEventDispatcher());
-		Model::setConnectionResolver($this->container->singleton('db-factory'));
+		Model::setConnectionResolver($this->container->get('db-factory'));
 	}
 
 	private function registerConnectionResolver() {
@@ -48,7 +48,7 @@ class DatabaseProvider extends ProviderAbstract {
 			/**
 			 * @var Container $container
 			 */
-			$container = $this->container->singleton(Container::class);
+			$container = $this->container->get(Container::class);
 
 			$container['config']['database.default'] = 'default';
 			$container['config']['database.connections'] = $this->config->get('app.database', []);

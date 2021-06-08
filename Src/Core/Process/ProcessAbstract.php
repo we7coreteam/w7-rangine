@@ -130,7 +130,7 @@ abstract class ProcessAbstract {
 						$this->dispatchNow($message);
 					}
 				} catch (\Throwable $e) {
-					$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($e);
+					$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($e);
 				}
 			}
 			$this->channel->close();
@@ -163,7 +163,7 @@ abstract class ProcessAbstract {
 			if ((ENV & DEBUG) == DEBUG) {
 				(new Output())->error($throwable->getMessage() . ' at file ' . $throwable->getFile() . ' line ' . $throwable->getLine());
 			}
-			$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
+			$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($throwable);
 
 			$this->stop();
 		}

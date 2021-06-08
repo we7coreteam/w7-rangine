@@ -27,13 +27,13 @@ if (!function_exists('isCo')) {
 	 * @return bool
 	 */
 	function isCo():bool {
-		return App::getApp()->getContainer()->singleton(Context::class)->getCoroutineId() > 0;
+		return App::getApp()->getContainer()->get(Context::class)->getCoroutineId() > 0;
 	}
 }
 
 if (!function_exists('getClientIp')) {
 	function getClientIp() {
-		$request = App::getApp()->getContainer()->singleton(Context::class)->getRequest();
+		$request = App::getApp()->getContainer()->get(Context::class)->getRequest();
 		$serverParams = $request->getServerParams();
 		$xForwardedFor = !empty($serverParams['HTTP_X_FORWARDED_FOR']) ? $serverParams['HTTP_X_FORWARDED_FOR'] : ($request->getHeader('X-Forwarded-For')[0] ?? '');
 

@@ -19,7 +19,7 @@ class Pool extends CoPoolAbstract {
 	protected $type = 'cache';
 
 	public function createConnection() {
-		return $this->getContainer()->singleton(ConnectionResolver::class)->createConnection($this->getPoolName(), false);
+		return $this->getContainer()->get(ConnectionResolver::class)->createConnection($this->getPoolName(), false);
 	}
 
 	public function getConnection() {

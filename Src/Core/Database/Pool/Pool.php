@@ -18,6 +18,6 @@ class Pool extends CoPoolAbstract {
 	protected $type = 'database';
 
 	public function createConnection() {
-		return $this->getContainer()->singleton('db-factory')->createConnection($this->getPoolName(), false);
+		return $this->getContainer()->get('db-factory')->createConnection($this->getPoolName(), false);
 	}
 }

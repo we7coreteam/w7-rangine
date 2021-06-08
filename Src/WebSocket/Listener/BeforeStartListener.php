@@ -29,7 +29,7 @@ class BeforeStartListener extends ListenerAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
+		$dispatcher = $this->getContainer()->get(Dispatcher::class);
 		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, ServerEnum::TYPE_WEBSOCKET));
 	}
 
@@ -37,7 +37,7 @@ class BeforeStartListener extends ListenerAbstract {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
-		$dispatcher = $this->getContainer()->singleton(Dispatcher::class);
+		$dispatcher = $this->getContainer()->get(Dispatcher::class);
 		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class, true);
 	}
 }

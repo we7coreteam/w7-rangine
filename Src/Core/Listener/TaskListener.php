@@ -46,7 +46,7 @@ class TaskListener extends ListenerAbstract {
 
 				$this->getEventDispatcher()->dispatch(new AfterTaskExecutorEvent($message, $throwable));
 
-				$this->getContainer()->singleton(HandlerExceptions::class)->getHandler()->report($throwable);
+				$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($throwable);
 			}
 
 			$task->finish($message);

@@ -88,7 +88,7 @@ class ProviderManager {
 				return false;
 			}
 			$params = isset($name) ? [$name] : [];
-			$provider = $this->container->singleton($provider, $params);
+			$provider = $this->container->get($provider, $params);
 		}
 
 		$this->registeredProviders[get_class($provider)] = $provider;

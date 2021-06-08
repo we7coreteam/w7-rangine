@@ -219,7 +219,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		/**
 		 * @var ServerEvent $eventRegister
 		 */
-		$eventRegister = $this->getContainer()->singleton(ServerEvent::class);
+		$eventRegister = $this->getContainer()->get(ServerEvent::class);
 
 		//注册master manager事件,这些事件只注册一次
 		if (!self::$isRegisterMasterServerEvent && $server instanceof Server) {
@@ -241,7 +241,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$eventRegister->registerServerCustomEvent($this->getType());
 		$eventTypes[] = $this->getType();
 
-		$swooleEvents = $this->getContainer()->singleton(ServerEvent::class)->getDefaultEvent();
+		$swooleEvents = $this->getContainer()->get(ServerEvent::class)->getDefaultEvent();
 		foreach ($eventTypes as $eventType) {
 			$event = $swooleEvents[$eventType];
 			if (!empty($event)) {

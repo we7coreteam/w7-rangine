@@ -150,7 +150,7 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		/**
 		 * @var TaskAbstract $task
 		 */
-		$task = $this->getContainer()->singleton($message->task);
+		$task = $this->getContainer()->get($message->task);
 		if (method_exists($task, 'finish')) {
 			$message->hasFinishCallback = true;
 		}

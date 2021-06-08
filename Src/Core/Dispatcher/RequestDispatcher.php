@@ -84,7 +84,7 @@ class RequestDispatcher extends DispatcherAbstract {
 			$middlewareHandler = new MiddlewareHandler($middleWares);
 			return $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $e) {
-			return $this->getContainer()->singleton(HandlerExceptions::class)->handle($e, $this->serverType);
+			return $this->getContainer()->get(HandlerExceptions::class)->handle($e, $this->serverType);
 		}
 	}
 

@@ -34,12 +34,12 @@ class EventProvider extends ProviderAbstract {
 			/**
 			 * @var Container $container
 			 */
-			$container = $this->container->singleton(Container::class);
+			$container = $this->container->get(Container::class);
 			$container->instance('events', $eventDispatcher);
 			$eventDispatcher->setContainer($container);
 			$eventDispatcher->setQueueResolver(function () {
 				if ($this->container->has(QueueFactoryInterface::class)) {
-					return $this->container->singleton(QueueFactoryInterface::class);
+					return $this->container->get(QueueFactoryInterface::class);
 				}
 				return null;
 			});
