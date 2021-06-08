@@ -12,15 +12,11 @@
 
 namespace W7\Core\Helper\Traiter;
 
-use W7\App;
-
+/**
+ * @deprecated
+ * Trait InstanceTraiter
+ * @package W7\Core\Helper\Traiter
+ */
 trait InstanceTraiter {
-	public static function instance() {
-		$instance = App::getApp()->getContainer()->get(static::class);
-
-		/**
-		 * @var static $instance
-		 */
-		return $instance;
-	}
+	use InstanceTrait;
 }
