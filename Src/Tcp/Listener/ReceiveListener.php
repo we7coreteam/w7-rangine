@@ -14,8 +14,6 @@ namespace W7\Tcp\Listener;
 
 use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
-use W7\Core\Server\ServerEnum;
-use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 use W7\Tcp\Server\Dispatcher as RequestDispatcher;
@@ -45,15 +43,11 @@ class ReceiveListener extends ListenerAbstract {
 		 */
 		$psr7Response = $collector[1];
 
-		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
-
 		/**
 		 * @var RequestDispatcher $dispatcher
 		 */
 		$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
-
-		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_TCP]);
 
 		$psr7Response->send();
 	}

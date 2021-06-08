@@ -14,8 +14,6 @@ namespace W7\WebSocket\Listener;
 
 use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
-use W7\Core\Server\ServerEnum;
-use W7\Core\Server\ServerEvent;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Http\Message\Outputer\WebSocketResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
@@ -46,12 +44,8 @@ class MessageListener extends ListenerAbstract {
 		//握手的Response只是为了响应握手，只处才是真正返回数据的Response
 		$psr7Response->setOutputer(new WebSocketResponseOutputer($server, $frame->fd));
 
-		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
-
 		$dispatcher = $this->getContainer()->get(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
-
-		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, ServerEnum::TYPE_WEBSOCKET]);
 
 		$psr7Response->send();
 
