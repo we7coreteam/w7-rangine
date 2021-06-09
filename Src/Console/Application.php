@@ -12,7 +12,7 @@
 
 namespace W7\Console;
 
-use Symfony\Component\Console\Application as SymfontApplication;
+use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -24,7 +24,7 @@ use Symfony\Component\Finder\SplFileInfo;
 use W7\App;
 use W7\Console\Io\Output;
 
-class Application extends SymfontApplication {
+class Application extends SymfonyApplication {
 	public function __construct() {
 		$version = $this->version();
 		parent::__construct(App::NAME, $version);
