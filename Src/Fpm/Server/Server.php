@@ -64,12 +64,6 @@ class Server extends ServerAbstract {
 		$dispatcher = $this->getContainer()->get(Dispatcher::class);
 		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, $this->getType()));
 
-		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$request, $response, $this->getType()]);
-
-		$response = $dispatcher->dispatch($request, $response);
-
-		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$request, $response, $this->getType()]);
-
-		return $response;
+		return $dispatcher->dispatch($request, $response);
 	}
 }
