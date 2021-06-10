@@ -75,6 +75,7 @@ class RequestDispatcher extends DispatcherAbstract {
 
 			$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, $this->serverType]);
 
+			$psr7Request = $this->getContext()->getRequest();
 			$psr7Request->route = $route = $this->getRoute($psr7Request);
 			$this->getEventDispatcher()->dispatch(new RouteMatchedEvent($route, $psr7Request));
 
