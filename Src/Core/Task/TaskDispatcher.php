@@ -77,7 +77,7 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 
 		$this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeTaskDispatchEvent($message, 'co'));
 
-		$result = App::$server->getServer()->taskCo($message->pack(), $message->timeout);
+		$result = App::$server->getServer()->taskCo([$message->pack()], $message->timeout ?? 0.5);
 
 		$this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterTaskDispatchEvent($message, 'co', $result));
 		return $result;
