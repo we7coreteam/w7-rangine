@@ -75,8 +75,7 @@ class RequestDispatcher extends DispatcherAbstract {
 
 			$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_REQUEST, [$psr7Request, $psr7Response, $this->serverType]);
 
-			//根据router配置，获取到匹配的controller信息
-			//获取到全部中间件数据，最后附加Http组件的特定的last中间件，用于处理调用Controller
+			$psr7Request = $this->getContext()->getRequest();
 			$psr7Request->route = $route = $this->getRoute($psr7Request);
 			$this->getEventDispatcher()->dispatch(new RouteMatchedEvent($route, $psr7Request));
 
