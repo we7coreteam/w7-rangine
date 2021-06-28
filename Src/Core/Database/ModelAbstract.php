@@ -12,7 +12,7 @@
 
 namespace W7\Core\Database;
 
-use W7\Core\Helper\Traiter\InstanceTraiter;
+use W7\Core\Helper\Traiter\InstanceTrait;
 
 /**
  * Class ModelAbstract
@@ -72,7 +72,7 @@ use W7\Core\Helper\Traiter\InstanceTraiter;
  * @method getMacro($name)
  */
 abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
-	use InstanceTraiter;
+	use InstanceTrait;
 
 	public function createOrUpdate($condition) {
 		return static::query()->updateOrCreate($condition, $this->getAttributes());

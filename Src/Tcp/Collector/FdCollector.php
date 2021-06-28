@@ -12,10 +12,10 @@
 
 namespace W7\Tcp\Collector;
 
-use W7\Core\Helper\Traiter\InstanceTraiter;
+use W7\Core\Helper\Traiter\InstanceTrait;
 
 class FdCollector {
-	use InstanceTraiter;
+	use InstanceTrait;
 
 	protected $fdMap = [];
 
