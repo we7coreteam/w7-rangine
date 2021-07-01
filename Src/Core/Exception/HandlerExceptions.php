@@ -94,7 +94,7 @@ class HandlerExceptions {
 			if (isCli()) {
 				(new Output())->error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
 			} else {
-				trigger_error($throwable->getMessage());
+				throw $throwable;
 			}
 			return false;
 		}
