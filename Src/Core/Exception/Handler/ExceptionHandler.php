@@ -12,6 +12,7 @@
 
 namespace W7\Core\Exception\Handler;
 
+use Throwable;
 use W7\Core\Exception\Formatter\ExceptionFormatterInterface;
 use W7\Core\Exception\ResponseExceptionAbstract;
 use W7\Core\Helper\Traiter\AppCommonTrait;
@@ -50,11 +51,13 @@ class ExceptionHandler {
 		return $this->response;
 	}
 
+	public function isReport(Throwable $throwable) {
+		return !property_exists($throwable, 'isReport') || $throwable->isReport;
+	}
+
 	public function report(\Throwable $throwable) {
-		if ($throwable instanceof ResponseExceptionAbstract) {
-			if (!$throwable->isLoggable) {
-				return true;
-			}
+		if (!$this->isReport($throwable)) {
+			return true;
 		}
 
 		$errorMessage = sprintf(

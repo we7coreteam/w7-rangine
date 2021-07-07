@@ -13,5 +13,5 @@
 namespace W7\Core\Exception;
 
 abstract class ResponseExceptionAbstract extends \LogicException {
-	public $isLoggable = true;
+	public $isReport = true;
 }
