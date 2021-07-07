@@ -51,7 +51,11 @@ class LogProvider extends ProviderAbstract {
 		if (!empty($tree)) {
 			foreach ($tree as $file) {
 				if (strstr($file, '.log') !== false) {
-					unlink($file);
+					try {
+						unlink($file);
+					} catch (ErrorException $e) {
+						//Ignore the exception
+					}
 				}
 			}
 		}
