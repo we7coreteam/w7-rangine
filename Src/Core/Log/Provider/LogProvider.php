@@ -12,6 +12,7 @@
 
 namespace W7\Core\Log\Provider;
 
+use ErrorException;
 use Monolog\Logger as MonoLogger;
 use W7\App;
 use W7\Contract\Logger\LoggerFactoryInterface;
@@ -51,7 +52,11 @@ class LogProvider extends ProviderAbstract {
 		if (!empty($tree)) {
 			foreach ($tree as $file) {
 				if (strstr($file, '.log') !== false) {
-					unlink($file);
+					try {
+						unlink($file);
+					} catch (ErrorException $e) {
+						//Ignore the exception
+					}
 				}
 			}
 		}
