@@ -89,6 +89,7 @@ class Container extends \Illuminate\Container\Container {
 	}
 
 	public function clear() {
+		$this->context = null;
 		$this->flush();
 	}
 
