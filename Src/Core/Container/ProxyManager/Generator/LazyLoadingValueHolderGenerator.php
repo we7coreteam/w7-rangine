@@ -23,6 +23,7 @@ use function array_map;
  */
 class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyLoadingValueHolderGenerator
 {
+	protected $defaultTrait = ['W7\Core\Container\ProxyManager\ProxyTrait'];
     /**
      * {@inheritDoc}
      *
@@ -43,7 +44,8 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
         }
 
         $classGenerator->setImplementedInterfaces($interfaces);
-        foreach ($proxyOptions['proxy_traits'] ??[] as $item) {
+        $traits = array_merge($this->defaultTrait, (array)($proxyOptions['proxy_traits'] ?? []));
+        foreach ($traits as $item) {
 			$classGenerator->addTrait($item);
 		}
 
