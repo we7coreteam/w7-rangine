@@ -10,7 +10,7 @@
 		}
 	],
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"ext-json": "*",
 		"w7/rangine-compat": "~2.5.0",
 		"w7/rangine-contract": "~2.5.0",
@@ -31,7 +31,8 @@
 		"symfony/console": "^4.3|^5.0",
 		"filp/whoops": "^2.7",
 		"twig/twig": "^3.0",
-		"pimple/pimple": "^3.2"
+		"pimple/pimple": "^3.2",
+		"ocramius/proxy-manager": "^2.13"
 	},
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",
