@@ -88,7 +88,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 		$method->setBody(
 			ProxiedMethodReturnExpression::generate('self::__proxyCall($this, ' . var_export($methodName, true) . ', array(' . implode(', ', $initializerParams) . '), '  . $inlineFunction . ' {'
 				. ProxiedMethodReturnExpression::generate(
-					'$this->' . $methodName . '(' . implode(', ', $forwardedParams) . ')',
+					'parent::' . $methodName . '(' . implode(', ', $forwardedParams) . ')',
 					$originalMethod
 				) . '})', $originalMethod)
 		);
