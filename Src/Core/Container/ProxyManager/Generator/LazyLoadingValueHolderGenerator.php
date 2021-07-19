@@ -21,53 +21,51 @@ use function array_map;
  *
  * {@inheritDoc}
  */
-class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyLoadingValueHolderGenerator
-{
-	protected $defaultTrait = ['W7\Core\Container\ProxyManager\ProxyTrait'];
-    /**
-     * {@inheritDoc}
-     *
-     * @return void
-     *
-     * @throws InvalidProxiedClassException
-     * @throws InvalidArgumentException
-     */
-    public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator, array $proxyOptions = [])
-    {
-        CanProxyAssertion::assertClassCanBeProxied($originalClass);
+class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyLoadingValueHolderGenerator {
+	protected $defaultTrait = ['\W7\Core\Container\ProxyManager\ProxyTrait'];
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidProxiedClassException
+	 * @throws InvalidArgumentException
+	 */
+	public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator, array $proxyOptions = []) {
+		CanProxyAssertion::assertClassCanBeProxied($originalClass);
 
-        $interfaces       = [];
-        if ($originalClass->isInterface()) {
-            $interfaces[] = $originalClass->getName();
-        } else {
-            $classGenerator->setExtendedClass($originalClass->getName());
-        }
+		$interfaces       = [];
+		if ($originalClass->isInterface()) {
+			$interfaces[] = $originalClass->getName();
+		} else {
+			$classGenerator->setExtendedClass($originalClass->getName());
+		}
 
-        $classGenerator->setImplementedInterfaces($interfaces);
-        $traits = array_merge($this->defaultTrait, (array)($proxyOptions['proxy_traits'] ?? []));
-        foreach ($traits as $item) {
+		$classGenerator->setImplementedInterfaces($interfaces);
+		$traits = array_merge($this->defaultTrait, (array)($proxyOptions['proxy_traits'] ?? []));
+		foreach ($traits as $item) {
 			$classGenerator->addTrait($item);
 		}
 
-        array_map(
-            static function (MethodGenerator $generatedMethod) use ($originalClass, $classGenerator): void {
-                ClassGeneratorUtils::addMethodIfNotFinal($originalClass, $classGenerator, $generatedMethod);
-            },
+		array_map(
+			static function (MethodGenerator $generatedMethod) use ($originalClass, $classGenerator): void {
+				ClassGeneratorUtils::addMethodIfNotFinal($originalClass, $classGenerator, $generatedMethod);
+			},
 			array_map(
 				$this->buildMethodInterceptor($originalClass),
 				ProxiedMethodsFilter::getProxiedMethods($originalClass, $proxyOptions['proxy_methods'] ?? [])
 			)
-        );
-    }
+		);
+	}
 
-    private function buildMethodInterceptor(ReflectionClass $originalClass): callable {
-        return static function (ReflectionMethod $method) use ($originalClass) : LazyLoadingMethodInterceptor {
+	private function buildMethodInterceptor(ReflectionClass $originalClass): callable {
+		return static function (ReflectionMethod $method) use ($originalClass) : LazyLoadingMethodInterceptor {
 			return self::generateMethod(
 				$originalClass,
 				new MethodReflection($method->getDeclaringClass()->getName(), $method->getName())
 			);
-        };
-    }
+		};
+	}
 
 	private static function generateMethod(
 		ReflectionClass $originalClass,

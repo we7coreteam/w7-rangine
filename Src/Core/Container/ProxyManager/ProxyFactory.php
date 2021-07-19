@@ -3,10 +3,20 @@
 namespace W7\Core\Container\ProxyManager;
 
 use Closure;
+use ProxyManager\Configuration;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use ProxyManager\Proxy\ValueHolderInterface;
+use ProxyManager\ProxyGenerator\ProxyGeneratorInterface;
+use W7\Core\Container\ProxyManager\Generator\LazyLoadingValueHolderGenerator;
 
 class ProxyFactory extends LazyLoadingValueHolderFactory {
+	protected \ProxyManager\ProxyGenerator\LazyLoadingValueHolderGenerator $generator;
+
+	public function __construct(?Configuration $configuration = null) {
+		$this->configuration = $configuration ?? new Configuration();
+		$this->generator = new LazyLoadingValueHolderGenerator();
+	}
+
 	/**
 	 * @param array<string, mixed> $proxyOptions
 	 *
@@ -28,5 +38,9 @@ class ProxyFactory extends LazyLoadingValueHolderFactory {
 	 */
 	public function createDelegationProxy(string $className, array $proxyOptions = []) {
 		return $this->generateProxy($className, $proxyOptions);
+	}
+
+	protected function getGenerator(): ProxyGeneratorInterface {
+		return $this->generator;
 	}
 }
