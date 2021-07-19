@@ -50,21 +50,23 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
                 ClassGeneratorUtils::addMethodIfNotFinal($originalClass, $classGenerator, $generatedMethod);
             },
 			array_map(
-				$this->buildLazyLoadingMethodInterceptor(),
+				$this->buildMethodInterceptor($originalClass),
 				ProxiedMethodsFilter::getProxiedMethods($originalClass, $proxyOptions['proxy_methods'] ?? [])
 			)
         );
     }
 
-    private function buildLazyLoadingMethodInterceptor(): callable {
-        return static function (ReflectionMethod $method) : LazyLoadingMethodInterceptor {
+    private function buildMethodInterceptor(ReflectionClass $originalClass): callable {
+        return static function (ReflectionMethod $method) use ($originalClass) : LazyLoadingMethodInterceptor {
 			return self::generateMethod(
+				$originalClass,
 				new MethodReflection($method->getDeclaringClass()->getName(), $method->getName())
 			);
         };
     }
 
 	private static function generateMethod(
+		ReflectionClass $originalClass,
 		MethodReflection $originalMethod
 	): LazyLoadingMethodInterceptor {
 		$method            = LazyLoadingMethodInterceptor::fromReflectionWithoutBodyAndDocBlock($originalMethod);
@@ -86,7 +88,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 		}
 
 		$method->setBody(
-			ProxiedMethodReturnExpression::generate('self::__proxyCall($this, ' . var_export($methodName, true) . ', array(' . implode(', ', $initializerParams) . '), '  . $inlineFunction . ' {'
+			ProxiedMethodReturnExpression::generate('self::__proxyCall(\\' . $originalClass->getName() .'::class, ' . var_export($methodName, true) . ', array(' . implode(', ', $initializerParams) . '), '  . $inlineFunction . ' {'
 				. ProxiedMethodReturnExpression::generate(
 					'parent::' . $methodName . '(' . implode(', ', $forwardedParams) . ')',
 					$originalMethod
@@ -94,27 +96,5 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 		);
 
 		return $method;
-	}
-
-	private static function doFilter(ReflectionClass $class, array $include, bool $requireAbstract = false): array {
-		$ignored = [
-			'__get',
-			'__set',
-			'__isset',
-			'__unset',
-			'__clone',
-			'__sleep',
-			'__wakeup'
-		];
-
-		return array_values(array_filter(
-			$class->getMethods(ReflectionMethod::IS_PUBLIC),
-			static function (ReflectionMethod $method) use ($ignored, $requireAbstract): bool {
-				return (! $requireAbstract || $method->isAbstract()) && ! (
-						array_key_exists(strtolower($method->getName()), $ignored)
-						|| self::methodCannotBeProxied($method)
-					);
-			}
-		));
 	}
 }
