@@ -43,7 +43,9 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
         }
 
         $classGenerator->setImplementedInterfaces($interfaces);
-        $classGenerator->addTrait('W7\Core\Container\ProxyManager');
+        foreach ($proxyOptions['proxy_traits'] ??[] as $item) {
+			$classGenerator->addTrait($item);
+		}
 
         array_map(
             static function (MethodGenerator $generatedMethod) use ($originalClass, $classGenerator): void {
