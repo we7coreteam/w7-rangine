@@ -122,6 +122,10 @@ class App {
 		return is_dir($this->getConfigCachePath());
 	}
 
+	public function getBuiltInConfigPath() {
+		return $this->getBasePath() . '/vendor/composer/rangine/autoload/config';
+	}
+
 	public function routeIsCached() {
 		return is_dir($this->getRouteCachePath());
 	}
