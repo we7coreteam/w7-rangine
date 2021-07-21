@@ -10,7 +10,7 @@
 		}
 	],
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"ext-json": "*",
 		"w7/rangine-compat": "~2.5.0",
 		"w7/rangine-contract": "~2.5.0",
@@ -35,11 +35,13 @@
 	},
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",
-		"w7/php-cs-fixer": "*"
+		"w7/php-cs-fixer": "*",
+		"phpunit/phpunit": "^8.2"
 	},
 	"autoload": {
 		"psr-4": {
-			"W7\\": "Src/"
+			"W7\\": "Src/",
+			"W7\\Tests\\": "tests/"
 		},
 		"files": [
 			"Src/Core/Helper/Functions.php",
