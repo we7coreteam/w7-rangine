@@ -53,7 +53,7 @@ class LogProvider extends ProviderAbstract {
 				if (strstr($file, '.log') !== false) {
 					try {
 						unlink($file);
-					} catch (ErrorException $e) {
+					} catch (\ErrorException $e) {
 						//Ignore the exception
 					}
 				}
