@@ -42,4 +42,8 @@ class EventProvider extends ProviderAbstract {
 			return $eventDispatcher;
 		});
 	}
+
+	public function providers(): array {
+		return [EventDispatcherInterface::class];
+	}
 }
