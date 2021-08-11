@@ -93,6 +93,11 @@ class Container extends \Illuminate\Container\Container {
 		$this->flush();
 	}
 
+	public function make($abstract, array $parameters = []) {
+		$this->loadDeferredService($this->getAlias($abstract));
+		return parent::make($abstract, $parameters);
+	}
+
 	/**
 	 * Resolve the given type from the container.
 	 *
