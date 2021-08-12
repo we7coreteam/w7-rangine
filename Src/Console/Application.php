@@ -73,6 +73,7 @@ class Application extends SymfonyApplication {
 			return parent::doRun($input, $output);
 		} catch (\Throwable $e) {
 			$this->renderThrowable($e, $output);
+			return 1;
 		}
 	}
 

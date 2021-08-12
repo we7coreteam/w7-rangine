@@ -191,7 +191,7 @@ class Container extends \Illuminate\Container\Container {
 		// an abstract type such as an Interface or Abstract Class and there is
 		// no binding registered for the abstractions so we need to bail out.
 		if (! $reflector->isInstantiable()) {
-			return $this->notInstantiable($concrete);
+			$this->notInstantiable($concrete);
 		}
 
 		$cId = $this->getContext()->getCoroutineId();
