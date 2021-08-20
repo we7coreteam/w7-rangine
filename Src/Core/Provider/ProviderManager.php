@@ -84,9 +84,6 @@ class ProviderManager {
 		}
 
 		if (is_string($provider)) {
-			if ((ENV & DEBUG) === DEBUG && !class_exists($provider)) {
-				return false;
-			}
 			$providerClass = $provider;
 			$provider = new $providerClass($name);
 			$this->container->set($providerClass, $provider);
