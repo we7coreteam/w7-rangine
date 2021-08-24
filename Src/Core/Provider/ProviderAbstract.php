@@ -268,7 +268,7 @@ abstract class ProviderAbstract {
 			return static::$publishGroups[$group];
 		} elseif ($provider && array_key_exists($provider, static::$publishes)) {
 			return static::$publishes[$provider];
-		} elseif ($group || $provider) {
+		} else {
 			return [];
 		}
 	}

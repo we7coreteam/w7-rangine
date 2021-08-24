@@ -24,7 +24,7 @@ trait CoroutineInstanceTrait {
 		$context = App::getApp()->getContainer()->get(Context::class);
 		$instance = $context->getContextDataByKey($contextKey);
 		if (!$instance) {
-			$instance = new $contextKey();
+			$instance = App::getApp()->getContainer()->make($contextKey);
 			$context->setContextDataByKey($contextKey, $instance);
 		}
 

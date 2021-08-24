@@ -21,8 +21,11 @@ class LoadConfigBootstrap implements BootstrapInterface {
 	private $payload = [];
 	protected $ignoreFileNameMap = ['define'];
 
+	/**
+	 * @deprecated
+	 */
 	public function getBuiltInConfigPath() {
-		return App::getApp()->getBasePath() . '/vendor/composer/rangine/autoload/config';
+		return App::getApp()->getBuiltInConfigPath();
 	}
 
 	public function bootstrap(App $app) {
@@ -33,7 +36,7 @@ class LoadConfigBootstrap implements BootstrapInterface {
 			$loadDir = $app->getConfigCachePath();
 		}
 
-		$this->loadConfigFile($this->getBuiltInConfigPath());
+		$this->loadConfigFile($app->getBuiltInConfigPath());
 		$this->loadConfigFile($loadDir);
 
 		$config = new Config($this->payload);

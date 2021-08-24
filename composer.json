@@ -30,16 +30,17 @@
 		"vlucas/phpdotenv": "^3.3",
 		"symfony/console": "^4.3|^5.0",
 		"filp/whoops": "^2.7",
-		"twig/twig": "^3.0",
-		"pimple/pimple": "^3.2"
+		"twig/twig": "^3.0"
 	},
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",
-		"w7/php-cs-fixer": "*"
+		"w7/php-cs-fixer": "*",
+		"phpunit/phpunit": "^8.2"
 	},
 	"autoload": {
 		"psr-4": {
-			"W7\\": "Src/"
+			"W7\\": "Src/",
+			"W7\\Tests\\": "tests/"
 		},
 		"files": [
 			"Src/Core/Helper/Functions.php",

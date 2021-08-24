@@ -30,7 +30,7 @@ use W7\Core\Server\ServerAbstract;
  */
 class App {
 	public const NAME = 'w7-rangine';
-	public const VERSION = '2.5.0';
+	public const VERSION = '2.5.3';
 
 	public static $self;
 	/**
@@ -120,6 +120,10 @@ class App {
 
 	public function configurationIsCached() {
 		return is_dir($this->getConfigCachePath());
+	}
+
+	public function getBuiltInConfigPath() {
+		return $this->getBasePath() . '/vendor/composer/rangine/autoload/config';
 	}
 
 	public function routeIsCached() {
