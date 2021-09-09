@@ -36,7 +36,7 @@ class Router implements RouterInterface {
 	private $groupStack = [];
 
 	private $currentMiddleware = [];
-	private $defaultNamespace = 'W7\App';
+	private $defaultNamespace;
 	private $defaultModule = 'system';
 
 	private $name = '';
@@ -45,6 +45,7 @@ class Router implements RouterInterface {
 		if (!$routeCollector) {
 			$routeCollector = new RouteCollector(new Std(), new GroupCountBased());
 		}
+		$this->defaultNamespace = $config['app_namespace'] ?? '';
 		$this->routerCollector = $routeCollector;
 		$this->config = $config;
 	}
