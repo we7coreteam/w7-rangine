@@ -26,9 +26,10 @@ use W7\Core\Server\ServerAbstract;
 
 class App {
 	const NAME = 'w7-rangine';
-	const VERSION = '2.4.21';
+	const VERSION = '2.4.23';
 
 	public static $self;
+	protected $appNamespace;
 	/**
 	 * 服务器对象
 	 *
@@ -69,6 +70,18 @@ class App {
 			new static();
 		}
 		return self::$self;
+	}
+
+	public function getAppNamespace() {
+		if (!is_null($this->appNamespace)) {
+			return $this->appNamespace;
+		}
+
+		if (defined('APP_NAMESPACE')) {
+			return $this->appNamespace = APP_NAMESPACE;
+		}
+
+		return $this->appNamespace = '\\W7\\App';
 	}
 
 	public function runConsole() {

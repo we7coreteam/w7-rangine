@@ -12,6 +12,7 @@
 
 namespace W7\Core\Session\Provider;
 
+use W7\App;
 use W7\Contract\Session\SessionInterface;
 use W7\Core\Provider\ProviderAbstract;
 use W7\Core\Session\Session;
@@ -26,7 +27,7 @@ class SessionProvider extends ProviderAbstract {
 			if (!empty($config['channel'])) {
 				$channel = sprintf('\\W7\\Core\\Session\\Channel\\%sChannel', ucfirst($config['channel']));
 				if (!class_exists($channel)) {
-					$channel = sprintf('\\W7\\App\\Channel\\Session\\%sChannel', ucfirst($config['channel']));
+					$channel = sprintf( App::getApp()->getAppNamespace() . '\\Channel\\Session\\%sChannel', ucfirst($config['channel']));
 				}
 				$config['channel'] = $channel;
 			}

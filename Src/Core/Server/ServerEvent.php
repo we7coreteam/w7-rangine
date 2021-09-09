@@ -13,6 +13,7 @@
 namespace W7\Core\Server;
 
 use Illuminate\Support\Str;
+use W7\App;
 use W7\Core\Helper\Traiter\AppCommonTrait;
 use W7\Core\Listener\FinishListener;
 use W7\Core\Listener\ManagerStartListener;
@@ -179,7 +180,7 @@ class ServerEvent {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
 			$this->getEventDispatcher()->listen($eventName, $listener);
 
-			$listener = sprintf('\\W7\\App\\Listener\\%sListener', ucfirst($eventName));
+			$listener = sprintf(App::getApp()->getAppNamespace() . '\\Listener\\%sListener', ucfirst($eventName));
 			$this->getEventDispatcher()->listen($eventName, $listener);
 		}
 	}
