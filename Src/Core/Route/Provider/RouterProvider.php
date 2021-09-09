@@ -32,6 +32,7 @@ class RouterProvider extends ProviderAbstract {
 			$enableStatic = $this->config->get('server.common.enable_static_handler', true);
 
 			return new Router($routeCollector, [
+				'app_namespace' => App::getApp()->getAppNamespace(),
 				'document_root' => $documentRoot,
 				'enable_static_handler' => $enableStatic
 			]);
