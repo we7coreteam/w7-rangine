@@ -86,7 +86,7 @@ class App {
 			return $this->appNamespace = APP_NAMESPACE;
 		}
 
-		return $this->appNamespace = '\\W7\\App';
+		return $this->appNamespace = 'W7\\App';
 	}
 
 	public function runConsole() {
