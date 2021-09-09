@@ -12,6 +12,7 @@
 
 namespace W7;
 
+use RuntimeException;
 use W7\Console\Application;
 use W7\Console\Io\Output;
 use W7\Contract\Config\RepositoryInterface;
@@ -33,6 +34,7 @@ class App {
 	public const VERSION = '2.5.3';
 
 	public static $self;
+	protected $appNamespace;
 	/**
 	 * 服务器对象
 	 *
@@ -73,6 +75,18 @@ class App {
 			new static();
 		}
 		return self::$self;
+	}
+
+	public function getAppNamespace() {
+		if (!is_null($this->appNamespace)) {
+			return $this->appNamespace;
+		}
+
+		if (defined('APP_NAMESPACE')) {
+			return $this->appNamespace = APP_NAMESPACE;
+		}
+
+		return $this->appNamespace = '\\W7\\App';
 	}
 
 	public function runConsole() {
