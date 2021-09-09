@@ -36,7 +36,7 @@ class Router implements RouterInterface {
 	private $groupStack = [];
 
 	private $currentMiddleware = [];
-	private $defaultNamespace;
+	private $appNamespace;
 	private $defaultModule = 'system';
 
 	private $name = '';
@@ -45,7 +45,7 @@ class Router implements RouterInterface {
 		if (!$routeCollector) {
 			$routeCollector = new RouteCollector(new Std(), new GroupCountBased());
 		}
-		$this->defaultNamespace = $config['app_namespace'] ?? '';
+		$this->appNamespace = $config['app_namespace'] ?? '';
 		$this->routerCollector = $routeCollector;
 		$this->config = $config;
 	}
@@ -293,7 +293,7 @@ class Router implements RouterInterface {
 
 	private function getNamespace() {
 		$groupNamespace = implode('\\', array_filter(array_column($this->groupStack, 'namespace')));
-		return empty($groupNamespace) ? $this->defaultNamespace : $groupNamespace;
+		return empty($groupNamespace) ? $this->appNamespace : $groupNamespace;
 	}
 
 	private function getModule() {
