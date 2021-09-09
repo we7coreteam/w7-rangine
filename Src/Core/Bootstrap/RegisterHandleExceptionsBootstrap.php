@@ -35,7 +35,7 @@ class RegisterHandleExceptionsBootstrap implements BootstrapInterface {
 	}
 
 	private function registerUserExceptionHandler(App $app) {
-		$userHandler = 'W7\App\Handler\Exception\ExceptionHandler';
+		$userHandler = $app->getAppNamespace() . '\Handler\Exception\ExceptionHandler';
 		if (class_exists($userHandler)) {
 			$app->getContainer()->get(HandlerExceptions::class)->setHandler($userHandler);
 		}
