@@ -21,6 +21,10 @@ class CookieChannel extends ChannelAbstract {
 	}
 
 	public function replenishResponse(ResponseInterface $response, $sessionId) : ResponseInterface {
+		if ($this->request->cookie($this->getSessionName())) {
+			return $response;
+		}
+
 		$sessionCookie = Cookie::create(
 			$this->getSessionName(),
 			$sessionId,
