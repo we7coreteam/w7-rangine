@@ -16,13 +16,19 @@ use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Route\RouteDispatcher;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerEnum;
+use W7\Core\Session\SessionTrait;
 use W7\Http\Server\Dispatcher;
 use W7\Http\Session\Middleware\SessionMiddleware;
 
 class BeforeStartListener extends ListenerAbstract {
+	use SessionTrait;
+
 	public function run(...$params) {
 		$this->registerRouter();
-		$this->registerMiddleware();
+
+		if ($this->sessionIsAutoStart()) {
+			$this->registerMiddleware();
+		}
 	}
 
 	private function registerRouter() {
