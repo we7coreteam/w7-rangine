@@ -18,7 +18,7 @@ trait SessionTrait {
 	use AppCommonTrait;
 
 	protected function sessionIsAutoStart() {
-		$sessionAutoStart = $this->getConfig()->get('session.auto_start');
+		$sessionAutoStart = $this->getConfig()->get('app.session.auto_start');
 		if (is_null($sessionAutoStart) || !empty($sessionAutoStart)) {
 			return true;
 		}
