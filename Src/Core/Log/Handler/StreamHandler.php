@@ -26,11 +26,11 @@ class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInt
 		return $handler;
 	}
 
-	public function handleBatch(array $records) {
+	public function handleBatch(array $records) : void {
 		$this->write($records);
 	}
 
-	protected function streamWrite($stream, array $record) {
+	protected function streamWrite($stream, array $record) : void {
 		$record = array_column($record, 'formatted');
 		$record = ['formatted' => implode("\n", $record) . "\n"];
 		if (isCo()) {
