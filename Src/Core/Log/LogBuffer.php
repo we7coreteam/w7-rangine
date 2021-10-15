@@ -21,7 +21,7 @@ class LogBuffer extends MonologBufferHandler {
 	 */
 	protected $handler;
 
-	public function handle(array $record) {
+	public function handle(array $record) : bool {
 		$record = $this->handler->preProcess($record);
 		return parent::handle($record);
 	}

@@ -21,8 +21,8 @@ use Psr\Log\LoggerInterface;
  *
  * @property $bufferLimit
  */
-class Logger extends \Monolog\Logger implements LoggerInterface {
-	public function addRecord($level, $message, array $context = array()) {
+class Logger extends \Monolog\Logger {
+	public function addRecord($level, $message, array $context = array()) : bool {
 		$result =  parent::addRecord($level, $message, $context);
 
 		if ($this->bufferLimit == 1) {

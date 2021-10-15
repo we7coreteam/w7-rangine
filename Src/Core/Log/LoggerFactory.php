@@ -97,8 +97,8 @@ class LoggerFactory implements LoggerFactoryInterface {
 			$logger = $this->createLogger($channel, $this->channelsConfig[$channel]);
 			$this->registerLogger($channel, $logger);
 		}
-		if (empty($this->loggerMap[$channel])) {
-			$channel = $this->defaultChannel;
+		if (empty($this->loggerMap[$channel]) && $channel !== $this->defaultChannel) {
+			return $this->getLogger($this->defaultChannel);
 		}
 
 		if (!empty($this->loggerMap[$channel]) && $this->loggerMap[$channel] instanceof MonoLogger) {
