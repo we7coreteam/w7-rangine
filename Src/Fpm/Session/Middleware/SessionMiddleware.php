@@ -19,7 +19,23 @@ use W7\Contract\Session\SessionInterface;
 use W7\Core\Middleware\MiddlewareAbstract;
 
 class SessionMiddleware extends MiddlewareAbstract {
+	private function initSessionConfig() {
+		$sessionConfig = $this->getConfig()->get('app.session', []);
+		if (empty($sessionConfig['save_path']) && (empty($sessionConfig['handler']) || $sessionConfig['handler'] == 'file')) {
+			$sessionConfig['save_path'] = session_save_path();
+		}
+		if (!empty($sessionConfig['name'])) {
+			session_name($sessionConfig['name']);
+		}
+		ini_set('session.serialize_handler', 'php_serialize');
+
+		$sessionConfig['prefix'] = '';
+		$this->getConfig()->set('app.session', $sessionConfig);
+	}
+
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+		$this->initSessionConfig();
+
 		$request->session = $this->getContainer()->clone(SessionInterface::class);
 		$request->session->start($request, true);
 		$request->session->gc();

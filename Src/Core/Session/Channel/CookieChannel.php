@@ -21,9 +21,10 @@ class CookieChannel extends ChannelAbstract {
 	}
 
 	public function replenishResponse(ResponseInterface $response, $sessionId) : ResponseInterface {
-		//如果用户自定义channel,在这里要通过响应的data中携带sessionid的话,暂不支持
+		if ($this->request->cookie($this->getSessionName())) {
+			return $response;
+		}
 
-		// websocket 需要使用 header Set-Cookie 下发 Cookie
 		$sessionCookie = Cookie::create(
 			$this->getSessionName(),
 			$sessionId,
