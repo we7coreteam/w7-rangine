@@ -13,6 +13,8 @@
 namespace W7\Core\Config\Env;
 
 use Dotenv\Dotenv;
+use Dotenv\Environment\Adapter\ApacheAdapter;
+use Dotenv\Environment\Adapter\PutenvAdapter;
 use Dotenv\Environment\DotenvFactory;
 
 class Env {
@@ -41,7 +43,7 @@ class Env {
 			
 			$loader = new Loader(
 				$this->getFilePaths((array) $this->envPath, $envFileName ?: '.env'),
-				new DotenvFactory(),
+				new DotenvFactory([new ApacheAdapter(), new PutenvAdapter()]),
 				true
 			);
 			$dotEnv = new Dotenv($loader);
