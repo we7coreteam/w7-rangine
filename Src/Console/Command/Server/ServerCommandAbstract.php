@@ -45,6 +45,9 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 		// 当指定的server中包含自定义process的时候，补充process
 		if (count(array_intersect(array_keys(ServerEnum::$ALL_SERVER), $servers)) !== count($servers)) {
+			$processServer = ServerEnum::$ALL_SERVER[ServerEnum::TYPE_PROCESS];
+			unset(ServerEnum::$ALL_SERVER[ServerEnum::TYPE_PROCESS]);
+			ServerEnum::$ALL_SERVER[ServerEnum::TYPE_PROCESS] = $processServer;
 			$servers[] = ServerEnum::TYPE_PROCESS;
 		}
 
