@@ -23,15 +23,15 @@ use W7\Core\Config\Env;
 abstract class CommandAbstract extends Command {
 	use AppCommonTrait;
 
-	protected $description = '';
+	protected string $description = '';
 	/**
 	 * @var InputInterface
 	 */
-	protected $input;
+	protected InputInterface $input;
 	/**
 	 * @var Output
 	 */
-	protected $output;
+	protected Output $output;
 
 	public function __construct(string $name = null) {
 		parent::__construct($name);
@@ -41,7 +41,7 @@ abstract class CommandAbstract extends Command {
 	/**
 	 * Command arguments that override configurations, such as --config-app-setting-env=1, override the setting/env value in config/app
 	 */
-	private function overwriteConfigByOptions() {
+	private function overwriteConfigByOptions(): void {
 		foreach ($this->input->getOptions() as $option => $value) {
 			if (is_null($value) || is_array($value) || trim($value) === '') {
 				continue;
@@ -60,7 +60,7 @@ abstract class CommandAbstract extends Command {
 		}
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output) {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$this->getApplication()->setDefaultCommand($this->getName());
 		$this->input = $input;
 		$this->output = $output;
@@ -81,7 +81,7 @@ abstract class CommandAbstract extends Command {
 		return $this->input->getOption($key);
 	}
 
-	protected function call($command, $arguments = []) {
+	protected function call($command, $arguments = []): int {
 		$arguments['command'] = $command;
 		$input = new ArrayInput($arguments);
 		return $this->getApplication()->find($command)->run(

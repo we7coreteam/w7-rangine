@@ -36,17 +36,17 @@ use W7\Core\Server\ServerEvent;
 abstract class ProviderAbstract {
 	use AppCommonTrait;
 
-	protected $name;
-	protected $packageName;
-	protected $packageNamespace;
+	protected string $name;
+	protected string $packageName;
+	protected string $packageNamespace;
 
-	public static $publishes = [];
-	public static $publishGroups = [];
-	protected $rootPath;
+	public static array $publishes = [];
+	public static array $publishGroups = [];
+	protected string $rootPath;
 
-	final public function __construct($name = null) {
+	final public function __construct(string $name = null) {
 		if (!$name) {
-			$name = get_called_class();
+			$name = static::class;
 		}
 		$this->name = $name;
 		if ($this->packageName) {
@@ -63,34 +63,38 @@ abstract class ProviderAbstract {
 	 * Register any application services.
 	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 	}
 
 	/**
 	 * boot any application services
 	 * @return mixed
 	 */
-	public function boot() {
+	public function boot(): void {
 	}
 
-	protected function registerOpenBaseDir($dir) {
+	protected function registerOpenBaseDir($dir): void {
 		$dir = (array)$dir;
 		$appBasedir = $this->getConfig()->get('app.setting.basedir', []);
 		$appBasedir = array_merge($appBasedir, $dir);
 		$this->getConfig()->set('app.setting.basedir', $appBasedir);
 	}
 
-	protected function registerProvider($provider) {
-		$this->getContainer()->get(ProviderManager::class)->registerProvider($provider);
+	protected function registerProvider($provider): void {
+		/**
+		 * @var ProviderManager $providerManager
+		 */
+		$providerManager = $this->getContainer()->get(ProviderManager::class);
+		$providerManager->registerProvider($provider);
 	}
 
-	protected function registerConfig($fileName, $key) {
+	protected function registerConfig(string $fileName, string $key): void {
 		$this->mergeConfigFrom($this->rootPath . '/config/' . $fileName, $key);
 	}
 
-	protected function publishConfig($sourceFileName, $targetFileName = null, $group = null) {
+	protected function publishConfig(string $sourceFileName, string $targetFileName = null, string $group = null): void {
 		if (!isCli()) {
-			return false;
+			return ;
 		}
 
 		if (!$targetFileName) {
@@ -101,14 +105,14 @@ abstract class ProviderAbstract {
 		], $group);
 	}
 
-	protected function registerLogger($channel, $config = []) {
+	protected function registerLogger(string $channel, array $config = []): void {
 		$logger = $this->logger->createLogger($channel, $config);
 		$this->logger->registerLogger($channel, $logger);
 	}
 
-	protected function registerRoute($fileName, $options = []) {
+	protected function registerRoute(string $fileName, array $options = []): void {
 		if (App::getApp()->routeIsCached()) {
-			return true;
+			return;
 		}
 		$routeConfig = [
 			'namespace' => $this->packageNamespace,
@@ -122,7 +126,7 @@ abstract class ProviderAbstract {
 		});
 	}
 
-	protected function registerStaticResource() {
+	protected function registerStaticResource(): void {
 		$documentRoot = $this->getConfig()->get('server.common.document_root');
 		if (!$documentRoot) {
 			throw new \RuntimeException("please set server['common']['document_root']");
@@ -137,13 +141,13 @@ abstract class ProviderAbstract {
 		}
 	}
 
-	protected function registerView($namespace) {
+	protected function registerView(string $namespace): void {
 		$this->getView()->addTemplatePath($namespace, $this->rootPath . '/view/');
 	}
 
-	protected function registerCommand($namespace = '') {
+	protected function registerCommand(string $namespace = ''): void {
 		if (!isCli()) {
-			return false;
+			return;
 		}
 		/**
 		 * @var  Application $application
@@ -152,28 +156,26 @@ abstract class ProviderAbstract {
 		$application->autoRegisterCommands($this->rootPath . '/src/Command', $this->packageNamespace, $namespace);
 	}
 
-	protected function registerServer($name, $class) {
-		ServerEnum::registerServer($name, $class);
+	protected function registerServer(string $serverName, string $class): void {
+		ServerEnum::registerServer($serverName, $class);
 	}
 
-	protected function registerServerEvent($name, array $events, $cover = false) {
+	protected function registerServerEvent(string $serverName, array $events, bool $cover = false): void {
 		/**
 		 * @var ServerEvent $event
 		 */
 		$event = $this->getContainer()->get(ServerEvent::class);
-		$event->addServerEvents($name, $events, $cover);
+		$event->addServerEvents($serverName, $events, $cover);
 	}
 
-	protected function setRootPath($path) {
+	protected function setRootPath(string $path): void {
 		$this->rootPath = $path;
 	}
 
 	/**
 	 * Merge the given configuration with the existing configuration.
-	 * @param $path
-	 * @param $key
 	 */
-	protected function mergeConfigFrom($path, $key) {
+	protected function mergeConfigFrom(string $path, string $key) {
 		if (App::getApp()->configurationIsCached()) {
 			return true;
 		}
@@ -184,9 +186,8 @@ abstract class ProviderAbstract {
 	/**
 	 * Load the given routes file
 	 * Configuration file routing configuration is not supported
-	 * @param $path
 	 */
-	protected function loadRouteFrom($path) {
+	protected function loadRouteFrom(string $path) {
 		if (App::getApp()->routeIsCached()) {
 			return true;
 		}
@@ -195,10 +196,8 @@ abstract class ProviderAbstract {
 
 	/**
 	 * Register paths to be published by the publish command.
-	 * @param $paths
-	 * @param null $groups
 	 */
-	protected function publishes($paths, $groups = null) {
+	protected function publishes(array $paths, mixed $groups = null): void {
 		$this->ensurePublishArrayInitialized($class = static::class);
 
 		static::$publishes[$class] = array_merge(static::$publishes[$class], $paths);
@@ -213,10 +212,10 @@ abstract class ProviderAbstract {
 	/**
 	 * Ensure the publish array for the service provider is initialized.
 	 *
-	 * @param  string  $class
+	 * @param string $class
 	 * @return void
 	 */
-	protected function ensurePublishArrayInitialized($class) {
+	protected function ensurePublishArrayInitialized(string $class): void {
 		if (! array_key_exists($class, static::$publishes)) {
 			static::$publishes[$class] = [];
 		}
@@ -225,11 +224,11 @@ abstract class ProviderAbstract {
 	/**
 	 * Add a publish group / tag to the service provider.
 	 *
-	 * @param  string  $group
-	 * @param  array  $paths
+	 * @param string $group
+	 * @param array $paths
 	 * @return void
 	 */
-	protected function addPublishGroup($group, $paths) {
+	protected function addPublishGroup(string $group, array $paths): void {
 		if (! array_key_exists($group, static::$publishGroups)) {
 			static::$publishGroups[$group] = [];
 		}
@@ -243,11 +242,11 @@ abstract class ProviderAbstract {
 	/**
 	 * Get the paths to publish.
 	 *
-	 * @param  string  $provider
-	 * @param  string  $group
+	 * @param string|null $provider
+	 * @param string|null $group
 	 * @return array
 	 */
-	public static function pathsToPublish($provider = null, $group = null) {
+	public static function pathsToPublish(string $provider = null, string $group = null): array {
 		if (! is_null($paths = static::pathsForProviderOrGroup($provider, $group))) {
 			return $paths;
 		}
@@ -256,31 +255,31 @@ abstract class ProviderAbstract {
 
 	/**
 	 * Get the paths for the provider or group (or both).
-	 *
-	 * @param  string|null  $provider
-	 * @param  string|null  $group
-	 * @return array
 	 */
-	protected static function pathsForProviderOrGroup($provider, $group) {
+	protected static function pathsForProviderOrGroup(string $provider = null, string $group = null): array {
 		if ($provider && $group) {
 			return static::pathsForProviderAndGroup($provider, $group);
-		} elseif ($group && array_key_exists($group, static::$publishGroups)) {
-			return static::$publishGroups[$group];
-		} elseif ($provider && array_key_exists($provider, static::$publishes)) {
-			return static::$publishes[$provider];
-		} else {
-			return [];
 		}
+
+		if ($group && array_key_exists($group, static::$publishGroups)) {
+			return static::$publishGroups[$group];
+		}
+
+		if ($provider && array_key_exists($provider, static::$publishes)) {
+			return static::$publishes[$provider];
+		}
+
+		return [];
 	}
 
 	/**
 	 * Get the paths for the provider and group.
 	 *
-	 * @param  string  $provider
-	 * @param  string  $group
+	 * @param string $provider
+	 * @param string $group
 	 * @return array
 	 */
-	protected static function pathsForProviderAndGroup($provider, $group) {
+	protected static function pathsForProviderAndGroup(string $provider, string $group): array {
 		if (! empty(static::$publishes[$provider]) && ! empty(static::$publishGroups[$group])) {
 			return array_intersect_key(static::$publishes[$provider], static::$publishGroups[$group]);
 		}

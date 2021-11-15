@@ -15,12 +15,9 @@ namespace W7\Core\Cache\Event;
 use W7\Core\Cache\Handler\HandlerAbstract;
 
 class AfterMakeConnectionEvent {
-	public $name;
+	public string $name;
 
-	/**
-	 * @var HandlerAbstract
-	 */
-	public $handler;
+	public HandlerAbstract $handler;
 
 	public function __construct($name, $handler) {
 		$this->name = $name;

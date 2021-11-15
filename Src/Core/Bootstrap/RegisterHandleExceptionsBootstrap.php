@@ -16,12 +16,12 @@ use W7\App;
 use W7\Core\Exception\HandlerExceptions;
 
 class RegisterHandleExceptionsBootstrap implements BootstrapInterface {
-	public function bootstrap(App $app) {
+	public function bootstrap(App $app): void {
 		$this->registerExceptionHandlers($app);
 		$this->registerUserExceptionHandler($app);
 	}
 
-	private function registerExceptionHandlers(App $app) {
+	private function registerExceptionHandlers(App $app): void {
 		$setting = $app->getConfigger()->get('app.setting');
 		$errorLevel = $setting['error_reporting'] ?? ((ENV & RELEASE) === RELEASE ? E_ALL^E_NOTICE^E_WARNING : -1);
 		error_reporting($errorLevel);
@@ -34,7 +34,7 @@ class RegisterHandleExceptionsBootstrap implements BootstrapInterface {
 		$app->getContainer()->get(HandlerExceptions::class)->registerErrorHandle();
 	}
 
-	private function registerUserExceptionHandler(App $app) {
+	private function registerUserExceptionHandler(App $app): void {
 		$userHandler = $app->getAppNamespace() . '\Handler\Exception\ExceptionHandler';
 		if (class_exists($userHandler)) {
 			$app->getContainer()->get(HandlerExceptions::class)->setHandler($userHandler);

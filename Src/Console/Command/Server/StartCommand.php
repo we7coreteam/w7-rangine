@@ -13,9 +13,9 @@
 namespace W7\Console\Command\Server;
 
 class StartCommand extends ServerCommandAbstract {
-	protected $description = 'start server';
+	protected string $description = 'start server';
 
-	protected function handle($options) {
+	protected function handle($options): void {
 		parent::handle($options);
 		$this->start();
 	}

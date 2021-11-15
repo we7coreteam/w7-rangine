@@ -16,23 +16,20 @@ use Psr\SimpleCache\CacheInterface;
 use W7\Core\Cache\Handler\HandlerAbstract;
 
 abstract class CacheAbstract implements CacheInterface {
-	protected $name;
-	protected $cacheOptions = [];
-	/**
-	 * @var ConnectionResolver
-	 */
-	protected $connectionResolver;
+	protected string $name;
+	protected array $cacheOptions = [];
+	protected ConnectionResolver $connectionResolver;
 
-	public function __construct($name, $cacheOptions = []) {
+	public function __construct(string $name, array $cacheOptions = []) {
 		$this->name = $name;
 		$this->cacheOptions = $cacheOptions;
 	}
 
-	public function getName() {
+	public function getName(): string {
 		return $this->name;
 	}
 
-	public function setConnectionResolver(ConnectionResolver $connectorManager) {
+	public function setConnectionResolver(ConnectionResolver $connectorManager): void {
 		$this->connectionResolver = $connectorManager;
 	}
 
@@ -40,16 +37,19 @@ abstract class CacheAbstract implements CacheInterface {
 		return $this->connectionResolver->connection($this->name);
 	}
 
+	/**
+	 * @throws \Throwable
+	 */
 	protected function tryAgainIfCausedByLostConnection(\Throwable $e, \Closure $callback, HandlerAbstract $connection, callable $tryCall) {
 		if ($connection->isCausedByLostConnection($e)) {
 			$this->connectionResolver->reconnect($this->getName());
-			return call_user_func_array($tryCall, [$callback]);
+			return $tryCall($callback);
 		}
 
 		throw $e;
 	}
 
-	protected function warpKey($key) {
+	protected function warpKey($key): string {
 		return ($this->cacheOptions['prefix'] ?? '') . $key;
 	}
 }

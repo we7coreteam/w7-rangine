@@ -18,25 +18,25 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Output extends SymfonyStyle {
-	const GAP_CHAR = '  ';
-	const LEFT_CHAR = '  ';
+	public const GAP_CHAR = '  ';
+	public const LEFT_CHAR = '  ';
 
 	public function __construct() {
 		parent::__construct(new ArgvInput(), new ConsoleOutput());
 	}
 
-	private function writeKey($key) {
+	private function writeKey($key): void {
 		echo "\033[0;32m$key \e[0m";
 	}
 
-	public function table(array $headers, array $rows) {
+	public function table(array $headers, array $rows): void {
 		$table = new Table($this);
 		$table->setHeaders($headers);
 		$table->setRows($rows);
 		$table->render();
 	}
 
-	public function writeList($list) {
+	public function writeList($list): void {
 		foreach ($list as $title => $items) {
 			$title = "$title";
 			$this->writeln($title);
@@ -46,12 +46,12 @@ class Output extends SymfonyStyle {
 		}
 	}
 
-	public function info($content) {
+	public function info($content): void {
 		$this->write('<info>'.$content.'</info>');
 		$this->newLine();
 	}
 
-	private function writeItems($items, $level = 1) {
+	private function writeItems($items, $level = 1): void {
 		foreach ($items as $cmd => $desc) {
 			if (\is_int($cmd)) {
 				$cmd = '';
@@ -82,7 +82,7 @@ class Output extends SymfonyStyle {
 		}
 	}
 
-	private function writeLeft($level) {
+	private function writeLeft($level): string {
 		$left = '';
 		for ($i = 0; $i < $level; $i++) {
 			$left .= self::LEFT_CHAR;
@@ -90,7 +90,7 @@ class Output extends SymfonyStyle {
 		return $left;
 	}
 
-	private function getCmdMaxLength($commands) {
+	private function getCmdMaxLength($commands): int {
 		$max = 0;
 
 		foreach ($commands as $cmd) {

@@ -21,17 +21,14 @@ use W7\Core\Helper\Traiter\AppCommonTrait;
 class ConnectionResolver {
 	use AppCommonTrait;
 
-	protected $connectionConfig = [];
-	/**
-	 * @var PoolFactory
-	 */
-	protected $poolFactory;
+	protected array $connectionConfig = [];
+	protected PoolFactory $poolFactory;
 
-	public function __construct($connectionConfig = []) {
+	public function __construct(array $connectionConfig = []) {
 		$this->connectionConfig = $connectionConfig;
 	}
 
-	public function setPoolFactory(PoolFactory $poolFactory) {
+	public function setPoolFactory(PoolFactory $poolFactory): void {
 		$this->poolFactory = $poolFactory;
 	}
 

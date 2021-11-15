@@ -15,5 +15,5 @@ namespace W7\Core\Bootstrap;
 use W7\App;
 
 interface BootstrapInterface {
-	public function bootstrap(App $app);
+	public function bootstrap(App $app): void;
 }

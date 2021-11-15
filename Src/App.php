@@ -12,7 +12,6 @@
 
 namespace W7;
 
-use RuntimeException;
 use W7\Console\Application;
 use W7\Console\Io\Output;
 use W7\Contract\Config\RepositoryInterface;
@@ -33,20 +32,20 @@ class App {
 	public const NAME = 'w7-rangine';
 	public const VERSION = '2.5.6';
 
-	public static $self;
-	protected $appNamespace;
+	public static App $self;
+	protected string $appNamespace;
 	/**
 	 * 服务器对象
 	 *
 	 * @var ServerAbstract
 	 */
-	public static $server;
+	public static ServerAbstract $server;
 	/**
 	 * @var Container
 	 */
-	protected $container;
+	protected Container $container;
 
-	protected $bootstrapMap = [
+	protected array $bootstrapMap = [
 		LoadConfigBootstrap::class,
 		RegisterRuntimeEnvBootstrap::class,
 		RegisterHandleExceptionsBootstrap::class,
@@ -60,7 +59,7 @@ class App {
 		$this->bootstrap();
 	}
 
-	protected function bootstrap() {
+	protected function bootstrap(): void {
 		foreach ($this->bootstrapMap as $bootstrap) {
 			/**
 			 * @var BootstrapInterface $bootstrap
@@ -70,14 +69,14 @@ class App {
 		}
 	}
 
-	public static function getApp() {
+	public static function getApp(): App {
 		if (!self::$self) {
 			new static();
 		}
 		return self::$self;
 	}
 
-	public function getAppNamespace() {
+	public function getAppNamespace(): string {
 		if (!is_null($this->appNamespace)) {
 			return $this->appNamespace;
 		}
@@ -89,7 +88,7 @@ class App {
 		return $this->appNamespace = 'W7\\App';
 	}
 
-	public function runConsole() {
+	public function runConsole(): void {
 		try {
 			$this->getContainer()->get(Application::class)->run();
 		} catch (\Throwable $e) {
@@ -97,7 +96,7 @@ class App {
 		}
 	}
 
-	public function getContainer() {
+	public function getContainer(): Container {
 		if (empty($this->container)) {
 			$this->container = new Container();
 		}
@@ -112,39 +111,39 @@ class App {
 		return APP_PATH;
 	}
 
-	public function getBasePath() {
+	public function getBasePath(): string {
 		return BASE_PATH;
 	}
 
-	public function getRuntimePath() {
+	public function getRuntimePath(): string {
 		return RUNTIME_PATH;
 	}
 
-	public function bootstrapCachePath($path = '') {
+	public function bootstrapCachePath($path = ''): string  {
 		return $this->getBasePath() . '/bootstrap/cache' . ($path ? ('/' . $path) : $path);
 	}
 
-	public function getRouteCachePath() {
+	public function getRouteCachePath(): string {
 		return $this->bootstrapCachePath('route/');
 	}
 
-	public function getConfigCachePath() {
+	public function getConfigCachePath(): string {
 		return $this->bootstrapCachePath('config/');
 	}
 
-	public function configurationIsCached() {
+	public function configurationIsCached(): bool {
 		return is_dir($this->getConfigCachePath());
 	}
 
-	public function getBuiltInConfigPath() {
+	public function getBuiltInConfigPath(): string  {
 		return $this->getBasePath() . '/vendor/composer/rangine/autoload/config';
 	}
 
-	public function routeIsCached() {
+	public function routeIsCached(): bool {
 		return is_dir($this->getRouteCachePath());
 	}
 
-	public function exit() {
+	public function exit(): void {
 		$this->container->clear();
 	}
 }

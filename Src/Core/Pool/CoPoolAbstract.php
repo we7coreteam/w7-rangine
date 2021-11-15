@@ -27,7 +27,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 
 	protected $poolName;
 
-	protected $type;
+	protected string $type;
 
 	/**
 	 * Maximum number of connections

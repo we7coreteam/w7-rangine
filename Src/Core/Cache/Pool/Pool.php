@@ -16,7 +16,7 @@ use W7\Core\Cache\ConnectionResolver;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
-	protected $type = 'cache';
+	protected string $type = 'cache';
 
 	public function createConnection() {
 		return $this->getContainer()->get(ConnectionResolver::class)->createConnection($this->getPoolName(), false);

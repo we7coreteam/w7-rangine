@@ -15,7 +15,7 @@ namespace W7\Core\Cache\Pool;
 use W7\Core\Pool\PoolFactoryAbstract;
 
 class PoolFactory extends PoolFactoryAbstract {
-	protected function getPoolInstance($name) {
+	protected function getPoolInstance($name): Pool {
 		$pool = new Pool($name);
 		$pool->setMaxCount($this->poolConfig[$name]['max'] ?? 1);
 

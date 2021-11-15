@@ -19,7 +19,7 @@ use W7\Core\Cache\Pool\PoolFactory;
 use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
-	public function register() {
+	public function register(): void {
 		$this->container->set(ConnectionResolver::class, function () {
 			$connectionConfig = $this->config->get('app.cache', []);
 			foreach ($connectionConfig as &$config) {

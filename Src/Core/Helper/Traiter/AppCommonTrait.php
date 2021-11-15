@@ -32,6 +32,9 @@ trait AppCommonTrait {
 		$this->eventDispatcher = $eventDispatcher;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function getEventDispatcher() {
 		if (!$this->eventDispatcher) {
 			if (!App::getApp()->getContainer()->has(EventDispatcherInterface::class)) {

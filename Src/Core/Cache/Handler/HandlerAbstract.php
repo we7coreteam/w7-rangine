@@ -20,13 +20,13 @@ abstract class HandlerAbstract implements CacheInterface {
 		causedByLostConnection as public isCausedByLostConnection;
 	}
 
-	protected $storage;
+	protected mixed $storage;
 
 	public function __construct($storage) {
 		$this->storage = $storage;
 	}
 
-	public function setStorage($storage) {
+	public function setStorage($storage): static {
 		$this->storage = $storage;
 		return $this;
 	}
@@ -37,7 +37,7 @@ abstract class HandlerAbstract implements CacheInterface {
 
 	abstract public static function connect($config) : HandlerAbstract;
 
-	public function pack($data) {
+	public function pack($data): string {
 		return is_numeric($data) ? $data : serialize($data);
 	}
 
@@ -45,7 +45,7 @@ abstract class HandlerAbstract implements CacheInterface {
 		return is_numeric($data) ? $data : unserialize($data);
 	}
 
-	public function alive() {
+	public function alive(): bool {
 		return true;
 	}
 }

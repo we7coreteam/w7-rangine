@@ -13,10 +13,7 @@
 namespace W7\Core\Cache\Handler;
 
 class RedisHandler extends HandlerAbstract {
-	/**
-	 * @var \Redis
-	 */
-	protected $storage;
+	protected \Redis $storage;
 
 	public static function connect($config) : HandlerAbstract {
 		if (!empty($config['cluster']['enable'])) {
@@ -33,12 +30,12 @@ class RedisHandler extends HandlerAbstract {
 		}
 
 		if (!empty($config['database'])) {
-			$redis->select(intval($config['database']));
+			$redis->select((int)$config['database']);
 		}
 		return new static($redis);
 	}
 
-	protected static function createRedis(array $config) {
+	protected static function createRedis(array $config): \Redis {
 		$redis = new \Redis();
 
 		$persistent = $config['persistent'] ?? false;
@@ -73,7 +70,7 @@ class RedisHandler extends HandlerAbstract {
 		return $redis;
 	}
 
-	protected static function createRedisClusterInstance(array $config) {
+	protected static function createRedisClusterInstance(array $config): \RedisCluster {
 		$parameters = [
 			null,
 			$config['cluster']['servers'] ?? [],
@@ -96,13 +93,13 @@ class RedisHandler extends HandlerAbstract {
 		return new \RedisCluster(...$parameters);
 	}
 
-	protected static function createRedisSentinel(array $config) {
+	protected static function createRedisSentinel(array $config): \Redis {
 		$host = '';
 		$port = 0;
 		foreach ($config['sentinel']['nodes'] ?? [] as $node) {
 			[$sentinelHost, $sentinelPort] = explode(':', $node);
 			$sentinel = new \RedisSentinel(
-				(string)$sentinelHost,
+				$sentinelHost,
 				(int)$sentinelPort,
 				$config['sentinel']['timeout'] ?? 0,
 				$config['sentinel']['persistent'] ?? null,
@@ -153,8 +150,11 @@ class RedisHandler extends HandlerAbstract {
 		return $this->storage->flushDB();
 	}
 
-	public function alive() {
-		return $this->storage->ping();
+	/**
+	 * @throws \RedisException
+	 */
+	public function alive(): bool {
+		return empty($this->storage->ping());
 	}
 
 	public function __call($name, $arguments) {

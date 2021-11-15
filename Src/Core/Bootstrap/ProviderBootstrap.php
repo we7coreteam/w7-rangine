@@ -28,7 +28,7 @@ use W7\Core\View\Provider\ViewProvider;
 
 class ProviderBootstrap implements BootstrapInterface {
 	//该map可优化,涉及到config:cache命令中的获取
-	public static $providerMap = [
+	public static array $providerMap = [
 		'illuminate' => IlluminateProvider::class,
 		'event' => EventProvider::class,
 		'log' => LogProvider::class,
@@ -42,16 +42,13 @@ class ProviderBootstrap implements BootstrapInterface {
 		'server' => ServerProvider::class
 	];
 
-	public function bootstrap(App $app) {
+	public function bootstrap(App $app): void {
 		$providers = $app->getConfigger()->get('provider.providers', []);
 		$providers = array_merge(self::$providerMap, $providers);
 		$deferredProviders = $app->getConfigger()->get('provider.deferred', []);
 
 		$app->getContainer()->registerDeferredService(array_keys($deferredProviders));
 
-		/**
-		 * @var ProviderManager $providerManager
-		 */
 		$providerManager = new ProviderManager($app->getContainer());
 		$app->getContainer()->set(ProviderManager::class, $providerManager);
 		$providerManager->setDeferredProviders($deferredProviders);

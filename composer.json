@@ -31,7 +31,7 @@
 		"symfony/console": "^5.0",
 		"filp/whoops": "^2.7",
 		"twig/twig": "^3.0"
-	},
+    },
 	"require-dev": {
 		"swoole/ide-helper": "^4.4",
 		"w7/php-cs-fixer": "*",

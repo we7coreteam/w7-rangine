@@ -13,9 +13,9 @@
 namespace W7\Console\Command\Server;
 
 class RestartCommand extends ServerCommandAbstract {
-	protected $description = 'restart server';
+	protected string $description = 'restart server';
 
-	protected function handle($options) {
+	protected function handle($options): void {
 		parent::handle($options);
 		$this->restart();
 	}

@@ -15,7 +15,7 @@ namespace W7\Core\Bootstrap;
 use W7\App;
 
 class RegisterSecurityDirBootstrap implements BootstrapInterface {
-	public function bootstrap(App $app) {
+	public function bootstrap(App $app): void {
 		//设置安全限制目录
 		$openBaseDirConfig = $app->getConfigger()->get('app.setting.basedir', []);
 		if (is_array($openBaseDirConfig)) {

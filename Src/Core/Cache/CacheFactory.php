@@ -16,22 +16,19 @@ use W7\Contract\Cache\CacheFactoryInterface;
 use Psr\SimpleCache\CacheInterface;
 
 class CacheFactory implements CacheFactoryInterface {
-	protected $cacheMap = [];
-	protected $cacheOptions = [];
-	/**
-	 * @var ConnectionResolver
-	 */
-	protected $connectionResolver;
+	protected array $cacheMap = [];
+	protected array $cacheOptions = [];
+	protected ConnectionResolver $connectionResolver;
 
-	public function __construct($cacheOptions = []) {
+	public function __construct(array $cacheOptions = []) {
 		$this->cacheOptions = $cacheOptions;
 	}
 
-	public function setConnectionResolver($connectionResolver) {
+	public function setConnectionResolver($connectionResolver): void {
 		$this->connectionResolver = $connectionResolver;
 	}
 
-	public function registerCache(CacheAbstract $cache) {
+	public function registerCache(CacheAbstract $cache): void {
 		$this->cacheMap[$cache->getName()] = $cache;
 	}
 

@@ -15,7 +15,7 @@ namespace W7\Core\Bootstrap;
 use W7\App;
 
 class RegisterRuntimeEnvBootstrap implements BootstrapInterface {
-	public function bootstrap(App $app) {
+	public function bootstrap(App $app): void {
 		$defaultTimezone = $app->getConfigger()->get('app.setting.timezone', 'Asia/Shanghai');
 		date_default_timezone_set($defaultTimezone);
 

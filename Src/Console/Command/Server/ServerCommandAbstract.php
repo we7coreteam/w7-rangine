@@ -19,20 +19,26 @@ use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleServerAbstract;
 
 abstract class ServerCommandAbstract extends CommandAbstract {
-	private $masterServers = [];
-	private $aloneServers = [];
-	private $followServers = [];
+	private array $masterServers = [];
+	private array $aloneServers = [];
+	private array $followServers = [];
 
-	protected function configure() {
+	protected function configure(): void {
 		$this->addOption('--config-app-setting-server', '-s', InputOption::VALUE_REQUIRED, 'server type');
 	}
 
-	protected function handle($options) {
+	/**
+	 * @throws CommandException
+	 */
+	protected function handle($options): void {
 		$this->clearStartServer();
 		$this->parseServer();
 	}
 
-	private function parseServer() {
+	/**
+	 * @throws CommandException
+	 */
+	private function parseServer(): void {
 		$servers = trim($this->getConfig()->get('app.setting.server'));
 		if (!$servers) {
 			throw new CommandException('please set the server to start');
@@ -48,11 +54,11 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		}
 
 		foreach (ServerEnum::$ALL_SERVER as $key => $server) {
-			if (!in_array($key, $servers)) {
+			if (!in_array($key, $servers, true)) {
 				continue;
 			}
 
-			unset($servers[array_search($key, $servers)]);
+			unset($servers[array_search($key, $servers, true)]);
 
 			if (!$masterServers && $server::$masterServer) {
 				$masterServers[$key] = $server;
@@ -97,7 +103,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		return $this->getContainer()->get($server);
 	}
 
-	private function addSubServer(SwooleServerAbstract $server) {
+	private function addSubServer(SwooleServerAbstract $server): array {
 		$lines = [];
 		foreach ($this->followServers as $key => $handle) {
 			/**
@@ -110,8 +116,8 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			$this->saveStartServer($subServer->getType());
 
 			$statusInfo = '';
-			foreach ($subServer->getStatus() as $key => $value) {
-				$statusInfo .= " $key: $value, ";
+			foreach ($subServer->getStatus() as $statusKey => $value) {
+				$statusInfo .= " $statusKey: $value, ";
 			}
 			$lines[] = "* {$subServer->getType()}  | " . rtrim($statusInfo, ', ');
 		}
@@ -119,7 +125,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		return $lines;
 	}
 
-	protected function start() {
+	protected function start(): void {
 		/**
 		 * @var SwooleServerAbstract $server
 		 */
@@ -129,7 +135,8 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 		if ($server->isRun()) {
 			$this->output->warning("The server have been running!(PID: {$status['masterPid']})", true);
-			return $this->restart();
+			$this->restart();
+			return ;
 		}
 
 		$statusInfo = '';
@@ -151,7 +158,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$server->start();
 	}
 
-	protected function stop() {
+	protected function stop(): bool {
 		$this->clearStartServer();
 		$server = $this->getMasterServer();
 		// 是否已启动
@@ -169,18 +176,18 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		return true;
 	}
 
-	protected function restart() {
+	protected function restart(): void {
 		$stop = $this->stop();
 		$stop && $this->start();
 	}
 
-	private function saveStartServer($type) {
+	private function saveStartServer($type): void {
 		$serverConfig = $this->getConfig()->get('app.setting.started_servers', []);
 		$serverConfig[] = $type;
 		$this->getConfig()->set('app.setting.started_servers', $serverConfig);
 	}
 
-	private function clearStartServer() {
+	private function clearStartServer(): void {
 		$this->getConfig()->set('app.setting.started_servers', []);
 	}
 }

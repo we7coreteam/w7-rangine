@@ -38,7 +38,7 @@ class Application extends SymfonyApplication {
 	 *
 	 * @return InputDefinition An InputDefinition instance
 	 */
-	protected function getDefaultInputDefinition() {
+	protected function getDefaultInputDefinition(): InputDefinition {
 		return new InputDefinition([
 			new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
 
@@ -51,11 +51,11 @@ class Application extends SymfonyApplication {
 		]);
 	}
 
-	public function run(InputInterface $input = null, OutputInterface $output = null) {
+	public function run(InputInterface $input = null, OutputInterface $output = null): int {
 		return parent::run($input, new Output());
 	}
 
-	public function doRun(InputInterface $input, OutputInterface $output) {
+	public function doRun(InputInterface $input, OutputInterface $output): int {
 		if (true === $input->hasParameterOption(['--version', '-v'], true)) {
 			$output->writeln($this->logo());
 			$output->writeln($this->getLongVersion());
@@ -77,7 +77,7 @@ class Application extends SymfonyApplication {
 		}
 	}
 
-	private function registerCommands() {
+	private function registerCommands(): void {
 		$this->autoRegisterCommands(__DIR__. '/Command', '\\W7\\Console');
 		$this->autoRegisterCommands(App::getApp()->getAppPath()  . '/Command', App::getApp()->getAppNamespace());
 	}
@@ -101,7 +101,7 @@ class Application extends SymfonyApplication {
 	 * @param $commandNamespace
 	 * @return array
 	 */
-	private function findCommands($path, $classNamespace, $commandNamespace) {
+	private function findCommands($path, $classNamespace, $commandNamespace): array {
 		$commands = [];
 
 		$files = Finder::create()
@@ -128,7 +128,7 @@ class Application extends SymfonyApplication {
 		return $commands;
 	}
 
-	private function checkCommand($input) {
+	private function checkCommand($input): bool {
 		$command = $this->getCommandName($input) ?? '';
 		if ($this->has($command) && strpos($command, ':') !== false) {
 			return true;
@@ -136,7 +136,7 @@ class Application extends SymfonyApplication {
 		return false;
 	}
 
-	private function logo() {
+	private function logo(): string {
 		return "
 __      _______ _______                   _      
 \ \    / /  ___  / ___|_      _____   ___ | | ___ 
@@ -146,7 +146,7 @@ __      _______ _______                   _
 ";
 	}
 
-	private function version() {
+	private function version(): string {
 		$frameworkVersion = App::VERSION;
 		$phpVersion = PHP_VERSION;
 		$swooleVersion = defined('SWOOLE_VERSION') ? SWOOLE_VERSION : 'unknown';

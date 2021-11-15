@@ -18,17 +18,10 @@ use W7\Core\Config\Config;
 use W7\Core\Config\Env\Env;
 
 class LoadConfigBootstrap implements BootstrapInterface {
-	private $payload = [];
-	protected $ignoreFileNameMap = ['define'];
+	private array $payload = [];
+	protected array $ignoreFileNameMap = ['define'];
 
-	/**
-	 * @deprecated
-	 */
-	public function getBuiltInConfigPath() {
-		return App::getApp()->getBuiltInConfigPath();
-	}
-
-	public function bootstrap(App $app) {
+	public function bootstrap(App $app): void {
 		if (!$app->configurationIsCached()) {
 			$loadDir = $app->getBasePath() . '/config';
 			(new Env($app->getBasePath()))->load();
@@ -44,7 +37,7 @@ class LoadConfigBootstrap implements BootstrapInterface {
 		$app->getContainer()->set(RepositoryInterface::class, $config);
 	}
 
-	public function loadConfigFile($configDir) {
+	public function loadConfigFile($configDir): array {
 		$configFileTree = glob($configDir . '/*.php');
 		if (empty($configFileTree)) {
 			return $this->payload;
