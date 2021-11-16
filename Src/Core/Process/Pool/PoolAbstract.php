@@ -16,12 +16,9 @@ use W7\Core\Process\ProcessAbstract;
 use W7\Core\Process\ProcessFactory;
 
 abstract class PoolAbstract {
-	/**
-	 * @var ProcessFactory
-	 */
-	protected $processFactory;
-	protected $config;
-	protected $mqKey = 0;
+	protected ProcessFactory $processFactory;
+	protected array $config;
+	protected int $mqKey = 0;
 
 	public function __construct(ProcessFactory $processFactory, $config) {
 		$this->processFactory = $processFactory;
@@ -48,21 +45,21 @@ abstract class PoolAbstract {
 		}
 	}
 
-	public function getProcessFactory() {
+	public function getProcessFactory(): ProcessFactory {
 		return $this->processFactory;
 	}
 
-	public function getMqKey() {
+	public function getMqKey(): int {
 		return $this->mqKey;
 	}
 
-	public function getProcess($id) {
+	public function getProcess($id): ProcessAbstract {
 		return $this->processFactory->getById($id);
 	}
 
 	abstract public function start();
 
-	public function stop() {
+	public function stop(): bool {
 		return true;
 	}
 

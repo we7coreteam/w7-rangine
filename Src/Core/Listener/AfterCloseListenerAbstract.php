@@ -15,14 +15,8 @@ namespace W7\Core\Listener;
 use Swoole\Server;
 
 abstract class AfterCloseListenerAbstract extends UserListenerAbstract {
-	/**
-	 * @var Server
-	 */
-	protected $server;
-	/**
-	 * @var int
-	 */
-	protected $fd;
+	protected Server $server;
+	protected int $fd;
 
 	public function __construct(...$params) {
 		$this->server = $params[0];

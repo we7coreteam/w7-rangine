@@ -13,11 +13,11 @@
 namespace W7\Core\Route;
 
 class ResourceRoute {
-	private $register;
-	private $name;
-	private $controller;
-	private $options = [];
-	private $registered;
+	private ResourceRegister $register;
+	private string $name;
+	private string $controller;
+	private array $options;
+	private bool $registered;
 
 	public function __construct(ResourceRegister $register, $name, $controller, $options = []) {
 		$this->register = $register;
@@ -26,43 +26,43 @@ class ResourceRoute {
 		$this->options = $options;
 	}
 
-	public function only($actions) {
+	public function only($actions): static {
 		$this->options['only'] = is_array($actions) ? $actions : func_get_args();
 
 		return $this;
 	}
 
-	public function except($actions) {
+	public function except($actions): static {
 		$this->options['except'] = is_array($actions) ? $actions : func_get_args();
 
 		return $this;
 	}
 
-	public function names($names) {
+	public function names($names): static {
 		$this->options['names'] = $names;
 
 		return $this;
 	}
 
-	public function name($action, $name) {
+	public function name($action, $name): static {
 		$this->options['names'][$action] = $name;
 
 		return $this;
 	}
 
-	public function parameters($parameters) {
+	public function parameters($parameters): static {
 		$this->options['parameters'] = $parameters;
 
 		return $this;
 	}
 
-	public function parameter($previous, $new) {
+	public function parameter($previous, $new): static {
 		$this->options['parameters'][$previous] = $new;
 
 		return $this;
 	}
 
-	public function middleware($middleware) {
+	public function middleware($middleware): static {
 		$this->options['middleware'] = $middleware;
 
 		return $this;

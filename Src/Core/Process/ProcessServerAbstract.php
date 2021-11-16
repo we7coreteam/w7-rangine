@@ -12,6 +12,7 @@
 
 namespace W7\Core\Process;
 
+use JetBrains\PhpStorm\ArrayShape;
 use Swoole\Process\Pool as PoolManager;
 use W7\App;
 use W7\Core\Process\Pool\DependentPool;
@@ -21,30 +22,27 @@ use W7\Core\Server\ServerEvent;
 use W7\Core\Server\SwooleServerAbstract;
 
 abstract class ProcessServerAbstract extends SwooleServerAbstract {
-	protected $masterServerEventType = ['manage'];
+	protected array $masterServerEventType = ['manage'];
 
-	public static $masterServer = true;
-	public static $onlyFollowMasterServer = false;
-	/**
-	 * @var PoolAbstract
-	 */
-	protected $pool;
+	public static bool $masterServer = true;
+	public static bool $onlyFollowMasterServer = false;
+	protected PoolAbstract $pool;
 
-	protected function checkSetting() {
+	protected function checkSetting(): void {
 		$this->setting['host'] = $this->setting['host'] ?? '0.0.0.0';
 		$this->setting['port'] = $this->setting['port'] ?? 'none';
 		$this->setting['message_queue_key'] = $this->setting['message_queue_key'] ?? null;
 
-		return parent::checkSetting();
+		parent::checkSetting();
 	}
 
-	protected function enableCoroutine() {
+	protected function enableCoroutine(): void {
 		$mqKey = $this->setting['message_queue_key'];
 		parent::enableCoroutine();
 		$this->setting['message_queue_key'] = $mqKey;
 	}
 
-	public function getStatus() {
+	public function getStatus(): array {
 		$pid = 0;
 		if (file_exists($this->setting['pid_file'])) {
 			$pid = file_get_contents($this->setting['pid_file']);
@@ -58,7 +56,7 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 		];
 	}
 
-	public function getPool() {
+	public function getPool(): PoolAbstract {
 		if (!empty(App::$server->processPool)) {
 			$this->pool = App::$server->processPool;
 			return $this->pool;
@@ -77,6 +75,9 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 
 	abstract protected function register();
 
+	/**
+	 * @throws \Exception
+	 */
 	public function start() {
 		$pool = $this->getPool();
 
@@ -88,7 +89,7 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 		return $pool->start();
 	}
 
-	public function listener(\Swoole\Server $server = null) {
+	public function listener(\Swoole\Server $server = null): bool {
 		if (App::$server instanceof ProcessServerAbstract) {
 			$pool = $this->pool = App::$server->getPool();
 		} else {
@@ -104,12 +105,12 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 		return true;
 	}
 
-	protected function registerSwooleEvent($server, $event, $eventType) {
+	protected function registerSwooleEvent($server, $event, $eventType): void {
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;
 			}
-			if (in_array($eventName, [ServerEvent::ON_WORKER_START, ServerEvent::ON_WORKER_STOP, ServerEvent::ON_MESSAGE])) {
+			if (in_array($eventName, [ServerEvent::ON_WORKER_START, ServerEvent::ON_WORKER_STOP, ServerEvent::ON_MESSAGE], true)) {
 				$this->pool->on($eventName, function (PoolManager $pool, $workerId) use ($eventName, $eventType) {
 					$process = $this->pool->getProcessFactory()->getById($workerId);
 					$process->setProcess($pool->getProcess());

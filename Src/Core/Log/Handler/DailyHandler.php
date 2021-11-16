@@ -17,7 +17,7 @@ use Monolog\Handler\HandlerInterface as MonologInterface;
 use Monolog\Handler\RotatingFileHandler;
 
 class DailyHandler extends RotatingFileHandler implements HandlerInterface {
-	const SIMPLE_FORMAT = "[%datetime%] [workid:%workid% coid:%coid%] %channel%.%level_name%: %message% %context% %extra%\n\n";
+	public const SIMPLE_FORMAT = "[%datetime%] [workid:%workid% coid:%coid%] %channel%.%level_name%: %message% %context% %extra%\n\n";
 
 	public static function getHandler($config): MonologInterface {
 		$handler = new static($config['path'], $config['days'], $config['level']);

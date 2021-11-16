@@ -12,14 +12,12 @@
 
 namespace W7\Core\Route\Event;
 
+use W7\Core\Route\Route;
 use W7\Http\Message\Server\Request;
 
 class RouteMatchedEvent {
-	public $route;
-	/**
-	 * @var Request
-	 */
-	public $request;
+	public Route $route;
+	public Request $request;
 
 	public function __construct($route, $request) {
 		$this->route = $route;

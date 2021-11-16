@@ -22,19 +22,18 @@ class MiddlewareHandler implements RequestHandlerInterface {
 	/**
 	* @var array
 	*/
-	private $middlewares;
+	private array $middlewares;
 
 	/**
 	 * @var integer
 	 *
 	 */
-	private $offset = 0;
+	private int $offset = 0;
 
 	/**
 	 * MiddlewareHandler constructor.
 	 *
 	 * @param array $middleware
-	 * @param string $default
 	 */
 	public function __construct(array $middleware) {
 		$this->middlewares = $middleware;
@@ -68,7 +67,7 @@ class MiddlewareHandler implements RequestHandlerInterface {
 	 *
 	 * @return static
 	 */
-	private function next() {
+	private function next(): MiddlewareHandler {
 		$clone = clone $this;
 		$clone->offset++;
 		return $clone;

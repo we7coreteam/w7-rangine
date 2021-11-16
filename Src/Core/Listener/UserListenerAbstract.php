@@ -13,8 +13,5 @@
 namespace W7\Core\Listener;
 
 abstract class UserListenerAbstract extends ListenerAbstract {
-	/**
-	 * @var string
-	 */
-	protected $serverType;
+	protected string $serverType;
 }

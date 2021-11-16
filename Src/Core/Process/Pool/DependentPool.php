@@ -23,7 +23,7 @@ use W7\Core\Listener\ProcessStartListener;
  */
 class DependentPool extends PoolAbstract {
 	public function start() {
-		if ($this->processFactory->count() == 0) {
+		if ($this->processFactory->count() === 0) {
 			return false;
 		}
 

@@ -20,7 +20,7 @@ use W7\Core\Log\Processor\SwooleProcessor;
 use W7\Core\Provider\ProviderAbstract;
 
 class LogProvider extends ProviderAbstract {
-	public function register() {
+	public function register(): void {
 		$this->clearLog();
 
 		$this->container->set(LoggerFactoryInterface::class, function () {
@@ -42,9 +42,9 @@ class LogProvider extends ProviderAbstract {
 		});
 	}
 
-	private function clearLog() {
+	private function clearLog(): void {
 		if ((ENV & CLEAR_LOG) !== CLEAR_LOG) {
-			return false;
+			return;
 		}
 		$logPath = App::getApp()->getRuntimePath() . '/logs/*';
 		$tree = glob($logPath);

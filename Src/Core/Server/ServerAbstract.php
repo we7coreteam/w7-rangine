@@ -27,13 +27,13 @@ abstract class ServerAbstract implements ServerInterface {
 	use AppCommonTrait;
 
 	//Indicates that the current service is the master service
-	public static $masterServer = true;
+	public static bool $masterServer = true;
 	//Indicates that the service can only be started with the master service
-	public static $onlyFollowMasterServer = false;
+	public static bool $onlyFollowMasterServer = false;
 	//Indicates that the service can be started separately
-	public static $aloneServer = false;
+	public static bool $aloneServer = false;
 
-	public $server;
+	public mixed $server;
 
 	/**
 	 * ServerAbstract constructor.
@@ -46,7 +46,7 @@ abstract class ServerAbstract implements ServerInterface {
 		return $this->server;
 	}
 
-	public function registerService() {
+	public function registerService(): void {
 		$this->registerServerEvent($this->getServer());
 	}
 

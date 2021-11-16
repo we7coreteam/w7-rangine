@@ -16,8 +16,8 @@ use W7\Contract\Pool\PoolFactoryInterface;
 use W7\Contract\Pool\PoolInterface;
 
 abstract class PoolFactoryAbstract implements PoolFactoryInterface {
-	protected $poolConfig;
-	protected $pools;
+	protected array $poolConfig;
+	protected array $pools;
 
 	public function __construct($poolConfig = []) {
 		$this->poolConfig = $poolConfig;
@@ -57,5 +57,5 @@ abstract class PoolFactoryAbstract implements PoolFactoryInterface {
 	 * @param $name
 	 * @return CoPoolAbstract
 	 */
-	abstract protected function getPoolInstance($name);
+	abstract protected function getPoolInstance($name): CoPoolAbstract;
 }

@@ -15,10 +15,7 @@ namespace W7\Core\Listener;
 use Swoole\Server;
 
 abstract class BeforeStartListenerAbstract extends UserListenerAbstract {
-	/**
-	 * @var Server
-	 */
-	protected $server;
+	protected Server $server;
 
 	public function __construct(...$params) {
 		$this->server = $params[0];

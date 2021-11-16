@@ -15,6 +15,7 @@ namespace W7\Core\Process\Pool;
 use Swoole\Process;
 use Swoole\Process\Pool as PoolManager;
 use W7\App;
+use W7\Core\Process\ProcessAbstract;
 
 /**
  * The process pool is managed by a separate Process Manager
@@ -22,28 +23,25 @@ use W7\App;
  * @package W7\Core\Process\Pool
  */
 class IndependentPool extends PoolAbstract {
-	private $ipcType = SWOOLE_IPC_UNIXSOCK;
-	/**
-	 * @var Process\Pool
-	 */
-	protected $swooleProcessPool;
-	private $pidFile;
-	private $daemon;
-	private $events = [];
+	private int $ipcType = SWOOLE_IPC_UNIXSOCK;
+	protected PoolManager $swooleProcessPool;
+	private string $pidFile;
+	private bool $daemon;
+	private array $events = [];
 
 	protected function init() {
 		$this->pidFile = $this->config['pid_file'];
-		$this->daemon = $this->config['daemonize'] ?? false;
+		$this->daemon = (bool)($this->config['daemonize'] ?? false);
 	}
 
-	private function setDaemon() {
+	private function setDaemon(): void {
 		if ($this->daemon) {
 			Process::daemon(true, false);
 		}
 	}
 
 	public function start() {
-		if ($this->processFactory->count() == 0) {
+		if ($this->processFactory->count() === 0) {
 			return false;
 		}
 
@@ -63,11 +61,11 @@ class IndependentPool extends PoolAbstract {
 		$this->swooleProcessPool->start();
 	}
 
-	public function on($event, \Closure $handler) {
+	public function on($event, \Closure $handler): void {
 		$this->events[$event] = $handler;
 	}
 
-	public function getProcess($id) {
+	public function getProcess($id): ProcessAbstract {
 		$process = parent::getProcess($id);
 		if (!$process->getProcess() && $this->swooleProcessPool) {
 			$swooleProcess = $this->swooleProcessPool->getProcess($id);

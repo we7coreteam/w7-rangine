@@ -25,39 +25,31 @@ use W7\Core\Pool\Event\SuspendConnectionEvent;
 abstract class CoPoolAbstract implements PoolInterface {
 	use AppCommonTrait;
 
-	protected $poolName;
+	protected string $poolName;
 
 	protected string $type;
 
 	/**
 	 * Maximum number of connections
-	 * @var int
 	 */
-	protected $maxActive = 100;
+	protected int $maxActive = 100;
 
 	/**
 	 * Connection in execution
-	 * @var \SplQueue $busyQueue
 	 */
-	protected $busyCount;
+	protected int $busyCount;
 
 	/**
 	 * Idle connection queue
-	 * @var \SplQueue $idleQueue
 	 */
-	protected $idleQueue;
+	protected \SplQueue $idleQueue;
 
 	/**
 	 * Suspend the coroutine ID queue and restore in order
-	 * @var \SplQueue
 	 */
-	protected $waitQueue;
+	protected \SplQueue $waitQueue;
 
-	/**
-	 * 等待数
-	 * @var int
-	 */
-	protected $waitCount = 0;
+	protected int $waitCount = 0;
 
 	public function __construct($name) {
 		$this->poolName = $name;
@@ -68,12 +60,15 @@ abstract class CoPoolAbstract implements PoolInterface {
 		$this->waitQueue = new \SplQueue();
 	}
 
-	public function getPoolName() {
+	public function getPoolName(): string {
 		return $this->poolName;
 	}
 
 	abstract public function createConnection();
 
+	/**
+	 * @throws \Exception
+	 */
 	public function getConnection() {
 		//If the number of execution queues is equal to the maximum number of connections, the coroutine is suspended
 		if ($this->busyCount >= $this->getMaxCount()) {
@@ -82,7 +77,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 
 			$this->getEventDispatcher()->dispatch(new SuspendConnectionEvent($this->type, $this->poolName, $this));
 
-			if ($this->suspendCurrentCo() == false) {
+			if ($this->suspendCurrentCo() === false) {
 				//When a hang fails, an exception is thrown to restore the wait count
 				$this->waitCount--;
 				throw new \RuntimeException('Reach max connections! Cann\'t pending fetch!');
@@ -107,6 +102,9 @@ abstract class CoPoolAbstract implements PoolInterface {
 		return $connect;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function releaseConnection($connection) {
 		$this->busyCount--;
 		if ($this->getIdleCount() < $this->getMaxCount()) {
@@ -125,7 +123,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 		return $this->maxActive;
 	}
 
-	public function setMaxCount(int $maxActive) {
+	public function setMaxCount(int $maxActive): void {
 		$this->maxActive = $maxActive;
 		$this->idleQueue = new Channel($this->maxActive);
 	}
@@ -133,10 +131,10 @@ abstract class CoPoolAbstract implements PoolInterface {
 	private function suspendCurrentCo() {
 		$coid = Coroutine::getuid();
 		$this->waitQueue->push($coid);
-		return Coroutine::suspend($coid);
+		return Coroutine::suspend();
 	}
 
-	private function resumeCo() {
+	private function resumeCo(): bool {
 		$coid = $this->waitQueue->shift();
 		if (!empty($coid)) {
 			Coroutine::resume($coid);
@@ -148,19 +146,19 @@ abstract class CoPoolAbstract implements PoolInterface {
 		return $this->idleQueue->pop();
 	}
 
-	private function setConnectionFormPool($connection) {
-		return $this->idleQueue->push($connection);
+	private function setConnectionFormPool($connection): void {
+		$this->idleQueue->push($connection);
 	}
 
 	public function getIdleCount() {
-		return $this->idleQueue->length();
+		return $this->idleQueue->count();
 	}
 
-	public function getBusyCount() {
+	public function getBusyCount(): int {
 		return $this->busyCount;
 	}
 
-	public function getWaitCount() {
+	public function getWaitCount(): int {
 		return $this->waitCount;
 	}
 }

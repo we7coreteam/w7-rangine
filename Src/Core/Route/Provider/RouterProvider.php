@@ -25,7 +25,7 @@ use W7\Core\Route\Router;
 use W7\Core\Route\UrlGenerator;
 
 class RouterProvider extends ProviderAbstract {
-	public function register() {
+	public function register(): void {
 		$routeCollector = new RouteCollector(new Std(), new GroupCountBased());
 		$this->container->set(RouterInterface::class, function () use ($routeCollector) {
 			$documentRoot = rtrim($this->config->get('server.common.document_root', App::getApp()->getBasePath() . '/public'), '/');

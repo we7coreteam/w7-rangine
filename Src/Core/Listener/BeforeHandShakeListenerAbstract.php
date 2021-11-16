@@ -16,10 +16,7 @@ use W7\Core\Server\ServerEnum;
 use W7\Http\Message\Server\Request;
 
 abstract class BeforeHandShakeListenerAbstract extends UserListenerAbstract {
-	/**
-	 * @var Request
-	 */
-	protected $request;
+	protected Request $request;
 
 	public function __construct(...$params) {
 		$this->request = $params[0];

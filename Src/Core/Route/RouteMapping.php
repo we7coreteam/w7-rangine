@@ -16,26 +16,16 @@ use W7\Contract\Router\RouterInterface;
 use W7\Core\Helper\FileLoader;
 
 class RouteMapping {
-	/**
-	 * @var RouterInterface
-	 */
-	protected $router;
-	/**
-	 * @var FileLoader
-	 */
-	protected $fileLoader;
-
-	private static $isInitRouteByConfig = false;
+	protected RouterInterface $router;
+	protected FileLoader $fileLoader;
+	private static bool $isInitRouteByConfig = false;
 
 	public function __construct(RouterInterface $router, FileLoader $fileLoader) {
 		$this->router = $router;
 		$this->fileLoader = $fileLoader;
 	}
 
-	/**
-	 * @return array|mixed
-	 */
-	public function getMapping($routeFileDir) {
+	public function getMapping($routeFileDir): array {
 		if (!self::$isInitRouteByConfig) {
 			//Prevent duplicate registration when multiple services are started simultaneously
 			$this->loadRouteConfig($routeFileDir);
@@ -45,7 +35,7 @@ class RouteMapping {
 		return $this->router->getData();
 	}
 
-	protected function loadRouteConfig($routeFileDir) {
+	protected function loadRouteConfig($routeFileDir): bool {
 		$configFileTree = glob($routeFileDir . '/*.php');
 		if (empty($configFileTree)) {
 			return true;
@@ -59,7 +49,7 @@ class RouteMapping {
 	}
 
 	//If the user has customized the system route, follow the user's route
-	public function registerSystemRoute() {
+	public function registerSystemRoute(): void {
 		try {
 			$this->router->get('/favicon.ico', ['\W7\Core\Controller\FaviconController', 'index']);
 		} catch (\Throwable $e) {

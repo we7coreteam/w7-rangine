@@ -16,7 +16,7 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\HandlerInterface as MonologInterface;
 
 class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInterface {
-	const SIMPLE_FORMAT = "[%datetime%] [workid:%workid% co/task:%coid%] %channel%.%level_name%: %message% %context% %extra%\n\n";
+	public const SIMPLE_FORMAT = "[%datetime%] [workid:%workid% co/task:%coid%] %channel%.%level_name%: %message% %context% %extra%\n\n";
 
 	public static function getHandler($config): MonologInterface {
 		$handler = new static($config['path'], $config['level']);

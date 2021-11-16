@@ -12,6 +12,8 @@
 
 namespace W7\Core\Server;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use JetBrains\PhpStorm\ArrayShape;
 use Swoole\Process;
 use Swoole\Server;
 use W7\App;
@@ -22,13 +24,16 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	/**
 	 * @var Server
 	 */
-	public $server;
-	public $setting;
+	public mixed $server;
+	public array $setting;
 
-	protected static $isRegisterMasterServerEvent;
-	protected static $isRegisterServerCommonEvent;
-	protected $masterServerEventType = ['manage', 'worker', 'task'];
+	protected static bool $isRegisterMasterServerEvent;
+	protected static bool $isRegisterServerCommonEvent;
+	protected array $masterServerEventType = ['manage', 'worker', 'task'];
 
+	/**
+	 * @throws \Exception
+	 */
 	public function __construct() {
 		SwooleHelper::checkLoadSwooleExtension();
 
@@ -52,11 +57,11 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 	 *
 	 * @return string
 	 */
-	public function getPname() {
+	public function getPname(): string {
 		return $this->setting['pname'] . ' ';
 	}
 
-	public function getStatus() {
+	#[ArrayShape(['host' => "mixed", 'port' => "mixed", 'type' => "string", 'mode' => "string", 'workerNum' => "mixed", 'masterPid' => "int|string", 'managerPid' => "int|string"])] public function getStatus(): array {
 		$pidFile = $this->setting['pid_file'];
 		if (file_exists($pidFile)) {
 			$pids = explode(',', file_get_contents($pidFile));
@@ -72,13 +77,13 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		];
 	}
 
-	public function isRun() {
+	public function isRun(): bool {
 		$status = $this->getStatus();
 		if (!empty($status['masterPid'])) {
 			return true;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	public function stop() {
@@ -136,7 +141,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		];
 	}
 
-	protected function checkSetting() {
+	protected function checkSetting(): void {
 		if (empty($this->setting['pid_file'])) {
 			throw new \RuntimeException('server pid_file error');
 		}
@@ -175,7 +180,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		}
 	}
 
-	protected function resetPidFile() {
+	protected function resetPidFile(): void {
 		$pathInfo = pathinfo($this->setting['pid_file']);
 		$pathInfo['basename'] = $this->getType() . '_' .  ($this->setting['port'] ?? '') . '_' . $pathInfo['basename'];
 		$pidFile = rtrim($pathInfo['dirname'], '/') . '/' . $pathInfo['basename'];
@@ -183,14 +188,14 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$this->setting['pid_file'] = $pidFile;
 	}
 
-	protected function enableCoroutine() {
+	protected function enableCoroutine(): void {
 		$this->setting['enable_coroutine'] = true;
 		$this->setting['task_enable_coroutine'] = true;
 		$this->setting['task_ipc_mode'] = 1;
 		$this->setting['message_queue_key'] = '';
 	}
 
-	protected function filterServerSetting() {
+	protected function filterServerSetting(): array {
 		if (version_compare(SWOOLE_VERSION, '4.5.5', '>=')) {
 			$supportSettings = Server\Helper::GLOBAL_OPTIONS + Server\Helper::SERVER_OPTIONS + Server\Helper::PORT_OPTIONS + Server\Helper::HELPER_OPTIONS;
 			return array_intersect_key($this->setting, $supportSettings);
@@ -199,7 +204,12 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		return $this->setting;
 	}
 
-	protected function registerServerEvent($server) {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 * @throws \Exception
+	 */
+	protected function registerServerEvent($server): void {
 		$eventTypes = [];
 		/**
 		 * @var ServerEvent $eventRegister
@@ -235,13 +245,13 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		}
 	}
 
-	protected function registerSwooleEvent($server, $event, $eventType) {
+	protected function registerSwooleEvent($server, $event, $eventType): void {
 		$masterServer = App::$server->getServer();
 		foreach ($event as $eventName => $class) {
 			if (empty($class)) {
 				continue;
 			}
-			if ($eventName == ServerEvent::ON_REQUEST) {
+			if ($eventName === ServerEvent::ON_REQUEST) {
 				$server->on(ServerEvent::ON_REQUEST, function ($request, $response) use ($masterServer, $eventType) {
 					$this->getEventDispatcher()->dispatch($this->getServerEventRealName(ServerEvent::ON_REQUEST, $eventType), [$masterServer, $request, $response]);
 				});
@@ -253,7 +263,7 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		}
 	}
 
-	protected function getServerEventRealName($eventName, $eventType) {
+	protected function getServerEventRealName($eventName, $eventType): string {
 		return $eventType . ':' . $eventName;
 	}
 

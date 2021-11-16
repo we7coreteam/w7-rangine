@@ -16,6 +16,9 @@ use W7\App;
 use W7\Core\Server\ServerEvent;
 
 class WorkerShutDownListener extends ListenerAbstract {
+	/**
+	 * @throws \Exception
+	 */
 	public function run(...$params) {
 		$this->log($params[1]);
 		$startedServers = $this->getConfig()->get('app.setting.started_servers', [App::$server->getType()]);
@@ -27,7 +30,12 @@ class WorkerShutDownListener extends ListenerAbstract {
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $params);
 	}
 
-	protected function log(\Throwable $throwable) {
+	/**
+	 * @throws \ReflectionException
+	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 * @throws \Exception
+	 */
+	protected function log(\Throwable $throwable): void {
 		$this->getContext()->setContextDataByKey('workid', App::$server->getServer()->worker_id);
 		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getLastCoId());
 		$errorMessage = sprintf(

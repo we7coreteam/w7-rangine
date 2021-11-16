@@ -18,19 +18,19 @@ class ControllerMiddlewareOptions {
 	 *
 	 * @var array
 	 */
-	protected $options;
+	protected array $options;
 
 	public function __construct(array &$options) {
 		$this->options = &$options;
 	}
 
-	public function only($methods) {
+	public function only($methods): static {
 		$this->options['only'] = is_array($methods) ? $methods : func_get_args();
 
 		return $this;
 	}
 
-	public function except($methods) {
+	public function except($methods): static {
 		$this->options['except'] = is_array($methods) ? $methods : func_get_args();
 
 		return $this;

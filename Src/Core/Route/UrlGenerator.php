@@ -15,6 +15,7 @@ namespace W7\Core\Route;
 use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\Pure;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use W7\Contract\Router\UrlGeneratorInterface;
@@ -22,71 +23,53 @@ use W7\Contract\Router\UrlGeneratorInterface;
 class UrlGenerator implements UrlGeneratorInterface {
 	/**
 	 * The route collection.
-	 *
-	 * @var RouteCollector
 	 */
-	protected $routeCollector;
-
-	/**
-	 * @var Closure
-	 */
-	protected $requestResolver;
+	protected RouteCollector $routeCollector;
+	protected Closure $requestResolver;
 
 	/**
 	 * The asset root URL.
-	 *
-	 * @var string
 	 */
-	protected $assetRoot;
+	protected string $assetRoot;
 
 	/**
 	 * The forced URL root.
-	 *
-	 * @var string
 	 */
-	protected $forcedRoot;
+	protected string $forcedRoot;
 
 	/**
 	 * The forced scheme for URLs.
-	 *
-	 * @var string
 	 */
-	protected $forceScheme;
+	protected string $forceScheme;
 
 	/**
 	 * A cached copy of the URL root for the current request.
-	 *
-	 * @var string|null
 	 */
-	protected $cachedRoot;
+	protected ?string $cachedRoot;
 
 	/**
 	 * A cached copy of the URL scheme for the current request.
-	 *
-	 * @var string|null
 	 */
-	protected $cachedScheme;
+	protected ?string $cachedScheme;
 
 	/**
 	 * The callback to use to format hosts.
 	 *
 	 * @var \Closure
 	 */
-	protected $formatHostUsing;
+	protected Closure $formatHostUsing;
 
 	/**
 	 * The callback to use to format paths.
 	 *
 	 * @var \Closure
 	 */
-	protected $formatPathUsing;
+	protected Closure $formatPathUsing;
 
 	/**
 	 * The route URL generator instance.
-	 *
-	 * @var RouteUrlGenerator|null
 	 */
-	protected $routeGenerator;
+	protected RouteUrlGenerator $routeGenerator;
 
 	public function __construct(RouteCollector $routeCollector, Closure $requestResolver, $assetRoot = null) {
 		$this->routeCollector = $routeCollector;
@@ -99,7 +82,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 *
 	 * @return string
 	 */
-	public function current() {
+	public function current(): string {
 		return $this->to($this->getRequest()->getUri()->getPath());
 	}
 
@@ -111,7 +94,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  bool|null  $secure
 	 * @return string
 	 */
-	public function to($path, $extra = [], $secure = null) {
+	public function to($path, $extra = [], $secure = null): string {
 		// First we will check if the URL is already a valid URL. If it is we will not
 		// try to generate a new one but will simply return the URL as is, which is
 		// convenient since developers do not always have to check if it's valid.
@@ -147,7 +130,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  array  $parameters
 	 * @return string
 	 */
-	public function secure($path, $parameters = []) {
+	public function secure($path, $parameters = []): string {
 		return $this->to($path, $parameters, true);
 	}
 
@@ -158,7 +141,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  bool|null  $secure
 	 * @return string
 	 */
-	public function asset($path, $secure = null) {
+	public function asset($path, $secure = null): string {
 		if ($this->isValidUrl($path)) {
 			return $path;
 		}
@@ -177,7 +160,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  string  $path
 	 * @return string
 	 */
-	public function secureAsset($path) {
+	public function secureAsset($path): string {
 		return $this->asset($path, true);
 	}
 
@@ -187,7 +170,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  string  $root
 	 * @return string
 	 */
-	protected function removeIndex($root) {
+	protected function removeIndex($root): string {
 		$i = 'index.php';
 
 		return Str::contains($root, $i) ? str_replace('/'.$i, '', $root) : $root;
@@ -196,10 +179,10 @@ class UrlGenerator implements UrlGeneratorInterface {
 	/**
 	 * Get the default scheme for a raw URL.
 	 *
-	 * @param  bool|null  $secure
+	 * @param bool|null $secure
 	 * @return string
 	 */
-	public function formatScheme($secure = null) {
+	public function formatScheme(bool $secure = null): string {
 		if (! is_null($secure)) {
 			return $secure ? 'https://' : 'http://';
 		}
@@ -211,7 +194,10 @@ class UrlGenerator implements UrlGeneratorInterface {
 		return $this->cachedScheme;
 	}
 
-	public function route($name, $parameters = [], $absolute = true) {
+	/**
+	 * @throws Exception\UrlGenerationException
+	 */
+	public function route($name, $parameters = [], $absolute = true): string {
 		$routeData = $this->routeCollector->getRouteByName($name);
 		if (!is_null($routeData)) {
 			$route = new Route(
@@ -229,7 +215,10 @@ class UrlGenerator implements UrlGeneratorInterface {
 		throw new RuntimeException("Route [{$name}] not defined.");
 	}
 
-	public function toRoute($route, $parameters, $absolute) {
+	/**
+	 * @throws Exception\UrlGenerationException
+	 */
+	public function toRoute($route, $parameters, $absolute): string {
 		return $this->routeUrl()->to(
 			$route,
 			$this->formatParameters($parameters),
@@ -243,7 +232,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  mixed|array  $parameters
 	 * @return array
 	 */
-	public function formatParameters($parameters) {
+	public function formatParameters($parameters): array {
 		return Arr::wrap($parameters);
 	}
 
@@ -253,7 +242,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  string  $path
 	 * @return array
 	 */
-	protected function extractQueryString($path) {
+	protected function extractQueryString($path): array {
 		if (($queryPosition = strpos($path, '?')) !== false) {
 			return [
 				substr($path, 0, $queryPosition),
@@ -267,11 +256,11 @@ class UrlGenerator implements UrlGeneratorInterface {
 	/**
 	 * Get the base URL for the request.
 	 *
-	 * @param  string  $scheme
-	 * @param  string|null  $root
+	 * @param string $scheme
+	 * @param string|null $root
 	 * @return string
 	 */
-	public function formatRoot($scheme, $root = null) {
+	public function formatRoot(string $scheme, string $root = null): string {
 		if (is_null($root)) {
 			if (is_null($this->cachedRoot)) {
 				$this->cachedRoot = $this->forcedRoot ?:
@@ -294,7 +283,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  Route|null  $route
 	 * @return string
 	 */
-	public function format($root, $path, $route = null) {
+	public function format($root, $path, $route = null): string {
 		$path = '/'.trim($path, '/');
 
 		if ($this->formatHostUsing) {
@@ -314,7 +303,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  string  $path
 	 * @return bool
 	 */
-	public function isValidUrl($path) {
+	public function isValidUrl($path): bool {
 		if (! preg_match('~^(#|//|https?://|(mailto|tel|sms):)~', $path)) {
 			return filter_var($path, FILTER_VALIDATE_URL) !== false;
 		}
@@ -322,7 +311,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 		return true;
 	}
 
-	protected function routeUrl() {
+	protected function routeUrl(): RouteUrlGenerator {
 		if (! $this->routeGenerator) {
 			$this->routeGenerator = new RouteUrlGenerator($this, $this->getRequest());
 		}
@@ -336,23 +325,23 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @param  array  $defaults
 	 * @return void
 	 */
-	public function defaults(array $defaults) {
+	public function defaults(array $defaults): void {
 		$this->routeUrl()->defaults($defaults);
 	}
 
 	/**
 	 * @return ServerRequestInterface
 	 */
-	public function getRequest() {
+	public function getRequest(): ServerRequestInterface {
 		$requestResolver = $this->requestResolver;
 		return $requestResolver();
 	}
 
-	public function getRouteCollector() {
+	public function getRouteCollector(): RouteCollector {
 		return $this->routeCollector;
 	}
 
-	public function setRouteCollector(RouteCollector $routeCollector) {
+	public function setRouteCollector(RouteCollector $routeCollector): static {
 		$this->routeCollector = $routeCollector;
 		return $this;
 	}

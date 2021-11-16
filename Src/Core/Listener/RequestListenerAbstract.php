@@ -16,14 +16,8 @@ use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 
 abstract class RequestListenerAbstract extends UserListenerAbstract {
-	/**
-	 * @var Request
-	 */
-	protected $request;
-	/**
-	 * @var Response
-	 */
-	protected $response;
+	protected Request $request;
+	protected Response $response;
 
 	public function __construct(...$params) {
 		$this->request = $params[0];

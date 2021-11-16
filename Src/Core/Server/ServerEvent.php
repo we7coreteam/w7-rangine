@@ -40,53 +40,53 @@ use W7\WebSocket\Listener\OpenListener;
 class ServerEvent {
 	use AppCommonTrait;
 
-	const ON_START = 'start';
-	const ON_SHUTDOWN = 'shutdown';
+	public const ON_START = 'start';
+	public const ON_SHUTDOWN = 'shutdown';
 
-	const ON_WORKER_START = 'workerStart';
-	const ON_WORKER_STOP = 'workerStop';
-	const ON_WORKER_EXIT = 'workerExit';
-	const ON_WORKER_SHUTDOWN = 'workerShutDown';
+	public const ON_WORKER_START = 'workerStart';
+	public const ON_WORKER_STOP = 'workerStop';
+	public const ON_WORKER_EXIT = 'workerExit';
+	public const ON_WORKER_SHUTDOWN = 'workerShutDown';
 
-	const ON_MANAGER_START = 'managerStart';
-	const ON_MANAGER_STOP = 'managerStop';
-	const ON_WORKER_ERROR = 'workerError';
+	public const ON_MANAGER_START = 'managerStart';
+	public const ON_MANAGER_STOP = 'managerStop';
+	public const ON_WORKER_ERROR = 'workerError';
 
-	const ON_CONNECT = 'connect';
-	const ON_RECEIVE = 'receive';
-	const ON_PACKET = 'packet';
-	const ON_CLOSE = 'close';
+	public const ON_CONNECT = 'connect';
+	public const ON_RECEIVE = 'receive';
+	public const ON_PACKET = 'packet';
+	public const ON_CLOSE = 'close';
 
-	const ON_TASK = 'task';
-	const ON_FINISH = 'finish';
-	const ON_PIPE_MESSAGE = 'pipeMessage';
+	public const ON_TASK = 'task';
+	public const ON_FINISH = 'finish';
+	public const ON_PIPE_MESSAGE = 'pipeMessage';
 
-	const ON_REQUEST = 'request';
+	public const ON_REQUEST = 'request';
 
-	const ON_HAND_SHAKE = 'handshake';
-	const ON_OPEN = 'open';
-	const ON_MESSAGE = 'message';
+	public const ON_HAND_SHAKE = 'handshake';
+	public const ON_OPEN = 'open';
+	public const ON_MESSAGE = 'message';
 
-	const ON_USER_BEFORE_START = 'beforeStart';
-	const ON_USER_AFTER_START = 'afterStart';
-	const ON_USER_AFTER_SHUTDOWN = 'afterShutDown';
-	const ON_USER_AFTER_MANAGER_START = 'afterManagerStart';
-	const ON_USER_AFTER_MANAGER_STOP = 'afterManagerStop';
-	const ON_USER_AFTER_WORKER_START = 'afterWorkerStart';
-	const ON_USER_AFTER_WORKER_STOP = 'afterWorkerStop';
-	const ON_USER_AFTER_WORKER_EXIT = 'afterWorkerExit';
-	const ON_USER_AFTER_WORKER_SHUTDOWN = 'afterWorkerShutDown';
-	const ON_USER_AFTER_WORKER_ERROR = 'afterWorkerError';
-	const ON_USER_AFTER_PIPE_MESSAGE = 'afterPipeMessage';
-	const ON_USER_BEFORE_REQUEST = 'beforeRequest';
-	const ON_USER_AFTER_REQUEST = 'afterRequest';
-	const ON_USER_AFTER_TASK = 'afterTask';
-	const ON_USER_TASK_FINISH = 'afterTaskFinish';
-	const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandShake';
-	const ON_USER_AFTER_OPEN = 'afterOpen';
-	const ON_USER_AFTER_CLOSE = 'afterClose';
+	public const ON_USER_BEFORE_START = 'beforeStart';
+	public const ON_USER_AFTER_START = 'afterStart';
+	public const ON_USER_AFTER_SHUTDOWN = 'afterShutDown';
+	public const ON_USER_AFTER_MANAGER_START = 'afterManagerStart';
+	public const ON_USER_AFTER_MANAGER_STOP = 'afterManagerStop';
+	public const ON_USER_AFTER_WORKER_START = 'afterWorkerStart';
+	public const ON_USER_AFTER_WORKER_STOP = 'afterWorkerStop';
+	public const ON_USER_AFTER_WORKER_EXIT = 'afterWorkerExit';
+	public const ON_USER_AFTER_WORKER_SHUTDOWN = 'afterWorkerShutDown';
+	public const ON_USER_AFTER_WORKER_ERROR = 'afterWorkerError';
+	public const ON_USER_AFTER_PIPE_MESSAGE = 'afterPipeMessage';
+	public const ON_USER_BEFORE_REQUEST = 'beforeRequest';
+	public const ON_USER_AFTER_REQUEST = 'afterRequest';
+	public const ON_USER_AFTER_TASK = 'afterTask';
+	public const ON_USER_TASK_FINISH = 'afterTaskFinish';
+	public const ON_USER_BEFORE_HAND_SHAKE = 'beforeHandShake';
+	public const ON_USER_AFTER_OPEN = 'afterOpen';
+	public const ON_USER_AFTER_CLOSE = 'afterClose';
 
-	private static $event = [
+	private static array $event = [
 		'manage' => [
 			self::ON_START => StartListener::class,
 			self::ON_MANAGER_START => ManagerStartListener::class,
@@ -124,11 +124,11 @@ class ServerEvent {
 		]
 	];
 
-	public function getDefaultEvent() {
+	public function getDefaultEvent(): array {
 		return self::$event;
 	}
 
-	public function getUserEvent() {
+	public function getUserEvent(): array {
 		return [
 			self::ON_USER_BEFORE_START,
 			self::ON_USER_AFTER_START,
@@ -150,7 +150,10 @@ class ServerEvent {
 		];
 	}
 
-	public function registerServerEvent($eventTypes) {
+	/**
+	 * @throws \Exception
+	 */
+	public function registerServerEvent($eventTypes): void {
 		$swooleEvents = $this->getDefaultEvent();
 		foreach ((array)$eventTypes as $eventType) {
 			$events = $swooleEvents[$eventType] ?? [];
@@ -160,7 +163,10 @@ class ServerEvent {
 		}
 	}
 
-	public function registerServerUserEvent() {
+	/**
+	 * @throws \Exception
+	 */
+	public function registerServerUserEvent(): void {
 		//注册用户层和系统的公共事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
@@ -171,7 +177,10 @@ class ServerEvent {
 		}
 	}
 
-	public function registerServerCustomEvent($server) {
+	/**
+	 * @throws \Exception
+	 */
+	public function registerServerCustomEvent($server): void {
 		//注册server下的自定义事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', Str::studly($server), ucfirst($eventName));
@@ -179,7 +188,7 @@ class ServerEvent {
 		}
 	}
 
-	public function addServerEvents($server, array $events, $cover = false) {
+	public function addServerEvents($server, array $events, $cover = false): void {
 		if ($cover) {
 			static::$event[$server] = $events;
 		} else {

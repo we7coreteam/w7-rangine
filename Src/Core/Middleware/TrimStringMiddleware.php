@@ -18,18 +18,18 @@ class TrimStringMiddleware extends TransformsRequestMiddleware {
 	 *
 	 * @var array
 	 */
-	protected $except = [
+	protected array $except = [
 		//
 	];
 
 	/**
 	 * Transform the given value.
 	 *
-	 * @param  string  $key
+	 * @param string $key
 	 * @param  mixed  $value
 	 * @return mixed
 	 */
-	protected function transform($key, $value) {
+	protected function transform(string $key, mixed $value): mixed {
 		if (in_array($key, $this->except, true)) {
 			return $value;
 		}

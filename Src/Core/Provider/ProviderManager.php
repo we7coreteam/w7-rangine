@@ -15,12 +15,9 @@ namespace W7\Core\Provider;
 use W7\Core\Container\Container;
 
 class ProviderManager {
-	/**
-	 * @var Container
-	 */
-	protected $container;
-	protected $deferredProviders = [];
-	protected $registeredProviders = [];
+	protected Container $container;
+	protected array $deferredProviders = [];
+	protected array $registeredProviders = [];
 
 	public function __construct(Container $container) {
 		$this->container = $container;
@@ -34,7 +31,7 @@ class ProviderManager {
 		});
 	}
 
-	public function setDeferredProviders(array $deferredProviders) {
+	public function setDeferredProviders(array $deferredProviders): void {
 		$this->deferredProviders = $deferredProviders;
 	}
 
@@ -42,7 +39,7 @@ class ProviderManager {
 	 * @param array $providerMap
 	 * @return $this
 	 */
-	public function register(array $providerMap) {
+	public function register(array $providerMap): static {
 		foreach ($providerMap as $name => $providers) {
 			$providers = (array) $providers;
 			foreach ($providers as $provider) {
@@ -55,30 +52,30 @@ class ProviderManager {
 	/**
 	 * Execute the extension package after all registration is completed
 	 */
-	public function boot() {
+	public function boot(): void {
 		foreach ($this->registeredProviders as $name => $provider) {
 			$this->bootProvider($provider);
 		}
 	}
 
-	public function hasRegister($provider) {
+	public function hasRegister($provider): bool {
 		if (is_object($provider)) {
 			$provider = get_class($provider);
 		}
 
-		return empty($this->registeredProviders[$provider]) ? false : true;
+		return !empty($this->registeredProviders[$provider]);
 	}
 
-	public function registerProvider($provider, $name = null, $force = false) {
+	public function registerProvider($provider, $name = null, $force = false): ?ProviderAbstract {
 		if ($this->hasRegister($provider)) {
-			return false;
+			return null;
 		}
 
 		if (!$force) {
 			//Checks if the service is already loaded lazily
 			foreach ($this->deferredProviders as $providers) {
-				if (in_array($provider, $providers)) {
-					return false;
+				if (in_array($provider, $providers, true)) {
+					return null;
 				}
 			}
 		}
@@ -98,7 +95,7 @@ class ProviderManager {
 		return $provider;
 	}
 
-	public function bootProvider(ProviderAbstract $provider) {
+	public function bootProvider(ProviderAbstract $provider): void {
 		$provider->boot();
 	}
 }

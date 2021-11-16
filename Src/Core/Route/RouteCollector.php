@@ -16,14 +16,14 @@ use RuntimeException;
 use W7\Contract\Router\ValidatorInterface;
 
 class RouteCollector extends \FastRoute\RouteCollector {
-	protected $validators = [];
-	protected $routeNameMap = [];
+	protected array $validators = [];
+	protected array $routeNameMap = [];
 
-	public function getCurrentGroupPrefix() {
+	public function getCurrentGroupPrefix(): string {
 		return $this->currentGroupPrefix;
 	}
 
-	public function addRouteByName($name, array $routeData) {
+	public function addRouteByName($name, array $routeData): void {
 		$this->routeNameMap[$name] = $routeData;
 	}
 
@@ -35,17 +35,17 @@ class RouteCollector extends \FastRoute\RouteCollector {
 		return $routeData;
 	}
 
-	public function registerValidator(ValidatorInterface $validator) {
+	public function registerValidator(ValidatorInterface $validator): void {
 		$this->validators[] = $validator;
 	}
 
-	public function addRoute($httpMethod, $route, $handler) {
+	public function addRoute($httpMethod, $route, $handler): void {
 		if ($this->validate($httpMethod, $route, $handler)) {
 			parent::addRoute($httpMethod, $route, $handler);
 		}
 	}
 
-	protected function validate($httpMethod, $route, $handler) {
+	protected function validate($httpMethod, $route, $handler): bool {
 		/**
 		 * @var ValidatorInterface $validator
 		 */

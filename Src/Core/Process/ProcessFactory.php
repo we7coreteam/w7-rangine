@@ -13,17 +13,17 @@
 namespace W7\Core\Process;
 
 class ProcessFactory {
-	private $processMap = [];
+	private array $processMap = [];
 
-	public function add(ProcessAbstract $process) {
+	public function add(ProcessAbstract $process): void {
 		$this->processMap[] = $process;
 	}
 
-	public function count() {
+	public function count(): int {
 		return count($this->processMap);
 	}
 
-	public function has($id) {
+	public function has($id): bool {
 		return !empty($this->processMap[$id]) ? true : false;
 	}
 
@@ -31,7 +31,7 @@ class ProcessFactory {
 		return $this->processMap[$id];
 	}
 
-	public function delById($id) {
+	public function delById($id): void {
 		unset($this->processMap[$id]);
 	}
 }

@@ -15,12 +15,9 @@ namespace W7\Core\Pool\Event;
 use W7\Core\Pool\CoPoolAbstract;
 
 abstract class PoolEventAbstract {
-	public $type;
-	public $name;
-	/**
-	 * @var CoPoolAbstract
-	 */
-	public $pool;
+	public string $type;
+	public string $name;
+	public CoPoolAbstract $pool;
 
 	public function __construct($type, $name, CoPoolAbstract $pool) {
 		$this->type = $type;

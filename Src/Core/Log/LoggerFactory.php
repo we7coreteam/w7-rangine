@@ -33,20 +33,20 @@ use W7\Core\Log\Processor\SwooleProcessor;
  * @method void log($level, string $message, array $context = [])
  */
 class LoggerFactory implements LoggerFactoryInterface {
-	protected $channelsConfig;
-	protected $defaultChannel;
-	protected $loggerMap = [];
+	protected array $channelsConfig;
+	protected string $defaultChannel;
+	protected array $loggerMap = [];
 
 	public function __construct($channelsConfig = [], $defaultChannel = 'stack') {
 		$this->channelsConfig = $channelsConfig;
 		$this->defaultChannel = $defaultChannel;
 	}
 
-	public function setDefaultChannel(string $channel) {
+	public function setDefaultChannel(string $channel): void {
 		$this->defaultChannel = $channel;
 	}
 
-	public function createLogger($channel, array $config) {
+	public function createLogger($channel, array $config): Logger {
 		$logger = new Logger($channel, [], []);
 		$logger->bufferLimit = $config['buffer_limit'] ?? 1;
 
@@ -79,7 +79,7 @@ class LoggerFactory implements LoggerFactoryInterface {
 		return $logger;
 	}
 
-	public function registerLogger($channel, LoggerInterface $logger) {
+	public function registerLogger($channel, LoggerInterface $logger): void {
 		$this->loggerMap[$channel] = $logger;
 	}
 

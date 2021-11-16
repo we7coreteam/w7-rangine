@@ -28,20 +28,13 @@ abstract class ProcessAbstract {
 	use AppCommonTrait;
 	use TaskDispatchTrait;
 
-	protected $name = 'process';
-	protected $num = 1;
-	protected $workerId;
-	protected $mqKey;
-	/**
-	 * @var Process
-	 */
-	protected $process;
+	protected string $name = 'process';
+	protected int $num = 1;
+	protected int $workerId;
+	protected int $mqKey;
+	protected ?Process $process;
 	protected $pipe;
-
-	/**
-	 * @var Coroutine\Channel
-	 */
-	protected $channel;
+	protected Coroutine\Channel $channel;
 
 	public function __construct($name, $num = 1, Process $process = null) {
 		$this->name = $name;
@@ -54,27 +47,27 @@ abstract class ProcessAbstract {
 	protected function init() {
 	}
 
-	public function getName() {
+	public function getName(): string {
 		return $this->name;
 	}
 
-	public function setWorkerId($workerId) {
+	public function setWorkerId($workerId): void {
 		$this->workerId = $workerId;
 	}
 
-	public function getWorkerId() {
+	public function getWorkerId(): int {
 		return $this->workerId;
 	}
 
-	public function setProcess(Process $process) {
+	public function setProcess(Process $process): void {
 		$this->process = $process;
 	}
 
-	public function getProcess() {
+	public function getProcess(): ?Process {
 		return $this->process;
 	}
 
-	public function getProcessName() {
+	public function getProcessName(): string {
 		$name = App::$server->getPname() . $this->name;
 		if ($this->num > 1) {
 			$name .= '-' . ($this->process->id % $this->num);
@@ -83,7 +76,7 @@ abstract class ProcessAbstract {
 		return $name;
 	}
 
-	public function setMq($key = 0, $mode = 2 | Process::IPC_NOWAIT) {
+	public function setMq($key = 0, $mode = 2 | Process::IPC_NOWAIT): void {
 		$this->mqKey = $key;
 		$this->process->useQueue($key, $mode);
 	}
@@ -93,7 +86,7 @@ abstract class ProcessAbstract {
 	protected function beforeStart() {
 	}
 
-	public function onStart() {
+	public function onStart(): void {
 		$this->beforeStart();
 
 		$this->channel = new Coroutine\Channel(1);
@@ -102,7 +95,7 @@ abstract class ProcessAbstract {
 		$this->start();
 	}
 
-	private function listen() {
+	private function listen(): void {
 		Coroutine::create(function () {
 			/**
 			 * @var Coroutine\Socket $socket
@@ -131,9 +124,9 @@ abstract class ProcessAbstract {
 		});
 	}
 
-	private function start() {
+	private function start(): void {
 		if (method_exists($this, 'read')) {
-			$pipe = $this->pipe ? $this->pipe : $this->process->pipe;
+			$pipe = $this->pipe ?: $this->process->pipe;
 			Event::add($pipe, function () {
 				$this->doRun(function () {
 					$data = $this->pipe ? '' : $this->process->read();
@@ -149,12 +142,12 @@ abstract class ProcessAbstract {
 		}
 	}
 
-	private function doRun(\Closure $callback) {
+	private function doRun(\Closure $callback): void {
 		try {
 			$callback();
 			$this->stopProcessIfNecessary();
 		} catch (\Throwable $throwable) {
-			if ((ENV & DEBUG) == DEBUG) {
+			if ((ENV & DEBUG) === DEBUG) {
 				(new Output())->error($throwable->getMessage() . ' at file ' . $throwable->getFile() . ' line ' . $throwable->getLine());
 			}
 			$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($throwable);
@@ -163,22 +156,25 @@ abstract class ProcessAbstract {
 		}
 	}
 
-	private function stopProcessIfNecessary() {
+	private function stopProcessIfNecessary(): void {
 		$timerNum = 0;
 		foreach (Timer::list() as $item) {
 			++$timerNum;
 		}
-		if ($timerNum == 0) {
+		if ($timerNum === 0) {
 			$this->stop();
 		}
 	}
 
-	private function stop() {
+	/**
+	 * @throws \Exception
+	 */
+	private function stop(): void {
 		$this->getLogger()->debug('process ' . $this->getProcessName() . ' exit');
 
 		$this->channel->push(true);
 		Timer::clearAll();
-		$this->getProcess()->exit();
+		$this->getProcess()?->exit();
 	}
 
 	abstract protected function run(Process $process);
@@ -186,9 +182,8 @@ abstract class ProcessAbstract {
 	/**
 	 * process->push(msg) bug
 	 * @param $msg
-	 * @return bool|mixed
 	 */
-	public function sendMsg($msg) {
+	public function sendMsg($msg): bool {
 		if (version_compare(SWOOLE_VERSION, '4.4.5', '>=')) {
 			$result = $this->process->push($msg);
 		} else {
@@ -201,6 +196,6 @@ abstract class ProcessAbstract {
 	}
 
 	public function readMsg($size = null) {
-		return $this->getProcess()->pop($size);
+		return $this->getProcess()?->pop($size);
 	}
 }

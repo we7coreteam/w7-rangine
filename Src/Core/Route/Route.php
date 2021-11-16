@@ -22,13 +22,13 @@ use W7\Core\Middleware\MiddlewareMapping;
 class Route implements RouteInterface {
 	use MethodDependencyResolverTrait;
 
-	public $name;
-	public $uri;
-	public $module;
-	public $handler;
-	public $args = [];
-	public $middleware = [];
-	public $defaults = [];
+	public string $name;
+	public string $uri;
+	public string $module;
+	public mixed $handler;
+	public array $args = [];
+	public array $middleware = [];
+	public array $defaults = [];
 
 	public function __construct($name, $uri, $module, $handler, array $args = [], array $middleware = [], array $defaults = []) {
 		$this->name = $name;
@@ -40,15 +40,15 @@ class Route implements RouteInterface {
 		$this->defaults = $defaults;
 	}
 
-	public function getName() {
+	public function getName(): string {
 		return $this->name;
 	}
 
-	public function getUri() {
+	public function getUri(): string {
 		return $this->uri;
 	}
 
-	public function getModule() {
+	public function getModule(): string {
 		return $this->module;
 	}
 
@@ -93,11 +93,14 @@ class Route implements RouteInterface {
 		return $middleware;
 	}
 
-	protected static function methodExcludedByOptions($method, array $options) {
-		return (isset($options['only']) && ! in_array($method, (array) $options['only'])) ||
-			(! empty($options['except']) && in_array($method, (array) $options['except']));
+	protected static function methodExcludedByOptions($method, array $options): bool {
+		return (isset($options['only']) && !in_array($method, (array)$options['only'], true)) ||
+			(! empty($options['except']) && in_array($method, (array)$options['except'], true));
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 */
 	public function run(RequestInterface $request) {
 		if ($this->handler instanceof \Closure) {
 			return $this->runCallable();
@@ -123,6 +126,9 @@ class Route implements RouteInterface {
 		return call_user_func_array($controllerHandler, $funArgs);
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 */
 	protected function runCallable() {
 		$callable = $this->handler;
 		$funArgs = $this->args;

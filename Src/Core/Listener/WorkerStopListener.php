@@ -16,6 +16,9 @@ use W7\App;
 use W7\Core\Server\ServerEvent;
 
 class WorkerStopListener extends ListenerAbstract {
+	/**
+	 * @throws \Exception
+	 */
 	public function run(...$params) {
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_WORKER_STOP, $params);
 

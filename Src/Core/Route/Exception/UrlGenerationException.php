@@ -24,7 +24,7 @@ class UrlGenerationException extends Exception {
 	 * @param  array  $parameters
 	 * @return static
 	 */
-	public static function forMissingParameters(Route $route, array $parameters = []) {
+	public static function forMissingParameters(Route $route, array $parameters = []): static {
 		$parameterLabel = Str::plural('parameter', count($parameters));
 
 		$message = sprintf(

@@ -20,6 +20,11 @@ use W7\Core\Server\ServerEvent;
  * onFinish(\Swoole\Server $serv, int $task_id, string $data)
  */
 class FinishListener extends ListenerAbstract {
+	/**
+	 * @throws \ReflectionException
+	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 * @throws \Exception
+	 */
 	public function run(...$params) {
 		/**
 		 * @var TaskMessage $taskMessage
@@ -33,12 +38,12 @@ class FinishListener extends ListenerAbstract {
 		//Process the callback method set in the message. If not specified, see if the task contains the Finish function. Otherwise, what is not executed
 		$callback = $taskMessage->getFinishCallback();
 		if (!empty($callback)) {
-			call_user_func_array($callback, [$server, $task_id, $taskMessage->result, $taskMessage->params]);
+			$callback($server, $task_id, $taskMessage->result, $taskMessage->params);
 		}
 
 		if ($taskMessage->hasFinishCallback) {
 			$task = $this->getContainer()->get($taskMessage->task);
-			call_user_func_array([$task, 'finish'], [$server, $task_id, $taskMessage->result, $taskMessage->params]);
+			$task->finish($server, $task_id, $taskMessage->result, $taskMessage->params);
 		}
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_TASK_FINISH, [$taskMessage->result]);

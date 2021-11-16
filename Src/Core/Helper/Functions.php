@@ -164,13 +164,13 @@ if (!function_exists('isleep')) {
 }
 
 if (!function_exists('itimeTick')) {
-	function itimeTick($ms, \Closure $callback) {
+	function itimeTick($ms, \Closure $callback): int {
 		return SwooleHelper::timeTick($ms, $callback);
 	}
 }
 
 if (!function_exists('itimeAfter')) {
-	function itimeAfter($ms, \Closure $callback) {
+	function itimeAfter($ms, \Closure $callback): int {
 		return SwooleHelper::timeAfter($ms, $callback);
 	}
 }

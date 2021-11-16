@@ -17,47 +17,47 @@ use W7\App;
 class TaskMessage extends MessageAbstract {
 	use MessageTraiter;
 
-	public $messageType = Message::MESSAGE_TYPE_TASK;
+	public string $messageType = Message::MESSAGE_TYPE_TASK;
 
 	/**
 	 * Synchronization task
 	 */
-	const OPERATION_TASK_NOW = '0';
+	public const OPERATION_TASK_NOW = '0';
 	/**
 	 * Asynchronous tasks
 	 */
-	const OPERATION_TASK_ASYNC = '1';
+	public const OPERATION_TASK_ASYNC = '1';
 	/**
 	 * Coroutines task
 	 */
-	const OPERATION_TASK_CO = '2';
+	public const OPERATION_TASK_CO = '2';
 
 	/**
 	 * Task type
 	 */
-	public $type;
+	public string $type;
 
 	/**
 	 * @var mixed Task name
 	 */
-	public $task = '';
+	public mixed $task = '';
 
 	/**
 	 * Task timeout, useful only if the coroutine blocks the task asynchronously
 	 * @var int
 	 */
-	public $timeout = 3;
+	public int $timeout = 3;
 
 	/**
 	 * Additional parameters
 	 * @var array
 	 */
-	public $params = [];
+	public array $params = [];
 
 	/**
 	 * When a task is dispatched, specify the default method in the task
 	 */
-	public $method = 'run';
+	public string $method = 'run';
 
 	/**
 	 * Save the result of task execution,
@@ -65,47 +65,39 @@ class TaskMessage extends MessageAbstract {
 	 * In the onFinish event, you need to handle callbacks and other work
 	 * @var array
 	 */
-	public $result = [];
+	public array $result = [];
 
 	/**
 	 * Whether to include the call back to the Finish function
 	 * @var bool
 	 */
-	public $hasFinishCallback = false;
+	public bool $hasFinishCallback = false;
 
-	public function isTaskAsync() {
-		if ($this->type == self::OPERATION_TASK_ASYNC) {
-			return true;
-		} else {
-			return false;
-		}
+	public function isTaskAsync(): bool {
+		return $this->type === self::OPERATION_TASK_ASYNC;
 	}
 
-	public function isTaskCo() {
-		if ($this->type == self::OPERATION_TASK_CO) {
-			return true;
-		} else {
-			return false;
-		}
+	public function isTaskCo(): bool {
+		return $this->type === self::OPERATION_TASK_CO;
 	}
 
-	public function setFinishCallback($class, $method) {
+	public function setFinishCallback($class, $method): void {
 		$this->params['finish'] =  [$class, $method];
 	}
 
-	public function getFinishCallback() {
+	public function getFinishCallback(): array {
 		$callback = $this->params['finish'] ?? null;
 		if (empty($callback)) {
-			return false;
+			return [null, null];
 		}
 
 		if (!class_exists($callback[0])) {
-			return false;
+			return [null, null];
 		}
 
 		$object = App::getApp()->getContainer()->get($callback[0]);
 		if (!method_exists($object, $callback[1])) {
-			return false;
+			return [null, null];
 		}
 
 		return [$object, $callback[1]];

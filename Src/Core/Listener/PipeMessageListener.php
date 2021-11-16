@@ -17,6 +17,9 @@ use W7\Core\Message\Message;
 use W7\Core\Server\ServerEvent;
 
 class PipeMessageListener extends ListenerAbstract {
+	/**
+	 * @throws \Exception
+	 */
 	public function run(...$params) {
 		/**
 		 * @var Server $server

@@ -13,16 +13,16 @@ namespace W7\Core\Message;
  * @property  $id
  */
 abstract class MessageAbstract {
-	static $createMessageCallbacks = [];
-	static $propertyMapping = [];
+	public static array $createMessageCallbacks = [];
+	public static array $propertyMapping = [];
 
-	public $messageType;
+	public string $messageType;
 
 	public function getId() {
 		return $this->id;
 	}
 
-	public static function createMessageUsing(callable $callback) {
+	public static function createMessageUsing(callable $callback): void {
 		if (is_null($callback)) {
 			static::$createMessageCallbacks = [];
 		} else {
@@ -30,7 +30,7 @@ abstract class MessageAbstract {
 		}
 	}
 
-	public function pack() {
+	public function pack(): string {
 		$classname = static::class;
 
 		if (empty(self::$propertyMapping[$classname])) {

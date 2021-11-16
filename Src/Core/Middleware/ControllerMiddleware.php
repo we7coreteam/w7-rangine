@@ -12,6 +12,7 @@
 
 namespace W7\Core\Middleware;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -19,6 +20,10 @@ use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 
 class ControllerMiddleware extends MiddlewareAbstract {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		/**
 		 * @var Request $request
@@ -28,10 +33,16 @@ class ControllerMiddleware extends MiddlewareAbstract {
 		return $handler->handle($request);
 	}
 
-	protected function parseResponse($response) {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
+	protected function parseResponse($response): Response {
 		if ($response instanceof Response) {
 			return $response;
-		} elseif (is_object($response)) {
+		}
+
+		if (is_object($response)) {
 			$response = 'Illegal type ' . get_class($response) . ', Must be a response object, an array, or a string';
 		}
 

@@ -20,17 +20,17 @@ use W7\Tcp\Server\Server as TcpServer;
 use W7\WebSocket\Server\Server as WebSocketServer;
 
 class ServerEnum {
-	const TYPE_FPM = 'fpm';
-	const TYPE_HTTP = 'http';
-	const TYPE_RPC = 'rpc';
-	const TYPE_TCP = 'tcp';
-	const TYPE_WEBSOCKET = 'webSocket';
+	public const TYPE_FPM = 'fpm';
+	public const TYPE_HTTP = 'http';
+	public const TYPE_RPC = 'rpc';
+	public const TYPE_TCP = 'tcp';
+	public const TYPE_WEBSOCKET = 'webSocket';
 	//Fixed bug MC-115716 - User input of a lowercase websocket cannot find the server
-	const TYPE_LOWER_WEBSOCKET = 'websocket';
-	const TYPE_PROCESS = 'process';
-	const TYPE_RELOAD = 'reload';
+	public const TYPE_LOWER_WEBSOCKET = 'websocket';
+	public const TYPE_PROCESS = 'process';
+	public const TYPE_RELOAD = 'reload';
 
-	public static $ALL_SERVER = [
+	public static array $ALL_SERVER = [
 		self::TYPE_WEBSOCKET => WebSocketServer::class,
 		self::TYPE_LOWER_WEBSOCKET => WebSocketServer::class,
 		self::TYPE_HTTP => HttpServer::class,
@@ -40,14 +40,14 @@ class ServerEnum {
 		self::TYPE_RELOAD => ReloadServer::class
 	];
 
-	const MODE_LIST = [
+	public const MODE_LIST = [
 		//SWOOLE_BASE
 		1 => 'base',
 		//SWOOLE_PROCESS
 		2 => 'process',
 	];
 
-	const SOCK_LIST = [
+	public const SOCK_LIST = [
 		//SWOOLE_TCP
 		1 => 'tcp',
 		//SWOOLE_UDP
@@ -62,7 +62,7 @@ class ServerEnum {
 		6 => 'unix_dgram'
 	];
 
-	public static function registerServer($type, string $class) {
+	public static function registerServer($type, string $class): void {
 		static::$ALL_SERVER[$type] = $class;
 	}
 }

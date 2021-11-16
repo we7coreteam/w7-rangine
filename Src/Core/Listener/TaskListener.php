@@ -28,10 +28,15 @@ class TaskListener extends ListenerAbstract {
 	public function run(...$params) {
 		[$server, $task] = $params;
 
-		return $this->dispatchTask($server, $task);
+		$this->dispatchTask($server, $task);
 	}
 
-	private function dispatchTask(Server $server, Task $task) {
+	/**
+	 * @throws \ReflectionException
+	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 * @throws \Exception
+	 */
+	private function dispatchTask(Server $server, Task $task): void {
 		$message = Message::unpack($task->data);
 
 		if ($message instanceof TaskMessage) {

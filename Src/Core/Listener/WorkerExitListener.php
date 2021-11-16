@@ -15,6 +15,9 @@ namespace W7\Core\Listener;
 use W7\Core\Server\ServerEvent;
 
 class WorkerExitListener extends ListenerAbstract {
+	/**
+	 * @throws \Exception
+	 */
 	public function run(...$params) {
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_WORKER_EXIT, $params);
 	}

@@ -15,5 +15,5 @@ namespace W7\Core\Message;
 class Message {
 	use MessageTraiter;
 
-	const MESSAGE_TYPE_TASK = 'task';
+	public const MESSAGE_TYPE_TASK = 'task';
 }

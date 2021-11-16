@@ -16,18 +16,9 @@ use Swoole\Server;
 use W7\Http\Message\Server\Request;
 
 abstract class AfterOpenListenerAbstract extends UserListenerAbstract {
-	/**
-	 * @var Server
-	 */
-	protected $server;
-	/**
-	 * @var int
-	 */
-	protected $fd;
-	/**
-	 * @var Request
-	 */
-	protected $request;
+	protected Server $server;
+	protected int $fd;
+	protected Request $request;
 
 	public function __construct(...$params) {
 		$this->server = $params[0];

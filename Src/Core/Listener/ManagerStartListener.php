@@ -16,6 +16,9 @@ use W7\App;
 use W7\Core\Server\ServerEvent;
 
 class ManagerStartListener extends ListenerAbstract {
+	/**
+	 * @throws \Exception
+	 */
 	public function run(...$params) {
 		mt_srand();
 

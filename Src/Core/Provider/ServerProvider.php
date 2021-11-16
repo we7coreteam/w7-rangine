@@ -16,7 +16,7 @@ use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 
 class ServerProvider extends ProviderAbstract {
-	public function register() {
+	public function register(): void {
 		$this->container->set(Request::class, function () {
 			return $this->getContext()->getRequest();
 		}, false);
