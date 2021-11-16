@@ -15,26 +15,22 @@ namespace W7\Core\Helper\Compate;
 use W7\Core\Exception\HandlerExceptions;
 
 class FpmCoroutine {
-	private $generatorMap = [];
-	private $hasRegisterTrigger;
+	private array $generatorMap = [];
 
 	public function __construct() {
-		if (!$this->hasRegisterTrigger) {
-			register_shutdown_function(function () {
-				$e = error_get_last();
-				if (!$e || HandlerExceptions::isIgnoreErrorTypes($e['type'])) {
-					$this->run();
-				}
-			});
-			$this->hasRegisterTrigger = true;
-		}
+		register_shutdown_function(function () {
+			$e = error_get_last();
+			if (!$e || HandlerExceptions::isIgnoreErrorTypes($e['type'])) {
+				$this->run();
+			}
+		});
 	}
 
-	public function add(\Generator $generator) {
+	public function add(\Generator $generator): void {
 		$this->generatorMap[] = $generator;
 	}
 
-	public function run() {
+	public function run(): void {
 		/**
 		 * @var \Generator $generator
 		 */

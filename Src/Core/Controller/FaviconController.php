@@ -13,9 +13,10 @@
 namespace W7\Core\Controller;
 
 use W7\Http\Message\Server\Request;
+use W7\Http\Message\Server\Response;
 
 class FaviconController extends ControllerAbstract {
-	public function index(Request $request) {
+	public function index(Request $request): Response {
 		return $this->responseRaw('');
 	}
 }

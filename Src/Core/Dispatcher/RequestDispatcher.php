@@ -12,6 +12,7 @@
 
 namespace W7\Core\Dispatcher;
 
+use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Exception\RouteNotAllowException;
@@ -26,15 +27,9 @@ use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 
 class RequestDispatcher extends DispatcherAbstract {
-	protected $serverType;
-	/**
-	 * @var MiddlewareMapping
-	 */
-	protected $middlewareMapping;
-	/**
-	 * @var RouteDispatcher
-	 */
-	protected $routerDispatcher;
+	protected string $serverType;
+	protected MiddlewareMapping $middlewareMapping;
+	protected RouteDispatcher $routerDispatcher;
 
 	public function __construct() {
 		//Middleware needs to be separated when different types of servers are started together
@@ -49,15 +44,15 @@ class RequestDispatcher extends DispatcherAbstract {
 		}
 	}
 
-	public function setServerType($type) {
+	public function setServerType($type): void {
 		$this->serverType = $type;
 	}
 
-	public function setRouterDispatcher(RouteDispatcher $routeDispatcher) {
+	public function setRouterDispatcher(RouteDispatcher $routeDispatcher): void {
 		$this->routerDispatcher = $routeDispatcher;
 	}
 
-	public function getMiddlewareMapping() {
+	public function getMiddlewareMapping(): MiddlewareMapping {
 		return $this->middlewareMapping;
 	}
 
@@ -91,22 +86,22 @@ class RequestDispatcher extends DispatcherAbstract {
 		}
 	}
 
-	protected function getRoute(ServerRequestInterface $request) {
+	protected function getRoute(ServerRequestInterface $request): Route {
 		$httpMethod = $request->getMethod();
 		$uri = $request->getUri()->getPath();
 
 		return $this->getRouteByMethodAndUrl($httpMethod, $uri);
 	}
 
-	protected function getRouteByMethodAndUrl($httpMethod, $uri) {
+	protected function getRouteByMethodAndUrl($httpMethod, $uri): Route {
 		$routeData = $this->routerDispatcher->dispatch($httpMethod, $uri);
 
 		switch ($routeData[0]) {
-			case RouteDispatcher::NOT_FOUND:
+			case Dispatcher::NOT_FOUND:
 				throw new RouteNotFoundException('Route not found, ' . $uri, 404);
-			case RouteDispatcher::METHOD_NOT_ALLOWED:
+			case Dispatcher::METHOD_NOT_ALLOWED:
 				throw new RouteNotAllowException('Route not allowed, ' . $uri . ' with method ' . $httpMethod, 405);
-			case RouteDispatcher::FOUND:
+			case Dispatcher::FOUND:
 				break;
 		}
 

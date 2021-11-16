@@ -23,12 +23,9 @@ use W7\Core\Helper\Traiter\AppCommonTrait;
 class ConnectionResolver extends DatabaseManager {
 	use AppCommonTrait;
 
-	/**
-	 * @var PoolFactory
-	 */
-	protected $poolFactory;
+	protected PoolFactory $poolFactory;
 
-	public function setPoolFactory(PoolFactory $poolFactory) {
+	public function setPoolFactory(PoolFactory $poolFactory): void {
 		$this->poolFactory = $poolFactory;
 	}
 
@@ -74,7 +71,7 @@ class ConnectionResolver extends DatabaseManager {
 		return $connection;
 	}
 
-	public function disconnect($name = null) {
+	public function disconnect($name = null): void {
 		/**
 		 * @var Connection $connection
 		 */
@@ -88,9 +85,9 @@ class ConnectionResolver extends DatabaseManager {
 	 * Reconnect to the given database.
 	 *
 	 * @param  string|null  $name
-	 * @return \Illuminate\Database\Connection
+	 * @return Connection
 	 */
-	public function reconnect($name = null) {
+	public function reconnect($name = null): Connection {
 		$this->disconnect($name = $name ?: $this->getDefaultConnection());
 
 		if (!$this->getConnectionByNameFromContext($name)) {
@@ -104,9 +101,9 @@ class ConnectionResolver extends DatabaseManager {
 	 * Refresh the PDO connections on a given connection.
 	 *
 	 * @param  string  $name
-	 * @return \Illuminate\Database\Connection
+	 * @return Connection
 	 */
-	protected function refreshPdoConnections($name) {
+	protected function refreshPdoConnections($name): Connection {
 		$fresh = $this->makeConnection($name);
 
 		/**

@@ -19,27 +19,27 @@ class Container extends \Illuminate\Container\Container {
 	/**
 	 * @var Context
 	 */
-	protected $context;
-	private $deferredServices = [];
-	private $deferredServiceLoaders = [];
+	protected Context $context;
+	private array $deferredServices = [];
+	private array $deferredServiceLoaders = [];
 
 	public function __construct() {
 		static::$instance = $this;
 	}
 
-	public function registerDeferredService($services) {
+	public function registerDeferredService($services): void {
 		$services = (array)$services;
 		$this->deferredServices = array_unique(array_merge($this->deferredServices, $services));
 	}
 
-	public function registerDeferredServiceLoader(\Closure $loader) {
+	public function registerDeferredServiceLoader(\Closure $loader): void {
 		$this->deferredServiceLoaders[] = $loader;
 	}
 
-	public function loadDeferredService($service) {
-		if (in_array($service, $this->deferredServices)) {
+	public function loadDeferredService($service): void {
+		if (in_array($service, $this->deferredServices, true)) {
 			//If triggered once, do not trigger the next time
-			unset($this->deferredServices[array_search($service, $this->deferredServices)]);
+			unset($this->deferredServices[array_search($service, $this->deferredServices, true)]);
 			foreach ($this->deferredServiceLoaders as $loader) {
 				$loader($service);
 			}
@@ -51,7 +51,7 @@ class Container extends \Illuminate\Container\Container {
 	 * @param $handle
 	 * @return void
 	 */
-	public function set($name, $handle, $shared = true) {
+	public function set($name, $handle, $shared = true): void {
 		if (is_object($handle) && (!$handle instanceof \Closure)) {
 			$this->instance($name, $handle);
 		} else {
@@ -59,7 +59,7 @@ class Container extends \Illuminate\Container\Container {
 		}
 	}
 
-	public function has($name) {
+	public function has($name): bool {
 		//Detects whether a lazy load service is present and triggers the loader
 		$this->loadDeferredService($this->getAlias($name));
 
@@ -69,8 +69,9 @@ class Container extends \Illuminate\Container\Container {
 	/**
 	 * @param $name
 	 * @return mixed
+	 * @throws BindingResolutionException|\ReflectionException
 	 */
-	public function get($name, $parameters = []) {
+	public function get($name, $parameters = []): mixed {
 		if (!$this->has($name)) {
 			//If the name here is not the class name, it cannot be used
 			$this->set($name, $name);
@@ -79,16 +80,19 @@ class Container extends \Illuminate\Container\Container {
 		return $this->resolve($name, $parameters);
 	}
 
+	/**
+	 * @throws BindingResolutionException|\ReflectionException
+	 */
 	public function clone($name) {
 		return clone $this->get($name);
 	}
 
-	public function delete($name) {
+	public function delete($name): void {
 		$abstract = $this->getAlias($name);
 		unset($this[$abstract]);
 	}
 
-	public function clear() {
+	public function clear(): void {
 		$this->context = null;
 		$this->flush();
 	}
@@ -107,9 +111,9 @@ class Container extends \Illuminate\Container\Container {
 	 * @param  bool  $raiseEvents
 	 * @return mixed
 	 *
-	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 * @throws BindingResolutionException|\ReflectionException
 	 */
-	protected function resolve($abstract, $parameters = [], $raiseEvents = true) {
+	protected function resolve($abstract, $parameters = [], $raiseEvents = true): mixed {
 		$abstract = $this->getAlias($abstract);
 
 		$needsContextualBuild = ! empty($parameters) || ! is_null(
@@ -168,12 +172,13 @@ class Container extends \Illuminate\Container\Container {
 	/**
 	 * Instantiate a concrete instance of the given type.
 	 *
-	 * @param  string  $concrete
+	 * @param string $concrete
 	 * @return mixed
 	 *
-	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 * @throws BindingResolutionException
+	 * @throws \ReflectionException
 	 */
-	public function build($concrete) {
+	public function build($concrete): mixed {
 		// If the concrete type is actually a Closure, we will just execute it and
 		// hand back the results of the functions, which allows functions to be
 		// used as resolvers for more fine-tuned resolution of these objects.
@@ -231,7 +236,7 @@ class Container extends \Illuminate\Container\Container {
 	 *
 	 * @return array
 	 */
-	protected function getLastParameterOverride() {
+	protected function getLastParameterOverride(): array {
 		$cId = $this->getContext()->getCoroutineId();
 		$with = $this->with[$cId] ?? [];
 		return count($with) ? end($with) : [];
@@ -243,7 +248,7 @@ class Container extends \Illuminate\Container\Container {
 	 * @param  string  $abstract
 	 * @return \Closure|string|null
 	 */
-	protected function findInContextualBindings($abstract) {
+	protected function findInContextualBindings($abstract): string|\Closure|null {
 		$buildStack = $this->buildStack[$this->getContext()->getCoroutineId()] ?? [];
 		return $this->contextual[end($buildStack)][$abstract] ?? null;
 	}
@@ -254,9 +259,9 @@ class Container extends \Illuminate\Container\Container {
 	 * @param  string  $concrete
 	 * @return void
 	 *
-	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 * @throws BindingResolutionException
 	 */
-	protected function notInstantiable($concrete) {
+	protected function notInstantiable($concrete): void {
 		$cid = $this->getContext()->getCoroutineId();
 		if (! empty($this->buildStack[$cid])) {
 			$previous = implode(', ', $this->buildStack[$cid]);

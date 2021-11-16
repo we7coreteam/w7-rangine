@@ -13,6 +13,7 @@
 namespace W7\Core\Database\Provider;
 
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +32,11 @@ use W7\Core\Database\Pool\PoolFactory;
 use W7\Core\Provider\ProviderAbstract;
 
 class DatabaseProvider extends ProviderAbstract {
-	public function register() {
+	/**
+	 * @throws BindingResolutionException
+	 * @throws \Exception
+	 */
+	public function register(): void {
 		$this->registerConnectionResolver();
 		$this->registerDbEvent();
 
@@ -39,7 +44,7 @@ class DatabaseProvider extends ProviderAbstract {
 		Model::setConnectionResolver($this->container->get('db-factory'));
 	}
 
-	private function registerConnectionResolver() {
+	private function registerConnectionResolver(): void {
 		$this->container->set('db-factory', function () {
 			Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
 				return new PdoMysqlConnection($connection, $database, $prefix, $config);
@@ -59,7 +64,10 @@ class DatabaseProvider extends ProviderAbstract {
 		});
 	}
 
-	private function registerDbEvent() {
+	/**
+	 * @throws \Exception
+	 */
+	private function registerDbEvent(): void {
 		$this->getEventDispatcher()->listen(QueryExecuted::class, function ($event) {
 			$this->getEventDispatcher()->dispatch(new QueryExecutedEvent($event->sql, $event->bindings, $event->time, $event->connection));
 		});

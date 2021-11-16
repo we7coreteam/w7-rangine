@@ -15,12 +15,8 @@ namespace W7\Core\Database\Event;
 use Illuminate\Database\Connection;
 
 class AfterMakeConnectionEvent {
-	public $name;
-
-	/**
-	 * @var Connection
-	 */
-	public $connection;
+	public string $name;
+	public Connection $connection;
 
 	public function __construct($name, Connection $connection) {
 		$this->name = $name;

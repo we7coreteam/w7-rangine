@@ -16,7 +16,7 @@ use W7\App;
 use W7\Core\Helper\Storage\Context;
 
 trait CoroutineInstanceTrait {
-	public static function instance() {
+	public static function instance(): static {
 		$contextKey = static::class;
 		/**
 		 * @var Context $context

@@ -13,5 +13,5 @@
 namespace W7\Core\Exception;
 
 abstract class ResponseExceptionAbstract extends \LogicException {
-	public $isReport = true;
+	public bool $isReport = true;
 }

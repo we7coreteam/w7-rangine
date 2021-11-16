@@ -16,17 +16,17 @@ use Illuminate\Support\Arr;
 use W7\Contract\Config\RepositoryInterface;
 
 class Config implements RepositoryInterface {
-	private $payload = [];
+	private array $payload;
 
 	public function __construct(array $payload = []) {
 		$this->payload = $payload;
 	}
 
-	public function set($key, $value = null) {
+	public function set($key, $value = null): array {
 		return Arr::set($this->payload, $key, $value);
 	}
 
-	public function has($key) {
+	public function has($key): bool {
 		return Arr::has($this->payload, $key);
 	}
 
@@ -34,7 +34,7 @@ class Config implements RepositoryInterface {
 		return Arr::get($this->payload, $key, $default);
 	}
 
-	public function all() {
+	public function all(): array {
 		return $this->payload;
 	}
 }

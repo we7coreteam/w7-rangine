@@ -19,6 +19,7 @@ use Swoole\Timer;
 use Throwable;
 use W7\App;
 use W7\Contract\Logger\LoggerFactoryInterface;
+use W7\Core\Helper\Storage\Context;
 
 class SwooleHelper {
 	public static function checkLoadSwooleExtension($exitIfNotLoad = true):bool {
@@ -36,26 +37,33 @@ class SwooleHelper {
 		return false;
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 */
 	public static function createCoroutine(Closure $callback) {
-		$context = App::getApp()->getContainer()->get(\W7\Core\Helper\Storage\Context::class);
+		$context = App::getApp()->getContainer()->get(Context::class);
 		$coId = $context->getCoroutineId();
-		$result = null;
-		Coroutine::create(function () use ($callback, $coId, &$result, $context) {
+
+		return Coroutine::create(function () use ($callback, $coId, $context) {
 			$context->fork($coId);
 
 			try {
-				$result = $callback();
+				$callback();
 			} catch (Throwable $throwable) {
 				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug('igo error with msg ' . $throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
 			}
 		});
 	}
 
-	public static function sleep($seconds) {
+	public static function sleep($seconds): void {
 		Coroutine\System::sleep($seconds);
 	}
 
-	public static function timeTick($ms, Closure $callback) {
+	/**
+	 * @throws Exception
+	 */
+	public static function timeTick($ms, Closure $callback): int {
 		self::checkLoadSwooleExtension();
 		return Timer::tick($ms, function () use ($callback) {
 			try {
@@ -66,7 +74,10 @@ class SwooleHelper {
 		});
 	}
 
-	public static function timeAfter($ms, Closure $callback) {
+	/**
+	 * @throws Exception
+	 */
+	public static function timeAfter($ms, Closure $callback): int {
 		self::checkLoadSwooleExtension();
 		return Timer::after($ms, function () use ($callback) {
 			try {

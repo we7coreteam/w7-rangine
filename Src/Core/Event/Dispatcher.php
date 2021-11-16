@@ -21,7 +21,7 @@ use W7\Contract\Event\ShouldBroadcastInterface;
 use W7\Contract\Event\ShouldQueueInterface;
 
 class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface {
-	public function listen($events, $listener) {
+	public function listen($events, $listener = null) {
 		if (is_string($listener)) {
 			[$class, $method] = $this->parseClassCallable($listener);
 			if (!class_exists($class)) {
@@ -32,11 +32,11 @@ class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface 
 		parent::listen($events, $listener);
 	}
 
-	protected function parseClassCallable($listener) {
+	protected function parseClassCallable($listener): array {
 		return Str::parseCallback($listener, 'run');
 	}
 
-	public function createClassListener($listener, $wildcard = false) {
+	public function createClassListener($listener, $wildcard = false): \Closure {
 		return function ($event, $payload) use ($listener, $wildcard) {
 			if ($wildcard) {
 				return call_user_func($this->createClassCallable($listener, $payload), $event, $payload);
@@ -49,7 +49,7 @@ class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface 
 		};
 	}
 
-	protected function createClassCallable($listener, $payload = []) {
+	protected function createClassCallable($listener, $payload = []): callable|array|\Closure {
 		[$class, $method] = $this->parseClassCallable($listener);
 
 		if ($this->handlerShouldBeQueued($class)) {
@@ -59,13 +59,13 @@ class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface 
 		return [new $class(...$payload), $method];
 	}
 
-	protected function shouldBroadcast(array $payload) {
+	protected function shouldBroadcast(array $payload): bool {
 		return isset($payload[0]) &&
 			$payload[0] instanceof ShouldBroadcastInterface &&
 			$this->broadcastWhen($payload[0]);
 	}
 
-	protected function handlerShouldBeQueued($class) {
+	protected function handlerShouldBeQueued($class): bool {
 		try {
 			return (new ReflectionClass($class))->implementsInterface(
 				ShouldQueueInterface::class

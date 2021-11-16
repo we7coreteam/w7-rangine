@@ -14,21 +14,23 @@ namespace W7\Core\Helper\Traiter;
 
 use Exception;
 use W7\App;
+use W7\Contract\Config\RepositoryInterface;
 use W7\Contract\Event\EventDispatcherInterface;
 use W7\Contract\Logger\LoggerFactoryInterface;
+use W7\Core\Container\Container;
 use W7\Core\Helper\Storage\Context;
 
 trait AppCommonTrait {
 	/**
 	 * @var EventDispatcherInterface
 	 */
-	protected $eventDispatcher;
+	protected EventDispatcherInterface $eventDispatcher;
 	/**
 	 * @var LoggerFactoryInterface
 	 */
-	protected $loggerFactory;
+	protected LoggerFactoryInterface $loggerFactory;
 
-	public function setEventDispatcher(EventDispatcherInterface $eventDispatcher) {
+	public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void {
 		$this->eventDispatcher = $eventDispatcher;
 	}
 
@@ -46,7 +48,7 @@ trait AppCommonTrait {
 		return $this->eventDispatcher;
 	}
 
-	public function setLogger(LoggerFactoryInterface $loggerFactory) {
+	public function setLogger(LoggerFactoryInterface $loggerFactory): void {
 		$this->loggerFactory = $loggerFactory;
 	}
 
@@ -61,14 +63,18 @@ trait AppCommonTrait {
 		return $this->loggerFactory;
 	}
 
-	public function getContainer() {
+	public function getContainer(): Container {
 		return App::getApp()->getContainer();
 	}
 
-	public function getConfig() {
+	public function getConfig(): RepositoryInterface {
 		return App::getApp()->getConfigger();
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 */
 	public function getContext() : Context {
 		return $this->getContainer()->get(Context::class);
 	}

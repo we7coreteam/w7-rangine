@@ -27,7 +27,7 @@ use ReflectionParameter;
 trait MethodDependencyResolverTrait {
 	use AppCommonTrait;
 
-	public function resolveClassMethodDependencies(array $parameters, $instance, $method) {
+	public function resolveClassMethodDependencies(array $parameters, $instance, $method): array {
 		if (! method_exists($instance, $method)) {
 			return $parameters;
 		}
@@ -38,7 +38,7 @@ trait MethodDependencyResolverTrait {
 		);
 	}
 
-	public function resolveMethodDependencies(array $parameters, ReflectionFunctionAbstract $reflector) {
+	public function resolveMethodDependencies(array $parameters, ReflectionFunctionAbstract $reflector): array {
 		$instanceCount = 0;
 
 		$values = array_values($parameters);
@@ -74,13 +74,13 @@ trait MethodDependencyResolverTrait {
 		return $skippableValue;
 	}
 
-	protected function alreadyInParameters($class, array $parameters) {
+	protected function alreadyInParameters($class, array $parameters): bool {
 		return ! is_null(Arr::first($parameters, function ($value) use ($class) {
 			return $value instanceof $class;
 		}));
 	}
 
-	protected function spliceIntoParameters(array &$parameters, $offset, $value) {
+	protected function spliceIntoParameters(array &$parameters, $offset, $value): void {
 		array_splice(
 			$parameters,
 			$offset,

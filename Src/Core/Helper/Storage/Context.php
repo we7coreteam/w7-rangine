@@ -23,22 +23,22 @@ class Context {
 	/**
 	 * Key of request context share data
 	 */
-	const DATA_KEY = 'data';
+	public const DATA_KEY = 'data';
 
 	/**
 	 * Key of current Request
 	 */
-	const REQUEST_KEY = 'request';
+	public const REQUEST_KEY = 'request';
 
 	/**
 	 * Key of current Response
 	 */
-	const RESPONSE_KEY = 'response';
+	public const RESPONSE_KEY = 'response';
 
 	/**
 	 * @var array Coroutine context
 	 */
-	private static $context;
+	private static array $context;
 
 	private $corDeferRegisterMap;
 
@@ -46,31 +46,31 @@ class Context {
 	 * The coroutine number last requested
 	 * @var int
 	 */
-	private $lastCoId;
+	private int $lastCoId;
 
-	public function defer(Closure $closure) {
+	public function defer(Closure $closure): void {
 		Coroutine::defer($closure);
 	}
 
 	/**
 	 * @return Request|null
 	 */
-	public function getRequest() {
-		return self::getCoroutineContext(self::REQUEST_KEY);
+	public function getRequest(): ?Request {
+		return $this->getCoroutineContext(self::REQUEST_KEY);
 	}
 
 	/**
 	 * @return Response|null
 	 */
 	public function getResponse() {
-		return self::getCoroutineContext(self::RESPONSE_KEY);
+		return $this->getCoroutineContext(self::RESPONSE_KEY);
 	}
 
 	/**
 	 * @return array|null
 	 */
 	public function getContextData() {
-		return self::getCoroutineContext(self::DATA_KEY);
+		return $this->getCoroutineContext(self::DATA_KEY);
 	}
 
 	/**
@@ -78,8 +78,8 @@ class Context {
 	 *
 	 * @param RequestInterface $request
 	 */
-	public function setRequest(RequestInterface $request) {
-		$coroutineId = self::getCoroutineId();
+	public function setRequest(RequestInterface $request): void {
+		$coroutineId = $this->getCoroutineId();
 		self::$context[$coroutineId][self::REQUEST_KEY] = $request;
 	}
 
@@ -88,8 +88,8 @@ class Context {
 	 *
 	 * @param ResponseInterface $response
 	 */
-	public function setResponse($response) {
-		$coroutineId = self::getCoroutineId();
+	public function setResponse(ResponseInterface $response): void {
+		$coroutineId = $this->getCoroutineId();
 		self::$context[$coroutineId][self::RESPONSE_KEY] = $response;
 	}
 
@@ -98,9 +98,9 @@ class Context {
 	 *
 	 * @param array $contextData
 	 */
-	public function setContextData(array $contextData = []) {
+	public function setContextData(array $contextData = []): void {
 		$existContext = [];
-		$coroutineId = self::getCoroutineId();
+		$coroutineId = $this->getCoroutineId();
 		if (isset(self::$context[$coroutineId][self::DATA_KEY])) {
 			$existContext = self::$context[$coroutineId][self::DATA_KEY];
 		}
@@ -113,8 +113,8 @@ class Context {
 	 * @param string $key
 	 * @param mixed $val
 	 */
-	public function setContextDataByKey(string $key, $val) {
-		$coroutineId = self::getCoroutineId();
+	public function setContextDataByKey(string $key, $val): void {
+		$coroutineId = $this->getCoroutineId();
 		self::$context[$coroutineId][self::DATA_KEY][$key] = $val;
 	}
 
@@ -125,7 +125,7 @@ class Context {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function getContextDataByKey(string $key, $default = null) {
+	public function getContextDataByKey(string $key, $default = null): mixed {
 		$data = $this->getContextData();
 		if ($data && isset($data[$key])) {
 			return $data[$key];
@@ -134,16 +134,16 @@ class Context {
 		return $default;
 	}
 
-	public function fork($parentCoId) {
-		self::$context[self::getCoroutineId()] = self::$context[$parentCoId] ?? [];
+	public function fork($parentCoId): void {
+		self::$context[$this->getCoroutineId()] = self::$context[$parentCoId] ?? [];
 	}
 
 	/**
 	 * Destroy all current coroutine context data
 	 */
-	public function destroy($coroutineId = null) {
+	public function destroy($coroutineId = null): void {
 		if (!$coroutineId) {
-			$coroutineId = self::getCoroutineId();
+			$coroutineId = $this->getCoroutineId();
 		}
 		
 		if (isset(self::$context[$coroutineId])) {
@@ -151,7 +151,7 @@ class Context {
 		}
 	}
 
-	public function all() {
+	public function all(): array {
 		return self::$context ?? [];
 	}
 
@@ -159,27 +159,24 @@ class Context {
 	 * Get data from coroutine context by key
 	 *
 	 * @param string $key key of context
-	 * @return mixed|null
+	 * @return mixed
 	 */
-	private function getCoroutineContext(string $key) {
-		$coroutineId = self::getCoroutineId();
+	private function getCoroutineContext(string $key): mixed {
+		$coroutineId = $this->getCoroutineId();
 		if (!isset(self::$context[$coroutineId])) {
 			return null;
 		}
 
 		$coroutineContext = self::$context[$coroutineId];
-		if (isset($coroutineContext[$key])) {
-			return $coroutineContext[$key];
-		}
-		return null;
+		return $coroutineContext[$key] ?? null;
 	}
 
 	/**
 	 * Get current coroutine ID
 	 *
-	 * @return int|null Return null when in non-coroutine context
+	 * @return int Return null when in non-coroutine context
 	 */
-	public function getCoroutineId() {
+	public function getCoroutineId(): int {
 		if (method_exists(Coroutine::class, 'getuid')) {
 			$coId = Coroutine::getuid();
 		} else {
@@ -193,7 +190,7 @@ class Context {
 				unset($this->corDeferRegisterMap[Coroutine::getuid()]);
 			});
 		}
-		if ($coId != -1) {
+		if ($coId !== -1) {
 			$this->lastCoId = $coId;
 		}
 

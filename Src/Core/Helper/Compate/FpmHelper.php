@@ -18,15 +18,15 @@ use W7\App;
 use W7\Contract\Logger\LoggerFactoryInterface;
 
 class FpmHelper {
-	public static function createCoroutine(Closure $callback) {
-		$generatorFunc = function () use ($callback) {
+	public static function createCoroutine(Closure $callback): bool {
+		$generatorFunc = static function () use ($callback) {
 			try {
 				yield $callback();
 			} catch (Throwable $e) {
 				App::getApp()->getContainer()->get(LoggerFactoryInterface::class)->debug($e->getMessage(), ['exception' => $e]);
 			}
 		};
-		App::getApp()->getContainer()->get(\W7\Core\Helper\Compate\FpmCoroutine::class)->add($generatorFunc());
+		App::getApp()->getContainer()->get(FpmCoroutine::class)->add($generatorFunc());
 		return true;
 	}
 

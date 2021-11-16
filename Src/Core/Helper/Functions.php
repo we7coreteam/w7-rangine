@@ -16,7 +16,7 @@ use W7\Core\Helper\Compate\SwooleHelper;
 use W7\Core\Helper\Storage\Context;
 
 if (!function_exists('isCli')) {
-	function isCli() {
+	function isCli(): bool {
 		return PHP_SAPI === 'cli';
 	}
 }
@@ -108,7 +108,7 @@ if (!function_exists('ienv')) {
 }
 
 if (!function_exists('isWorkerStatus')) {
-	function isWorkerStatus() {
+	function isWorkerStatus(): bool {
 		if (App::$server === null) {
 			return false;
 		}

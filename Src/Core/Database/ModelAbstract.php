@@ -74,7 +74,7 @@ use W7\Core\Helper\Traiter\InstanceTrait;
 abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	use InstanceTrait;
 
-	public function createOrUpdate($condition) {
+	public function createOrUpdate($condition): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder {
 		return static::query()->updateOrCreate($condition, $this->getAttributes());
 	}
 
@@ -83,7 +83,7 @@ abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	 * @param array $columns
 	 * @return array
 	 */
-	public static function qualifyColumns($columns = []) {
+	public function qualifyColumns($columns = []): array {
 		if (empty($columns)) {
 			return [];
 		}

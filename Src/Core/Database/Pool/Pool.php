@@ -12,11 +12,15 @@
 
 namespace W7\Core\Database\Pool;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
-	protected $type = 'database';
+	protected string $type = 'database';
 
+	/**
+	 * @throws BindingResolutionException
+	 */
 	public function createConnection() {
 		return $this->getContainer()->get('db-factory')->createConnection($this->getPoolName(), false);
 	}

@@ -24,9 +24,9 @@ use W7\Http\Message\Server\Response;
 class HandlerExceptions {
 	use AppCommonTrait;
 
-	protected $exceptionHandler = ExceptionHandler::class;
+	protected string $exceptionHandler = ExceptionHandler::class;
 
-	public function setHandler(string $exceptionHandler) {
+	public function setHandler(string $exceptionHandler): void {
 		$this->exceptionHandler = $exceptionHandler;
 	}
 
@@ -35,14 +35,15 @@ class HandlerExceptions {
 		return new $handler();
 	}
 
-	public static function isIgnoreErrorTypes($errorType) {
-		return !in_array($errorType, [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE]);
+	public static function isIgnoreErrorTypes($errorType): bool {
+		return !in_array($errorType, [E_COMPILE_ERROR, E_CORE_ERROR, E_ERROR, E_PARSE], true);
 	}
 
 	/**
 	 * Register system error handle
+	 * @throws \Exception
 	 */
-	public function registerErrorHandle() {
+	public function registerErrorHandle(): void {
 		set_error_handler([$this, 'handleError']);
 		set_exception_handler([$this, 'handleException']);
 
@@ -70,16 +71,18 @@ class HandlerExceptions {
 	 * @return bool
 	 * @throws \ErrorException
 	 */
-	public function handleError(int $type, string $message, string $file, int $line) {
+	public function handleError(int $type, string $message, string $file, int $line): bool {
 		if (error_reporting() & $type) {
-			$throwable = new \ErrorException($message, 0, $type, $file, $line);
-			throw $throwable;
+			throw new \ErrorException($message, 0, $type, $file, $line);
 		}
 
 		return false;
 	}
 
-	public function handleException(\Throwable $throwable) {
+	/**
+	 * @throws \Throwable
+	 */
+	public function handleException(\Throwable $throwable): Response|bool {
 		return $this->handle($throwable);
 	}
 
@@ -88,7 +91,10 @@ class HandlerExceptions {
 		return new $class();
 	}
 
-	public function handle(\Throwable $throwable, $serverType = null) {
+	/**
+	 * @throws \Throwable
+	 */
+	public function handle(\Throwable $throwable, $serverType = null): Response|bool {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
 		if (!$serverType || !$this->getContext()->getResponse()) {
 			if (isCli()) {

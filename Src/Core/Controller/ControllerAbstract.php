@@ -20,6 +20,7 @@ use W7\Core\Exception\ValidatorException;
 use W7\Core\Helper\Traiter\AppCommonTrait;
 use W7\Core\Middleware\ControllerMiddlewareOptions;
 use W7\Http\Message\Server\Request;
+use W7\Http\Message\Server\Response;
 
 abstract class ControllerAbstract {
 	use AppCommonTrait;
@@ -29,9 +30,9 @@ abstract class ControllerAbstract {
 	 *
 	 * @var array
 	 */
-	protected $middleware = [];
+	protected array $middleware = [];
 
-	public function middleware($middleware, array $options = []) {
+	public function middleware($middleware, array $options = []): ControllerMiddlewareOptions {
 		if (isset($middleware['class'])) {
 			$middleware = [$middleware];
 		}
@@ -45,14 +46,11 @@ abstract class ControllerAbstract {
 		return new ControllerMiddlewareOptions($options);
 	}
 
-	public function getMiddleware() {
+	public function getMiddleware(): array {
 		return $this->middleware;
 	}
 
-	/**
-	 * @return null|\W7\Http\Message\Server\Response
-	 */
-	protected function response() {
+	protected function response(): Response {
 		$response = $this->getContext()->getResponse();
 		if (empty($response)) {
 			throw new \RuntimeException('There are no response objects in this context');
@@ -60,10 +58,7 @@ abstract class ControllerAbstract {
 		return $response;
 	}
 
-	/**
-	 * @return null|Request
-	 */
-	protected function request() {
+	protected function request(): Request {
 		$request = $this->getContext()->getRequest();
 		if (empty($request)) {
 			throw new \RuntimeException('There are no request objects in this context');
@@ -71,19 +66,19 @@ abstract class ControllerAbstract {
 		return $request;
 	}
 
-	protected function responseRaw(string $data) {
+	protected function responseRaw(string $data): Response {
 		return $this->response()->raw($data);
 	}
 
-	protected function responseJson($data) {
+	protected function responseJson($data): Response {
 		return $this->response()->json($data);
 	}
 
-	protected function responseHtml($data) {
+	protected function responseHtml($data): Response {
 		return $this->response()->html($data);
 	}
 
-	protected function render($name, $context = []) {
+	protected function render($name, $context = []): Response {
 		return $this->responseHtml($this->getContainer()->get(ViewInterface::class)->render($name, $context));
 	}
 

@@ -21,18 +21,15 @@ use W7\Http\Message\Server\Response;
 class ExceptionHandler {
 	use AppCommonTrait;
 
-	protected $serverType;
-	protected $response;
-	/**
-	 * @var ExceptionFormatterInterface
-	 */
-	protected $exceptionFormatter;
+	protected string $serverType;
+	protected Response $response;
+	protected ExceptionFormatterInterface $exceptionFormatter;
 
 	public function setServerType($serverType): void {
 		$this->serverType = $serverType;
 	}
 
-	protected function getServerType() {
+	protected function getServerType(): string {
 		return $this->serverType;
 	}
 
@@ -40,21 +37,21 @@ class ExceptionHandler {
 		$this->response = $response;
 	}
 
-	public function setExceptionFormatter(ExceptionFormatterInterface $exceptionFormatter) {
+	public function setExceptionFormatter(ExceptionFormatterInterface $exceptionFormatter): void {
 		$this->exceptionFormatter = $exceptionFormatter;
 	}
 
-	/**
-	 * @return Response
-	 */
-	public function getResponse() {
+	public function getResponse(): Response {
 		return $this->response;
 	}
 
-	public function isReport(Throwable $throwable) {
+	public function isReport(Throwable $throwable): bool {
 		return !property_exists($throwable, 'isReport') || $throwable->isReport;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function report(\Throwable $throwable) {
 		if (!$this->isReport($throwable)) {
 			return true;

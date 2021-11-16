@@ -19,7 +19,7 @@ use W7\Core\Event\Dispatcher;
 use W7\Core\Provider\ProviderAbstract;
 
 class EventProvider extends ProviderAbstract {
-	public function register() {
+	public function register(): void {
 		$this->container->set(EventDispatcherInterface::class, function () {
 			$eventDispatcher = new Dispatcher(Container::getInstance());
 

@@ -13,9 +13,10 @@
 namespace W7\Core\Controller;
 
 use W7\Http\Message\Server\Request;
+use W7\Http\Message\Server\Response;
 
 class RedirectController extends ControllerAbstract {
-	public function index(Request $request, ...$params) {
+	public function index(Request $request, ...$params): Response {
 		[$destination, $status] = $params;
 		return $this->response()->redirect($destination, $status);
 	}

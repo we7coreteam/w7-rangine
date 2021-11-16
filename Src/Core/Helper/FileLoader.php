@@ -13,16 +13,16 @@
 namespace W7\Core\Helper;
 
 class FileLoader {
-	protected $ignoreFiles = null;
-	protected $ignoreRules;
-	protected $rootDir;
+	protected array $ignoreFiles;
+	protected array $ignoreRules;
+	protected string $rootDir;
 
 	public function __construct($rootDir, array $ignoreRules = []) {
 		$this->rootDir = $rootDir;
 		$this->ignoreRules = $ignoreRules;
 	}
 
-	public function getIgnoreFiles() {
+	public function getIgnoreFiles(): ?array {
 		if (isset($this->ignoreFiles)) {
 			return $this->ignoreFiles;
 		}
@@ -55,10 +55,10 @@ class FileLoader {
 		return $this->ignoreFiles = $matches;
 	}
 
-	public function isIgnoreFile($file) {
+	public function isIgnoreFile($file): bool {
 		$ignoreFiles = $this->getIgnoreFiles();
 		foreach ($ignoreFiles as $ignoreFile) {
-			if ($file === $ignoreFile || strpos($file, $ignoreFile) === 0) {
+			if ($file === $ignoreFile || str_starts_with($file, $ignoreFile)) {
 				return true;
 			}
 		}

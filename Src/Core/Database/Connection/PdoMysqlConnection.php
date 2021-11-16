@@ -18,7 +18,7 @@ class PdoMysqlConnection extends MySqlConnection {
 	/**
 	 * Gets the currently active query connection
 	 */
-	public function getActiveConnection() {
+	public function getActiveConnection(): \PDO|\Closure {
 		if ($this->pdo instanceof \PDO) {
 			return $this->pdo;
 		} else {

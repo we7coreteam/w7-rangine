@@ -14,9 +14,10 @@ namespace W7\Core\Controller;
 
 use W7\Http\Message\File\File;
 use W7\Http\Message\Server\Request;
+use W7\Http\Message\Server\Response;
 
 class StaticResourceController extends ControllerAbstract {
-	public function index(Request $request, ...$params) {
+	public function index(Request $request, ...$params): Response {
 		return $this->response()->withFile(new File($params[0]));
 	}
 }
