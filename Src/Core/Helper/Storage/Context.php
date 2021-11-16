@@ -56,21 +56,21 @@ class Context {
 	 * @return Request|null
 	 */
 	public function getRequest() {
-		return self::getCoroutineContext(self::REQUEST_KEY);
+		return $this->getCoroutineContext(self::REQUEST_KEY);
 	}
 
 	/**
 	 * @return Response|null
 	 */
 	public function getResponse() {
-		return self::getCoroutineContext(self::RESPONSE_KEY);
+		return $this->getCoroutineContext(self::RESPONSE_KEY);
 	}
 
 	/**
 	 * @return array|null
 	 */
 	public function getContextData() {
-		return self::getCoroutineContext(self::DATA_KEY);
+		return $this->getCoroutineContext(self::DATA_KEY);
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Context {
 	 * @param RequestInterface $request
 	 */
 	public function setRequest(RequestInterface $request) {
-		$coroutineId = self::getCoroutineId();
+		$coroutineId = $this->getCoroutineId();
 		self::$context[$coroutineId][self::REQUEST_KEY] = $request;
 	}
 
@@ -89,7 +89,7 @@ class Context {
 	 * @param ResponseInterface $response
 	 */
 	public function setResponse($response) {
-		$coroutineId = self::getCoroutineId();
+		$coroutineId = $this->getCoroutineId();
 		self::$context[$coroutineId][self::RESPONSE_KEY] = $response;
 	}
 
@@ -100,7 +100,7 @@ class Context {
 	 */
 	public function setContextData(array $contextData = []) {
 		$existContext = [];
-		$coroutineId = self::getCoroutineId();
+		$coroutineId = $this->getCoroutineId();
 		if (isset(self::$context[$coroutineId][self::DATA_KEY])) {
 			$existContext = self::$context[$coroutineId][self::DATA_KEY];
 		}
@@ -114,7 +114,7 @@ class Context {
 	 * @param mixed $val
 	 */
 	public function setContextDataByKey(string $key, $val) {
-		$coroutineId = self::getCoroutineId();
+		$coroutineId = $this->getCoroutineId();
 		self::$context[$coroutineId][self::DATA_KEY][$key] = $val;
 	}
 
@@ -135,7 +135,7 @@ class Context {
 	}
 
 	public function fork($parentCoId) {
-		self::$context[self::getCoroutineId()] = self::$context[$parentCoId] ?? [];
+		self::$context[$this->getCoroutineId()] = self::$context[$parentCoId] ?? [];
 	}
 
 	/**
@@ -143,7 +143,7 @@ class Context {
 	 */
 	public function destroy($coroutineId = null) {
 		if (!$coroutineId) {
-			$coroutineId = self::getCoroutineId();
+			$coroutineId = $this->getCoroutineId();
 		}
 		
 		if (isset(self::$context[$coroutineId])) {
@@ -162,7 +162,7 @@ class Context {
 	 * @return mixed|null
 	 */
 	private function getCoroutineContext(string $key) {
-		$coroutineId = self::getCoroutineId();
+		$coroutineId = $this->getCoroutineId();
 		if (!isset(self::$context[$coroutineId])) {
 			return null;
 		}
