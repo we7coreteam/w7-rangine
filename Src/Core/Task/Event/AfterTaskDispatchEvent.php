@@ -15,16 +15,9 @@ namespace W7\Core\Task\Event;
 use W7\Core\Message\TaskMessage;
 
 class AfterTaskDispatchEvent {
-	/**
-	 * @var TaskMessage
-	 */
-	public $taskMessage;
-	/**
-	 * task dispatch channel
-	 */
-	public $channel;
-
-	public $result;
+	public TaskMessage $taskMessage;
+	public string $channel;
+	public mixed $result;
 
 	public function __construct(TaskMessage $taskMessage, $channel = 'default', $result = '') {
 		$this->taskMessage = $taskMessage;

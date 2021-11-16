@@ -21,10 +21,7 @@ use W7\Core\Route\RouteMapping as RouteMappingAbstract;
  * @package W7\Tcp\Route
  */
 class RouteMapping extends RouteMappingAbstract {
-	/**
-	 * @return array|mixed
-	 */
-	public function getMapping($routeFileDir) {
+	public function getMapping($routeFileDir): array {
 		$routes = parent::getMapping($routeFileDir);
 		$this->router = new Router();
 		$this->processRoutes($routes);
@@ -32,11 +29,11 @@ class RouteMapping extends RouteMappingAbstract {
 		return $this->router->getData();
 	}
 
-	protected function processRoutes($routeMap) {
+	protected function processRoutes($routeMap): void {
 		$registerRoutes = [];
 		foreach ($routeMap[0] as $method => $routes) {
 			foreach ($routes as $key => $route) {
-				if (!in_array($route['uri'], $registerRoutes)) {
+				if (!in_array($route['uri'], $registerRoutes, true)) {
 					$this->router->getRouterCollector()->addRoute('POST', $route['uri'], $route);
 				}
 				$registerRoutes[] = $route['uri'];
@@ -47,7 +44,7 @@ class RouteMapping extends RouteMappingAbstract {
 			foreach ($routeGroup as $routes) {
 				foreach ($routes['routeMap'] as $route) {
 					$route = $route[0];
-					if (!in_array($route['uri'], $registerRoutes)) {
+					if (!in_array($route['uri'], $registerRoutes, true)) {
 						$this->router->getRouterCollector()->addRoute('POST', $route['uri'], $route);
 					}
 					$registerRoutes[] = $route['uri'];

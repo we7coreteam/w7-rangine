@@ -22,14 +22,17 @@ class Server extends SwooleServerAbstract {
 		return ServerEnum::TYPE_TCP;
 	}
 
-	protected function checkSetting() {
+	protected function checkSetting(): void {
 		parent::checkSetting();
-		if (in_array($this->setting['dispatch_mode'], [1, 3, 7])) {
+		if (in_array($this->setting['dispatch_mode'], [1, 3, 7], true)) {
 			throw new \RuntimeException("dispatch mode can't be 1,3,7, please reset config/server.php/common/dispatch_mode");
 		}
 	}
 
-	public function start() {
+	/**
+	 * @throws \Exception
+	 */
+	public function start(): void {
 		$this->server = $this->getServer();
 		$this->server->set($this->filterServerSetting());
 
@@ -47,7 +50,7 @@ class Server extends SwooleServerAbstract {
 		return $this->server;
 	}
 
-	public function listener(\Swoole\Server $server) {
+	public function listener(\Swoole\Server $server): void {
 		$this->server = $server->addListener($this->setting['host'], $this->setting['port'], $this->setting['sock_type']);
 		$this->server->set([
 			'open_http2_protocol' => false,

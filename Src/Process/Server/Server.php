@@ -27,7 +27,7 @@ class Server extends ProcessServerAbstract {
 		return ServerEnum::TYPE_PROCESS;
 	}
 
-	protected function checkSetting() {
+	protected function checkSetting(): void {
 		$supportProcess = $this->getConfig()->get('process.process', []);
 		$servers = trim($this->getConfig()->get('app.setting.server'));
 		$servers = explode('|', $servers);
@@ -41,7 +41,7 @@ class Server extends ProcessServerAbstract {
 		$startAll = false;
 		if (empty($processMap)) {
 			$startAll = true;
-			$processMap = empty($processMap) ? array_keys($supportProcess) : $processMap;
+			$processMap = array_keys($supportProcess);
 		}
 		foreach ($processMap as $processName) {
 			$supportProcess[$processName]['enable'] = $startAll ? ($supportProcess[$processName]['enable'] ?? true) : true;
@@ -49,11 +49,11 @@ class Server extends ProcessServerAbstract {
 		$this->getConfig()->set('process.process', $supportProcess);
 
 		$this->setting['worker_num'] = $this->getWorkerNum();
-		if ($this->setting['worker_num'] == 0) {
+		if ($this->setting['worker_num'] === 0) {
 			throw new \RuntimeException('the list of started processes is empty, please check the configuration in config/process.php');
 		}
 
-		return parent::checkSetting();
+		parent::checkSetting();
 	}
 
 	private function getWorkerNum() {
@@ -69,7 +69,7 @@ class Server extends ProcessServerAbstract {
 		return $workerNum;
 	}
 
-	protected function register() {
+	protected function register(): void {
 		$configProcess = $this->getConfig()->get('process.process', []);
 		foreach ($configProcess as $name => $process) {
 			if (empty($process['enable'])) {

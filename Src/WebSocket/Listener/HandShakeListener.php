@@ -25,6 +25,9 @@ use W7\Http\Message\Server\Response as Psr7Response;
 use W7\WebSocket\Collector\FdCollector;
 
 class HandShakeListener extends ListenerAbstract {
+	/**
+	 * @throws \Exception
+	 */
 	public function run(...$params) {
 		[$request, $response] = $params;
 		$this->handshake($request, $response);
@@ -33,13 +36,13 @@ class HandShakeListener extends ListenerAbstract {
 	/**
 	 * @param Request $request
 	 * @param Response $response
-	 * @return bool
+	 * @return void
 	 * @throws \Exception
 	 */
-	private function handshake(Request $request, Response $response) {
+	private function handshake(Request $request, Response $response): void {
 		$secWebSocketKey = $request->header['sec-websocket-key'];
 		if (0 === preg_match("/^[\+\/0-9A-Za-z]{21}[AQgw]==$/", $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
-			return false;
+			return;
 		}
 
 		try {
@@ -50,10 +53,10 @@ class HandShakeListener extends ListenerAbstract {
 			$psr7Response = new Psr7Response();
 			$psr7Response->setOutputer(new SwooleResponseOutputer($response));
 		} catch (\Exception $e) {
-			return false;
+			return;
 		}
 		if ($this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_HAND_SHAKE, [$psr7Request], true) === false) {
-			return false;
+			return;
 		}
 
 		$headers = [
@@ -88,12 +91,11 @@ class HandShakeListener extends ListenerAbstract {
 			$this->getEventDispatcher()->dispatch(ServerEnum::TYPE_WEBSOCKET . ':' . ServerEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
 		} catch (\Throwable $e) {
 			$this->getLogger()->debug($e->getMessage(), ['exception' => $e]);
-			return false;
+			return;
 		}
 
 		FdCollector::instance()->set($request->fd, [$psr7Request, $response]);
 
 		$response->send();
-		return true;
 	}
 }

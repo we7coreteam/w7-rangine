@@ -12,6 +12,7 @@
 
 namespace W7\WebSocket\Listener;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Swoole\Websocket\Frame as SwooleFrame;
 use Swoole\Websocket\Server;
 use W7\Core\Listener\ListenerAbstract;
@@ -22,12 +23,20 @@ use W7\WebSocket\Collector\FdCollector;
 use W7\WebSocket\Server\Dispatcher;
 
 class MessageListener extends ListenerAbstract {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function run(...$params) {
 		[$server, $frame] = $params;
 		$this->onMessage($server, $frame);
 	}
 
-	private function onMessage(Server $server, SwooleFrame $frame): bool {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
+	private function onMessage(Server $server, SwooleFrame $frame): void {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
 		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 
@@ -49,6 +58,5 @@ class MessageListener extends ListenerAbstract {
 
 		$psr7Response->send();
 
-		return true;
 	}
 }

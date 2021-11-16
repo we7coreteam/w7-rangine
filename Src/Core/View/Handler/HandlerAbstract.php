@@ -13,13 +13,13 @@
 namespace W7\Core\View\Handler;
 
 abstract class HandlerAbstract {
-	const DEFAULT_NAMESPACE = '__main__';
-	const __STATIC__ = '__STATIC__';
-	const __CSS__ = '__CSS__';
-	const __JS__ = '__JS__';
-	const __IMAGES__ = '__IMAGES__';
+	public const DEFAULT_NAMESPACE = '__main__';
+	public const __STATIC__ = '__STATIC__';
+	public const __CSS__ = '__CSS__';
+	public const __JS__ = '__JS__';
+	public const __IMAGES__ = '__IMAGES__';
 
-	protected $config = [];
+	protected array $config = [];
 
 	public function __construct(array $config) {
 		$this->config = $config;

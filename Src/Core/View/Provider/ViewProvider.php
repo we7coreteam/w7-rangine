@@ -21,7 +21,7 @@ use W7\Core\Provider\ProviderAbstract;
 use W7\Core\View\View;
 
 class ViewProvider extends ProviderAbstract {
-	public function register() {
+	public function register(): void {
 		$config = $this->config->get('app.view', []);
 		$config['debug'] = (ENV & DEBUG) === DEBUG;
 		if (!empty($config['handler'])) {
@@ -40,7 +40,7 @@ class ViewProvider extends ProviderAbstract {
 		isCli() && $this->registerReloadDir($config);
 	}
 
-	protected function registerSystemFunction(ViewInterface $view) {
+	protected function registerSystemFunction(ViewInterface $view): void {
 		$view->registerFunction('getClientIp', function () {
 			return getClientIp();
 		});
@@ -49,14 +49,14 @@ class ViewProvider extends ProviderAbstract {
 		});
 	}
 
-	protected function registerSystemConst(ViewInterface $view, $config) {
+	protected function registerSystemConst(ViewInterface $view, $config): void {
 		$view->registerConst(HandlerAbstract::__STATIC__, $config['static'] ?? '/static/');
 		$view->registerConst(HandlerAbstract::__CSS__, $config['css'] ?? '/static/css/');
 		$view->registerConst(HandlerAbstract::__JS__, $config['js'] ?? '/static/js/');
 		$view->registerConst(HandlerAbstract::__IMAGES__, $config['images'] ?? '/static/images/');
 	}
 
-	protected function registerReloadDir($config) {
+	protected function registerReloadDir($config): void {
 		ReloadProcess::addType(empty($config['suffix']) ? 'html' : $config['suffix']);
 
 		$userTemplatePath = (array)($config['template_path'] ?? []);

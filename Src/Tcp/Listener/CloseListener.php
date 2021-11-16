@@ -24,6 +24,9 @@ class CloseListener extends ListenerAbstract {
 		$this->onClose($server, $fd, $reactorId);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function onClose(Server $server, int $fd, int $reactorId): void {
 		FdCollector::instance()->delete($fd);
 

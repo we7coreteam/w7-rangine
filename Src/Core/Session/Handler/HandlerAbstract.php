@@ -13,10 +13,10 @@
 namespace W7\Core\Session\Handler;
 
 abstract class HandlerAbstract extends \SessionHandler {
-	protected $config;
-	protected $expires;
+	protected array $config;
+	protected int $expires;
 
-	public function __construct($config) {
+	public function __construct(array $config) {
 		$this->config = $config;
 		$this->init();
 	}
@@ -24,15 +24,15 @@ abstract class HandlerAbstract extends \SessionHandler {
 	protected function init() {
 	}
 
-	public function getExpires() {
+	public function getExpires(): int {
 		if ($this->expires === null) {
 			$configExpires = (int)($this->config['expires'] ?? 0);
-			$this->expires = $configExpires <= 0 ? ini_get('session.gc_maxlifetime') : $configExpires;
+			$this->expires = $configExpires <= 0 ? (int)ini_get('session.gc_maxlifetime') : $configExpires;
 		}
 		return $this->expires;
 	}
 
-	public function pack($data) {
+	public function pack($data): string {
 		return serialize($data);
 	}
 
@@ -40,15 +40,15 @@ abstract class HandlerAbstract extends \SessionHandler {
 		return unserialize($data);
 	}
 
-	public function open($save_path, $name) {
+	public function open($save_path, $name): bool {
 		return true;
 	}
 
-	public function close($session_id = '') {
+	public function close($session_id = ''): bool {
 		return true;
 	}
 
-	public function create_sid() {
+	public function create_sid(): string {
 		return session_create_id();
 	}
 }

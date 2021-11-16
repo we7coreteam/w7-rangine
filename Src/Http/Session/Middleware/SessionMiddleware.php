@@ -12,6 +12,7 @@
 
 namespace W7\Http\Session\Middleware;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -19,6 +20,10 @@ use W7\Contract\Session\SessionInterface;
 use W7\Core\Middleware\MiddlewareAbstract;
 
 class SessionMiddleware extends MiddlewareAbstract {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		$request->session = $this->getContainer()->clone(SessionInterface::class);
 		$request->session->start($request);

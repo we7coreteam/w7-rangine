@@ -19,14 +19,16 @@ use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Server\Request as Psr7Request;
 
 class OpenListener extends ListenerAbstract {
+	/**
+	 * @throws \Exception
+	 */
 	public function run(...$params) {
 		[$server, $psr7Request] = $params;
 		$this->onOpen($server, $psr7Request);
 	}
 
 	/**
-	 * @param Server $server
-	 * @param Psr7Request $psr7Request
+	 * @throws \Exception
 	 */
 	private function onOpen(Server $server, Psr7Request $psr7Request): void {
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_OPEN, [$server, $psr7Request->getSwooleRequest()->fd, $psr7Request->getSwooleRequest(), ServerEnum::TYPE_WEBSOCKET]);

@@ -32,21 +32,21 @@ class Server extends ProcessServerAbstract {
 		return ServerEnum::TYPE_RELOAD;
 	}
 
-	protected function register() {
+	protected function register(): void {
 		$this->pool->registerProcess('reload', ReloadProcess::class, 1);
 	}
 
-	public function start() {
+	public function start(): void {
 		throw new \Exception('cannot start alone');
 	}
 
-	public function listener(\Swoole\Server $server = null) {
+	public function listener(\Swoole\Server $server = null): void {
 		if ((ENV & DEBUG) !== DEBUG) {
-			return false;
+			return ;
 		}
 		if (App::$server instanceof ProcessServerAbstract) {
-			return false;
+			return ;
 		}
-		return parent::listener($server);
+		parent::listener($server);
 	}
 }

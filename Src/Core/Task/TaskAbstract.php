@@ -17,15 +17,15 @@ use W7\Contract\Task\TaskInterface;
 abstract class TaskAbstract implements TaskInterface {
 	public static $connection;
 
-	public static function isAsyncTask() {
+	public static function isAsyncTask(): bool {
 		return true;
 	}
 
-	public static function shouldQueue() {
+	public static function shouldQueue(): bool {
 		return true;
 	}
 
-	public function fail($exception) {
+	public function fail($exception): void {
 	}
 
 	public function finish($server, $taskId, $data, $params) {

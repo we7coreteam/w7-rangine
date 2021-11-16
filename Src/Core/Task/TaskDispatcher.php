@@ -12,7 +12,9 @@
 
 namespace W7\Core\Task;
 
+use Closure;
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use W7\App;
 use W7\Contract\Task\TaskDispatcherInterface;
 use W7\Core\Dispatcher\DispatcherAbstract;
@@ -23,9 +25,9 @@ use W7\Core\Task\Event\AfterTaskDispatchEvent;
 use W7\Core\Task\Event\BeforeTaskDispatchEvent;
 
 class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterface {
-	protected $queueResolver;
+	protected ?Closure $queueResolver;
 
-	public function setQueueResolver(\Closure $closure) {
+	public function setQueueResolver(\Closure $closure): void {
 		$this->queueResolver = $closure;
 	}
 
@@ -33,6 +35,10 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		return call_user_func($this->queueResolver);
 	}
 
+	/**
+	 * @throws \Throwable
+	 * @throws TaskException
+	 */
 	public function dispatch(...$params) {
 		/**
 		 * @var TaskMessage $message
@@ -47,11 +53,11 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 			throw new TaskException('Task ' . $message->task . ' not found');
 		}
 
-		if ($message->type != TaskMessage::OPERATION_TASK_NOW && (method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask())) {
+		if ($message->type !== TaskMessage::OPERATION_TASK_NOW && (method_exists($message->task, 'isAsyncTask') && $message->task::isAsyncTask())) {
 			return $this->dispatchAsync($message);
 		}
 
-		if ($message->type == TaskMessage::OPERATION_TASK_NOW || !isWorkerStatus()) {
+		if ($message->type === TaskMessage::OPERATION_TASK_NOW || !isWorkerStatus()) {
 			$this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeTaskDispatchEvent($message, 'default'));
 
 			array_shift($params);
@@ -71,6 +77,10 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		return $result;
 	}
 
+	/**
+	 * @throws TaskException
+	 * @throws Exception
+	 */
 	public function dispatchAsync(TaskMessage $message) {
 		if (!class_exists($message->task)) {
 			throw new TaskException('Task ' . $message->task . ' not found');
@@ -106,10 +116,16 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		return $result;
 	}
 
-	protected function dispatchNow($message, $server = null, $taskId = null, $workerId = null) {
-		$server = $server ?? (App::$server ? App::$server->getServer() : null);
+	/**
+	 * @throws TaskException
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 * @throws \Throwable
+	 */
+	protected function dispatchNow($message, $server = null, $taskId = null, $workerId = null): TaskMessage {
+		$server = $server ?? (App::$server?->getServer());
 		$taskId = $taskId ?? $this->getContext()->getCoroutineId();
-		$workId = $workerId ?? ($server ? $server->worker_id : $workerId);
+		$workId = $workerId ?? ($server->worker_id ?? $workerId);
 
 		/**
 		 * @var TaskMessage $message
@@ -131,7 +147,7 @@ class TaskDispatcher extends DispatcherAbstract implements TaskDispatcherInterfa
 		$this->getContext()->setContextDataByKey('workid', $workId);
 		$this->getContext()->setContextDataByKey('coid', $taskId);
 		try {
-			$message->result = call_user_func_array([$task, $message->method], [$server, $taskId, $workId, $message->params ?? []]);
+			$message->result = $task->{$message->method}($server, $taskId, $workId, $message->params ?? []);
 		} catch (\Throwable $e) {
 			$message->result = $e->getMessage();
 			$task->fail($e);

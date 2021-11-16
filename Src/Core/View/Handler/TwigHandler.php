@@ -13,16 +13,19 @@
 namespace W7\Core\View\Handler;
 
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 
 class TwigHandler extends HandlerAbstract {
-	/**
-	 * @var Environment
-	 */
-	private $twig;
+	private Environment $twig;
 
+	/**
+	 * @throws LoaderError
+	 */
 	public function __construct(array $config) {
 		parent::__construct($config);
 
@@ -38,18 +41,23 @@ class TwigHandler extends HandlerAbstract {
 		}
 	}
 
-	public function registerFunction($name, \Closure $callback) {
+	public function registerFunction($name, \Closure $callback): void {
 		$this->twig->addFunction(new TwigFunction($name, $callback));
 	}
 
-	public function registerConst($name, $value) {
+	public function registerConst($name, $value): void {
 		$this->twig->addGlobal($name, $value);
 	}
 
-	public function registerObject($name, $object) {
+	public function registerObject($name, $object): void {
 		$this->twig->addGlobal($name, $object);
 	}
 
+	/**
+	 * @throws SyntaxError
+	 * @throws RuntimeError
+	 * @throws LoaderError
+	 */
 	public function render($namespace, $name, $context = []) : string {
 		if ($namespace !== self::DEFAULT_NAMESPACE) {
 			$name = '@' . $namespace . '/' . $name;

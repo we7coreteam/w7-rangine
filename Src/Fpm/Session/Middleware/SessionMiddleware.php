@@ -12,6 +12,7 @@
 
 namespace W7\Fpm\Session\Middleware;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -19,9 +20,9 @@ use W7\Contract\Session\SessionInterface;
 use W7\Core\Middleware\MiddlewareAbstract;
 
 class SessionMiddleware extends MiddlewareAbstract {
-	private function initSessionConfig() {
+	private function initSessionConfig(): void {
 		$sessionConfig = $this->getConfig()->get('app.session', []);
-		if (empty($sessionConfig['save_path']) && (empty($sessionConfig['handler']) || $sessionConfig['handler'] == 'file')) {
+		if (empty($sessionConfig['save_path']) && (empty($sessionConfig['handler']) || $sessionConfig['handler'] === 'file')) {
 			$sessionConfig['save_path'] = session_save_path();
 		}
 		if (!empty($sessionConfig['name'])) {
@@ -33,6 +34,10 @@ class SessionMiddleware extends MiddlewareAbstract {
 		$this->getConfig()->set('app.session', $sessionConfig);
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		$this->initSessionConfig();
 

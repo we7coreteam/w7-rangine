@@ -20,11 +20,17 @@ use W7\Http\Message\Server\Request as Psr7Request;
 use W7\WebSocket\Collector\FdCollector;
 
 class CloseListener extends ListenerAbstract {
+	/**
+	 * @throws \Exception
+	 */
 	public function run(...$params) {
 		[$server, $fd, $reactorId] = $params;
 		$this->onClose($server, $fd, $reactorId);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function onClose(Server $server, int $fd, int $reactorId): void {
 		$fdCollector = FdCollector::instance();
 		$collector =  $fdCollector->get($fd, []);

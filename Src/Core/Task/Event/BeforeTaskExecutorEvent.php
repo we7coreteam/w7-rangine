@@ -15,10 +15,7 @@ namespace W7\Core\Task\Event;
 use W7\Core\Message\TaskMessage;
 
 class BeforeTaskExecutorEvent {
-	/**
-	 * @var TaskMessage
-	 */
-	public $taskMessage;
+	public TaskMessage $taskMessage;
 
 	public function __construct(TaskMessage $taskMessage) {
 		$this->taskMessage = $taskMessage;

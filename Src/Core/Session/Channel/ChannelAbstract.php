@@ -16,20 +16,16 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 abstract class ChannelAbstract {
-	protected $config;
-	protected static $sessionName;
-	protected $expires;
-	/**
-	 * @var ServerRequestInterface
-	 */
-	protected $request;
+	protected array $config;
+	protected static string $sessionName;
+	protected ServerRequestInterface $request;
 
-	public function __construct($config, ServerRequestInterface $request) {
+	public function __construct(array $config, ServerRequestInterface $request) {
 		$this->config = $config;
 		$this->request = $request;
 	}
 
-	public function getSessionName() {
+	public function getSessionName(): string {
 		if (!static::$sessionName) {
 			static::$sessionName = $this->config['name'] ?? session_name();
 		}

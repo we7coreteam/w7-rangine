@@ -17,9 +17,9 @@ use W7\Core\Helper\Traiter\InstanceTrait;
 class FdCollector {
 	use InstanceTrait;
 
-	protected $fdMap = [];
+	protected array $fdMap = [];
 
-	public function set($fd, $data) {
+	public function set($fd, $data): void {
 		$this->fdMap[$fd] = $data;
 	}
 
@@ -27,17 +27,17 @@ class FdCollector {
 		return $this->fdMap[$fd] ?? $default;
 	}
 
-	public function delete($fd) {
+	public function delete($fd): void {
 		if (isset($this->fdMap[$fd])) {
 			unset($this->fdMap[$fd]);
 		}
 	}
 
-	public function all() {
+	public function all(): array {
 		return $this->fdMap;
 	}
 
-	public function clear() {
+	public function clear(): void {
 		$this->fdMap = [];
 	}
 }

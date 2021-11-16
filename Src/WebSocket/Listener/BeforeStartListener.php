@@ -25,7 +25,7 @@ class BeforeStartListener extends ListenerAbstract {
 		$this->registerMiddleware();
 	}
 
-	private function registerRouter() {
+	private function registerRouter(): void {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */
@@ -33,7 +33,7 @@ class BeforeStartListener extends ListenerAbstract {
 		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, ServerEnum::TYPE_WEBSOCKET));
 	}
 
-	private function registerMiddleware() {
+	private function registerMiddleware(): void {
 		/**
 		 * @var Dispatcher $dispatcher
 		 */

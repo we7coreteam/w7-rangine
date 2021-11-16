@@ -16,13 +16,10 @@ use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 class FileHandler extends HandlerAbstract {
-	/**
-	 * @var Filesystem
-	 */
-	private $filesystem;
-	private $directory;
+	private Filesystem $filesystem;
+	private string $directory;
 
-	protected function init() {
+	protected function init(): void {
 		$this->filesystem = new Filesystem();
 		$this->initSavePath();
 	}
@@ -31,7 +28,7 @@ class FileHandler extends HandlerAbstract {
 		return empty($this->config['save_path']) ? '/tmp/rangine-server/session' : $this->config['save_path'];
 	}
 
-	private function initSavePath() {
+	private function initSavePath(): void {
 		$this->directory = $this->getUserSessionSavePath();
 		$this->ensureSessionDirectoryExists($this->directory);
 		if (!$this->filesystem->isWritable($this->directory) || !$this->filesystem->isReadable($this->directory)) {
@@ -39,7 +36,7 @@ class FileHandler extends HandlerAbstract {
 		}
 	}
 
-	private function getPayload($key) {
+	private function getPayload($key): string {
 		$path = $this->getSavePath($key);
 
 		try {
@@ -61,23 +58,23 @@ class FileHandler extends HandlerAbstract {
 		return substr($contents, 10);
 	}
 
-	private function getSavePath($key) {
+	private function getSavePath($key): string {
 		$parts = array_slice(str_split($hash = sha1($key), 2), 0, 2);
 
 		return $this->directory . '/' . implode('/', $parts) . '/' . $hash;
 	}
 
-	private function expiration($seconds) {
+	private function expiration($seconds): int {
 		return ($seconds === null || $seconds === 0) ? 9999999999 : ($seconds + time());
 	}
 
-	private function ensureSessionDirectoryExists($path) {
+	private function ensureSessionDirectoryExists($path): void {
 		if (!$this->filesystem->exists($path)) {
 			$this->filesystem->makeDirectory($path, 0777, true, true);
 		}
 	}
 
-	public function write($session_id, $session_data) {
+	public function write($session_id, $session_data): bool {
 		if (!$session_data) {
 			return true;
 		}

@@ -18,7 +18,7 @@ use W7\Core\Provider\ProviderAbstract;
 use W7\Core\Session\Session;
 
 class SessionProvider extends ProviderAbstract {
-	public function register() {
+	public function register(): void {
 		$this->container->set(SessionInterface::class, function () {
 			$config = $this->config->get('app.session', []);
 			if (!empty($config['handler'])) {

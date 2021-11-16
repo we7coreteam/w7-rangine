@@ -22,9 +22,9 @@ class Server extends SwooleServerAbstract {
 		return ServerEnum::TYPE_WEBSOCKET;
 	}
 
-	protected function checkSetting() {
+	protected function checkSetting(): void {
 		parent::checkSetting();
-		if (in_array($this->setting['dispatch_mode'], [1, 3])) {
+		if (in_array($this->setting['dispatch_mode'], [1, 3], true)) {
 			throw new \RuntimeException("dispatch mode can't be 1,3, please reset config/server.php/common/dispatch_mode");
 		}
 	}
@@ -43,7 +43,10 @@ class Server extends SwooleServerAbstract {
 		return $this->server;
 	}
 
-	public function start() {
+	/**
+	 * @throws \Exception
+	 */
+	public function start(): void {
 		$this->server = $this->getServer();
 		$this->setting['open_websocket_close_frame'] = false;
 		$this->server->set($this->filterServerSetting());
@@ -55,7 +58,7 @@ class Server extends SwooleServerAbstract {
 		$this->server->start();
 	}
 
-	public function listener(\Swoole\Server $server) {
+	public function listener(\Swoole\Server $server): void {
 		throw new \RuntimeException('websocket server not support create by listener');
 	}
 }

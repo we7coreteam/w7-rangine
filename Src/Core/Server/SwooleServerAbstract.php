@@ -267,6 +267,6 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		return $eventType . ':' . $eventName;
 	}
 
-	public function listener(\Swoole\Server $server) {
+	public function listener(\Swoole\Server $server): void {
 	}
 }

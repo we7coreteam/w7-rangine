@@ -19,7 +19,7 @@ use Whoops\Run;
 
 class ExceptionFormatter extends ExceptionFormatterAbstract {
 	public function formatDevelopmentExceptionToString(\Throwable $e): string {
-		$previous = !empty($e->getPrevious()) ? $e->getPrevious() : $e;
+		$previous = $e->getPrevious() ?? $e;
 
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
 			$content = 'message: ' . $e->getMessage() . ';    file: ' . $previous->getFile() . ';    line: ' . $previous->getLine();

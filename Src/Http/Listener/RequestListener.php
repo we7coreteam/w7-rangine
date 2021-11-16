@@ -12,6 +12,7 @@
 
 namespace W7\Http\Listener;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -22,12 +23,20 @@ use W7\Http\Message\Server\Response as Psr7Response;
 use W7\Http\Server\Dispatcher;
 
 class RequestListener extends ListenerAbstract {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function run(...$params) {
 		[$server, $request, $response] = $params;
-		return $this->dispatch($server, $request, $response);
+		$this->dispatch($server, $request, $response);
 	}
 
-	private function dispatch(Server $server, Request $request, Response $response) {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
+	private function dispatch(Server $server, Request $request, Response $response): void {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
 		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 

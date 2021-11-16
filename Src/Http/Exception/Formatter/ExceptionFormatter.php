@@ -18,8 +18,11 @@ use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;
 
 class ExceptionFormatter implements ExceptionFormatterInterface {
+	/**
+	 * @throws \Exception
+	 */
 	public function formatDevelopmentExceptionToString(\Throwable $e): string {
-		$previous = !empty($e->getPrevious()) ? $e->getPrevious() : $e;
+		$previous = $e->getPrevious() ?? $e;
 
 		if ((ENV & BACKTRACE) !== BACKTRACE) {
 			$content = 'message: ' . $e->getMessage() . '<br/>file: ' . $previous->getFile() . '<br/>line: ' . $previous->getLine();
@@ -37,7 +40,10 @@ class ExceptionFormatter implements ExceptionFormatterInterface {
 		return $content;
 	}
 
+	/**
+	 * @throws \JsonException
+	 */
 	public function formatReleaseExceptionToString(\Throwable $e): string {
-		return \json_encode(['error' => '系统内部错误'], JSON_UNESCAPED_UNICODE);
+		return \json_encode(['error' => '系统内部错误'], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
 	}
 }

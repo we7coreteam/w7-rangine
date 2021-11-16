@@ -22,28 +22,22 @@ use W7\Core\Session\Handler\FileHandler;
 use W7\Core\Session\Handler\HandlerAbstract;
 
 class Session implements SessionInterface {
-	protected $config;
-	protected $prefix;
-	protected static $gcDivisor;
-	protected static $gcProbability;
-	/**
-	 * @var ChannelAbstract
-	 */
-	protected $channel;
-	/**
-	 * @var HandlerAbstract
-	 */
-	protected $handler;
-	protected $cache;
-	protected $sessionId;
-	protected $useBuiltInUsage = null;
+	protected array $config;
+	protected string $prefix;
+	protected static int $gcDivisor;
+	protected static int $gcProbability;
+	protected ChannelAbstract $channel;
+	protected HandlerAbstract $handler;
+	protected ?array $cache;
+	protected string $sessionId;
+	protected bool $useBuiltInUsage;
 
 	public function __construct($config = []) {
 		$this->config = $config;
 		$this->prefix = $this->config['prefix'] ?? session_name();
 	}
 
-	private function initChannel(ServerRequestInterface $request) {
+	private function initChannel(ServerRequestInterface $request): void {
 		$channel = empty($this->config['channel']) ? CookieChannel::class : $this->config['channel'];
 		$this->channel = new $channel($this->config, $request);
 		if (!($this->channel instanceof ChannelAbstract)) {
@@ -51,9 +45,9 @@ class Session implements SessionInterface {
 		}
 	}
 
-	private function initHandler() {
+	private function initHandler(): void {
 		if ($this->handler) {
-			return true;
+			return;
 		}
 
 		$handler = empty($this->config['handler']) ? FileHandler::class : $this->config['handler'];
@@ -65,11 +59,11 @@ class Session implements SessionInterface {
 		$this->handler = $handler;
 	}
 
-	public function getHandler() {
+	public function getHandler(): HandlerAbstract {
 		return $this->handler;
 	}
 
-	public function start(ServerRequestInterface $request, $useBuiltUsage = false) {
+	public function start(ServerRequestInterface $request, $useBuiltUsage = false): void {
 		$this->cache = null;
 		$this->useBuiltInUsage = $useBuiltUsage;
 
@@ -81,15 +75,15 @@ class Session implements SessionInterface {
 		}
 	}
 
-	private function builtSessionIsStart() {
+	private function builtSessionIsStart(): bool {
 		return session_status() === PHP_SESSION_ACTIVE;
 	}
 
-	public function getName() {
+	public function getName(): string {
 		return $this->channel->getSessionName();
 	}
 
-	public function getId() {
+	public function getId(): string {
 		if ($this->sessionId) {
 			return $this->sessionId;
 		}
@@ -110,7 +104,7 @@ class Session implements SessionInterface {
 		return $this->sessionId;
 	}
 
-	public function setId($sessionId) {
+	public function setId($sessionId): void {
 		$this->validateSessionId($sessionId);
 		$this->sessionId = $sessionId;
 		$this->cache = null;
@@ -120,7 +114,7 @@ class Session implements SessionInterface {
 		}
 	}
 
-	public function set($key, $value) {
+	public function set($key, $value): bool {
 		if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 			$_SESSION[$key] = $value;
 			return true;
@@ -132,7 +126,7 @@ class Session implements SessionInterface {
 		return $this->handler->write($this->prefix . $this->getId(), $this->handler->pack($data));
 	}
 
-	public function has($key) {
+	public function has($key): bool {
 		$data = $this->readSession();
 
 		return isset($data[$key]);
@@ -144,7 +138,7 @@ class Session implements SessionInterface {
 		return $data[$key] ?? $default;
 	}
 
-	public function delete($keys) {
+	public function delete($keys): bool {
 		$keys = (array)$keys;
 		if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 			foreach ($keys as $key) {
@@ -173,7 +167,7 @@ class Session implements SessionInterface {
 		return $this->readSession();
 	}
 
-	public function destroy() {
+	public function destroy(): bool {
 		if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 			session_destroy();
 			return true;
@@ -183,7 +177,7 @@ class Session implements SessionInterface {
 		return $this->handler->destroy($this->prefix . $this->getId());
 	}
 
-	public function close() {
+	public function close(): bool {
 		if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
 			session_write_close();
 			return true;
@@ -192,7 +186,10 @@ class Session implements SessionInterface {
 		return $this->handler->close($this->prefix . $this->getId());
 	}
 
-	public function gc() {
+	/**
+	 * @throws \Exception
+	 */
+	public function gc(): void {
 		if ($this->satisfyGcCondition()) {
 			igo(function () {
 				if ($this->useBuiltInUsage && $this->builtSessionIsStart()) {
@@ -227,7 +224,10 @@ class Session implements SessionInterface {
 		return $data;
 	}
 
-	protected function satisfyGcCondition() {
+	/**
+	 * @throws \Exception
+	 */
+	protected function satisfyGcCondition(): bool {
 		if (!self::$gcDivisor) {
 			$gcDivisor = (int)($this->config['gc_divisor'] ?? ini_get('session.gc_divisor'));
 			self::$gcDivisor = $gcDivisor <= 0 ? 1 : $gcDivisor;
@@ -240,7 +240,7 @@ class Session implements SessionInterface {
 		return random_int(1, self::$gcDivisor) <= self::$gcProbability;
 	}
 
-	public function validateSessionId($sessionId) {
+	public function validateSessionId($sessionId): void {
 		if (!is_string($sessionId) || !ctype_alnum($sessionId)) {
 			throw new RuntimeException('Session_id can only be made up of letters or numbers');
 		}

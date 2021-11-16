@@ -12,6 +12,7 @@
 
 namespace W7\Tcp\Listener;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Swoole\Server;
 use W7\Contract\Session\SessionInterface;
 use W7\Core\Listener\ListenerAbstract;
@@ -23,15 +24,20 @@ use W7\Http\Message\Server\Response as Psr7Response;
 use W7\Tcp\Collector\FdCollector;
 
 class ConnectListener extends ListenerAbstract {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function run(...$params) {
 		[$server, $fd, $reactorId] = $params;
-		return $this->onConnect($server, $fd, $reactorId);
+		$this->onConnect($server, $fd, $reactorId);
 	}
 
-	private function onConnect(Server $server, $fd, $reactorId) {
-		/**
-		 * @var Psr7Request $psr7Request
-		 */
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
+	private function onConnect(Server $server, $fd, $reactorId): void {
 		$psr7Request = new Psr7Request('', '');
 		$psr7Response = new Psr7Response();
 		$psr7Response->setOutputer(new TcpResponseOutputer($server, $fd));

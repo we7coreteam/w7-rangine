@@ -18,7 +18,7 @@ use W7\Core\Provider\ProviderAbstract;
 use W7\Core\Task\TaskDispatcher;
 
 class TaskProvider extends ProviderAbstract {
-	public function register() {
+	public function register(): void {
 		$this->container->set(TaskDispatcherInterface::class, function () {
 			$taskDispatcher = new TaskDispatcher();
 

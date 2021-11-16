@@ -15,15 +15,8 @@ namespace W7\Core\Task\Event;
 use W7\Core\Message\TaskMessage;
 
 class AfterTaskExecutorEvent {
-	/**
-	 * @var TaskMessage
-	 */
-	public $taskMessage;
-
-	/**
-	 * @var \Throwable $throwable
-	 */
-	public $throwable;
+	public TaskMessage $taskMessage;
+	public ?\Throwable $throwable;
 
 	public function __construct(TaskMessage $taskMessage, \Throwable $throwable = null) {
 		$this->taskMessage = $taskMessage;

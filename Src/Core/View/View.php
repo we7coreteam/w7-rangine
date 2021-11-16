@@ -17,17 +17,17 @@ use W7\Core\View\Handler\HandlerAbstract;
 use W7\Core\View\Handler\TwigHandler;
 
 class View implements ViewInterface {
-	private $config;
-	private $customFunctions = [];
-	private $customConsts = [];
-	private $customObjs = [];
+	private array $config;
+	private array $customFunctions = [];
+	private array $customConsts = [];
+	private array $customObjs = [];
 
-	public function __construct($config = []) {
+	public function __construct(array $config = []) {
 		$this->config = $config;
 		$this->pretreatmentConfig();
 	}
 
-	private function pretreatmentConfig() {
+	private function pretreatmentConfig(): void {
 		$this->config['debug'] = $this->config['debug'] ?? false;
 		$this->config['suffix'] = empty($this->config['suffix']) ? 'html' : $this->config['suffix'];
 
@@ -40,7 +40,7 @@ class View implements ViewInterface {
 		}
 	}
 
-	public function addTemplatePath(string $namespace, string $path) {
+	public function addTemplatePath(string $namespace, string $path): void {
 		$this->config['template_path'][$namespace][] = $path;
 	}
 
@@ -48,15 +48,15 @@ class View implements ViewInterface {
 		return $this->config['suffix'];
 	}
 
-	public function registerFunction($name, \Closure $callback) {
+	public function registerFunction($name, \Closure $callback): void {
 		$this->customFunctions[$name] = $callback;
 	}
 
-	public function registerConst($name, $value) {
+	public function registerConst($name, $value): void {
 		$this->customConsts[$name] = $value;
 	}
 
-	public function registerObject($name, $object) {
+	public function registerObject($name, $object): void {
 		$this->customObjs[$name] = $object;
 	}
 
@@ -70,7 +70,7 @@ class View implements ViewInterface {
 		return $handler;
 	}
 
-	private function addResourceToHandler(HandlerAbstract $handler) {
+	private function addResourceToHandler(HandlerAbstract $handler): void {
 		foreach ($this->customFunctions as $name => $callback) {
 			$handler->registerFunction($name, $callback);
 		}
@@ -82,8 +82,8 @@ class View implements ViewInterface {
 		}
 	}
 
-	private function parseViewName($name) {
-		if (isset($name[0]) && '@' == $name[0]) {
+	private function parseViewName($name): array {
+		if (isset($name[0]) && '@' === $name[0]) {
 			if (false === $pos = strpos($name, '/')) {
 				throw new \RuntimeException(sprintf('Malformed namespaced template name "%s" (expecting "@namespace/template_name").', $name));
 			}

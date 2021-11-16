@@ -12,16 +12,21 @@
 
 namespace W7\Http\Listener;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use W7\Core\Helper\Storage\Context;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Http\Message\Server\Response;
 
 class AfterWorkerShutDownListener extends ListenerAbstract {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function run(...$params) {
 		$contexts = $this->getContext()->all();
 		foreach ($contexts as $id => $context) {
-			if (!empty($context[Context::RESPONSE_KEY]) && !empty($context['data']['server-type']) && $context['data']['server-type'] == ServerEnum::TYPE_HTTP) {
+			if (!empty($context[Context::RESPONSE_KEY]) && !empty($context['data']['server-type']) && $context['data']['server-type'] === ServerEnum::TYPE_HTTP) {
 				/**
 				 * @var Response $cResponse
 				 */

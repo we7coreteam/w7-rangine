@@ -19,14 +19,8 @@ use W7\Core\Message\TaskMessage;
 class CallQueuedTask {
 	use TaskDispatchTrait;
 
-	/**
-	 * @var TaskMessage
-	 */
-	public $taskMessage;
+	public TaskMessage $taskMessage;
 
-	/**
-	 * @param TaskMessage $message
-	 */
 	public function __construct(TaskMessage $message) {
 		$this->taskMessage = $message;
 	}
@@ -35,14 +29,12 @@ class CallQueuedTask {
 		return $this->dispatchNow($this->taskMessage);
 	}
 
-	/**
-	 * @param $e
-	 */
-	public function failed($e) {
+
+	public function failed($e): void {
 		$handler = App::getApp()->getContainer()->get($this->taskMessage->task);
 
 		if (method_exists($handler, 'failed')) {
-			call_user_func_array([$handler, 'failed'], [$e]);
+			$handler->failed($e);
 		}
 	}
 

@@ -18,17 +18,11 @@ use W7\Console\Io\Output;
 use W7\Core\Process\ProcessAbstract;
 
 class ReloadProcess extends ProcessAbstract {
-	private static $watchDir = [];
-	private static $fileTypes = [
+	private static array $watchDir = [];
+	private static array $fileTypes = [
 		'php'
 	];
-
-	/**
-	 * the lasted md5 of dir
-	 *
-	 * @var string
-	 */
-	private $md5File = '';
+	private string $md5File = '';
 
 	public function __construct($name, $num = 1, Process $process = null) {
 		self::$watchDir = [
@@ -42,23 +36,23 @@ class ReloadProcess extends ProcessAbstract {
 		self::$fileTypes = array_merge(self::$fileTypes, $reloadConfig['type'] ?? []);
 	}
 
-	public static function addDir(string $dir) {
+	public static function addDir(string $dir): void {
 		self::$watchDir[] = $dir;
 	}
 
-	public static function addType($type) {
+	public static function addType($type): void {
 		self::$fileTypes[] = trim($type, '.');
 	}
 
-	protected function beforeStart() {
+	protected function beforeStart(): void {
 		(new Output())->info('>> server hot reload start');
 	}
 
-	public function check() {
+	public function check(): bool {
 		return true;
 	}
 
-	protected function run(Process $process) {
+	protected function run(Process $process): void {
 		$this->md5File = $this->getWatchDirMd5();
 
 		$server = App::$server;
@@ -76,14 +70,7 @@ class ReloadProcess extends ProcessAbstract {
 		});
 	}
 
-	/**
-	 * md5 of dir
-	 *
-	 * @param string $dir
-	 *
-	 * @return bool|string
-	 */
-	private function md5File($dir) {
+	private function md5File(string $dir): string {
 		if (!is_dir($dir)) {
 			return '';
 		}
@@ -96,7 +83,7 @@ class ReloadProcess extends ProcessAbstract {
 					$md5File[] = $this->md5File($dir . '/' . $entry);
 				}
 				$extension = pathinfo($entry, PATHINFO_EXTENSION);
-				if (in_array($extension, self::$fileTypes)) {
+				if (in_array($extension, self::$fileTypes, true)) {
 					$md5File[] = md5_file($dir . '/' . $entry);
 				}
 				$md5File[] = $entry;
@@ -107,7 +94,7 @@ class ReloadProcess extends ProcessAbstract {
 		return md5(implode('', $md5File));
 	}
 
-	private function getWatchDirMd5() {
+	private function getWatchDirMd5(): string {
 		$md5 = [];
 		foreach (self::$watchDir as $dir) {
 			$md5[] = $this->md5File($dir);

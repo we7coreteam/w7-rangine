@@ -31,7 +31,10 @@ class Server extends SwooleServerAbstract {
 		return $this->server;
 	}
 
-	public function start() {
+	/**
+	 * @throws \Exception
+	 */
+	public function start(): void {
 		if (!empty($this->setting['open_http2_protocol'])) {
 			$this->setting['type'] = SWOOLE_SOCK_TCP|SWOOLE_SSL;
 		}
@@ -46,9 +49,9 @@ class Server extends SwooleServerAbstract {
 		$this->server->start();
 	}
 
-	public function listener(\Swoole\Server $server) {
+	public function listener(\Swoole\Server $server): void {
 		if (App::$server instanceof WebSocketServer) {
-			if ($server->port != $this->setting['port']) {
+			if ($server->port !== $this->setting['port']) {
 				$this->server = $server->addListener($this->setting['host'], $this->setting['port'], $this->setting['sock_type']);
 				//TCP needs to force other protocol support to be turned off, or the parent service will continue
 				$this->server->set([

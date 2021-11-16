@@ -12,6 +12,7 @@
 
 namespace W7\Fpm\Server;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use W7\Core\Route\RouteDispatcher;
 use W7\Core\Route\RouteMapping;
 use W7\Core\Server\ServerAbstract;
@@ -22,13 +23,18 @@ use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 
 class Server extends ServerAbstract {
-	public $worker_id;
+	public int $worker_id;
 
 	public function getType() {
 		return ServerEnum::TYPE_FPM;
 	}
 
-	protected function registerServerEvent($server) {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 * @throws \Exception
+	 */
+	protected function registerServerEvent($server): void {
 		/**
 		 * @var ServerEvent $eventRegister
 		 */
@@ -37,7 +43,10 @@ class Server extends ServerAbstract {
 		$eventRegister->registerServerCustomEvent($this->getType());
 	}
 
-	public function start() {
+	/**
+	 * @throws \Exception
+	 */
+	public function start(): void {
 		$this->registerService();
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_BEFORE_START, [$this, $this->getType()]);
