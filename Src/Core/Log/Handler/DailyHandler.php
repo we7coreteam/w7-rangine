@@ -30,10 +30,10 @@ class DailyHandler extends RotatingFileHandler implements HandlerInterface {
 	protected function streamWrite($stream, array $record) : void {
 		if (isCo()) {
 			igo(function () use ($stream, $record) {
-				@parent::streamWrite($stream, $record);
+				parent::streamWrite($stream, $record);
 			});
 		} else {
-			@parent::streamWrite($stream, $record);
+			parent::streamWrite($stream, $record);
 		}
 	}
 

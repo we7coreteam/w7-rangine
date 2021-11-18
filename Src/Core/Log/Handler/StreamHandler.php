@@ -35,10 +35,10 @@ class StreamHandler extends \Monolog\Handler\StreamHandler implements HandlerInt
 		$record = ['formatted' => implode("\n", $record) . "\n"];
 		if (isCo()) {
 			igo(function () use ($stream, $record) {
-				@parent::streamWrite($stream, $record);
+				parent::streamWrite($stream, $record);
 			});
 		} else {
-			@parent::streamWrite($stream, $record);
+			parent::streamWrite($stream, $record);
 		}
 	}
 

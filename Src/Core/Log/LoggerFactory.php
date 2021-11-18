@@ -52,7 +52,7 @@ class LoggerFactory implements LoggerFactoryInterface {
 
 		$handler = $config['driver'];
 		$handlers = [];
-		if ($handler != 'stack') {
+		if ($handler !== 'stack') {
 			/**
 			 * @var HandlerAbstract $handler
 			 */

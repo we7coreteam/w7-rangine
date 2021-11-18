@@ -50,7 +50,7 @@ class LogProvider extends ProviderAbstract {
 		$tree = glob($logPath);
 		if (!empty($tree)) {
 			foreach ($tree as $file) {
-				if (strstr($file, '.log') !== false) {
+				if (str_contains($file, '.log')) {
 					try {
 						unlink($file);
 					} catch (\ErrorException $e) {
