@@ -19,7 +19,7 @@ class AfterMakeConnectionEvent {
 
 	public HandlerAbstract $handler;
 
-	public function __construct($name, $handler) {
+	public function __construct(string $name, HandlerAbstract $handler) {
 		$this->name = $name;
 		$this->handler = $handler;
 	}

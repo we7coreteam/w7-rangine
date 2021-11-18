@@ -45,7 +45,7 @@ class LoadConfigBootstrap implements BootstrapInterface {
 
 		foreach ($configFileTree as $path) {
 			$key = pathinfo($path, PATHINFO_FILENAME);
-			if (in_array($key, $this->ignoreFileNameMap)) {
+			if (in_array($key, $this->ignoreFileNameMap, true)) {
 				continue;
 			}
 			$config = include $path;

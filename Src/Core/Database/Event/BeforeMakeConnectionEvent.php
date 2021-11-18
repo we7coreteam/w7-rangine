@@ -15,7 +15,7 @@ namespace W7\Core\Database\Event;
 class BeforeMakeConnectionEvent {
 	public string $name;
 
-	public function __construct($name) {
+	public function __construct(string $name) {
 		$this->name = $name;
 	}
 }

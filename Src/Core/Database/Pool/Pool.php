@@ -19,6 +19,7 @@ class Pool extends CoPoolAbstract {
 	protected string $type = 'database';
 
 	/**
+	 * @throws \ReflectionException
 	 * @throws BindingResolutionException
 	 */
 	public function createConnection() {

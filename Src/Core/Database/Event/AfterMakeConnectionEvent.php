@@ -18,7 +18,7 @@ class AfterMakeConnectionEvent {
 	public string $name;
 	public Connection $connection;
 
-	public function __construct($name, Connection $connection) {
+	public function __construct(string $name, Connection $connection) {
 		$this->name = $name;
 		$this->connection = $connection;
 	}

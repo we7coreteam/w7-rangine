@@ -18,7 +18,7 @@ use Dotenv\Regex\Regex;
 use PhpOption\Option;
 
 class Loader extends \Dotenv\Loader {
-	private static $operateKey = [
+	private static array $operateKey = [
 		'|',
 		'&',
 		'^'
@@ -28,7 +28,7 @@ class Loader extends \Dotenv\Loader {
 		if (preg_match('/^.*[\|\^\&]+.*$/', $value)) {
 			foreach (self::$operateKey as $key) {
 				$value = explode($key, $value);
-				$value = array_map(function ($value) {
+				$value = array_map(static function ($value) {
 					return \trim($value);
 				}, $value);
 				$value = implode($key, $value);
@@ -38,11 +38,11 @@ class Loader extends \Dotenv\Loader {
 		return $value;
 	}
 
-	protected function splitStringIntoParts($line) {
+	protected function splitStringIntoParts($line): array {
 		$name = $line;
 		$value = null;
 
-		if (strpos($line, '=') !== false) {
+		if (str_contains($line, '=')) {
 			[$name, $value] = array_map('trim', explode('=', $line, 2));
 		}
 
@@ -59,13 +59,13 @@ class Loader extends \Dotenv\Loader {
 		return [$name, $value];
 	}
 
-	public function loadDirect($content) {
+	public function loadDirect($content): array {
 		return $this->processEntries(
 			Lines::process(preg_split("/(\r\n|\n|\r)/", $content))
 		);
 	}
 
-	protected function processEntries(array $entries) {
+	protected function processEntries(array $entries): array {
 		$vars = [];
 
 		foreach ($entries as $entry) {
@@ -85,7 +85,7 @@ class Loader extends \Dotenv\Loader {
 		return $vars;
 	}
 
-	protected function checkAndLoadIncludeEnv($entry) {
+	protected function checkAndLoadIncludeEnv($entry): bool {
 		$pattern = '/^include\(([\.\w]+)\)/';
 		if (preg_match($pattern, $entry, $result) && !empty($result[1])) {
 			$paths = [];
@@ -104,7 +104,7 @@ class Loader extends \Dotenv\Loader {
 	protected function resolveNestedVariables($value = null) {
 		return Option::fromValue($value)
 			->filter(function ($str) {
-				return strpos($str, '$') !== false;
+				return str_contains($str, '$');
 			})
 			->flatMap(function ($str) {
 				return Regex::replaceCallback(

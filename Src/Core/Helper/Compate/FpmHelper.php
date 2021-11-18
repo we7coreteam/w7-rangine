@@ -13,11 +13,16 @@
 namespace W7\Core\Helper\Compate;
 
 use Closure;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Throwable;
 use W7\App;
 use W7\Contract\Logger\LoggerFactoryInterface;
 
 class FpmHelper {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public static function createCoroutine(Closure $callback): bool {
 		$generatorFunc = static function () use ($callback) {
 			try {
@@ -30,7 +35,7 @@ class FpmHelper {
 		return true;
 	}
 
-	public static function sleep($seconds) {
+	public static function sleep($seconds): void {
 		sleep($seconds);
 	}
 }

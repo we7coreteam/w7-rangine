@@ -12,6 +12,7 @@
 
 namespace W7\Core\Cache;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use W7\Core\Cache\Event\AfterMakeConnectionEvent;
 use W7\Core\Cache\Event\BeforeMakeConnectionEvent;
 use W7\Core\Cache\Handler\HandlerAbstract;
@@ -73,6 +74,10 @@ class ConnectionResolver {
 		return $connection;
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function reconnect($name) {
 		$contextCacheName = $this->getContextKey($name);
 		/**

@@ -12,12 +12,17 @@
 
 namespace W7\Core\Cache\Pool;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use W7\Core\Cache\ConnectionResolver;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
 	protected string $type = 'cache';
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function createConnection() {
 		return $this->getContainer()->get(ConnectionResolver::class)->createConnection($this->getPoolName(), false);
 	}

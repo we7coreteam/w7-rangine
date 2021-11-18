@@ -13,6 +13,7 @@
 namespace W7\Core\Helper\Traiter;
 
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use W7\App;
 use W7\Contract\Config\RepositoryInterface;
 use W7\Contract\Event\EventDispatcherInterface;
@@ -52,6 +53,11 @@ trait AppCommonTrait {
 		$this->loggerFactory = $loggerFactory;
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 * @throws Exception
+	 */
 	public function getLogger() {
 		if (!$this->loggerFactory) {
 			if (!App::getApp()->getContainer()->has(LoggerFactoryInterface::class)) {
@@ -73,7 +79,7 @@ trait AppCommonTrait {
 
 	/**
 	 * @throws \ReflectionException
-	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 * @throws BindingResolutionException
 	 */
 	public function getContext() : Context {
 		return $this->getContainer()->get(Context::class);

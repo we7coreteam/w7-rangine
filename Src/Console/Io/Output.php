@@ -38,17 +38,12 @@ class Output extends SymfonyStyle {
 
 	public function writeList($list): void {
 		foreach ($list as $title => $items) {
-			$title = "$title";
+			$title = (string)$title;
 			$this->writeln($title);
 
 			$this->writeItems((array)$items);
 			$this->writeln('');
 		}
-	}
-
-	public function info($content): void {
-		$this->write('<info>'.$content.'</info>');
-		$this->newLine();
 	}
 
 	private function writeItems($items, $level = 1): void {
@@ -66,9 +61,9 @@ class Output extends SymfonyStyle {
 					$this->writeln('');
 					$this->writeItems($desc, $level + 1);
 					continue;
-				} else {
-					$desc = '[]';
 				}
+
+				$desc = '[]';
 			}
 
 			if ($desc === false) {
@@ -83,11 +78,7 @@ class Output extends SymfonyStyle {
 	}
 
 	private function writeLeft($level): string {
-		$left = '';
-		for ($i = 0; $i < $level; $i++) {
-			$left .= self::LEFT_CHAR;
-		}
-		return $left;
+		return str_repeat(self::LEFT_CHAR, $level);
 	}
 
 	private function getCmdMaxLength($commands): int {
@@ -97,7 +88,6 @@ class Output extends SymfonyStyle {
 			$length = \strlen($cmd);
 			if ($length > $max) {
 				$max = $length;
-				continue;
 			}
 		}
 

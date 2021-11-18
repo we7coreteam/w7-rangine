@@ -81,9 +81,9 @@ class ExceptionHandler {
 
 		if ((ENV & DEBUG) === DEBUG) {
 			return $this->handleDevelopment($e);
-		} else {
-			return $this->handleRelease($e);
 		}
+
+		return $this->handleRelease($e);
 	}
 
 	protected function handleRelease(\Throwable $e) : Response {

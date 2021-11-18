@@ -12,6 +12,7 @@
 
 namespace W7\Core\Database;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
@@ -76,9 +77,7 @@ class ConnectionResolver extends DatabaseManager {
 		 * @var Connection $connection
 		 */
 		$connection = $this->getConnectionByNameFromContext($name);
-		if ($connection) {
-			$connection->disconnect();
-		}
+		$connection?->disconnect();
 	}
 
 	/**
@@ -130,6 +129,10 @@ class ConnectionResolver extends DatabaseManager {
 		$pool->releaseConnection($connection);
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	private function getConnectionByNameFromContext($name = null) {
 		[$database, $type] = $this->parseConnectionName($name);
 		$contextDbName = $name ?: $database;

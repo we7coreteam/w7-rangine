@@ -12,6 +12,8 @@
 
 namespace W7\Core\Database;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use W7\Core\Helper\Traiter\InstanceTrait;
 
 /**
@@ -71,10 +73,10 @@ use W7\Core\Helper\Traiter\InstanceTrait;
  * @method qualifyColumn($column)
  * @method getMacro($name)
  */
-abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
+abstract class ModelAbstract extends Model {
 	use InstanceTrait;
 
-	public function createOrUpdate($condition): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder {
+	public function createOrUpdate($condition): Model|Builder {
 		return static::query()->updateOrCreate($condition, $this->getAttributes());
 	}
 

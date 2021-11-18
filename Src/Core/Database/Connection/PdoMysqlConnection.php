@@ -21,8 +21,8 @@ class PdoMysqlConnection extends MySqlConnection {
 	public function getActiveConnection(): \PDO|\Closure {
 		if ($this->pdo instanceof \PDO) {
 			return $this->pdo;
-		} else {
-			return $this->readPdo;
 		}
+
+		return $this->readPdo;
 	}
 }

@@ -18,11 +18,11 @@ use Dotenv\Environment\Adapter\PutenvAdapter;
 use Dotenv\Environment\DotenvFactory;
 
 class Env {
-	private $envPath = '';
+	private string $envPath;
 
-	private $hostName = '';
+	private string $hostName;
 
-	private $defaultName = '.env';
+	private string $defaultName = '.env';
 
 	public function __construct($path) {
 		if (empty($path) || !is_dir($path)) {
@@ -32,7 +32,7 @@ class Env {
 		$this->envPath = $path;
 	}
 
-	public function load() {
+	public function load(): void {
 		//Loads the.env of the current environment, overriding the default.env data
 		$envName = getenv('ENV_NAME') ?: 'default';
 
@@ -51,11 +51,11 @@ class Env {
 		}
 	}
 
-	private function getEnvFileByHostName($hostname = '') {
+	private function getEnvFileByHostName($hostname = ''): string {
 		if (empty($hostname)) {
 			$hostname = $this->hostName;
 		}
-		if ($hostname == 'default') {
+		if ($hostname === 'default') {
 			return $this->defaultName;
 		}
 
@@ -68,7 +68,7 @@ class Env {
 		foreach ($fileTree as $key => $file) {
 			$fileName = pathinfo($file, PATHINFO_BASENAME);
 			$temp = explode($this->defaultName . '.', $fileName);
-			if (!empty($temp[1]) && strpos($hostname, $temp[1]) !== false) {
+			if (!empty($temp[1]) && str_contains($hostname, $temp[1])) {
 				$envFile = $fileName;
 			}
 		}
@@ -85,8 +85,8 @@ class Env {
 	 *
 	 * @return string[]
 	 */
-	protected function getFilePaths(array $paths, $file) {
-		return array_map(function ($path) use ($file) {
+	protected function getFilePaths(array $paths, $file): array {
+		return array_map(static function ($path) use ($file) {
 			return $path . '/' . $file;
 		}, $paths);
 	}

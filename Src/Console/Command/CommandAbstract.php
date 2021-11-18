@@ -46,7 +46,7 @@ abstract class CommandAbstract extends Command {
 			if (is_null($value) || is_array($value) || trim($value) === '') {
 				continue;
 			}
-			if (strpos($option, 'config') !== false) {
+			if (str_contains($option, 'config')) {
 				$option = explode('-', $option);
 				array_shift($option);
 				//The reason for counting >2 here is to ensure that there are at least configuration groups in the structure of the option
@@ -81,6 +81,9 @@ abstract class CommandAbstract extends Command {
 		return $this->input->getOption($key);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	protected function call($command, $arguments = []): int {
 		$arguments['command'] = $command;
 		$input = new ArrayInput($arguments);

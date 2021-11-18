@@ -12,6 +12,7 @@
 
 namespace W7\Core\Controller;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use W7\Contract\Validation\ValidatorFactoryInterface;
@@ -50,6 +51,10 @@ abstract class ControllerAbstract {
 		return $this->middleware;
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	protected function response(): Response {
 		$response = $this->getContext()->getResponse();
 		if (empty($response)) {
@@ -58,6 +63,10 @@ abstract class ControllerAbstract {
 		return $response;
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	protected function request(): Request {
 		$request = $this->getContext()->getRequest();
 		if (empty($request)) {
@@ -66,18 +75,34 @@ abstract class ControllerAbstract {
 		return $request;
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	protected function responseRaw(string $data): Response {
 		return $this->response()->raw($data);
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	protected function responseJson($data): Response {
 		return $this->response()->json($data);
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	protected function responseHtml($data): Response {
 		return $this->response()->html($data);
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	protected function render($name, $context = []): Response {
 		return $this->responseHtml($this->getContainer()->get(ViewInterface::class)->render($name, $context));
 	}

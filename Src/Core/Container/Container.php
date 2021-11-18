@@ -46,11 +46,6 @@ class Container extends \Illuminate\Container\Container {
 		}
 	}
 
-	/**
-	 * @param $name
-	 * @param $handle
-	 * @return void
-	 */
 	public function set($name, $handle, $shared = true): void {
 		if (is_object($handle) && (!$handle instanceof \Closure)) {
 			$this->instance($name, $handle);
@@ -151,7 +146,7 @@ class Container extends \Illuminate\Container\Container {
 		// If the requested type is registered as a singleton we'll want to cache off
 		// the instances in "memory" so we can return it later without creating an
 		// entirely new instance of an object on each subsequent request for it.
-		if ($this->isShared($abstract) && ! $needsContextualBuild) {
+		if ($this->isShared($abstract) && !$needsContextualBuild) {
 			$this->instances[$abstract] = $object;
 		}
 

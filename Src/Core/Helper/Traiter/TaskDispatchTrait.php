@@ -12,11 +12,16 @@
 
 namespace W7\Core\Helper\Traiter;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use W7\App;
 use W7\Contract\Task\TaskDispatcherInterface;
 use W7\Core\Message\TaskMessage;
 
 trait TaskDispatchTrait {
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindingResolutionException
+	 */
 	public function dispatchNow(TaskMessage $message, $server = null, $workerId = null, $taskId = null) {
 		/**
 		 * @var TaskDispatcherInterface $taskDispatcher

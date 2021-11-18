@@ -14,6 +14,7 @@ namespace W7\Core\Helper\Compate;
 
 use Closure;
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Swoole\Coroutine;
 use Swoole\Timer;
 use Throwable;
@@ -39,7 +40,7 @@ class SwooleHelper {
 
 	/**
 	 * @throws \ReflectionException
-	 * @throws \Illuminate\Contracts\Container\BindingResolutionException
+	 * @throws BindingResolutionException
 	 */
 	public static function createCoroutine(Closure $callback) {
 		$context = App::getApp()->getContainer()->get(Context::class);

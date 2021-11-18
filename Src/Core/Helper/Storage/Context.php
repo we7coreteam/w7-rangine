@@ -40,7 +40,7 @@ class Context {
 	 */
 	private static array $context;
 
-	private $corDeferRegisterMap;
+	private array $corDeferRegisterMap;
 
 	/**
 	 * The coroutine number last requested
@@ -62,14 +62,14 @@ class Context {
 	/**
 	 * @return Response|null
 	 */
-	public function getResponse() {
+	public function getResponse(): ?Response {
 		return $this->getCoroutineContext(self::RESPONSE_KEY);
 	}
 
 	/**
 	 * @return array|null
 	 */
-	public function getContextData() {
+	public function getContextData(): ?array {
 		return $this->getCoroutineContext(self::DATA_KEY);
 	}
 
@@ -113,7 +113,7 @@ class Context {
 	 * @param string $key
 	 * @param mixed $val
 	 */
-	public function setContextDataByKey(string $key, $val): void {
+	public function setContextDataByKey(string $key, mixed $val): void {
 		$coroutineId = $this->getCoroutineId();
 		self::$context[$coroutineId][self::DATA_KEY][$key] = $val;
 	}
@@ -122,10 +122,10 @@ class Context {
 	 * Get context data by key
 	 *
 	 * @param string $key
-	 * @param mixed $default
+	 * @param mixed|null $default
 	 * @return mixed
 	 */
-	public function getContextDataByKey(string $key, $default = null): mixed {
+	public function getContextDataByKey(string $key, mixed $default = null): mixed {
 		$data = $this->getContextData();
 		if ($data && isset($data[$key])) {
 			return $data[$key];
@@ -197,7 +197,7 @@ class Context {
 		return $coId;
 	}
 
-	public function getLastCoId() {
+	public function getLastCoId(): int {
 		return $this->lastCoId;
 	}
 }
