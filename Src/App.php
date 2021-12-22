@@ -12,7 +12,6 @@
 
 namespace W7;
 
-use RuntimeException;
 use W7\Console\Application;
 use W7\Console\Io\Output;
 use W7\Contract\Config\RepositoryInterface;
@@ -31,7 +30,7 @@ use W7\Core\Server\ServerAbstract;
  */
 class App {
 	public const NAME = 'w7-rangine';
-	public const VERSION = '2.5.6';
+	public const VERSION = '2.5.7';
 
 	public static $self;
 	protected $appNamespace;
