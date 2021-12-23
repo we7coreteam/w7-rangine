@@ -99,6 +99,7 @@ class Route implements RouteInterface {
 	}
 
 	public function run(RequestInterface $request) {
+		$this->getContext()->setRequest($request);
 		if ($this->handler instanceof \Closure) {
 			return $this->runCallable();
 		}
