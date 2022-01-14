@@ -25,7 +25,7 @@ class MiddlewareMapping {
 			$middlewares = [$middlewares];
 		}
 		$pretreatmentMiddlewares = [];
-		foreach ($middlewares as $i => $middleware) {
+		foreach ($middlewares as $middleware) {
 			if (!isset($middleware['class'])) {
 				$middleware = self::pretreatmentMiddleware($middleware);
 			}
@@ -70,9 +70,9 @@ class MiddlewareMapping {
 		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', Str::studly(App::$server->getType()));
 		if (class_exists($class)) {
 			return [self::pretreatmentMiddleware($class)];
-		} else {
-			return [self::pretreatmentMiddleware(ControllerMiddleware::class)];
 		}
+
+		return [self::pretreatmentMiddleware(ControllerMiddleware::class)];
 	}
 
 	public function getRouteMiddleWares(Route $route) {

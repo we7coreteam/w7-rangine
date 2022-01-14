@@ -24,7 +24,7 @@ class ProcessFactory {
 	}
 
 	public function has($id) {
-		return !empty($this->processMap[$id]) ? true : false;
+		return !empty($this->processMap[$id]);
 	}
 
 	public function getById($id) : ProcessAbstract {

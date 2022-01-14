@@ -31,7 +31,9 @@ class ControllerMiddleware extends MiddlewareAbstract {
 	protected function parseResponse($response) {
 		if ($response instanceof Response) {
 			return $response;
-		} elseif (is_object($response)) {
+		}
+
+		if (is_object($response)) {
 			$response = 'Illegal type ' . get_class($response) . ', Must be a response object, an array, or a string';
 		}
 

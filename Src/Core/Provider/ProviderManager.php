@@ -66,7 +66,7 @@ class ProviderManager {
 			$provider = get_class($provider);
 		}
 
-		return empty($this->registeredProviders[$provider]) ? false : true;
+		return !empty($this->registeredProviders[$provider]);
 	}
 
 	public function registerProvider($provider, $name = null, $force = false) {

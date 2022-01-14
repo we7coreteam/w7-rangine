@@ -148,12 +148,12 @@ abstract class ProcessAbstract {
 
 	private function start() {
 		if (method_exists($this, 'read')) {
-			$pipe = $this->pipe ? $this->pipe : $this->process->pipe;
+			$pipe = $this->pipe ?: $this->process->pipe;
 			Event::add($pipe, function () {
 				$this->doRun(function () {
 					$data = $this->pipe ? '' : $this->process->read();
 					if (!$this->read($data)) {
-						Event::del($this->pipe ? $this->pipe : $this->process->pipe);
+						Event::del($this->pipe ?: $this->process->pipe);
 					}
 				});
 			});

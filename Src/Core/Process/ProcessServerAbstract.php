@@ -35,7 +35,7 @@ abstract class ProcessServerAbstract extends SwooleServerAbstract {
 		$this->setting['port'] = $this->setting['port'] ?? 'none';
 		$this->setting['message_queue_key'] = $this->setting['message_queue_key'] ?? null;
 
-		return parent::checkSetting();
+		parent::checkSetting();
 	}
 
 	protected function enableCoroutine() {

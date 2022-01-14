@@ -108,38 +108,31 @@ class Router implements RouterInterface {
 	}
 
 	public function post($uri, $handler) {
-		$result = $this->add(self::METHOD_POST, $uri, $handler);
-		return $result;
+		return $this->add(self::METHOD_POST, $uri, $handler);
 	}
 
 	public function get($uri, $handler) {
-		$result = $this->add(self::METHOD_GET, $uri, $handler);
-		return $result;
+		return $this->add(self::METHOD_GET, $uri, $handler);
 	}
 
 	public function put($uri, $handler) {
-		$result = $this->add(self::METHOD_PUT, $uri, $handler);
-		return $result;
+		return $this->add(self::METHOD_PUT, $uri, $handler);
 	}
 
 	public function delete($uri, $handler) {
-		$result = $this->add(self::METHOD_DELETE, $uri, $handler);
-		return $result;
+		return $this->add(self::METHOD_DELETE, $uri, $handler);
 	}
 
 	public function patch($uri, $handler) {
-		$result = $this->add(self::METHOD_PATCH, $uri, $handler);
-		return $result;
+		return $this->add(self::METHOD_PATCH, $uri, $handler);
 	}
 
 	public function head($uri, $handler) {
-		$result = $this->add(self::METHOD_HEAD, $uri, $handler);
-		return $result;
+		return $this->add(self::METHOD_HEAD, $uri, $handler);
 	}
 
 	public function options($uri, $handler) {
-		$result = $this->add(self::METHOD_OPTIONS, $uri, $handler);
-		return $result;
+		return $this->add(self::METHOD_OPTIONS, $uri, $handler);
 	}
 
 	private function isStaticResource($resource) {
@@ -162,8 +155,7 @@ class Router implements RouterInterface {
 		if ($module !== $this->defaultModule) {
 			$destination = $module . '/' . $destination;
 		}
-		$destination = '/' . $destination;
-		return $destination;
+		return '/' . $destination;
 	}
 
 	public function redirect($uri, $destination, $status = 302) {

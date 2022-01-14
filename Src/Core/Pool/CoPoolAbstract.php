@@ -43,7 +43,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 
 	/**
 	 * Idle connection queue
-	 * @var \SplQueue $idleQueue
+	 * @var Channel $idleQueue
 	 */
 	protected $idleQueue;
 

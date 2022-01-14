@@ -72,8 +72,7 @@ class HandlerExceptions {
 	 */
 	public function handleError(int $type, string $message, string $file, int $line) {
 		if (error_reporting() & $type) {
-			$throwable = new \ErrorException($message, 0, $type, $file, $line);
-			throw $throwable;
+			throw new \ErrorException($message, 0, $type, $file, $line);
 		}
 
 		return false;
