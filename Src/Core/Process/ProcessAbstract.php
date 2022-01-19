@@ -182,11 +182,7 @@ abstract class ProcessAbstract {
 	}
 
 	private function stopProcessIfNecessary() {
-		$timerNum = 0;
-		foreach (Timer::list() as $item) {
-			++$timerNum;
-		}
-		if ($timerNum == 0) {
+		if (Timer::list()->count() == 0) {
 			$this->stop();
 		}
 	}
