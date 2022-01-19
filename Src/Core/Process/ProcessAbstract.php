@@ -129,6 +129,9 @@ abstract class ProcessAbstract {
 					if ($data === false && $socket->errCode !== SOCKET_ETIMEDOUT) {
 						throw new ProcessSocketException('process socket is closed', $socket->errCode);
 					}
+					if (!$data) {
+						continue;
+					}
 
 					$message = Message::unpack($data);
 					if ($message instanceof TaskMessage) {
