@@ -13,7 +13,7 @@
 namespace W7\Core\Redis;
 
 use Illuminate\Redis\Connections\Connection;
-use Illuminate\Redis\Connectors\PhpRedisConnector;
+use W7\Core\Redis\Connectors\PhpRedisConnector;
 use Illuminate\Redis\Connectors\PredisConnector;
 use Illuminate\Redis\RedisManager;
 use InvalidArgumentException;
