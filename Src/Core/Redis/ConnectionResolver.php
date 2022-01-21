@@ -25,7 +25,6 @@ use W7\Core\Helper\Traiter\AppCommonTrait;
 class ConnectionResolver extends RedisManager {
 	use AppCommonTrait;
 
-	protected $connectionConfig = [];
 	/**
 	 * @var PoolFactory
 	 */
@@ -42,7 +41,7 @@ class ConnectionResolver extends RedisManager {
 			return $connection;
 		}
 
-		if (empty($this->connectionConfig[$name])) {
+		if (empty($this->config[$name])) {
 			throw new \RuntimeException('redis channel ' . $name . ' not support');
 		}
 
