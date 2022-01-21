@@ -19,16 +19,16 @@ class CacheFactory implements CacheFactoryInterface {
 	protected $cacheMap = [];
 	protected $cacheOptions = [];
 	/**
-	 * @var ConnectionResolver
+	 * @var StorageResolver
 	 */
-	protected $connectionResolver;
+	protected $storageResolver;
 
 	public function __construct($cacheOptions = []) {
 		$this->cacheOptions = $cacheOptions;
 	}
 
-	public function setConnectionResolver($connectionResolver) {
-		$this->connectionResolver = $connectionResolver;
+	public function setStorageResolver($storageResolver) {
+		$this->storageResolver = $storageResolver;
 	}
 
 	public function registerCache(CacheAbstract $cache) {
@@ -42,7 +42,7 @@ class CacheFactory implements CacheFactoryInterface {
 	protected function getCache($channel) {
 		if (empty($this->cacheMap[$channel])) {
 			$cache = new Cache($channel, $this->cacheOptions[$channel] ?? []);
-			$cache->setConnectionResolver($this->connectionResolver);
+			$cache->setStorageResolver($this->storageResolver);
 			$this->cacheMap[$channel] = $cache;
 		}
 

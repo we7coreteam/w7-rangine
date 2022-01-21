@@ -270,14 +270,8 @@ class Cache extends CacheAbstract {
 	}
 
 	public function call(\Closure $method) {
-		$connection = $this->getConnection();
+		$connection = $this->getStorage();
 
-		try {
-			$result = $method($connection);
-		} catch (\Throwable $e) {
-			$result = $this->tryAgainIfCausedByLostConnection($e, $method, $connection, [$this, 'call']);
-		}
-
-		return $result;
+		return $method($connection);
 	}
 }

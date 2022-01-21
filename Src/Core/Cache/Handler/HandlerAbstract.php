@@ -12,14 +12,9 @@
 
 namespace W7\Core\Cache\Handler;
 
-use Illuminate\Database\DetectsLostConnections;
 use Psr\SimpleCache\CacheInterface;
 
 abstract class HandlerAbstract implements CacheInterface {
-	use DetectsLostConnections {
-		causedByLostConnection as public isCausedByLostConnection;
-	}
-
 	protected $storage;
 
 	public function __construct($storage) {

@@ -13,15 +13,14 @@
 namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
-use W7\Core\Cache\Handler\HandlerAbstract;
 
 abstract class CacheAbstract implements CacheInterface {
 	protected $name;
 	protected $cacheOptions = [];
 	/**
-	 * @var ConnectionResolver
+	 * @var StorageResolver
 	 */
-	protected $connectionResolver;
+	protected $storageResolver;
 
 	public function __construct($name, $cacheOptions = []) {
 		$this->name = $name;
@@ -32,21 +31,12 @@ abstract class CacheAbstract implements CacheInterface {
 		return $this->name;
 	}
 
-	public function setConnectionResolver(ConnectionResolver $connectorManager) {
-		$this->connectionResolver = $connectorManager;
+	public function setStorageResolver(StorageResolver $connectorManager) {
+		$this->storageResolver = $connectorManager;
 	}
 
-	protected function getConnection() {
-		return $this->connectionResolver->connection($this->name);
-	}
-
-	protected function tryAgainIfCausedByLostConnection(\Throwable $e, \Closure $callback, HandlerAbstract $connection, callable $tryCall) {
-		if ($connection->isCausedByLostConnection($e)) {
-			$this->connectionResolver->reconnect($this->getName());
-			return call_user_func_array($tryCall, [$callback]);
-		}
-
-		throw $e;
+	protected function getStorage() {
+		return $this->storageResolver->storage($this->name);
 	}
 
 	protected function warpKey($key) {
