@@ -22,6 +22,7 @@
 		"w7/rangine-package-plugin": "*",
 		"illuminate/config": "^6.0",
 		"illuminate/database": "^6.0",
+		"illuminate/redis": "^6.0",
 		"illuminate/events": "^6.0",
 		"illuminate/validation": "^6.0",
 		"illuminate/pagination": "^6.0",
@@ -50,5 +51,12 @@
 	"bin": [
 		"bin/rangine-server",
 		"bin/rangine-gerent"
-	]
+	],
+	"config": {
+		"allow-plugins": {
+			"w7/php-cs-fixer": true,
+			"funkjedi/composer-include-files": true,
+			"w7/rangine-package-plugin": true
+		}
+	}
 }
