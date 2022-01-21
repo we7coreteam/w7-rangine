@@ -12,14 +12,13 @@
 
 namespace W7\Core\Redis\Pool;
 
-use W7\Core\Redis\ConnectionResolver;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
 	protected $type = 'redis';
 
 	public function createConnection() {
-		return $this->getContainer()->get(ConnectionResolver::class)->createConnection($this->getPoolName(), false);
+		return $this->getContainer()->get('redis')->createConnection($this->getPoolName(), false);
 	}
 
 	public function getConnection() {
