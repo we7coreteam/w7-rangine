@@ -9,11 +9,8 @@ class PhpRedisConnection extends \Illuminate\Redis\Connections\PhpRedisConnectio
 		try {
 			return parent::command($method, $parameters);
 		} catch (\RedisException $e) {
-			if (Str::contains($e->getMessage(), 'went away')) {
-				if ($this->connector) {
-					$this->client = call_user_func($this->connector);
-					return $this->command($method, $parameters);
-				}
+			if (Str::contains($e->getMessage(), 'went away') && $this->connector) {
+				return $this->command($method, $parameters);
 			}
 
 			throw $e;
