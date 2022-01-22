@@ -12,7 +12,9 @@
 
 namespace W7\Core\Redis;
 
+use Closure;
 use Illuminate\Redis\Connections\Connection;
+use W7\Contract\Redis\RedisFactoryInterface;
 use W7\Core\Redis\Connectors\PhpRedisConnector;
 use Illuminate\Redis\Connectors\PredisConnector;
 use Illuminate\Redis\RedisManager;
@@ -22,7 +24,7 @@ use W7\Core\Redis\Event\BeforeMakeConnectionEvent;
 use W7\Core\Redis\Pool\PoolFactory;
 use W7\Core\Helper\Traiter\AppCommonTrait;
 
-class ConnectionResolver extends RedisManager {
+class ConnectionResolver extends RedisManager implements RedisFactoryInterface {
 	use AppCommonTrait;
 
 	/**
@@ -49,6 +51,10 @@ class ConnectionResolver extends RedisManager {
 			$this->resolve($name),
 			$name
 		);
+	}
+
+	public function channel($name = 'default'): Connection {
+		return $this->connection($name);
 	}
 
 	public function connection($name = null) {
@@ -135,5 +141,9 @@ class ConnectionResolver extends RedisManager {
 
 	private function getContextKey($name): string {
 		return sprintf('redis.connection.%s', $name);
+	}
+
+	public function createSubscription($channels, Closure $callback, $method = 'subscribe') {
+		// TODO: Implement createSubscription() method.
 	}
 }
