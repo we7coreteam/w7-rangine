@@ -142,8 +142,4 @@ class ConnectionResolver extends RedisManager implements RedisFactoryInterface {
 	private function getContextKey($name): string {
 		return sprintf('redis.connection.%s', $name);
 	}
-
-	public function createSubscription($channels, Closure $callback, $method = 'subscribe') {
-		// TODO: Implement createSubscription() method.
-	}
 }
