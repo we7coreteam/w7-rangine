@@ -14,6 +14,7 @@ namespace W7\Core\Cache\Handler;
 
 use Illuminate\Redis\Connections\Connection;
 use W7\App;
+use W7\Contract\Redis\RedisFactoryInterface;
 use W7\Core\Redis\ConnectionResolver;
 
 class RedisHandler extends HandlerAbstract {
@@ -26,7 +27,7 @@ class RedisHandler extends HandlerAbstract {
 		/**
 		 * @var ConnectionResolver $redisManager
 		 */
-		$redisManager = App::getApp()->getContainer()->get('redis');
+		$redisManager = App::getApp()->getContainer()->get(RedisFactoryInterface::class);
 		return new static($redisManager->connection($config['name'] ?? ''));
 	}
 
