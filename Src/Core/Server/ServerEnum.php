@@ -14,10 +14,12 @@ namespace W7\Core\Server;
 
 use W7\Fpm\Server\Server as FpmServer;
 use W7\Http\Server\Server as HttpServer;
+use W7\Mqtt\Server\Server;
 use W7\Process\Server\Server as ProcessServer;
 use W7\Reload\Server\Server as ReloadServer;
 use W7\Tcp\Server\Server as TcpServer;
 use W7\WebSocket\Server\Server as WebSocketServer;
+use W7\Mqtt\Server\Server as MqttServer;
 
 class ServerEnum {
 	const TYPE_FPM = 'fpm';
@@ -29,6 +31,7 @@ class ServerEnum {
 	const TYPE_LOWER_WEBSOCKET = 'websocket';
 	const TYPE_PROCESS = 'process';
 	const TYPE_RELOAD = 'reload';
+	const TYPE_MQTT = 'mqtt';
 
 	public static $ALL_SERVER = [
 		self::TYPE_WEBSOCKET => WebSocketServer::class,
@@ -37,7 +40,8 @@ class ServerEnum {
 		self::TYPE_FPM => FpmServer::class,
 		self::TYPE_TCP => TcpServer::class,
 		self::TYPE_PROCESS => ProcessServer::class,
-		self::TYPE_RELOAD => ReloadServer::class
+		self::TYPE_RELOAD => ReloadServer::class,
+		self::TYPE_MQTT => MqttServer::class
 	];
 
 	const MODE_LIST = [

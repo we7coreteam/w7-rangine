@@ -121,6 +121,10 @@ class ServerEvent {
 		ServerEnum::TYPE_PROCESS => [
 			self::ON_WORKER_START => ProcessStartListener::class,
 			self::ON_WORKER_STOP => ProcessStopListener::class
+		],
+		ServerEnum::TYPE_MQTT => [
+			self::ON_WORKER_START => ProcessStartListener::class,
+			self::ON_WORKER_STOP => ProcessStopListener::class
 		]
 	];
 

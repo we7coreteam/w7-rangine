@@ -26,8 +26,9 @@ class Router implements RouterInterface {
 	const METHOD_PATCH = 'PATCH';
 	const METHOD_DELETE = 'DELETE';
 	const METHOD_HEAD = 'HEAD';
+	const METHOD_MQTT_TOPIC = 'MQTT_TOPIC';
 	const METHOD_OPTIONS = 'OPTIONS';
-	const METHOD_ALL = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
+	const METHOD_ALL = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'MQTT_TOPIC'];
 
 	protected $config = [];
 
@@ -134,6 +135,11 @@ class Router implements RouterInterface {
 
 	public function head($uri, $handler) {
 		$result = $this->add(self::METHOD_HEAD, $uri, $handler);
+		return $result;
+	}
+
+	public function topic($uri, $handler) {
+		$result = $this->add(self::METHOD_MQTT_TOPIC, $uri, $handler);
 		return $result;
 	}
 
