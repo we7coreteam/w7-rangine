@@ -134,11 +134,11 @@ class RedisHandler extends HandlerAbstract {
 	}
 
 	public function setMultiple($values, $ttl = null) {
-		return $this->storage->mset($values);
+		return $this->storage->mset((array)$values);
 	}
 
 	public function getMultiple($keys, $default = null) {
-		return $this->storage->mget($keys);
+		return $this->storage->mget((array)$keys);
 	}
 
 	public function delete($key) {
