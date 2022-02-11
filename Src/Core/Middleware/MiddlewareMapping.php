@@ -13,7 +13,6 @@
 namespace W7\Core\Middleware;
 
 use Illuminate\Support\Str;
-use W7\App;
 use W7\Core\Route\Route;
 
 class MiddlewareMapping {
@@ -62,12 +61,8 @@ class MiddlewareMapping {
 		return [self::pretreatmentMiddleware(LastMiddleware::class)];
 	}
 
-	protected function getControllerMiddleware() {
-		if (empty(App::$server->getType())) {
-			return [];
-		}
-
-		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', Str::studly(App::$server->getType()));
+	protected function getControllerMiddleware($serverType) {
+		$class = sprintf('\\W7\\%s\\Middleware\\ControllerMiddleware', Str::studly($serverType));
 		if (class_exists($class)) {
 			return [self::pretreatmentMiddleware($class)];
 		}
@@ -75,11 +70,11 @@ class MiddlewareMapping {
 		return [self::pretreatmentMiddleware(ControllerMiddleware::class)];
 	}
 
-	public function getRouteMiddleWares(Route $route) {
+	public function getRouteMiddleWares(Route $route, $serverType) {
 		return array_merge(
 			$this->beforeMiddleware,
 			$route->getMiddleware(),
-			$this->getControllerMiddleware(),
+			$this->getControllerMiddleware($serverType),
 			$this->afterMiddleware,
 			$this->getLastMiddleware()
 		);
