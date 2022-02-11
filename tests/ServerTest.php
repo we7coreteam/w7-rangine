@@ -3,6 +3,7 @@
 namespace W7\Tests;
 
 use W7\Core\Server\ServerEnum;
+use W7\Facade\Config;
 use W7\Http\Server\Server;
 
 class ServerTest extends TestCase {
@@ -15,9 +16,7 @@ class ServerTest extends TestCase {
 	}
 
 	public function testOverDefaultConfig() {
-		$config = iconfig()->get('server');
-		$config[ServerEnum::TYPE_HTTP]['mode'] = SWOOLE_BASE;
-		iconfig()->set('server', $config);
+		Config::set('server.http.mode', SWOOLE_BASE);
 
 		$httpServer = new Server();
 
@@ -27,9 +26,7 @@ class ServerTest extends TestCase {
 	}
 
 	public function testErrorConfig() {
-		$config = iconfig()->get('server');
-		$config[ServerEnum::TYPE_HTTP]['host'] = null;
-		iconfig()->set('server', $config);
+		Config::set('server.http.host', null);
 
 		try{
 			new Server();

@@ -3,9 +3,31 @@
 namespace W7\Tests;
 
 use Illuminate\Filesystem\Filesystem;
-use W7\App\Handler\Session\TestHandler;
 use W7\Core\Session\Session;
+use W7\Facade\Config;
 use W7\Http\Message\Server\Request;
+
+use W7\Core\Session\Handler\HandlerAbstract;
+
+class TestHandler extends HandlerAbstract {
+	private $data;
+
+	public function write($session_id, $session_data) {
+		$this->data[$session_id] = $session_data;
+	}
+
+	public function read($session_id) {
+		return $this->data[$session_id];
+	}
+
+	public function destroy($session_id, $flag = SESSION_DESTROY) {
+		unset($this->data[$session_id]);
+	}
+
+	public function gc($maxlifetime) {
+		//清理过期的session, 根据具体的存储方式清理
+	}
+}
 
 class SessionTest extends TestCase {
 	public function testSet() {
@@ -57,10 +79,10 @@ class SessionTest extends TestCase {
 		$filesystem = new Filesystem();
 		$filesystem->copyDirectory(__DIR__ . '/Util/Handler/Session', APP_PATH . '/Handler/Session');
 
-		$config = iconfig()->get('app');
-		$config['session']['handler'] = TestHandler::class;
+		$config = Config::get('app.session', []);
+		$config['handler'] = TestHandler::class;
 
-		$session = new Session($config['session']);
+		$session = new Session($config);
 		$sessionReflect = new \ReflectionClass($session);
 		$property = $sessionReflect->getProperty('handler');
 		$property->setAccessible(true);
@@ -73,7 +95,7 @@ class SessionTest extends TestCase {
 		$property = $sessionReflect->getProperty('handler');
 		$property->setAccessible(true);
 		$handler = $property->getValue($session);
-		$this->assertSame(true, $handler instanceof TestHandler);
+		$this->assertInstanceOf(TestHandler::class, $handler);
 
 		$filesystem->delete(APP_PATH . '/Handler/Session/TestHandler.php');
 	}
@@ -83,8 +105,8 @@ class SessionTest extends TestCase {
 		$session->start(new Request('GET', '/'));
 		$session->set('test', 1);
 
-		$this->assertSame(true, $session->has('test'));
-		$this->assertSame(false, $session->has('test1'));
+		$this->assertTrue($session->has('test'));
+		$this->assertFalse($session->has('test1'));
 	}
 
 	public function testAll() {
@@ -102,9 +124,9 @@ class SessionTest extends TestCase {
 	public function testSetSessionId() {
 		$session = new Session();
 		$session->start(new Request('GET', '/'));
-		$id = 1234;
+		$id = '12345678fhdgsrewufngsherff';
 		$session->setId($id);
 
-		$this->assertSame(1234, $session->getId());
+		$this->assertSame($id, $session->getId());
 	}
 }

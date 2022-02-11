@@ -3,9 +3,14 @@
 namespace W7\Tests;
 
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\Console\Input\ArgvInput;
 use W7\Console\Application;
 use W7\Core\Exception\ValidatorException;
+use W7\Facade\Container;
+use W7\Facade\Output;
+use W7\Facade\Validator;
 
 class UserRule implements Rule {
 	private $error;
@@ -33,21 +38,40 @@ class UserRule implements Rule {
 }
 
 class ValidateTest extends TestCase {
+	private function validate(array $data, array $rules, array $messages = [], array $customAttributes = []) {
+		try {
+			/**
+			 * @var Factory $validate
+			 */
+			$result = Validator::make($data, $rules, $messages, $customAttributes)
+				->validate();
+		} catch (ValidationException $e) {
+			$errorMessage = [];
+			$errors = $e->errors();
+			foreach ($errors as $field => $message) {
+				$errorMessage[] = $message[0];
+			}
+			throw new ValidatorException(implode('; ', $errorMessage), 403);
+		}
+
+		return $result;
+	}
+
 	public function testMake() {
 		/**
 		 * @var Application $application
 		 */
-		$application = iloader()->singleton(Application::class);
+		$application = Container::get(Application::class);
 		$command = $application->get('make:validate');
 
 		$command->run(new ArgvInput([
 			'input',
 			'--name=test'
-		]), ioutputer());
+		]), Output::getFacadeRoot());
 
 		$file = APP_PATH . '/Model/Validate/TestRule.php';
 
-		$this->assertSame(true, file_exists($file));
+		$this->assertFileExists($file);
 
 		unlink($file);
 		rmdir(APP_PATH . '/Model/Validate');
@@ -59,7 +83,7 @@ class ValidateTest extends TestCase {
 			'value' => 2
 		];
 
-		$result = ivalidate($data, [
+		$result = $this->validate($data, [
 			'key' => 'required',
 			'value' => 'required'
 		]);
@@ -68,7 +92,7 @@ class ValidateTest extends TestCase {
 		$this->assertSame(2, $result['value']);
 
 		try {
-			ivalidate($data, [
+			$this->validate($data, [
 				'key' => 'required',
 				'value' => 'required',
 				'test' => 'required'
@@ -85,7 +109,7 @@ class ValidateTest extends TestCase {
 			'value' => 2
 		];
 		try {
-			ivalidate($data, [
+			$this->validate($data, [
 				'key' => 'required',
 				'value' => 'required',
 				'test' => 'required'
@@ -106,7 +130,7 @@ class ValidateTest extends TestCase {
 
 		copy(__DIR__ . '/Util/lang/zh-CN/validation.php', BASE_PATH . '/lang/zh-CN/validation.php');
 
-		ivalidator()->extend('user_validate', function ($attribute, $value, $parameters) {
+		Validator::extend('user_validate', function ($attribute, $value, $parameters) {
 			return $value === 'test';
 		});
 
@@ -115,7 +139,7 @@ class ValidateTest extends TestCase {
 			'value' => 'test'
 		];
 
-		$result = ivalidate($data, [
+		$result = $this->validate($data, [
 			'key' => 'required',
 			'value' => 'user_validate'
 		], [
@@ -129,7 +153,7 @@ class ValidateTest extends TestCase {
 			'value' => 'test1'
 		];
 		try {
-			ivalidate($data, [
+			$this->validate($data, [
 				'key' => 'required',
 				'value' => 'user_validate'
 			], [
@@ -150,7 +174,7 @@ class ValidateTest extends TestCase {
 		];
 
 		try{
-			ivalidate($data, [
+			$this->validate($data, [
 				'name' => [new UserRule()]
 			]);
 		} catch (\Throwable $e) {
@@ -162,7 +186,7 @@ class ValidateTest extends TestCase {
 		];
 
 		try{
-			ivalidate($data, [
+			$this->validate($data, [
 				'name' => [new UserRule()]
 			]);
 		} catch (\Throwable $e) {
@@ -173,7 +197,7 @@ class ValidateTest extends TestCase {
 			'name' => '12121211'
 		];
 
-		$result = ivalidate($data, [
+		$result = $this->validate($data, [
 			'name' => [new UserRule()]
 		]);
 		$this->assertSame('12121211', $result['name']);

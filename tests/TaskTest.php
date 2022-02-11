@@ -5,23 +5,25 @@ namespace W7\Tests;
 
 use Symfony\Component\Console\Input\ArgvInput;
 use W7\Console\Application;
+use W7\Facade\Container;
+use W7\Facade\Output;
 
 class TaskTest extends TestCase {
 	public function testMake() {
 		/**
 		 * @var Application $application
 		 */
-		$application = iloader()->singleton(Application::class);
+		$application = Container::get(Application::class);
 		$command = $application->get('make:task');
 
 		$command->run(new ArgvInput([
 			'input',
 			'--name=test'
-		]), ioutputer());
+		]), Output::getFacadeRoot());
 
 		$file = APP_PATH . '/Task/TestTask.php';
 
-		$this->assertSame(true, file_exists($file));
+		$this->assertFileExists($file);
 
 		unlink($file);
 	}
