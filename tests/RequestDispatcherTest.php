@@ -5,17 +5,20 @@ namespace W7\Tests;
 use FastRoute\Dispatcher\GroupCountBased;
 use Illuminate\Filesystem\Filesystem;
 use W7\App;
-use W7\App\Middleware\Dispatcher1Middleware;
-use W7\App\Middleware\DispatcherMiddleware;
 use W7\Core\Controller\ControllerAbstract;
 use W7\Core\Controller\FaviconController;
 use W7\Core\Dispatcher\RequestDispatcher;
+use W7\Core\Exception\RouteNotAllowException;
+use W7\Core\Exception\RouteNotFoundException;
 use W7\Core\Facades\Router;
 use W7\Core\Helper\FileLoader;
 use W7\Core\Middleware\ControllerMiddleware;
+use W7\Core\Middleware\MiddlewareAbstract;
 use W7\Core\Middleware\MiddlewareHandler;
+use W7\Core\Route\Route;
 use W7\Core\Route\RouteDispatcher;
 use W7\Core\Route\RouteMapping;
+use W7\Facade\Context;
 use W7\Http\Message\Server\Request;
 use W7\Http\Message\Server\Response;
 use W7\Http\Server\Dispatcher;
@@ -27,59 +30,52 @@ class TestController extends ControllerAbstract {
 	}
 }
 
+class DispatcherMiddleware extends MiddlewareAbstract {
+
+}
+
+class Dispatcher1Middleware extends MiddlewareAbstract {
+
+}
+
 class RequestDispatcherTest extends TestCase {
 	public function testDispatcher() {
-		$filesystem = new Filesystem();
-		$filesystem->copyDirectory(__DIR__ . '/Util/Middlewares', APP_PATH . '/Middleware');
-
-		App::$server = new Server();
 		$dispatcher = new Dispatcher();
-		irouter()->middleware([
+		\W7\Facade\Router::middleware([
 			DispatcherMiddleware::class,
 			Dispatcher1Middleware::class
 		])->get('/test_dispatcher', function () {
 			return 1;
 		});
 
-		$routeInfo = (new RouteMapping(Router::getFacadeRoot(), new FileLoader()))->getMapping();
-		$router = new RouteDispatcher($routeInfo);
-		$dispatcher->setRouterDispatcher($router);
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, 'http'));
 
 		$request = new Request('GET', '/test_dispatcher');
-		$response = new Response();
-		icontext()->setResponse($response);
+		Context::setResponse(new Response());
 
 		$reflect = new \ReflectionClass($dispatcher);
 		$method = $reflect->getMethod('getRoute');
 		$method->setAccessible(true);
+		/**
+		 * @var Route $route
+		 */
 		$route = $method->invoke($dispatcher, $request);
-		$request = $request->withAttribute('route', $route);
 
-		$middleWares = $dispatcher->getMiddlewareMapping()->getRouteMiddleWares($route);
-		$this->assertSame(DispatcherMiddleware::class, $middleWares[0][0]);
-		$this->assertSame(Dispatcher1Middleware::class, $middleWares[1][0]);
-		$this->assertSame(ControllerMiddleware::class, $middleWares[2][0]);
-		$this->assertSame(\W7\Core\Middleware\LastMiddleware::class, $middleWares[3][0]);
+		$middleWares = $dispatcher->getMiddlewareMapping()->getRouteMiddleWares($route, 'http');
+		$this->assertSame(DispatcherMiddleware::class, $middleWares[0]['class']);
+		$this->assertSame(Dispatcher1Middleware::class, $middleWares[1]['class']);
 
+		$request->route = $route;
 		$middlewareHandler = new MiddlewareHandler($middleWares);
 		$response = $middlewareHandler->handle($request);
-
 		$this->assertSame('{"data":1}', $response->getBody()->getContents());
-
-		$filesystem->delete([
-			APP_PATH . '/Middleware/DispatcherMiddleware.php',
-			APP_PATH . '/Middleware/Dispatcher1Middleware.php'
-		]);
 	}
 
 	public function testResponseJson() {
-		App::$server = new Server();
 		$dispatcher = new Dispatcher();
-		irouter()->get('/json-response', ['\W7\Tests\TestController', 'index']);
+		\W7\Facade\Router::get('/json-response', ['\W7\Tests\TestController', 'index']);
 
-		$routeInfo = (new RouteMapping(Router::getFacadeRoot(), new FileLoader()))->getMapping();
-		$router = new RouteDispatcher($routeInfo);
-		$dispatcher->setRouterDispatcher($router);
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, 'http'));
 
 		$request = new Request('GET', '/json-response');
 		$response = new Response();
@@ -88,24 +84,56 @@ class RequestDispatcherTest extends TestCase {
 	}
 
 	public function testIgnoreRoute() {
-		$routeInfo = (new RouteMapping(Router::getFacadeRoot(), new FileLoader()))->getMapping();
-		$router = new RouteDispatcher($routeInfo);
 		$dispatcher = new Dispatcher();
-		$dispatcher->setRouterDispatcher($router);
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, 'http'));
 
-		App::$server = new Server();
 		$request = new Request('GET', '/favicon.ico');
-		$response = new Response();
-		icontext()->setResponse($response);
+
+		$reflect = new \ReflectionClass($dispatcher);
+		$method = $reflect->getMethod('getRoute');
+		$method->setAccessible(true);
+		/**
+		 * @var Route $route
+		 */
+		$route = $method->invoke($dispatcher, $request);
+
+		$this->assertSame($route->getController(), '\W7\Core\Controller\FaviconController');
+		$this->assertSame('system', $route->getModule());
+	}
+
+	public function testNotFound() {
+		$dispatcher = new Dispatcher();
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, 'http'));
+
+		$request = new Request('POST', '/post');
 
 		$reflect = new \ReflectionClass($dispatcher);
 		$method = $reflect->getMethod('getRoute');
 		$method->setAccessible(true);
 
-		$route = $method->invoke($dispatcher, $request);
+		try {
+			$method->invoke($dispatcher, $request);
+		} catch (\Throwable $e) {
+			$this->assertInstanceOf(RouteNotFoundException::class, $e);
+			$this->assertSame('{"error":"Route not found, \/post"}', $e->getMessage());
+		}
+	}
 
-		$this->assertSame(true, $route['controller'] == '\W7\Core\Controller\FaviconController');
-		$this->assertSame('system', $route['module']);
-		$this->assertSame('', (new FaviconController())->index($request)->getBody()->getContents());
+	public function testNotAllow() {
+		$dispatcher = new Dispatcher();
+		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, 'http'));
+
+		$request = new Request('POST', '/favicon.ico');
+
+		$reflect = new \ReflectionClass($dispatcher);
+		$method = $reflect->getMethod('getRoute');
+		$method->setAccessible(true);
+
+		try {
+			$method->invoke($dispatcher, $request);
+		} catch (\Throwable $e) {
+			$this->assertInstanceOf(RouteNotAllowException::class, $e);
+			$this->assertSame('{"error":"Route not allowed, \/favicon.ico with method POST"}', $e->getMessage());
+		}
 	}
 }
