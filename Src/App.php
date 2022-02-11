@@ -136,6 +136,9 @@ class App {
 	}
 
 	public function getBuiltInConfigPath() {
+		if (defined('APP_BUILTIN_CONFIG_PATH')) {
+			return APP_BUILTIN_CONFIG_PATH;
+		}
 		return $this->getBasePath() . '/vendor/composer/rangine/autoload/config';
 	}
 
