@@ -28,7 +28,7 @@ class TaskListener extends ListenerAbstract {
 	public function run(...$params) {
 		[$server, $task] = $params;
 
-		return $this->dispatchTask($server, $task);
+		$this->dispatchTask($server, $task);
 	}
 
 	private function dispatchTask(Server $server, Task $task) {
