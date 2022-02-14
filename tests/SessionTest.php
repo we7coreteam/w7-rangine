@@ -9,7 +9,7 @@ use W7\Http\Message\Server\Request;
 
 use W7\Core\Session\Handler\HandlerAbstract;
 
-class TestHandler extends HandlerAbstract {
+class TestSessionHandler extends HandlerAbstract {
 	private $data;
 
 	public function write($session_id, $session_data) {
@@ -80,7 +80,7 @@ class SessionTest extends TestCase {
 		$filesystem->copyDirectory(__DIR__ . '/Util/Handler/Session', APP_PATH . '/Handler/Session');
 
 		$config = Config::get('app.session', []);
-		$config['handler'] = TestHandler::class;
+		$config['handler'] = TestSessionHandler::class;
 
 		$session = new Session($config);
 		$sessionReflect = new \ReflectionClass($session);
@@ -95,9 +95,9 @@ class SessionTest extends TestCase {
 		$property = $sessionReflect->getProperty('handler');
 		$property->setAccessible(true);
 		$handler = $property->getValue($session);
-		$this->assertInstanceOf(TestHandler::class, $handler);
+		$this->assertInstanceOf(TestSessionHandler::class, $handler);
 
-		$filesystem->delete(APP_PATH . '/Handler/Session/TestHandler.php');
+		$filesystem->delete(APP_PATH . '/Handler/Session/TestSessionHandler.php');
 	}
 
 	public function testHas() {

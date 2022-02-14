@@ -2,7 +2,6 @@
 
 namespace W7\Tests;
 
-use Illuminate\Filesystem\Filesystem;
 use W7\Core\View\View;
 use W7\Core\View\Handler\HandlerAbstract;
 
