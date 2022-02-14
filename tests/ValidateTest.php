@@ -3,14 +3,18 @@
 namespace W7\Tests;
 
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Console\Input\ArgvInput;
+use W7\App;
 use W7\Console\Application;
+use W7\Contract\Translation\LoaderInterface;
 use W7\Core\Exception\ValidatorException;
 use W7\Facade\Container;
 use W7\Facade\Output;
 use W7\Facade\Validator;
+use W7\Lang\Loader\FileLoader;
 
 class UserRule implements Rule {
 	private $error;
@@ -38,6 +42,24 @@ class UserRule implements Rule {
 }
 
 class ValidateTest extends TestCase {
+	public function setUp(): void {
+		parent::setUp();
+		App::getApp()->getContainer()->set(LoaderInterface::class, function () {
+			$paths = [
+				__DIR__ . '/../vendor/laravel-lang/lang/src',
+				BASE_PATH . '/lang'
+			];
+
+			$loader = new FileLoader(new Filesystem(), BASE_PATH, $paths);
+			if (\is_callable([$loader, 'addJsonPath'])) {
+				$loader->addJsonPath(BASE_PATH . '/vendor/laravel-lang/lang/json/');
+				$loader->addJsonPath(BASE_PATH . '/lang/json/');
+			}
+
+			return $loader;
+		});
+	}
+
 	private function validate(array $data, array $rules, array $messages = [], array $customAttributes = []) {
 		try {
 			/**
@@ -123,12 +145,11 @@ class ValidateTest extends TestCase {
 	}
 
 	public function testExtend() {
-		$this->initApp();
-		if (!file_exists(BASE_PATH . '/lang/zh-CN')) {
-			mkdir(BASE_PATH . '/lang/zh-CN', 0777, true);
+		if (!file_exists(BASE_PATH . '/lang/zh_CN')) {
+			mkdir(BASE_PATH . '/lang/zh_CN', 0777, true);
 		}
 
-		copy(__DIR__ . '/Util/lang/zh-CN/validation.php', BASE_PATH . '/lang/zh-CN/validation.php');
+		copy(__DIR__ . '/tmp/lang/zh_CN/validation.php', BASE_PATH . '/lang/zh_CN/validation.php');
 
 		Validator::extend('user_validate', function ($attribute, $value, $parameters) {
 			return $value === 'test';
@@ -164,8 +185,7 @@ class ValidateTest extends TestCase {
 			$this->assertSame('{"error":"自定义验证"}', $e->getMessage());
 		}
 
-		unlink(BASE_PATH . '/lang/zh-CN/validation.php');
-		rmdir(BASE_PATH . '/lang/zh-CN');
+		unlink(BASE_PATH . '/lang/zh_CN/validation.php');
 	}
 
 	public function testUserRule() {
