@@ -12,6 +12,12 @@ return [
 	'cache' => [
 		'default' => [
 			'driver' => ienv('CACHE_DEFAULT_DRIVER', 'redis'),
+			'client' => ienv('CACHE_DEFAULT_DRIVER', 'default')
+		]
+	],
+	'redis' => [
+		'default' => [
+			'driver' => ienv('CACHE_DEFAULT_DRIVER', 'redis'),
 			'host' => ienv('CACHE_DEFAULT_HOST', '127.0.0.1'),
 			'port' => ienv('CACHE_DEFAULT_PORT', '6379'),
 			'password' => ienv('CACHE_DEFAULT_PASSWORD', ''),

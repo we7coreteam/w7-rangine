@@ -59,30 +59,21 @@ class CacheTest extends TestCase {
 		$this->assertEquals(true, $result);
 
 		$data = [
-			'key2' => 'value2',
-			'key' => 'value',
+			'value2',
+			'value',
 		];
 		$values = Cache::hMGet($key, ['key2', 'key']);
 		$this->assertEquals($data, $values);
 
 		$data = [
-			'NotExistKey' => false,
-			'NotExistKey2' => false,
+			false,
+			false,
 		];
 		$values = Cache::hMGet($key, ['NotExistKey', 'NotExistKey2']);
 		$this->assertEquals($data, $values);
 
-		Cache::set($key, 'xxxxx');
-		$result = Cache::hMGet($key, ['key']);
-		$this->assertFalse($result);
-
-		Cache::delete($key);
-		$result = Cache::hMGet($key, ['key']);
-		$this->assertEquals(['key' => false], $result);
-
-		Cache::sAdd($key, 'xxxxx');
-		$result = Cache::hMGet($key, ['key']);
-		$this->assertFalse($result);
+		$result = Cache::hMGet($key . time(), ['key']);
+		$this->assertFalse($result[0]);
 	}
 
 	public function testHmsetAndHmgetByCo() {
@@ -137,10 +128,10 @@ class CacheTest extends TestCase {
 	public function hSetNx() {
 		$key = uniqid('', true);
 		$result = Cache::hSetNx($key, 'one', 1);
-		$this->assertTrue($result);
+		$this->assertSame(1, $result);
 
 		$result = Cache::hSetNx($key, 'one', 1);
-		$this->assertFalse($result);
+		$this->assertSame(0, $result);
 	}
 
 	public function testHSetNxByCo() {
@@ -152,11 +143,11 @@ class CacheTest extends TestCase {
 	public function hDel() {
 		$key = uniqid('', true);
 		$result = Cache::hSetNx($key, 'one', 1);
-		$this->assertTrue($result);
+		$this->assertSame(1, $result);
 		$result = Cache::hSetNx($key, 'two', 2);
-		$this->assertTrue($result);
+		$this->assertSame(1, $result);
 		$result = Cache::hSetNx($key, 'three', 3);
-		$this->assertTrue($result);
+		$this->assertSame(1, $result);
 
 		$result = Cache::hDel($key, 'one', 'two');
 		$this->assertEquals(2, $result);
@@ -173,11 +164,11 @@ class CacheTest extends TestCase {
 	public function hLen() {
 		$key = uniqid('', true);
 		$result = Cache::hSetNx($key, 'one', 1);
-		$this->assertTrue($result);
+		$this->assertSame(1, $result);
 		$result = Cache::hSetNx($key, 'two', 2);
-		$this->assertTrue($result);
+		$this->assertSame(1, $result);
 		$result = Cache::hSetNx($key, 'three', 3);
-		$this->assertTrue($result);
+		$this->assertSame(1, $result);
 
 		$result = Cache::hLen($key);
 		$this->assertEquals(3, $result);
@@ -192,7 +183,7 @@ class CacheTest extends TestCase {
 	public function hExists() {
 		$key = uniqid('', true);
 		$result = Cache::hSetNx($key, 'one', 1);
-		$this->assertTrue($result);
+		$this->assertSame(1, $result);
 
 		$result = Cache::hExists($key, 'one');
 		$this->assertTrue($result);
@@ -325,13 +316,13 @@ class CacheTest extends TestCase {
 		$this->assertEquals(array_keys($data2), $rangeKeys);
 
 		$rangeKeys = Cache::zRangeByScore($key, 1, 2, [
-			'limit' => [1, 1]
+			'limit' => ['offset' => 1, 'count' => 1]
 		]);
 		$this->assertEquals(['key4'], $rangeKeys);
 
 		$rangeKeys = Cache::zRangeByScore($key, 1, 2, [
 			'withscores' => true,
-			'limit' => [1, 1]
+			'limit' => ['offset' => 1, 'count' => 1]
 		]);
 		$this->assertEquals(['key4' => 1.2], $rangeKeys);
 
@@ -341,12 +332,12 @@ class CacheTest extends TestCase {
 		$this->assertEquals($data2, $rangeKeys);
 
 		$rangeKeys = Cache::zRevRangeByScore($key, 2, 1, [
-			'limit' => [0, 1]
+			'limit' => ['offset' => 0, 'count' => 1]
 		]);
 		$this->assertEquals(['key2'], $rangeKeys);
 
 		$rangeKeys = Cache::zRevRangeByScore($key, 2, 1, [
-			'limit' => [0, 1],
+			'limit' => ['offset' => 0, 'count' => 1],
 			'withscores' => true
 		]);
 		$this->assertEquals(['key2' => 1.3], $rangeKeys);
@@ -525,7 +516,7 @@ class CacheTest extends TestCase {
 			}
 
 			$counts = array_count_values($expected);
-			$result = Cache::lRem($key, 'A');
+			$result = Cache::lRem($key, 'A', 1);
 
 			$this->assertEquals($result, $counts['A']);
 
