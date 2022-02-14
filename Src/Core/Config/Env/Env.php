@@ -65,7 +65,7 @@ class Env {
 		}
 
 		$envFile = '';
-		foreach ($fileTree as $key => $file) {
+		foreach ($fileTree as $file) {
 			$fileName = pathinfo($file, PATHINFO_BASENAME);
 			$temp = explode($this->defaultName . '.', $fileName);
 			if (!empty($temp[1]) && strpos($hostname, $temp[1]) !== false) {

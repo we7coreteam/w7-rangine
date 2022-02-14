@@ -56,7 +56,7 @@ class ProviderManager {
 	 * Execute the extension package after all registration is completed
 	 */
 	public function boot() {
-		foreach ($this->registeredProviders as $name => $provider) {
+		foreach ($this->registeredProviders as $provider) {
 			$this->bootProvider($provider);
 		}
 	}

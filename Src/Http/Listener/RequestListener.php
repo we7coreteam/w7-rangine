@@ -24,7 +24,7 @@ use W7\Http\Server\Dispatcher;
 class RequestListener extends ListenerAbstract {
 	public function run(...$params) {
 		[$server, $request, $response] = $params;
-		return $this->dispatch($server, $request, $response);
+		$this->dispatch($server, $request, $response);
 	}
 
 	private function dispatch(Server $server, Request $request, Response $response) {

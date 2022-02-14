@@ -40,14 +40,14 @@ class RouterProvider extends ProviderAbstract {
 
 		$this->container->set(UrlGeneratorInterface::class, function () use ($routeCollector) {
 			$routeDefinitions = RouteDispatcher::getRouteDefinetions(RouteMapping::class, App::$server->getType());
-			foreach ($routeDefinitions[0] as $method => $routes) {
-				foreach ($routes as $key => $route) {
+			foreach ($routeDefinitions[0] as $routes) {
+				foreach ($routes as $route) {
 					if (!empty($route['name'])) {
 						$routeCollector->addRouteByName($route['name'], $route);
 					}
 				}
 			}
-			foreach ($routeDefinitions[1] as $method => $routeGroup) {
+			foreach ($routeDefinitions[1] as $routeGroup) {
 				foreach ($routeGroup as $routes) {
 					foreach ($routes['routeMap'] as $route) {
 						$route = $route[0];

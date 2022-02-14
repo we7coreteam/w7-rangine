@@ -102,7 +102,7 @@ abstract class ControllerAbstract {
 		} catch (ValidationException $e) {
 			$errorMessage = [];
 			$errors = $e->errors();
-			foreach ($errors as $field => $message) {
+			foreach ($errors as $message) {
 				$errorMessage[] = $message[0];
 			}
 			throw new ValidatorException(implode('; ', $errorMessage), 403);
