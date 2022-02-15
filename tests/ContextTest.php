@@ -18,9 +18,9 @@ class ContextTest extends TestCase {
 			Context::setContextDataByKey('test', 1);
 			$this->assertSame(1, Context::getContextDataByKey('test'));
 			igo(function () {
-				$data = icontext()->getContextDataByKey('test');
+				$data = Context::getContextDataByKey('test');
 				$this->assertSame(1, $data);
-				icontext()->setContextDataByKey('test', 3);
+				Context::setContextDataByKey('test', 3);
 			});
 			$this->assertSame(1, Context::getContextDataByKey('test'));
 		});
