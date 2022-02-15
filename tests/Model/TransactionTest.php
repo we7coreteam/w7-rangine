@@ -3,7 +3,7 @@
 namespace W7\Tests\Model;
 
 use Illuminate\Database\Schema\Blueprint;
-use W7\Core\Facades\DB;
+use W7\Facade\DB;
 use Illuminate\Support\Facades\Schema;
 use W7\Core\Database\ModelAbstract;
 
@@ -18,8 +18,8 @@ class Test1Model extends ModelAbstract {
 
 class TransactionTest extends ModelTestAbstract {
 	public function testSimple() {
-		\W7\Facade\DB::connection()->getSchemaBuilder()->dropIfExists('test');
-		\W7\Facade\DB::connection()->getSchemaBuilder()->create('test', function (Blueprint $table) {
+		DB::connection()->getSchemaBuilder()->dropIfExists('test');
+		DB::connection()->getSchemaBuilder()->create('test', function (Blueprint $table) {
 			$table->bigIncrements('id');
 			$table->timestamps();
 			$table->string('name');
@@ -27,7 +27,7 @@ class TransactionTest extends ModelTestAbstract {
 
 		$this->assertSame('sqlite_test', (new Test1Model())->getConnection()->getName());
 
-		\W7\Facade\DB::beginTransaction();
+		DB::beginTransaction();
 
 		$this->assertSame('sqlite', (new TestModel())->getConnection()->getName());
 
@@ -36,27 +36,27 @@ class TransactionTest extends ModelTestAbstract {
 		$model->name = 'test';
 		$model->save();
 
-		\W7\Facade\DB::rollBack();
+		DB::rollBack();
 
 		$value = (new TestModel())->where('id', '=', 1)->first();
 		$this->assertSame(null, $value);
 
 
-		\W7\Facade\DB::beginTransaction();
+		DB::beginTransaction();
 
 		$model = new TestModel();
 		$model->id = 1;
 		$model->name = 'test';
 		$model->save();
 
-		\W7\Facade\DB::commit();
+		DB::commit();
 
 		$value = (new TestModel())->where('id', '=', 1)->first();
 		$this->assertSame(1, $value->id);
 		$this->assertSame('test', $value->name);
 
 
-		\W7\Facade\DB::transaction(function () {
+		DB::transaction(function () {
 			$this->assertSame('sqlite', (new TestModel())->getConnection()->getName());
 
 			$model = new TestModel();
@@ -71,7 +71,7 @@ class TransactionTest extends ModelTestAbstract {
 
 
 		try{
-			\W7\Facade\DB::transaction(function () {
+			DB::transaction(function () {
 				$this->assertSame('sqlite', (new TestModel())->getConnection()->getName());
 
 				$model = new TestModel();
@@ -88,7 +88,7 @@ class TransactionTest extends ModelTestAbstract {
 		$value = (new TestModel())->where('id', '=', 3)->first();
 		$this->assertSame(null, $value);
 
-		\W7\Facade\DB::connection()->getSchemaBuilder()->dropIfExists('test');
+		DB::connection()->getSchemaBuilder()->dropIfExists('test');
 	}
 
 	public function testFacade() {
