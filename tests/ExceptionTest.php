@@ -3,21 +3,13 @@
 namespace W7\Tests;
 
 use Symfony\Component\Console\Input\ArgvInput;
-use Psr\Http\Message\ResponseInterface;
 use W7\Console\Application;
 use W7\Core\Exception\HandlerExceptions;
-use W7\Core\Exception\ResponseExceptionAbstract;
 use W7\Facade\Container;
 use W7\Facade\Context;
 use W7\Facade\Output;
 use W7\Http\Message\Server\Response;
 use W7\App\Exception\Test\IndexException;
-
-class UserException extends ResponseExceptionAbstract {
-	public function render(): ResponseInterface {
-		return $this->response->withContent($this->getMessage());
-	}
-}
 
 class ExceptionTest extends TestCase {
 	public function testMake() {
