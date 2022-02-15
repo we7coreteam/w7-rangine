@@ -196,6 +196,7 @@ class RouteConfigTest extends TestCase {
 
 	public function testRouteUrl() {
 		Router::name("url_name_test")->post('/url/user/get', function () {return '/user';});
+		Router::name("url_name_test_params")->post('/url/user/get/{name}', function () {return '/user';});
 		Router::name("url_name_test1")->post('/url/user/get1', function () {return '/user';});
 		$routeCollector = new RouteCollector(new Std(), new \FastRoute\DataGenerator\GroupCountBased());
 
@@ -218,9 +219,13 @@ class RouteConfigTest extends TestCase {
 		}
 
 		$generator = new UrlGenerator($routeCollector, function () {
-			return new Request('GET', 'http://test.domain.com/test');
+			$request = new Request('GET', 'http://test.domain.com/test');
+			$request = $request->withUri($request->getUri()->withPort(80));
+			return $request;
 		});
 		$this->assertSame('/url/user/get', $generator->route('url_name_test', [], false));
+		$this->assertSame('/url/user/get/34', $generator->route('url_name_test_params', ['name' => 34], false));
+		$this->assertSame('http://test.domain.com/url/user/get', $generator->route('url_name_test', [], true));
 		$this->assertSame('/url/user/get1', $generator->route('url_name_test1', [], false));
 		$this->assertSame('http://test.domain.com/test', $generator->current());
 		$this->assertSame('http://test.domain.com/test/re', $generator->to('/test/re'));
