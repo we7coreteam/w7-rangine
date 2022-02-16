@@ -34,8 +34,8 @@ class RouteMapping extends RouteMappingAbstract {
 
 	protected function processRoutes($routeMap) {
 		$registerRoutes = [];
-		foreach ($routeMap[0] as $method => $routes) {
-			foreach ($routes as $key => $route) {
+		foreach ($routeMap[0] as $routes) {
+			foreach ($routes as $route) {
 				if (!in_array($route['uri'], $registerRoutes)) {
 					$this->router->getRouterCollector()->addRoute('POST', $route['uri'], $route);
 				}
@@ -43,7 +43,7 @@ class RouteMapping extends RouteMappingAbstract {
 			}
 		}
 
-		foreach ($routeMap[1] as $method => $routeGroup) {
+		foreach ($routeMap[1] as $routeGroup) {
 			foreach ($routeGroup as $routes) {
 				foreach ($routes['routeMap'] as $route) {
 					$route = $route[0];

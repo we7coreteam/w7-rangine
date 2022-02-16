@@ -49,7 +49,7 @@ class ConnectionResolver extends DatabaseManager {
 	}
 
 	public function connection($name = null) {
-		[$database, $type] = $this->parseConnectionName($name);
+		$database = $this->parseConnectionName($name)[0];
 		$name = $name ?: $database;
 
 		$contextDbName = $this->getContextKey($name);
@@ -134,7 +134,7 @@ class ConnectionResolver extends DatabaseManager {
 	}
 
 	private function getConnectionByNameFromContext($name = null) {
-		[$database, $type] = $this->parseConnectionName($name);
+		$database = $this->parseConnectionName($name)[0];
 		$contextDbName = $name ?: $database;
 		$contextDbName = $this->getContextKey($contextDbName);
 		return $this->getContext()->getContextDataByKey($contextDbName);

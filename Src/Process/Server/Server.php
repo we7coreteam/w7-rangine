@@ -53,13 +53,13 @@ class Server extends ProcessServerAbstract {
 			throw new \RuntimeException('the list of started processes is empty, please check the configuration in config/process.php');
 		}
 
-		return parent::checkSetting();
+		parent::checkSetting();
 	}
 
 	private function getWorkerNum() {
 		$workerNum = 0;
 		$configProcess = $this->getConfig()->get('process.process', []);
-		foreach ($configProcess as $key => $process) {
+		foreach ($configProcess as $process) {
 			if (empty($process['enable'])) {
 				continue;
 			}

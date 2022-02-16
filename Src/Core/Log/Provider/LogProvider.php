@@ -26,7 +26,7 @@ class LogProvider extends ProviderAbstract {
 		$this->container->set(LoggerFactoryInterface::class, function () {
 			$config = $this->config->get('log', []);
 			$config['channel'] = $config['channel'] ?? [];
-			foreach ($config['channel'] as $name => &$setting) {
+			foreach ($config['channel'] as &$setting) {
 				if (!empty($setting['level'])) {
 					$setting['level'] = MonoLogger::toMonologLevel($setting['level']);
 				}
