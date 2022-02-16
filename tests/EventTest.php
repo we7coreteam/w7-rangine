@@ -44,7 +44,7 @@ class EventTest extends TestCase {
 		unlink(APP_PATH . '/Event/TestEvent.php');
 	}
 
-	public function testSet() {
+	public function testListener() {
 		$event = new Dispatcher();
 		$event->listen('test', function () {
 			return 'test';

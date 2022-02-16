@@ -37,6 +37,7 @@ class LoggerTest extends TestCase {
 
 	public function testDebugInInfo() {
 		$this->clearLog();
+
 		Logger::channel("debug_in_info")->debug('test debug');
 		$files = glob(RUNTIME_PATH . '/logs/w7-*.log');
 		$this->assertEmpty($files);

@@ -2,7 +2,9 @@
 
 namespace W7\Tests;
 
+use stdClass;
 use Symfony\Component\Console\Input\ArgvInput;
+use W7\App;
 use W7\Console\Application;
 use W7\Core\Controller\ControllerAbstract;
 use W7\Core\Provider\ProviderAbstract;
@@ -46,6 +48,18 @@ class ConfigProvider extends ProviderAbstract {
 		$this->rootPath = __DIR__ . '/tmp';
 		$this->registerConfig('test_provider.php', 'test_provider');
 		$this->publishConfig('test_provider.php', 'test_provider.php');
+	}
+}
+
+class DeferProvider extends ProviderAbstract {
+	public function register() {
+		$this->container->set('defer_provider', function () {
+			return new stdClass();
+		});
+	}
+
+	public function providers(): array {
+		return ['defer_provider'];
 	}
 }
 
@@ -112,5 +126,20 @@ class ProviderTest extends TestCase {
 
 		$this->assertFileExists(BASE_PATH . '/config/test_provider.php');
 		unlink(BASE_PATH . '/config/test_provider.php');
+	}
+
+	public function testDeferProvider() {
+		$providerManager = new ProviderManager(App::getApp()->getContainer());
+		$providerManager->setDeferredProviders([
+			'defer_provider' => [
+				DeferProvider::class
+			]
+		]);
+		App::getApp()->getContainer()->registerDeferredService(['defer_provider']);
+
+		$this->assertFalse($providerManager->hasRegister(DeferProvider::class));
+		$class = App::getApp()->getContainer()->get('defer_provider');
+		$this->assertInstanceOf(stdClass::class, $class);
+		$this->assertTrue($providerManager->hasRegister(DeferProvider::class));
 	}
 }

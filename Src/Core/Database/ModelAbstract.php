@@ -26,7 +26,7 @@ abstract class ModelAbstract extends \Illuminate\Database\Eloquent\Model {
 	 * @param array $columns
 	 * @return array
 	 */
-	public static function qualifyColumns($columns = []) {
+	public function qualifyColumns($columns = []) {
 		if (empty($columns)) {
 			return [];
 		}

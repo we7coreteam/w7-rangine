@@ -7,18 +7,12 @@
 namespace W7\Tests;
 
 use FastRoute\Dispatcher\GroupCountBased;
-use W7\App;
-use W7\Core\Exception\RouteNotAllowException;
-use W7\Core\Exception\RouteNotFoundException;
-use W7\Core\Helper\FileLoader;
+use FastRoute\RouteParser\Std;
 use W7\Core\Middleware\MiddlewareAbstract;
-use W7\Core\Route\RouteDispatcher;
-use W7\Core\Route\RouteMapping;
+use W7\Core\Route\RouteCollector;
+use W7\Core\Route\UrlGenerator;
 use W7\Facade\Router;
 use W7\Http\Message\Server\Request;
-use W7\Http\Message\Server\Response;
-use W7\Http\Server\Dispatcher;
-use W7\Http\Server\Server;
 
 class TestMiddleware extends MiddlewareAbstract {
 
@@ -198,5 +192,43 @@ class RouteConfigTest extends TestCase {
 
 		$this->assertEquals($route[1]['handler'][0], '\W7\Core\Controller\StaticResourceController');
 		$this->assertSame('/static', $route[1]['uri']);
+	}
+
+	public function testRouteUrl() {
+		Router::name("url_name_test")->post('/url/user/get', function () {return '/user';});
+		Router::name("url_name_test_params")->post('/url/user/get/{name}', function () {return '/user';});
+		Router::name("url_name_test1")->post('/url/user/get1', function () {return '/user';});
+		$routeCollector = new RouteCollector(new Std(), new \FastRoute\DataGenerator\GroupCountBased());
+
+		foreach (Router::getData()[0] as $routes) {
+			foreach ($routes as $route) {
+				if (!empty($route['name'])) {
+					$routeCollector->addRouteByName($route['name'], $route);
+				}
+			}
+		}
+		foreach (Router::getData()[1] as $routeGroup) {
+			foreach ($routeGroup as $routes) {
+				foreach ($routes['routeMap'] as $route) {
+					$route = $route[0];
+					if (!empty($route['name'])) {
+						$routeCollector->addRouteByName($route['name'], $route);
+					}
+				}
+			}
+		}
+
+		$generator = new UrlGenerator($routeCollector, function () {
+			$request = new Request('GET', 'http://test.domain.com/test');
+			$request = $request->withUri($request->getUri()->withPort(80));
+			return $request;
+		});
+		$this->assertSame('/url/user/get', $generator->route('url_name_test', [], false));
+		$this->assertSame('/url/user/get/34', $generator->route('url_name_test_params', ['name' => 34], false));
+		$this->assertSame('http://test.domain.com/url/user/get', $generator->route('url_name_test', [], true));
+		$this->assertSame('/url/user/get1', $generator->route('url_name_test1', [], false));
+		$this->assertSame('http://test.domain.com/test', $generator->current());
+		$this->assertSame('http://test.domain.com/test/re', $generator->to('/test/re'));
+		$this->assertSame('https://test.domain.com/test/re', $generator->secure('/test/re'));
 	}
 }
