@@ -591,4 +591,24 @@ class RedisTest extends TestCase {
 			});
 		});
 	}
+
+	public function testScan() {
+		$redis = Redis::channel('default')->client();
+
+		$redis->set('a1', '1');
+		$redis->set('a2', '2');
+		$redis->set('a3', '3');
+		$redis->set('a4', '4');
+		$redis->set('b14', '4');
+		$redis->setOption(\Redis::OPT_SCAN, \Redis::SCAN_RETRY);
+		$iterator = null;
+		$num = 0;
+		while ($keys = $redis->scan($iterator, 'a*',2)){
+			$num += count($keys);
+		}
+
+		$redis->del('a1', 'a2', 'a3', 'a4', 'b14');
+
+		$this->assertSame(4, $num);
+	}
 }
