@@ -51,5 +51,22 @@ class CacheTest extends TestCase {
 		$ret = Cache::getMultiple(['test', 'test1']);
 		$this->assertArrayHasKey('test', $ret);
 		$this->assertArrayHasKey('test1', $ret['test']);
+
+
+		Cache::deleteMultiple(['test', 'test1']);
+		$ret = Cache::getMultiple(['test', 'test1']);
+		$this->assertFalse($ret['test']);
+		$this->assertFalse($ret['test1']);
+
+		Cache::set('test_clear_key', 1);
+		$this->assertTrue(Cache::has('test_clear_key'));
+
+		Cache::clear();
+		$this->assertFalse(Cache::has('test_clear_key'));
+
+		$cache = Cache::channel("default1");
+		$cache->set('test_default1', 1);
+		$this->assertSame('1', $cache->get('test_default1'));
+		$this->assertFalse(Cache::has('test_default1'));
 	}
 }
