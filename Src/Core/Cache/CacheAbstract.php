@@ -13,33 +13,33 @@
 namespace W7\Core\Cache;
 
 use Psr\SimpleCache\CacheInterface;
+use W7\Core\Cache\Handler\HandlerAbstract;
 
 abstract class CacheAbstract implements CacheInterface {
 	protected $name;
-	protected $cacheOptions = [];
+	protected $prefix;
 	/**
-	 * @var StorageResolver
+	 * @var HandlerAbstract
 	 */
-	protected $storageResolver;
+	protected $handler;
 
-	public function __construct($name, $cacheOptions = []) {
+	public function __construct($name) {
 		$this->name = $name;
-		$this->cacheOptions = $cacheOptions;
 	}
 
 	public function getName() {
 		return $this->name;
 	}
 
-	public function setStorageResolver(StorageResolver $connectorManager) {
-		$this->storageResolver = $connectorManager;
+	public function setPrefix($prefix) {
+		$this->prefix = $prefix;
 	}
 
-	protected function getStorage() {
-		return $this->storageResolver->storage($this->name);
+	public function setHandler(HandlerAbstract $handler) {
+		$this->handler = $handler;
 	}
 
 	protected function warpKey($key) {
-		return ($this->cacheOptions['prefix'] ?? '') . $key;
+		return $this->prefix . $key;
 	}
 }

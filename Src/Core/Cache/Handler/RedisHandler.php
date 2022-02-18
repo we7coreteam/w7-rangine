@@ -23,6 +23,10 @@ class RedisHandler extends HandlerAbstract {
 	 */
 	protected $storage;
 
+	public function __construct($storage) {
+		$this->storage = $storage;
+	}
+
 	public static function connect($config) : HandlerAbstract {
 		/**
 		 * @var ConnectionResolver $redisManager

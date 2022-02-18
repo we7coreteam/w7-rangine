@@ -15,21 +15,6 @@ namespace W7\Core\Cache\Handler;
 use Psr\SimpleCache\CacheInterface;
 
 abstract class HandlerAbstract implements CacheInterface {
-	protected $storage;
-
-	public function __construct($storage) {
-		$this->storage = $storage;
-	}
-
-	public function setStorage($storage) {
-		$this->storage = $storage;
-		return $this;
-	}
-
-	public function getStorage() {
-		return $this->storage;
-	}
-
 	abstract public static function connect($config) : HandlerAbstract;
 
 	public function pack($data) {
