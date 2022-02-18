@@ -32,7 +32,10 @@ class RedisHandler extends HandlerAbstract {
 	}
 
 	public function set($key, $value, $ttl = null) {
-		return $this->storage->set($key, $value, $ttl);
+		if ($ttl) {
+			return $this->storage->set($key, $value, 'EX', $ttl);
+		}
+		return $this->storage->set($key, $value);
 	}
 
 	public function get($key, $default = null) {

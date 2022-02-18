@@ -6,6 +6,7 @@ namespace W7\Tests;
 use W7\Core\Cache\Handler\RedisHandler;
 use W7\Facade\Cache;
 use W7\Facade\Config;
+use W7\Facade\Redis;
 
 class TestCache1 {
 	public function ok() {
@@ -40,6 +41,11 @@ class CacheTest extends TestCase {
 		$ret = Cache::get('obj');
 		$this->assertTrue(method_exists(unserialize($ret), 'ok'));
 
+		Cache::set('test_del', 1);
+		$this->assertTrue(Cache::has('test_del'));
+		Cache::delete('test_del');
+		$this->assertFalse(Cache::has('test_del'));
+
 		Cache::setMultiple([
 			'test' => [
 				'test1' => 1
@@ -58,15 +64,26 @@ class CacheTest extends TestCase {
 		$this->assertFalse($ret['test']);
 		$this->assertFalse($ret['test1']);
 
+		$cache = Cache::channel("default1");
+		$cache->set('test_default1', 1);
+		$this->assertSame('1', $cache->get('test_default1'));
+		$this->assertFalse(Cache::has('test_default1'));
+
+		Cache::set('test_ttl', '1', 7200);
+		$ttl = Redis::channel('default')->ttl('test_ttl');
+		$this->assertSame(7200, $ttl);
+		Cache::set('test_ttl1', '1');
+		$ttl = Redis::channel('default')->ttl('test_ttl1');
+		$this->assertSame(-1, $ttl);
+
 		Cache::set('test_clear_key', 1);
 		$this->assertTrue(Cache::has('test_clear_key'));
 
 		Cache::clear();
 		$this->assertFalse(Cache::has('test_clear_key'));
 
-		$cache = Cache::channel("default1");
-		$cache->set('test_default1', 1);
-		$this->assertSame('1', $cache->get('test_default1'));
-		$this->assertFalse(Cache::has('test_default1'));
+		$this->assertSame('default', Cache::get('test_default_1', 'default'));
+
+		$this->assertTrue(Cache::alive());
 	}
 }
