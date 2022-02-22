@@ -19,6 +19,22 @@ class RedisTest extends TestCase {
 		Config::set('handler.cache.redis', RedisHandler::class);
 	}
 
+	public function testPool() {
+		go(function () {
+			$client = null;
+			go(function () use (&$client) {
+				$client = Redis::channel("default")->client();
+				$client2 = Redis::channel("default")->client();
+
+				$this->assertSame($client, $client2);
+			});
+
+			$client1 = Redis::channel("default")->client();
+
+			$this->assertSame($client, $client1);
+		});
+	}
+
 	public function testCache() {
 		Redis::set('test', 'test1');
 		$ret = Redis::get('test');
