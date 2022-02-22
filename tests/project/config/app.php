@@ -50,7 +50,7 @@ return [
 				'max' => ienv('POOL_DATABASE_ADDONS_MAX', 20),
 			]
 		],
-		'cache' => [
+		'redis' => [
 			'default' => [
 				'enable' => ienv('POOL_CACHE_DEFAULT_ENABLE', 1),
 				'max' => ienv('POOL_CACHE_DEFAULT_MAX', 20),
