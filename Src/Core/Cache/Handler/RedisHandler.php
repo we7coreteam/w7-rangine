@@ -12,117 +12,34 @@
 
 namespace W7\Core\Cache\Handler;
 
+use Illuminate\Redis\Connections\Connection;
+use W7\App;
+use W7\Contract\Redis\RedisFactoryInterface;
+use W7\Core\Redis\ConnectionResolver;
+
 class RedisHandler extends HandlerAbstract {
 	/**
-	 * @var \Redis
+	 * @var Connection
 	 */
 	protected $storage;
 
+	public function __construct($storage) {
+		$this->storage = $storage;
+	}
+
 	public static function connect($config) : HandlerAbstract {
-		if (!empty($config['cluster']['enable'])) {
-			$redis = static::createRedisClusterInstance($config);
-		} elseif (!empty($config['sentinel']['enable'])) {
-			$redis = static::createRedisSentinel($config);
-		} else {
-			$redis = static::createRedis($config);
-		}
-
-		$options = $config['options'] ?? [];
-		foreach ($options as $name => $value) {
-			$redis->setOption($name, $value);
-		}
-
-		if (!empty($config['database'])) {
-			$redis->select(intval($config['database']));
-		}
-		return new static($redis);
-	}
-
-	protected static function createRedis(array $config) {
-		$redis = new \Redis();
-
-		$persistent = $config['persistent'] ?? false;
-		$parameters = [
-			(string) $config['host'],
-			(int) $config['port'],
-			$config['timeout'] ?? 0,
-			null,
-			$config['retry_interval'] ?? 0,
-		];
-
-		if (version_compare(phpversion('redis'), '3.1.3', '>=')) {
-			$parameters[] = $config['read_timeout'] ?? 0;
-		}
-
-		if (version_compare(phpversion('redis'), '5.3.0', '>=')) {
-			$config['context'] = $config['context'] ?? null;
-			if (!is_null($config['context'])) {
-				$parameters[] = $config['context'];
-			}
-		}
-
-		if (!$redis->{($persistent ? 'pconnect' : 'connect')}(...$parameters)) {
-			$error = sprintf('Redis connection failure host=%s port=%d', $config['host'], $config['port']);
-			throw new \RuntimeException($error);
-		}
-
-		if (!empty($config['password'])) {
-			$redis->auth($config['password']);
-		}
-
-		return $redis;
-	}
-
-	protected static function createRedisClusterInstance(array $config) {
-		$parameters = [
-			null,
-			$config['cluster']['servers'] ?? [],
-			$config['cluster']['timeout'] ?? null,
-			$config['cluster']['read_timeout'] ?? null,
-			$config['cluster']['persistent'] ?? false
-		];
-
-		if (version_compare(phpversion('redis'), '4.3.0', '>=')) {
-			$parameters[] = $options['password'] ?? null;
-		}
-
-		if (version_compare(phpversion('redis'), '5.3.2', '>=')) {
-			$config['cluster']['context'] = $config['cluster']['context'] ?? null;
-			if (!is_null($config['cluster']['context'])) {
-				$parameters[] = $config['cluster']['context'];
-			}
-		}
-
-		return new \RedisCluster(...$parameters);
-	}
-
-	protected static function createRedisSentinel(array $config) {
-		$host = '';
-		$port = 0;
-		foreach ($config['sentinel']['nodes'] ?? [] as $node) {
-			[$sentinelHost, $sentinelPort] = explode(':', $node);
-			$sentinel = new \RedisSentinel(
-				(string)$sentinelHost,
-				(int)$sentinelPort,
-				$config['sentinel']['timeout'] ?? 0,
-				$config['sentinel']['persistent'] ?? null,
-				$config['sentinel']['retry_interval'] ?? 0,
-				$config['sentinel']['read_timeout'] ?? 0
-			);
-			$masterInfo = $sentinel->getMasterAddrByName($config['sentinel']['master_name']);
-			if (is_array($masterInfo) && count($masterInfo) >= 2) {
-				[$host, $port] = $masterInfo;
-				break;
-			}
-		}
-
-		$config['host'] = $host;
-		$config['port'] = $port;
-		return static::createRedis($config);
+		/**
+		 * @var ConnectionResolver $redisManager
+		 */
+		$redisManager = App::getApp()->getContainer()->get(RedisFactoryInterface::class);
+		return new static($redisManager->connection($config['client'] ?? ''));
 	}
 
 	public function set($key, $value, $ttl = null) {
-		return $this->storage->set($key, $value, $ttl);
+		if ($ttl) {
+			return $this->storage->set($key, $value, 'EX', $ttl);
+		}
+		return $this->storage->set($key, $value);
 	}
 
 	public function get($key, $default = null) {

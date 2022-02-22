@@ -12,11 +12,30 @@ return [
 	'cache' => [
 		'default' => [
 			'driver' => ienv('CACHE_DEFAULT_DRIVER', 'redis'),
+			'client' => ienv('CACHE_DEFAULT_REDIS_CLIENT', 'default')
+		],
+		'default1' => [
+			'driver' => ienv('CACHE_DEFAULT_DRIVER', 'redis'),
+			'client' => ienv('CACHE_DEFAULT_REDIS_CLIENT', 'default1')
+		]
+	],
+	'redis' => [
+		'default' => [
+			'driver' => ienv('CACHE_DEFAULT_DRIVER', 'redis'),
 			'host' => ienv('CACHE_DEFAULT_HOST', '127.0.0.1'),
 			'port' => ienv('CACHE_DEFAULT_PORT', '6379'),
 			'password' => ienv('CACHE_DEFAULT_PASSWORD', ''),
 			'timeout' => ienv('CACHE_DEFAULT_TIMEOUT', '30'),
 			'database' => ienv('CACHE_DEFAULT_DATABASE', '0'),
+			'model' => ienv('CACHE_DEFAULT_MODEL_CACHE', false),
+		],
+		'default1' => [
+			'driver' => ienv('CACHE_DEFAULT_DRIVER', 'redis'),
+			'host' => ienv('CACHE_DEFAULT_HOST', '127.0.0.1'),
+			'port' => ienv('CACHE_DEFAULT_PORT', '6379'),
+			'password' => ienv('CACHE_DEFAULT_PASSWORD', ''),
+			'timeout' => ienv('CACHE_DEFAULT_TIMEOUT', '30'),
+			'database' => ienv('CACHE_DEFAULT_DATABASE1', '1'),
 			'model' => ienv('CACHE_DEFAULT_MODEL_CACHE', false),
 		]
 	],

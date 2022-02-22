@@ -20,6 +20,7 @@ use W7\Core\Log\Provider\LogProvider;
 use W7\Core\Provider\IlluminateProvider;
 use W7\Core\Provider\ProviderManager;
 use W7\Core\Provider\ServerProvider;
+use W7\Core\Redis\Provider\RedisProvider;
 use W7\Core\Route\Provider\RouterProvider;
 use W7\Core\Session\Provider\SessionProvider;
 use W7\Core\Task\Provider\TaskProvider;
@@ -34,6 +35,7 @@ class ProviderBootstrap implements BootstrapInterface {
 		'log' => LogProvider::class,
 		'router' => RouterProvider::class,
 		'database' => DatabaseProvider::class,
+		'redis' => RedisProvider::class,
 		'cache' => CacheProvider::class,
 		'task' => TaskProvider::class,
 		'view' => ViewProvider::class,

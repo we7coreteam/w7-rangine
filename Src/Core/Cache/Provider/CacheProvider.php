@@ -14,28 +14,17 @@ namespace W7\Core\Cache\Provider;
 
 use W7\Contract\Cache\CacheFactoryInterface;
 use W7\Core\Cache\CacheFactory;
-use W7\Core\Cache\ConnectionResolver;
-use W7\Core\Cache\Pool\PoolFactory;
 use W7\Core\Provider\ProviderAbstract;
 
 class CacheProvider extends ProviderAbstract {
 	public function register() {
-		$this->container->set(ConnectionResolver::class, function () {
-			$connectionConfig = $this->config->get('app.cache', []);
-			foreach ($connectionConfig as &$config) {
+		$this->container->set(CacheFactoryInterface::class, function () {
+			$cacheConfig = $this->config->get('app.cache', []);
+			foreach ($cacheConfig as &$config) {
 				$config['driver'] = $this->config->get('handler.cache.' . $config['driver'], $config['driver']);
 			}
-			$poolConfig = $this->config->get('app.pool.cache', []);
 
-			$connectionResolver = new ConnectionResolver($connectionConfig);
-			$connectionResolver->setPoolFactory(new PoolFactory($poolConfig));
-
-			return $connectionResolver;
-		});
-		$this->container->set(CacheFactoryInterface::class, function () {
-			$cacheFactory = new CacheFactory($this->config->get('app.cache', []));
-			$cacheFactory->setConnectionResolver($this->container->get(ConnectionResolver::class));
-			return $cacheFactory;
+			return new CacheFactory($cacheConfig);
 		});
 	}
 

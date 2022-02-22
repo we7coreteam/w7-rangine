@@ -10,20 +10,12 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Cache\Event;
+namespace W7\Core\Redis\Event;
 
-use W7\Core\Cache\Handler\HandlerAbstract;
-
-class AfterMakeConnectionEvent {
+class BeforeMakeConnectionEvent {
 	public $name;
 
-	/**
-	 * @var HandlerAbstract
-	 */
-	public $handler;
-
-	public function __construct($name, $handler) {
+	public function __construct($name) {
 		$this->name = $name;
-		$this->handler = $handler;
 	}
 }
