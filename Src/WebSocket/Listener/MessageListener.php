@@ -37,7 +37,7 @@ class MessageListener extends ListenerAbstract {
 		return [$psr7Request, $psr7Response];
 	}
 
-	private function onMessage(Server $server, SwooleFrame $frame): bool {
+	private function onMessage(Server $server, SwooleFrame $frame) {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
 		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 

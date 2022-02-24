@@ -23,7 +23,7 @@ class CloseListener extends ListenerAbstract {
 		$this->onClose($server, $fd, $reactorId);
 	}
 
-	private function onClose(Server $server, int $fd, int $reactorId): void {
+	private function onClose(Server $server, int $fd, int $reactorId) {
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_TCP]);
 	}
 }
