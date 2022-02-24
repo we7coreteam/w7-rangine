@@ -22,7 +22,7 @@ use W7\Tcp\Session\Middleware\SessionMiddleware;
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		$this->registerRouter();
-		$this->registerMiddleware();
+//		$this->registerMiddleware();
 	}
 
 	private function registerRouter() {

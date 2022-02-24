@@ -12,7 +12,7 @@
 
 namespace W7\Core\Listener;
 
-use Swoole\Http\Server;
+use Swoole\Server;
 use Swoole\Server\Task;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Helper\Traiter\TaskDispatchTrait;
