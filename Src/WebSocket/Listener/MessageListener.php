@@ -26,29 +26,34 @@ class MessageListener extends ListenerAbstract {
 		$this->onMessage($server, $frame);
 	}
 
+	//待优化 session
+	protected function getRequestAndResponse(Server $server, SwooleFrame $frame) {
+		$psr7Request = new Psr7Request('POST', '/');
+		$psr7Request = $psr7Request->withAttribute('fd', $frame->fd);
+
+		$psr7Response = new Psr7Response();
+		$psr7Response->setOutputer(new WebSocketResponseOutputer($server, $frame->fd));
+
+		return [$psr7Request, $psr7Response];
+	}
+
 	private function onMessage(Server $server, SwooleFrame $frame): bool {
 		$this->getContext()->setContextDataByKey('workid', $server->worker_id);
 		$this->getContext()->setContextDataByKey('coid', $this->getContext()->getCoroutineId());
 
-		$collector = $this->getContainer()->get('ws-client')[$frame->fd] ?? [];
-
 		/**
 		 * @var Psr7Request $psr7Request
 		 */
-		$psr7Request = $collector[0];
-		$psr7Request = $psr7Request->loadFromWSFrame($frame);
 		/**
 		 * @var Psr7Response $psr7Response
 		 */
-		$psr7Response = $collector[1];
-		//握手的Response只是为了响应握手，只处才是真正返回数据的Response
-		$psr7Response->setOutputer(new WebSocketResponseOutputer($server, $frame->fd));
+		[$psr7Request, $psr7Response] = $this->getRequestAndResponse($server, $frame);
+		$psr7Request = $psr7Request->withAttribute('frame', $frame);
+		$psr7Request = $psr7Request->loadFromWSFrame($frame);
 
 		$dispatcher = $this->getContainer()->get(Dispatcher::class);
 		$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
 
 		$psr7Response->send();
-
-		return true;
 	}
 }

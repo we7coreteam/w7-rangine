@@ -24,25 +24,10 @@ use W7\Http\Message\Server\Response as Psr7Response;
 class ConnectListener extends ListenerAbstract {
 	public function run(...$params) {
 		list($server, $fd, $reactorId) = $params;
-		return $this->onConnect($server, $fd, $reactorId);
+		 $this->onConnect($server, $fd, $reactorId);
 	}
 
 	private function onConnect(Server $server, $fd, $reactorId) {
-		/**
-		 * @var Psr7Request $psr7Request
-		 */
-		$psr7Request = new Psr7Request('', '');
-		$psr7Response = new Psr7Response();
-		$psr7Response->setOutputer(new TcpResponseOutputer($server, $fd));
-
-		//tcp session保证此次连接中是共享数据，Response没办法下放sessionid，不存在两次连接共用数据
-		$psr7Request->session = $this->getContainer()->clone(SessionInterface::class);
-		$psr7Request->session->start($psr7Request);
-
-		$this->getContainer()->append('tcp-client', [
-			$fd => [$psr7Request, $psr7Response]
-		], []);
-
-		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_OPEN, [$server, $fd, $psr7Request, ServerEnum::TYPE_TCP]);
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_OPEN, [$server, $fd, new Psr7Request('', ''), ServerEnum::TYPE_TCP]);
 	}
 }

@@ -25,22 +25,6 @@ class CloseListener extends ListenerAbstract {
 	}
 
 	private function onClose(Server $server, int $fd, int $reactorId): void {
-		if ($this->getContainer()->has('ws-client')) {
-			$collector = $this->getContainer()->get('ws-client')[$fd] ?? [];
-			if ($collector) {
-				/**
-				 * @var Psr7Request $psr7Request
-				 */
-				$psr7Request = $collector[0];
-				$psr7Request->session->close();
-			}
-		}
-
-		//删除数据绑定记录
-		$this->getContainer()->append('ws-client', [
-			$fd => []
-		], []);
-
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_WEBSOCKET]);
 	}
 }

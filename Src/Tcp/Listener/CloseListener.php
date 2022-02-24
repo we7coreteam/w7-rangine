@@ -24,10 +24,6 @@ class CloseListener extends ListenerAbstract {
 	}
 
 	private function onClose(Server $server, int $fd, int $reactorId): void {
-		//删除数据绑定记录
-		$this->getContainer()->append('tcp-client', [
-			$fd => []
-		], []);
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_TCP]);
 	}
 }
