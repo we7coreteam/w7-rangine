@@ -13,7 +13,6 @@
 namespace W7\Tcp\Listener;
 
 use Swoole\Server;
-use Swoole\WebSocket\Frame as SwooleFrame;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Http\Message\Outputer\TcpResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;

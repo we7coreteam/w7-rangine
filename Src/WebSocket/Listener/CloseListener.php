@@ -16,7 +16,6 @@ use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
-use W7\Http\Message\Server\Request as Psr7Request;
 
 class CloseListener extends ListenerAbstract {
 	public function run(...$params) {

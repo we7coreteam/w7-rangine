@@ -13,13 +13,10 @@
 namespace W7\Tcp\Listener;
 
 use Swoole\Server;
-use W7\Contract\Session\SessionInterface;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
-use W7\Http\Message\Outputer\TcpResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
-use W7\Http\Message\Server\Response as Psr7Response;
 
 class ConnectListener extends ListenerAbstract {
 	public function run(...$params) {
