@@ -12,7 +12,7 @@
 
 namespace W7\Core\Listener;
 
-use Swoole\Http\Server;
+use Swoole\Server;
 use W7\Core\Message\Message;
 use W7\Core\Server\ServerEvent;
 
