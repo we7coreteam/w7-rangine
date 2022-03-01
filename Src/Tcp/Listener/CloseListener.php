@@ -16,7 +16,6 @@ use Swoole\Server;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
-use W7\Tcp\Collector\FdCollector;
 
 class CloseListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -25,8 +24,6 @@ class CloseListener extends ListenerAbstract {
 	}
 
 	private function onClose(Server $server, int $fd, int $reactorId): void {
-		FdCollector::instance()->delete($fd);
-
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_CLOSE, [$server, $fd, $reactorId, ServerEnum::TYPE_TCP]);
 	}
 }

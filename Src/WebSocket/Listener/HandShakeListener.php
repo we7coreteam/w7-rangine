@@ -15,14 +15,12 @@ namespace W7\WebSocket\Listener;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use W7\App;
-use W7\Contract\Session\SessionInterface;
 use W7\Core\Listener\ListenerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\ServerEvent;
 use W7\Http\Message\Outputer\SwooleResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
-use W7\WebSocket\Collector\FdCollector;
 
 class HandShakeListener extends ListenerAbstract {
 	public function run(...$params) {
@@ -73,25 +71,12 @@ class HandShakeListener extends ListenerAbstract {
 
 		$response = $psr7Response->withHeaders($headers)->withStatus(101);
 
-		$psr7Request->session = $this->getContainer()->clone(SessionInterface::class);
-		$psr7Request->session->start($psr7Request);
-		$response = $psr7Request->session->replenishResponse($response);
-
 		try {
-			$localIps = swoole_get_local_ip();
-			$psr7Request->session->set('fd', $request->fd);
-			$psr7Request->session->set('server', [
-				'ip' => array_values($localIps)[0] ?? '',
-				'mac' => swoole_get_local_mac()[array_keys($localIps)[0] ?? 0] ?? ''
-			]);
-
 			$this->getEventDispatcher()->dispatch(ServerEnum::TYPE_WEBSOCKET . ':' . ServerEvent::ON_OPEN, [App::$server->getServer(), $psr7Request]);
 		} catch (\Throwable $e) {
 			$this->getLogger()->debug($e->getMessage(), ['exception' => $e]);
 			return false;
 		}
-
-		FdCollector::instance()->set($request->fd, [$psr7Request, $response]);
 
 		$response->send();
 		return true;
