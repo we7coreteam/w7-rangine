@@ -43,7 +43,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 
 	/**
 	 * Idle connection queue
-	 * @var \SplQueue $idleQueue
+	 * @var Channel $idleQueue
 	 */
 	protected $idleQueue;
 
@@ -133,7 +133,7 @@ abstract class CoPoolAbstract implements PoolInterface {
 	private function suspendCurrentCo() {
 		$coid = Coroutine::getuid();
 		$this->waitQueue->push($coid);
-		return Coroutine::suspend($coid);
+		return Coroutine::suspend();
 	}
 
 	private function resumeCo() {

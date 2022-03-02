@@ -76,9 +76,9 @@ abstract class SwooleServerAbstract extends ServerAbstract implements SwooleServ
 		$status = $this->getStatus();
 		if (!empty($status['masterPid'])) {
 			return true;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	public function stop() {

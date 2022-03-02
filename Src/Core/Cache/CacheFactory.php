@@ -14,21 +14,14 @@ namespace W7\Core\Cache;
 
 use W7\Contract\Cache\CacheFactoryInterface;
 use Psr\SimpleCache\CacheInterface;
+use W7\Core\Cache\Handler\HandlerAbstract;
 
 class CacheFactory implements CacheFactoryInterface {
 	protected $cacheMap = [];
 	protected $cacheOptions = [];
-	/**
-	 * @var ConnectionResolver
-	 */
-	protected $connectionResolver;
 
 	public function __construct($cacheOptions = []) {
 		$this->cacheOptions = $cacheOptions;
-	}
-
-	public function setConnectionResolver($connectionResolver) {
-		$this->connectionResolver = $connectionResolver;
 	}
 
 	public function registerCache(CacheAbstract $cache) {
@@ -41,8 +34,13 @@ class CacheFactory implements CacheFactoryInterface {
 
 	protected function getCache($channel) {
 		if (empty($this->cacheMap[$channel])) {
-			$cache = new Cache($channel, $this->cacheOptions[$channel] ?? []);
-			$cache->setConnectionResolver($this->connectionResolver);
+			$cache = new Cache($channel);
+			$cache->setPrefix($this->cacheOptions[$channel]['prefix'] ?? '');
+			/**
+			 * @var HandlerAbstract $handler
+			 */
+			$handler = $this->cacheOptions[$channel]['driver'];
+			$cache->setHandler($handler::connect($this->cacheOptions[$channel]));
 			$this->cacheMap[$channel] = $cache;
 		}
 

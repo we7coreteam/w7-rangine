@@ -74,19 +74,11 @@ class TaskMessage extends MessageAbstract {
 	public $hasFinishCallback = false;
 
 	public function isTaskAsync() {
-		if ($this->type == self::OPERATION_TASK_ASYNC) {
-			return true;
-		} else {
-			return false;
-		}
+		return $this->type == self::OPERATION_TASK_ASYNC;
 	}
 
 	public function isTaskCo() {
-		if ($this->type == self::OPERATION_TASK_CO) {
-			return true;
-		} else {
-			return false;
-		}
+		return $this->type == self::OPERATION_TASK_CO;
 	}
 
 	public function setFinishCallback($class, $method) {

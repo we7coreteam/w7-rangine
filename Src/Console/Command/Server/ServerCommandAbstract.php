@@ -15,6 +15,7 @@ namespace W7\Console\Command\Server;
 use Symfony\Component\Console\Input\InputOption;
 use W7\Console\Command\CommandAbstract;
 use W7\Core\Exception\CommandException;
+use W7\Core\Server\ServerAbstract;
 use W7\Core\Server\ServerEnum;
 use W7\Core\Server\SwooleServerAbstract;
 
@@ -50,6 +51,9 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			$servers[] = ServerEnum::TYPE_PROCESS;
 		}
 
+		/**
+		 * @var ServerAbstract $server
+		 */
 		foreach (ServerEnum::$ALL_SERVER as $key => $server) {
 			if (!in_array($key, $servers)) {
 				continue;
@@ -102,7 +106,7 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 
 	private function addSubServer(SwooleServerAbstract $server) {
 		$lines = [];
-		foreach ($this->followServers as $key => $handle) {
+		foreach ($this->followServers as $handle) {
 			/**
 			 * @var SwooleServerAbstract $subServer
 			 */
@@ -113,8 +117,8 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 			$this->saveStartServer($subServer->getType());
 
 			$statusInfo = '';
-			foreach ($subServer->getStatus() as $key => $value) {
-				$statusInfo .= " $key: $value, ";
+			foreach ($subServer->getStatus() as $ikey => $value) {
+				$statusInfo .= " $ikey: $value, ";
 			}
 			$lines[] = "* {$subServer->getType()}  | " . rtrim($statusInfo, ', ');
 		}
@@ -131,8 +135,9 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$status = $server->getStatus();
 
 		if ($server->isRun()) {
-			$this->output->warning("The server have been running!(PID: {$status['masterPid']})", true);
-			return $this->restart();
+			$this->output->warning("The server have been running!(PID: {$status['masterPid']})");
+			$this->restart();
+			return;
 		}
 
 		$statusInfo = '';
@@ -159,13 +164,13 @@ abstract class ServerCommandAbstract extends CommandAbstract {
 		$server = $this->getMasterServer();
 		// 是否已启动
 		if (!$server->isRun()) {
-			$this->output->warning('The server is not running!', true, true);
+			$this->output->warning('The server is not running!');
 			return true;
 		}
 		$this->output->info(sprintf('Server %s is stopping ...', $server->getType()));
 		$result = $server->stop();
 		if (!$result) {
-			$this->output->warning(sprintf('Server %s stop fail', $server->getType()), true, true);
+			$this->output->warning(sprintf('Server %s stop fail', $server->getType()));
 			return false;
 		}
 		$this->output->success(sprintf('Server %s stop success!', $server->getType()));

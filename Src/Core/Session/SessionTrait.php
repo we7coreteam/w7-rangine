@@ -19,10 +19,6 @@ trait SessionTrait {
 
 	protected function sessionIsAutoStart() {
 		$sessionAutoStart = $this->getConfig()->get('app.session.auto_start');
-		if (is_null($sessionAutoStart) || !empty($sessionAutoStart)) {
-			return true;
-		}
-
-		return false;
+		return is_null($sessionAutoStart) || !empty($sessionAutoStart);
 	}
 }

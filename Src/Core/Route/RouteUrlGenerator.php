@@ -87,7 +87,7 @@ class RouteUrlGenerator {
 		// has been constructed, we'll make sure we don't have any missing parameters or we
 		// will need to throw the exception to let the developers know one was not given.
 		$uri = $this->addQueryString($this->url->format(
-			$root = $this->replaceRootParameters($route, $domain, $parameters),
+			$this->replaceRootParameters($route, $domain, $parameters),
 			$this->replaceRouteParameters($route->getUri(), $parameters),
 			$route
 		), $parameters);
@@ -226,7 +226,7 @@ class RouteUrlGenerator {
 			return '';
 		}, $path);
 
-		$path = preg_replace_callback('/\{(.*?)(\?)?\}/', function ($m) use (&$parameters) {
+		return preg_replace_callback('/\{(.*?)(\?)?\}/', function ($m) use (&$parameters) {
 			if (isset($parameters[$m[1]]) && $parameters[$m[1]] !== '') {
 				return Arr::pull($parameters, $m[1]);
 			}
@@ -241,8 +241,6 @@ class RouteUrlGenerator {
 
 			return $m[0];
 		}, $path);
-
-		return $path;
 	}
 
 	/**

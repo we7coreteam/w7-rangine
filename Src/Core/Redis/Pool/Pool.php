@@ -10,22 +10,22 @@
  * visited https://www.rangine.com/ for more details
  */
 
-namespace W7\Core\Cache\Pool;
+namespace W7\Core\Redis\Pool;
 
-use W7\Core\Cache\ConnectionResolver;
+use W7\Contract\Redis\RedisFactoryInterface;
 use W7\Core\Pool\CoPoolAbstract;
 
 class Pool extends CoPoolAbstract {
-	protected $type = 'cache';
+	protected $type = 'redis';
 
 	public function createConnection() {
-		return $this->getContainer()->get(ConnectionResolver::class)->createConnection($this->getPoolName(), false);
+		return $this->getContainer()->get(RedisFactoryInterface::class)->createConnection($this->getPoolName(), false);
 	}
 
 	public function getConnection() {
 		$connect = parent::getConnection();
 		try {
-			$connect->alive();
+			$connect->ping();
 			return $connect;
 		} catch (\Throwable $e) {
 			return $this->createConnection();

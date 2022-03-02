@@ -12,7 +12,7 @@
 
 namespace W7\Core\Listener;
 
-use Swoole\Http\Server;
+use Swoole\Server;
 use Swoole\Server\Task;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Helper\Traiter\TaskDispatchTrait;
@@ -28,7 +28,7 @@ class TaskListener extends ListenerAbstract {
 	public function run(...$params) {
 		[$server, $task] = $params;
 
-		return $this->dispatchTask($server, $task);
+		$this->dispatchTask($server, $task);
 	}
 
 	private function dispatchTask(Server $server, Task $task) {

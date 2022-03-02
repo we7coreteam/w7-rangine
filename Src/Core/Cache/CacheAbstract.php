@@ -17,39 +17,29 @@ use W7\Core\Cache\Handler\HandlerAbstract;
 
 abstract class CacheAbstract implements CacheInterface {
 	protected $name;
-	protected $cacheOptions = [];
+	protected $prefix;
 	/**
-	 * @var ConnectionResolver
+	 * @var HandlerAbstract
 	 */
-	protected $connectionResolver;
+	protected $handler;
 
-	public function __construct($name, $cacheOptions = []) {
+	public function __construct($name) {
 		$this->name = $name;
-		$this->cacheOptions = $cacheOptions;
 	}
 
 	public function getName() {
 		return $this->name;
 	}
 
-	public function setConnectionResolver(ConnectionResolver $connectorManager) {
-		$this->connectionResolver = $connectorManager;
+	public function setPrefix($prefix) {
+		$this->prefix = $prefix;
 	}
 
-	protected function getConnection() {
-		return $this->connectionResolver->connection($this->name);
-	}
-
-	protected function tryAgainIfCausedByLostConnection(\Throwable $e, \Closure $callback, HandlerAbstract $connection, callable $tryCall) {
-		if ($connection->isCausedByLostConnection($e)) {
-			$this->connectionResolver->reconnect($this->getName());
-			return call_user_func_array($tryCall, [$callback]);
-		}
-
-		throw $e;
+	public function setHandler(HandlerAbstract $handler) {
+		$this->handler = $handler;
 	}
 
 	protected function warpKey($key) {
-		return ($this->cacheOptions['prefix'] ?? '') . $key;
+		return $this->prefix . $key;
 	}
 }

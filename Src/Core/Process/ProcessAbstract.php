@@ -23,6 +23,7 @@ use W7\Core\Helper\Traiter\AppCommonTrait;
 use W7\Core\Helper\Traiter\TaskDispatchTrait;
 use W7\Core\Message\Message;
 use W7\Core\Message\TaskMessage;
+use W7\Core\Process\Exception\ProcessSocketException;
 
 abstract class ProcessAbstract {
 	use AppCommonTrait;
@@ -37,6 +38,16 @@ abstract class ProcessAbstract {
 	 */
 	protected $process;
 	protected $pipe;
+
+	/**
+	 * @var int
+	 */
+	protected $socketRecvLength = 65535;
+
+	/**
+	 * @var float
+	 */
+	protected $socketRecvTimeout = 5.0;
 
 	/**
 	 * @var Coroutine\Channel
@@ -110,13 +121,16 @@ abstract class ProcessAbstract {
 			while ($this->channel->pop(0.01) !== true) {
 				$socket = $this->getProcess()->exportSocket();
 				try {
-					$data = $socket->recv();
+					$data = $socket->recv($this->socketRecvLength, $this->socketRecvTimeout);
 					if ($data === '') {
-						throw new \Exception('process socket is closed', $socket->errCode);
+						throw new ProcessSocketException('process socket is closed', $socket->errCode);
 					}
 
 					if ($data === false && $socket->errCode !== SOCKET_ETIMEDOUT) {
-						throw new \Exception('process socket is closed', $socket->errCode);
+						throw new ProcessSocketException('process socket is closed', $socket->errCode);
+					}
+					if (!$data) {
+						continue;
 					}
 
 					$message = Message::unpack($data);
@@ -125,6 +139,10 @@ abstract class ProcessAbstract {
 					}
 				} catch (\Throwable $e) {
 					$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($e);
+
+					if ($e instanceof ProcessSocketException) {
+						break;
+					}
 				}
 			}
 			$this->channel->close();
@@ -133,12 +151,12 @@ abstract class ProcessAbstract {
 
 	private function start() {
 		if (method_exists($this, 'read')) {
-			$pipe = $this->pipe ? $this->pipe : $this->process->pipe;
+			$pipe = $this->pipe ?: $this->process->pipe;
 			Event::add($pipe, function () {
 				$this->doRun(function () {
 					$data = $this->pipe ? '' : $this->process->read();
 					if (!$this->read($data)) {
-						Event::del($this->pipe ? $this->pipe : $this->process->pipe);
+						Event::del($this->pipe ?: $this->process->pipe);
 					}
 				});
 			});
@@ -164,11 +182,7 @@ abstract class ProcessAbstract {
 	}
 
 	private function stopProcessIfNecessary() {
-		$timerNum = 0;
-		foreach (Timer::list() as $item) {
-			++$timerNum;
-		}
-		if ($timerNum == 0) {
+		if (Timer::list()->count() == 0) {
 			$this->stop();
 		}
 	}

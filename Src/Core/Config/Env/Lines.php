@@ -26,7 +26,7 @@ class Lines extends \Dotenv\Lines {
 		foreach ($lines as &$line) {
 			$pattern = '/^include\(([\.\w]+)\)/';
 			if (preg_match($pattern, $line, $result) && !empty($result[1])) {
-				$line = $line . ' = ';
+				$line .= ' = ';
 			}
 		}
 

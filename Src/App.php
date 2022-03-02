@@ -30,7 +30,7 @@ use W7\Core\Server\ServerAbstract;
  */
 class App {
 	public const NAME = 'w7-rangine';
-	public const VERSION = '2.5.7';
+	public const VERSION = '3.0.1';
 
 	public static $self;
 	protected $appNamespace;
@@ -136,6 +136,9 @@ class App {
 	}
 
 	public function getBuiltInConfigPath() {
+		if (defined('APP_BUILTIN_CONFIG_PATH')) {
+			return APP_BUILTIN_CONFIG_PATH;
+		}
 		return $this->getBasePath() . '/vendor/composer/rangine/autoload/config';
 	}
 

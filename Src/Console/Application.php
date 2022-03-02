@@ -130,10 +130,7 @@ class Application extends SymfonyApplication {
 
 	private function checkCommand($input) {
 		$command = $this->getCommandName($input) ?? '';
-		if ($this->has($command) && strpos($command, ':') !== false) {
-			return true;
-		}
-		return false;
+		return $this->has($command) && strpos($command, ':') !== false;
 	}
 
 	private function logo() {
@@ -150,8 +147,6 @@ __      _______ _______                   _
 		$frameworkVersion = App::VERSION;
 		$phpVersion = PHP_VERSION;
 		$swooleVersion = defined('SWOOLE_VERSION') ? SWOOLE_VERSION : 'unknown';
-		$version = "framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion";
-
-		return $version;
+		return "framework: $frameworkVersion, php: $phpVersion, swoole: $swooleVersion";
 	}
 }
