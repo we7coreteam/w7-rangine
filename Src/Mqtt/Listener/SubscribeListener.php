@@ -19,7 +19,6 @@ use W7\App;
 use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Process\ProcessAbstract;
 use W7\Core\Route\Router;
-use W7\Http\Message\Outputer\FpmResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
 use W7\Http\Message\Stream\SwooleStream;
@@ -68,22 +67,30 @@ class SubscribeListener extends ProcessAbstract {
 				$this->name => 0,
 			]);
 		}
+		$timeSincePing = time();
 
 		while (true) {
 			$frameData = $this->client->recv();
+			if ($frameData && $frameData !== true) {
+				try {
+					$psr7Request = new Psr7Request(Router::METHOD_MQTT_TOPIC, $frameData['topic']);
+					$psr7Request = $psr7Request->withBody(new SwooleStream($frameData['message']))->withBodyParams($frameData['message'])->withParsedBody(json_decode($frameData['message'], true));
+					$psr7Response = new Psr7Response();
 
-			try {
-				$psr7Request = new Psr7Request(Router::METHOD_MQTT_TOPIC, $frameData['topic']);
-				$psr7Request = $psr7Request->withBody(new SwooleStream($frameData['message']))->withBodyParams($frameData['message'])->withParsedBody(json_decode($frameData['message'], true));
-				$psr7Response = new Psr7Response();
+					/**
+					 * @var RequestDispatcher $dispatcher
+					 */
+					$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
+					$dispatcher->dispatch($psr7Request, $psr7Response);
+				} catch (\Exception $e) {
+					$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($e);
+				}
+			}
 
-				/**
-				 * @var RequestDispatcher $dispatcher
-				 */
-				$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
-				$dispatcher->dispatch($psr7Request, $psr7Response);
-			} catch (\Exception $e) {
-				$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($e);
+			if ($timeSincePing <= (time() - $this->client->getConfig()->getKeepAlive())) {
+				if ($this->client->ping()) {
+					$timeSincePing = time();
+				}
 			}
 		}
 	}
