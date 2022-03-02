@@ -14,6 +14,7 @@ namespace W7\Mqtt\Listener;
 
 use Simps\MQTT\Client;
 use Simps\MQTT\Config\ClientConfig;
+use Simps\MQTT\Protocol\Types;
 use Swoole\Process;
 use W7\App;
 use W7\Core\Exception\HandlerExceptions;
@@ -64,7 +65,7 @@ class SubscribeListener extends ProcessAbstract {
 			$this->client = $this->getClient();
 			$this->client->connect(true);
 			$this->client->subscribe([
-				$this->name => 0,
+				$this->name =>2,
 			]);
 		}
 		$timeSincePing = time();
@@ -72,18 +73,41 @@ class SubscribeListener extends ProcessAbstract {
 		while (true) {
 			$frameData = $this->client->recv();
 			if ($frameData && $frameData !== true) {
-				try {
-					$psr7Request = new Psr7Request(Router::METHOD_SUBSCRIBE_TOPIC_POST, $frameData['topic']);
-					$psr7Request = $psr7Request->withBody(new SwooleStream($frameData['message']))->withBodyParams($frameData['message'])->withParsedBody(json_decode($frameData['message'], true));
-					$psr7Response = new Psr7Response();
+				switch ($frameData['type']) {
+					case Types::PUBLISH:
+						try {
+							$psr7Request = new Psr7Request(Router::METHOD_SUBSCRIBE_TOPIC_POST, $frameData['topic']);
+							$psr7Request = $psr7Request->withBody(new SwooleStream($frameData['message']))->withBodyParams($frameData['message'])->withParsedBody(json_decode($frameData['message'], true));
+							$psr7Response = new Psr7Response();
 
-					/**
-					 * @var RequestDispatcher $dispatcher
-					 */
-					$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
-					$dispatcher->dispatch($psr7Request, $psr7Response);
-				} catch (\Exception $e) {
-					$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($e);
+							/**
+							 * @var RequestDispatcher $dispatcher
+							 */
+							$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
+							$dispatcher->dispatch($psr7Request, $psr7Response);
+
+							if ($frameData['qos'] >= 1) {
+								$this->client->send(
+									[
+										'type' => $frameData['qos'] === 1 ? Types::PUBACK :Types::PUBREC,
+										'message_id' => $frameData['message_id'],
+									],
+									false
+								);
+							}
+						} catch (\Exception $e) {
+							$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($e);
+						}
+						break;
+					case Types::PUBREL:
+						$this->client->send(
+							[
+								'type' => Types::PUBCOMP,
+								'message_id' => $frameData['message_id'],
+							],
+							false
+						);
+						break;
 				}
 			}
 
