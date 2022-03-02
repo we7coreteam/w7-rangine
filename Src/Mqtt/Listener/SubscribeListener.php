@@ -76,7 +76,6 @@ class SubscribeListener extends ProcessAbstract {
 				$psr7Request = new Psr7Request(Router::METHOD_MQTT_TOPIC, $frameData['topic']);
 				$psr7Request = $psr7Request->withBody(new SwooleStream($frameData['message']))->withBodyParams($frameData['message'])->withParsedBody(json_decode($frameData['message'], true));
 				$psr7Response = new Psr7Response();
-				$psr7Response->setOutputer(new FpmResponseOutputer());
 
 				/**
 				 * @var RequestDispatcher $dispatcher
