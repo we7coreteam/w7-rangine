@@ -17,7 +17,7 @@ use W7\Core\Route\RouteDispatcher;
 use W7\Core\Route\Router;
 use W7\Core\Server\ServerEnum;
 use W7\Mqtt\Listener\SubscribeListener;
-use W7\Mqtt\Route\RouteMapping;
+use W7\Core\Route\RouteMapping;
 
 class Server extends ProcessServerAbstract {
 	protected function register() {

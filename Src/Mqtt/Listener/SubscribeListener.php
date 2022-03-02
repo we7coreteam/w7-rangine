@@ -16,11 +16,13 @@ use Simps\MQTT\Client;
 use Simps\MQTT\Config\ClientConfig;
 use Swoole\Process;
 use W7\App;
+use W7\Core\Exception\HandlerExceptions;
 use W7\Core\Process\ProcessAbstract;
 use W7\Core\Route\Router;
 use W7\Http\Message\Outputer\FpmResponseOutputer;
 use W7\Http\Message\Server\Request as Psr7Request;
 use W7\Http\Message\Server\Response as Psr7Response;
+use W7\Http\Message\Stream\SwooleStream;
 use W7\Mqtt\Server\Dispatcher as RequestDispatcher;
 
 /**
@@ -67,23 +69,23 @@ class SubscribeListener extends ProcessAbstract {
 			]);
 		}
 
-		$frameData = $this->client->recv();
+		while (true) {
+			$frameData = $this->client->recv();
 
-		try {
-			$psr7Request = new Psr7Request(Router::METHOD_MQTT_TOPIC, $frameData['topic']);
-			$psr7Request = $psr7Request->withBodyParams($frameData['message'])->withParsedBody(json_decode($frameData['message'], true));
-			$psr7Response = new Psr7Response();
-			$psr7Response->setOutputer(new FpmResponseOutputer());
+			try {
+				$psr7Request = new Psr7Request(Router::METHOD_MQTT_TOPIC, $frameData['topic']);
+				$psr7Request = $psr7Request->withBody(new SwooleStream($frameData['message']))->withBodyParams($frameData['message'])->withParsedBody(json_decode($frameData['message'], true));
+				$psr7Response = new Psr7Response();
+				$psr7Response->setOutputer(new FpmResponseOutputer());
 
-			/**
-			 * @var RequestDispatcher $dispatcher
-			 */
-			$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
-			$psr7Response = $dispatcher->dispatch($psr7Request, $psr7Response);
-
-			//$psr7Response->send();
-		} catch (\Exception $e) {
-			echo 1, PHP_EOL;
+				/**
+				 * @var RequestDispatcher $dispatcher
+				 */
+				$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
+				$dispatcher->dispatch($psr7Request, $psr7Response);
+			} catch (\Exception $e) {
+				$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($e);
+			}
 		}
 	}
 }
