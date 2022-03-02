@@ -73,7 +73,7 @@ class SubscribeListener extends ProcessAbstract {
 			$frameData = $this->client->recv();
 			if ($frameData && $frameData !== true) {
 				try {
-					$psr7Request = new Psr7Request(Router::METHOD_MQTT_TOPIC, $frameData['topic']);
+					$psr7Request = new Psr7Request(Router::METHOD_SUBSCRIBE_TOPIC_POST, $frameData['topic']);
 					$psr7Request = $psr7Request->withBody(new SwooleStream($frameData['message']))->withBodyParams($frameData['message'])->withParsedBody(json_decode($frameData['message'], true));
 					$psr7Response = new Psr7Response();
 

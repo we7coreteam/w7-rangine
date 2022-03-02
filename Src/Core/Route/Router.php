@@ -26,7 +26,9 @@ class Router implements RouterInterface {
 	const METHOD_PATCH = 'PATCH';
 	const METHOD_DELETE = 'DELETE';
 	const METHOD_HEAD = 'HEAD';
-	const METHOD_MQTT_TOPIC = 'MQTT_TOPIC';
+	const METHOD_SUBSCRIBE_TOPIC = 'MQTT_SUBSCRIBE_TOPIC';
+	const METHOD_SUBSCRIBE_TOPIC_POST = 'MQTT_SUBSCRIBE_TOPIC_POST';
+	const METHOD_PUBLISH_TOPIC = 'MQTT_PUBLISH_TOPIC';
 	const METHOD_OPTIONS = 'OPTIONS';
 	const METHOD_ALL = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'MQTT_TOPIC'];
 
@@ -132,9 +134,28 @@ class Router implements RouterInterface {
 		return $this->add(self::METHOD_HEAD, $uri, $handler);
 	}
 
-	public function topic($uri, $handler) {
-		$result = $this->add(self::METHOD_MQTT_TOPIC, $uri, $handler);
-		return $result;
+	public function publish($uri, $handler) {
+		return $this->add(self::METHOD_PUBLISH_TOPIC, $uri, $handler);
+	}
+
+	public function subscribe($uri, $handler) {
+		$this->add(self::METHOD_SUBSCRIBE_TOPIC, $uri, $handler);
+
+		$argIndex = 0;
+		$uriArr = explode('/#', $uri);
+		$uri = array_shift($uriArr);
+		foreach ($uriArr as $item) {
+			$uri .= "[/{arg$argIndex}]" . $item;
+			++$argIndex;
+		}
+		$uriArr = explode('/+', $uri);
+		$uri = array_shift($uriArr);
+		foreach ($uriArr as $item) {
+			$uri .= "/{arg$argIndex}" . $item;
+			++$argIndex;
+		}
+
+		$this->add(self::METHOD_SUBSCRIBE_TOPIC_POST, $uri, $handler);
 	}
 
 	public function options($uri, $handler) {

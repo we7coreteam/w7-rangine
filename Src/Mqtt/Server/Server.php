@@ -23,14 +23,14 @@ class Server extends ProcessServerAbstract {
 	protected function register() {
 		$routeMapping = RouteDispatcher::getRouteDefinetions(RouteMapping::class, ServerEnum::TYPE_MQTT);
 
-		if (!empty($routeMapping[0][Router::METHOD_MQTT_TOPIC])) {
+		if (!empty($routeMapping[0][Router::METHOD_SUBSCRIBE_TOPIC])) {
 			/**
 			 * @var Dispatcher $dispatcher
 			 */
 			$dispatcher = $this->getContainer()->get(Dispatcher::class);
 			$dispatcher->setRouterDispatcher(new RouteDispatcher($routeMapping));
 
-			foreach ($routeMapping[0][Router::METHOD_MQTT_TOPIC] as $uri => $handler) {
+			foreach ($routeMapping[0][Router::METHOD_SUBSCRIBE_TOPIC] as $uri => $handler) {
 				// 遍历路由，找到 topic 添加 process
 				$this->pool->registerProcess($uri, SubscribeListener::class, $process['worker_num'] ?? 1);
 			}

@@ -12,7 +12,14 @@
 
 namespace W7\Mqtt\Server;
 
+use Psr\Http\Message\ServerRequestInterface;
 use W7\Core\Dispatcher\RequestDispatcher;
 
 class Dispatcher extends RequestDispatcher {
+	protected function getRoute(ServerRequestInterface $request) {
+		$route = parent::getRoute($request);
+		$route->args = array_values($route->args);
+
+		return $route;
+	}
 }
