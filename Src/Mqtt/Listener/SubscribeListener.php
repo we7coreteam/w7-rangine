@@ -14,6 +14,9 @@ namespace W7\Mqtt\Listener;
 
 use Simps\MQTT\Client;
 use Simps\MQTT\Config\ClientConfig;
+use Simps\MQTT\Message\PubAck;
+use Simps\MQTT\Message\PubComp;
+use Simps\MQTT\Message\PubRec;
 use Simps\MQTT\Protocol\Types;
 use Swoole\Process;
 use W7\App;
@@ -88,26 +91,22 @@ class SubscribeListener extends ProcessAbstract {
 							$dispatcher->dispatch($psr7Request, $psr7Response);
 
 							if ($frameData['qos'] >= 1) {
-								$this->client->send(
-									[
-										'type' => $frameData['qos'] === 1 ? Types::PUBACK :Types::PUBREC,
-										'message_id' => $frameData['message_id'],
-									],
-									false
-								);
+								if ($frameData['qos'] === 1) {
+									$message = new PubAck();
+								} else {
+									$message = new PubRec();
+								}
+								$message->setMessageId($frameData['message_id']);
+								$this->client->send($message->getContents(true), false);
 							}
 						} catch (\Exception $e) {
 							$this->getContainer()->get(HandlerExceptions::class)->getHandler()->report($e);
 						}
 						break;
 					case Types::PUBREL:
-						$this->client->send(
-							[
-								'type' => Types::PUBCOMP,
-								'message_id' => $frameData['message_id'],
-							],
-							false
-						);
+						$message = new PubComp();
+						$message->setMessageId($frameData['message_id']);
+						$this->client->send($message->getContents(true), false);
 						break;
 				}
 			}
