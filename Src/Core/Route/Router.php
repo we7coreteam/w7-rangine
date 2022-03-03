@@ -139,6 +139,8 @@ class Router implements RouterInterface {
 	}
 
 	public function subscribe($uri, $handler) {
+		$name = $this->name;
+		$middleware = $this->currentMiddleware;
 		$this->add(self::METHOD_SUBSCRIBE_TOPIC, $uri, $handler);
 
 		$argIndex = 0;
@@ -155,6 +157,8 @@ class Router implements RouterInterface {
 			++$argIndex;
 		}
 
+		$this->name = $name;
+		$this->currentMiddleware = $middleware;
 		$this->add(self::METHOD_SUBSCRIBE_TOPIC_POST, $uri, $handler);
 	}
 
