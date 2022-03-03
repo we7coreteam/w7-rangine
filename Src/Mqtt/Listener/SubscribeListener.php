@@ -44,20 +44,33 @@ class SubscribeListener extends ProcessAbstract {
 		$serverSetting = App::$server->setting;
 
 		$clientConfig = [
-			'clean_session' => 1,
+			'clean_session' => 0,
 			'user_name' => '',
 			'password' => '',
 			'keep_alive' => 50,
+			'delay' => 3000,
+			'max_attempts' => -1,
+			'properties' => [],
 			'protocol_name' => MQTT_PROTOCOL_NAME,
 			'protocol_level' => MQTT_PROTOCOL_LEVEL_3_1_1,
-			'client_id' => uniqid('w7-rangine-mqtt-client-'),
+			'client_id' => 'w7-rangine-mqtt-client',
 		];
 		foreach ($clientConfig as $key => $value) {
 			if (isset($serverSetting[$key])) {
 				$clientConfig[$key] = $serverSetting[$key];
 			}
 		}
-		return new Client($serverSetting['host'], $serverSetting['port'], new ClientConfig($clientConfig));
+		$config = new ClientConfig([]);
+		$config->setUserName($clientConfig['user_name']);
+		$config->setPassword($clientConfig['password']);
+		$config->setKeepAlive($clientConfig['keep_alive']);
+		$config->setProtocolName($clientConfig['protocol_name']);
+		$config->setProtocolLevel($clientConfig['protocol_level']);
+		$config->setClientId($clientConfig['client_id']);
+		$config->setDelay($clientConfig['delay']);
+		$config->setMaxAttempts($clientConfig['max_attempts']);
+		$config->setProperties($clientConfig['properties']);
+		return new Client($serverSetting['host'], $serverSetting['port'], $config);
 	}
 
 	public function check() {
@@ -67,7 +80,7 @@ class SubscribeListener extends ProcessAbstract {
 	protected function run(Process $process) {
 		if (empty($this->client)) {
 			$this->client = $this->getClient();
-			$this->client->connect(true);
+			$this->client->connect(App::$server->setting['clean_session'] ?? false);
 			$this->client->subscribe([
 				$this->name =>2,
 			]);
