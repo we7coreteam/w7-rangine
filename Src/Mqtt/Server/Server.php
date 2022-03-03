@@ -12,6 +12,7 @@
 
 namespace W7\Mqtt\Server;
 
+use RuntimeException;
 use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Route\RouteDispatcher;
 use W7\Core\Route\Router;
@@ -34,6 +35,10 @@ class Server extends ProcessServerAbstract {
 				// 遍历路由，找到 topic 添加 process
 				$this->pool->registerProcess($uri, SubscribeListener::class, $process['worker_num'] ?? 1);
 			}
+		}
+
+		if ($this->pool->getProcessFactory()->count() == 0) {
+			throw new RuntimeException('The subscribed MQTT route does not exist, please declare the corresponding MQTT route in the routing file');
 		}
 	}
 
