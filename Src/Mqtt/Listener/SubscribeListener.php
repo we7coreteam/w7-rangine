@@ -27,6 +27,7 @@ use W7\Mqtt\Server\Dispatcher as RequestDispatcher;
 
 /**
  * mqtt 监听机制是在服务启动的时候进行订阅注册
+ * 先不添加ping包响应检测, recv会触发断线重连
  * 和传统的监听不太一样，所以这里要启一个 process 替代 listener
  */
 class SubscribeListener extends ProcessAbstract {
