@@ -54,7 +54,7 @@ class SubscribeListener extends ProcessAbstract {
 			'properties' => [],
 			'protocol_name' => MQTT_PROTOCOL_NAME,
 			'protocol_level' => MQTT_PROTOCOL_LEVEL_3_1_1,
-			'client_id' => 'w7-rangine-mqtt-client',
+			'client_id' => 'w7-rangine-mqtt-client-' . md5($this->name),
 		];
 		foreach ($clientConfig as $key => $value) {
 			if (isset($serverSetting[$key])) {
