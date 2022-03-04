@@ -38,6 +38,7 @@ class SubscribeListener extends ProcessAbstract {
 
 	/**
 	 * 配置默认连接mqtt服务配置
+	 * clean_session=0断开连接后，服务器不会清除该client_id的数据，　下次重新连接会继续收到断线期间的订阅数据
 	 * @return Client
 	 */
 	protected function getClient() {
@@ -81,6 +82,7 @@ class SubscribeListener extends ProcessAbstract {
 		if (empty($this->client)) {
 			$this->client = $this->getClient();
 			$this->client->connect(App::$server->setting['clean_session'] ?? false);
+			//这里设置qos为2,按照mqtt 最小原则　由发布方决定最后的qos
 			$this->client->subscribe([
 				$this->name =>2,
 			]);
