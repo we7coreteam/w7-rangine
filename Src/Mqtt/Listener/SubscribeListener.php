@@ -103,8 +103,8 @@ class SubscribeListener extends ProcessAbstract {
 							$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
 							$dispatcher->dispatch($psr7Request, $psr7Response);
 
-							if ($frameData['qos'] >= 1) {
-								if ($frameData['qos'] === 1) {
+							if ($frameData['qos'] >= MQTT_QOS_1) {
+								if ($frameData['qos'] === MQTT_QOS_1) {
 									$message = new PubAck();
 								} else {
 									$message = new PubRec();
