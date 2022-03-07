@@ -13,7 +13,6 @@
 namespace W7\Mqtt\Listener;
 
 use Simps\MQTT\Client;
-use Simps\MQTT\Config\ClientConfig;
 use Simps\MQTT\Message\PubAck;
 use Simps\MQTT\Message\PubComp;
 use Simps\MQTT\Message\PubRec;
@@ -43,35 +42,8 @@ class SubscribeListener extends ProcessAbstract {
 	 */
 	protected function getClient() {
 		$serverSetting = App::$server->setting;
-
-		$clientConfig = [
-			'clean_session' => 0,
-			'user_name' => '',
-			'password' => '',
-			'keep_alive' => 50,
-			'delay' => 3000,
-			'max_attempts' => -1,
-			'properties' => [],
-			'protocol_name' => MQTT_PROTOCOL_NAME,
-			'protocol_level' => MQTT_PROTOCOL_LEVEL_3_1_1,
-			'client_id' => 'w7-rangine-mqtt-client-' . md5($this->name),
-		];
-		foreach ($clientConfig as $key => $value) {
-			if (isset($serverSetting[$key])) {
-				$clientConfig[$key] = $serverSetting[$key];
-			}
-		}
-		$config = new ClientConfig([]);
-		$config->setUserName($clientConfig['user_name']);
-		$config->setPassword($clientConfig['password']);
-		$config->setKeepAlive($clientConfig['keep_alive']);
-		$config->setProtocolName($clientConfig['protocol_name']);
-		$config->setProtocolLevel($clientConfig['protocol_level']);
-		$config->setClientId($clientConfig['client_id']);
-		$config->setDelay($clientConfig['delay']);
-		$config->setMaxAttempts($clientConfig['max_attempts']);
-		$config->setProperties($clientConfig['properties']);
-		return new Client($serverSetting['host'], $serverSetting['port'], $config);
+		$serverSetting['client_id'] = $serverSetting['client_id'] ?? 'w7-rangine-mqtt-client-' . md5($this->name);
+		return imqttClient($serverSetting['host'], $serverSetting['port'], $serverSetting);
 	}
 
 	public function check() {

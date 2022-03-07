@@ -10,6 +10,8 @@
  * visited https://www.rangine.com/ for more details
  */
 
+use Simps\MQTT\Client;
+use Simps\MQTT\Config\ClientConfig;
 use W7\App;
 use W7\Core\Helper\Compate\FpmHelper;
 use W7\Core\Helper\Compate\SwooleHelper;
@@ -180,5 +182,36 @@ if (!function_exists('isafeMakeDir')) {
 		if (!mkdir($dir, $permissions, $recursive) && !is_dir($dir)) {
 			throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
 		}
+	}
+}
+
+if (!function_exists('imqttClient')) {
+	function imqttClient($host, $port, array $options = []) {
+		$clientConfig = [
+			'clean_session' => 0,
+			'user_name' => '',
+			'password' => '',
+			'keep_alive' => 50,
+			'delay' => 3000,
+			'max_attempts' => -1,
+			'properties' => [],
+			'protocol_name' => MQTT_PROTOCOL_NAME,
+			'protocol_level' => MQTT_PROTOCOL_LEVEL_3_1_1,
+			'client_id' => 'w7-rangine-mqtt-client' . App::getApp()->getContainer()->get(Context::class)->getCoroutineId(),
+		];
+		$clientConfig  = array_merge($clientConfig, $options);
+
+		$config = new ClientConfig([]);
+		$config->setUserName($clientConfig['user_name']);
+		$config->setPassword($clientConfig['password']);
+		$config->setKeepAlive($clientConfig['keep_alive']);
+		$config->setProtocolName($clientConfig['protocol_name']);
+		$config->setProtocolLevel($clientConfig['protocol_level']);
+		$config->setClientId($clientConfig['client_id']);
+		$config->setDelay($clientConfig['delay']);
+		$config->setMaxAttempts($clientConfig['max_attempts']);
+		$config->setProperties($clientConfig['properties']);
+
+		return new Client($host, $port, $config);
 	}
 }
