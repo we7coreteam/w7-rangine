@@ -51,16 +51,14 @@ class SubscribeListener extends ProcessAbstract {
 	}
 
 	protected function run(Process $process) {
-		if (empty($this->client)) {
-			$this->client = $this->getClient();
-			$this->client->connect(App::$server->setting['clean_session'] ?? false);
-			//这里设置qos为2,按照mqtt 最小原则　由发布方决定最后的qos
-			$this->client->subscribe([
-				$this->name =>2,
-			]);
-		}
-		$timeSincePing = time();
+		$this->client = $this->getClient();
+		$this->client->connect(App::$server->setting['clean_session'] ?? false);
+		//这里设置qos为2,按照mqtt 最小原则　由发布方决定最后的qos
+		$this->client->subscribe([
+			$this->name =>2,
+		]);
 
+		$timeSincePing = time();
 		while (true) {
 			$frameData = $this->client->recv();
 			if ($frameData && $frameData !== true) {
