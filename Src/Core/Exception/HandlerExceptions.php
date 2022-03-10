@@ -91,7 +91,7 @@ class HandlerExceptions {
 		$serverType = $serverType ?? (empty(App::$server) ? '' : App::$server->getType());
 		if (!$serverType || !$this->getContext()->getResponse()) {
 			if (isCli()) {
-				(new Output())->error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine());
+				(new Output())->error('message：' . $throwable->getMessage() . "\nfile：" . $throwable->getFile() . "\nline：" . $throwable->getLine() . "\ntrace: " . $throwable->getTraceAsString());
 			} else {
 				throw $throwable;
 			}
