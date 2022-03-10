@@ -98,7 +98,7 @@ class RequestDispatcher extends DispatcherAbstract {
 		return $this->getRouteByMethodAndUrl($httpMethod, $uri);
 	}
 
-	protected function getRouteByMethodAndUrl($httpMethod, $uri) {
+	public function getRouteByMethodAndUrl($httpMethod, $uri) {
 		$routeData = $this->routerDispatcher->dispatch($httpMethod, $uri);
 
 		switch ($routeData[0]) {
