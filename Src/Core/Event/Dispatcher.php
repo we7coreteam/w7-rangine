@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Events\Dispatcher as DispatcherAbstract;
 use Illuminate\Support\Str;
 use ReflectionClass;
+use RuntimeException;
 use W7\Contract\Event\EventDispatcherInterface;
 use W7\Contract\Event\ShouldBroadcastInterface;
 use W7\Contract\Event\ShouldQueueInterface;
@@ -30,6 +31,21 @@ class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface 
 		}
 
 		parent::listen($events, $listener);
+	}
+
+	/**
+	 * Register an event listener with the dispatcher.
+	 *
+	 * @param  \Closure|string|array  $listener
+	 * @param  bool  $wildcard
+	 * @return \Closure
+	 */
+	public function makeListener($listener, $wildcard = false) {
+		if (!$listener) {
+			throw new RuntimeException('The listener parameter format is incorrect');
+		}
+
+		return parent::makeListener($listener, $wildcard);
 	}
 
 	protected function parseClassCallable($listener) {
