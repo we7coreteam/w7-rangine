@@ -12,6 +12,7 @@
 
 namespace W7\Process\Server;
 
+use RuntimeException;
 use W7\Core\Process\ProcessServerAbstract;
 use W7\Core\Server\ServerEnum;
 
@@ -76,6 +77,10 @@ class Server extends ProcessServerAbstract {
 				continue;
 			}
 			$this->pool->registerProcess($name, $process['class'], $process['worker_num'] ?? 1);
+		}
+
+		if ($this->pool->getProcessFactory()->count() == 0) {
+			throw new RuntimeException('The process does not exist. Please confirm in config/process.php');
 		}
 	}
 }
