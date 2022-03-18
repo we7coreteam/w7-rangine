@@ -13,6 +13,7 @@
 namespace W7\Mqtt\Listener;
 
 use Simps\MQTT\Client;
+use Simps\MQTT\Message\PingResp;
 use Simps\MQTT\Message\PubAck;
 use Simps\MQTT\Message\PubComp;
 use Simps\MQTT\Message\PubRec;
@@ -91,6 +92,10 @@ class SubscribeListener extends ProcessAbstract {
 					case Types::PUBREL:
 						$message = new PubComp();
 						$message->setMessageId($frameData['message_id']);
+						$this->client->send($message->getContents(true), false);
+						break;
+					case Types::PINGREQ:
+						$message = new PingResp();
 						$this->client->send($message->getContents(true), false);
 						break;
 				}
