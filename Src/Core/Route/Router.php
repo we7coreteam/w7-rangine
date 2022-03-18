@@ -134,10 +134,6 @@ class Router implements RouterInterface {
 		return $this->add(self::METHOD_HEAD, $uri, $handler);
 	}
 
-	public function publish($uri, $handler) {
-		return $this->add(self::METHOD_PUBLISH_TOPIC, $uri, $handler);
-	}
-
 	public function subscribe($uri, $handler) {
 		$name = $this->name;
 		$middleware = $this->currentMiddleware;
