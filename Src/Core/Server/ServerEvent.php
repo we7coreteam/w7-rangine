@@ -164,10 +164,10 @@ class ServerEvent {
 		//注册用户层和系统的公共事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\Core\\Listener\\%sListener', ucfirst($eventName));
-			$this->getEventDispatcher()->listen($eventName, $listener);
+			class_exists($listener) && $this->getEventDispatcher()->listen($eventName, $listener);
 
 			$listener = sprintf(App::getApp()->getAppNamespace() . '\\Listener\\%sListener', ucfirst($eventName));
-			$this->getEventDispatcher()->listen($eventName, $listener);
+			class_exists($listener) && $this->getEventDispatcher()->listen($eventName, $listener);
 		}
 	}
 
@@ -175,7 +175,7 @@ class ServerEvent {
 		//注册server下的自定义事件
 		foreach ($this->getUserEvent() as $eventName) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', Str::studly($server), ucfirst($eventName));
-			$this->getEventDispatcher()->listen($eventName, $listener);
+			class_exists($listener) && $this->getEventDispatcher()->listen($eventName, $listener);
 		}
 	}
 

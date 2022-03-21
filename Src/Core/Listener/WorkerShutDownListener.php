@@ -21,7 +21,7 @@ class WorkerShutDownListener extends ListenerAbstract {
 		$startedServers = $this->getConfig()->get('app.setting.started_servers', [App::$server->getType()]);
 		foreach ($startedServers as $startedServer) {
 			$listener = sprintf('\\W7\\%s\\Listener\\%sListener', ucfirst($startedServer), ucfirst(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN));
-			$this->getEventDispatcher()->listen(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $listener);
+			class_exists($listener) && $this->getEventDispatcher()->listen(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $listener);
 		}
 
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_WORKER_SHUTDOWN, $params);

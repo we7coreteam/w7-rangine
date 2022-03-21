@@ -22,17 +22,6 @@ use W7\Contract\Event\ShouldBroadcastInterface;
 use W7\Contract\Event\ShouldQueueInterface;
 
 class Dispatcher extends DispatcherAbstract implements EventDispatcherInterface {
-	public function listen($events, $listener = null) {
-		if (is_string($listener)) {
-			$class = $this->parseClassCallable($listener)[0];
-			if (!class_exists($class)) {
-				return false;
-			}
-		}
-
-		parent::listen($events, $listener);
-	}
-
 	/**
 	 * Register an event listener with the dispatcher.
 	 *
