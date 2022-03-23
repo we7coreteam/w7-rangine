@@ -32,7 +32,7 @@ class RedisHandler extends HandlerAbstract {
 		 * @var ConnectionResolver $redisManager
 		 */
 		$redisManager = App::getApp()->getContainer()->get(RedisFactoryInterface::class);
-		return new static($redisManager->connection($config['client'] ?? ''));
+		return new static($redisManager->connection($config['connection'] ?? ''));
 	}
 
 	public function set($key, $value, $ttl = null) {
