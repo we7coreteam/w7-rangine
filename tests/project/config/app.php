@@ -12,11 +12,11 @@ return [
 	'cache' => [
 		'default' => [
 			'driver' => ienv('CACHE_DEFAULT_DRIVER', 'redis'),
-			'client' => ienv('CACHE_DEFAULT_REDIS_CLIENT', 'default')
+			'connection' => ienv('CACHE_DEFAULT_REDIS_CLIENT', 'default')
 		],
 		'default1' => [
 			'driver' => ienv('CACHE_DEFAULT_DRIVER', 'redis'),
-			'client' => ienv('CACHE_DEFAULT_REDIS_CLIENT', 'default1')
+			'connection' => ienv('CACHE_DEFAULT_REDIS_CLIENT', 'default1')
 		]
 	],
 	'redis' => [
