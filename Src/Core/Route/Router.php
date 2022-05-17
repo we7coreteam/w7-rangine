@@ -27,8 +27,6 @@ class Router implements RouterInterface {
 	const METHOD_DELETE = 'DELETE';
 	const METHOD_HEAD = 'HEAD';
 	const METHOD_SUBSCRIBE_TOPIC = 'MQTT_SUBSCRIBE_TOPIC';
-	const METHOD_SUBSCRIBE_TOPIC_POST = 'MQTT_SUBSCRIBE_TOPIC_POST';
-	const METHOD_PUBLISH_TOPIC = 'MQTT_PUBLISH_TOPIC';
 	const METHOD_OPTIONS = 'OPTIONS';
 	const METHOD_ALL = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'MQTT_TOPIC'];
 
@@ -135,27 +133,7 @@ class Router implements RouterInterface {
 	}
 
 	public function subscribe($uri, $handler) {
-		$name = $this->name;
-		$middleware = $this->currentMiddleware;
 		$this->add(self::METHOD_SUBSCRIBE_TOPIC, $uri, $handler);
-
-		$argIndex = 0;
-		$uriArr = explode('/#', $uri);
-		$uri = array_shift($uriArr);
-		foreach ($uriArr as $item) {
-			$uri .= "[/{arg$argIndex}]" . $item;
-			++$argIndex;
-		}
-		$uriArr = explode('/+', $uri);
-		$uri = array_shift($uriArr);
-		foreach ($uriArr as $item) {
-			$uri .= "/{arg$argIndex}" . $item;
-			++$argIndex;
-		}
-
-		$this->name = $name;
-		$this->currentMiddleware = $middleware;
-		$this->add(self::METHOD_SUBSCRIBE_TOPIC_POST, $uri, $handler);
 	}
 
 	public function options($uri, $handler) {

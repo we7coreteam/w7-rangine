@@ -58,6 +58,12 @@ class SubscribeListener extends ProcessAbstract {
 		$this->client->subscribe([
 			$this->name =>2,
 		]);
+		/**
+		 * @var RequestDispatcher $dispatcher
+		 */
+		$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
+		$route = $dispatcher->getRouteByMethodAndUrl(Router::METHOD_SUBSCRIBE_TOPIC, $this->getName());
+		$dispatcher->setRoute($route);
 
 		$timeSincePing = time();
 		while (true) {
@@ -66,14 +72,10 @@ class SubscribeListener extends ProcessAbstract {
 				switch ($frameData['type']) {
 					case Types::PUBLISH:
 						try {
-							$psr7Request = new Psr7Request(Router::METHOD_SUBSCRIBE_TOPIC_POST, $frameData['topic']);
+							$psr7Request = new Psr7Request(Router::METHOD_SUBSCRIBE_TOPIC, $frameData['topic']);
 							$psr7Request = $psr7Request->withBody(new SwooleStream($frameData['message']))->withBodyParams($frameData['message'])->withParsedBody(json_decode($frameData['message'], true));
 							$psr7Response = new Psr7Response();
 
-							/**
-							 * @var RequestDispatcher $dispatcher
-							 */
-							$dispatcher = $this->getContainer()->get(RequestDispatcher::class);
 							$dispatcher->dispatch($psr7Request, $psr7Response);
 
 							if ($frameData['qos'] >= MQTT_QOS_1) {

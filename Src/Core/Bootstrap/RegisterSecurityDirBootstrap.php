@@ -29,6 +29,6 @@ class RegisterSecurityDirBootstrap implements BootstrapInterface {
 			$openBaseDirConfig,
 			session_save_path()
 		];
-//		ini_set('open_basedir', implode(PATH_SEPARATOR, $openBaseDir));
+		ini_set('open_basedir', implode(PATH_SEPARATOR, $openBaseDir));
 	}
 }
