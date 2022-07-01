@@ -68,7 +68,8 @@ class SubscribeListener extends ProcessAbstract {
 		$route = $dispatcher->getRouteByMethodAndUrl(Router::METHOD_SUBSCRIBE_TOPIC, $this->getName());
 		$dispatcher->setRoute($route);
 
-		itimeTick($this->client->getConfig()->getKeepAlive() * 1000, function () {
+		$keepAliveStep = $this->client->getConfig()->getKeepAlive();
+		$keepAliveStep > 0 && itimeTick($keepAliveStep * 1000, function () {
 			$this->client->ping();
 		});
 		while (true) {
