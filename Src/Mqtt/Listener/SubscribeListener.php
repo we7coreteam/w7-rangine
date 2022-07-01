@@ -34,6 +34,9 @@ use W7\Mqtt\Server\Dispatcher as RequestDispatcher;
  * 和传统的监听不太一样，所以这里要启一个 process 替代 listener
  */
 class SubscribeListener extends ProcessAbstract {
+	/**
+	 * @var Client
+	 */
 	private $client;
 
 	/**
@@ -65,7 +68,9 @@ class SubscribeListener extends ProcessAbstract {
 		$route = $dispatcher->getRouteByMethodAndUrl(Router::METHOD_SUBSCRIBE_TOPIC, $this->getName());
 		$dispatcher->setRoute($route);
 
-		$timeSincePing = time();
+		itimeTick($this->client->getConfig()->getKeepAlive() * 1000, function () {
+			$this->client->ping();
+		});
 		while (true) {
 			$frameData = $this->client->recv();
 			if ($frameData && $frameData !== true) {
@@ -100,12 +105,6 @@ class SubscribeListener extends ProcessAbstract {
 						$message = new PingResp();
 						$this->client->send($message->getContents(true), false);
 						break;
-				}
-			}
-
-			if ($timeSincePing <= (time() - $this->client->getConfig()->getKeepAlive())) {
-				if ($this->client->ping()) {
-					$timeSincePing = time();
 				}
 			}
 		}
