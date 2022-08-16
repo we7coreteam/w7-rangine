@@ -50,5 +50,12 @@
 	"bin": [
 		"bin/rangine-server",
 		"bin/rangine-gerent"
-	]
+	],
+	"config": {
+		"allow-plugins": {
+			"funkjedi/composer-include-files": true,
+			"w7/php-cs-fixer": true,
+			"w7/rangine-package-plugin": true
+		}
+	}
 }
