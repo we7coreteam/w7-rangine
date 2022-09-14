@@ -92,7 +92,7 @@ class Route implements RouteInterface {
 		return $middleware;
 	}
 
-	public function getOptions() {
+	public function getOptions() : array {
 		return $this->options;
 	}
 
