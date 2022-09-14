@@ -1,13 +1,13 @@
 <?php
 
 /**
- * This file is part of Rangine
+ * WeEngine Api System
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.w7.cc>
  *
- * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
- *
- * visited https://www.rangine.com/ for more details
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Core\Route;
@@ -136,8 +136,8 @@ class UrlGenerator implements UrlGeneratorInterface {
 
 		return $this->format(
 			$root,
-			'/'.trim($path.'/'.$tail, '/')
-		).$query;
+			'/' . trim($path . '/' . $tail, '/')
+		) . $query;
 	}
 
 	/**
@@ -168,7 +168,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 		// for asset paths, but only for routes to endpoints in the application.
 		$root = $this->assetRoot ?: $this->formatRoot($this->formatScheme($secure));
 
-		return $this->removeIndex($root).'/'.trim($path, '/');
+		return $this->removeIndex($root) . '/' . trim($path, '/');
 	}
 
 	/**
@@ -190,7 +190,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	protected function removeIndex($root) {
 		$i = 'index.php';
 
-		return Str::contains($root, $i) ? str_replace('/'.$i, '', $root) : $root;
+		return Str::contains($root, $i) ? str_replace('/' . $i, '', $root) : $root;
 	}
 
 	/**
@@ -205,7 +205,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 		}
 
 		if (is_null($this->cachedScheme)) {
-			$this->cachedScheme = $this->forceScheme ?: $this->getRequest()->getUri()->getScheme().'://';
+			$this->cachedScheme = $this->forceScheme ?: $this->getRequest()->getUri()->getScheme() . '://';
 		}
 
 		return $this->cachedScheme;
@@ -221,7 +221,8 @@ class UrlGenerator implements UrlGeneratorInterface {
 				$routeData['handler'],
 				[],
 				$routeData['middleware']['before'] ?? [],
-				$routeData['defaults'] ?? []
+				$routeData['defaults'] ?? [],
+				$routeData['option'] ?? []
 			);
 			return $this->toRoute($route, $parameters, $absolute);
 		}
@@ -283,7 +284,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 
 		$start = Str::startsWith($root, 'http://') ? 'http://' : 'https://';
 
-		return preg_replace('~'.$start.'~', $scheme, $root, 1);
+		return preg_replace('~' . $start . '~', $scheme, $root, 1);
 	}
 
 	/**
@@ -295,7 +296,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 	 * @return string
 	 */
 	public function format($root, $path, $route = null) {
-		$path = '/'.trim($path, '/');
+		$path = '/' . trim($path, '/');
 
 		if ($this->formatHostUsing) {
 			$root = call_user_func($this->formatHostUsing, $root, $route);
@@ -305,7 +306,7 @@ class UrlGenerator implements UrlGeneratorInterface {
 			$path = call_user_func($this->formatPathUsing, $path, $route);
 		}
 
-		return rtrim($root.$path, '/');
+		return rtrim($root . $path, '/');
 	}
 
 	/**

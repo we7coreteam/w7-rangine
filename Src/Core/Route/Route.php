@@ -1,13 +1,13 @@
 <?php
 
 /**
- * This file is part of Rangine
+ * WeEngine Api System
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.w7.cc>
  *
- * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
- *
- * visited https://www.rangine.com/ for more details
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Core\Route;
@@ -26,8 +26,9 @@ class Route implements RouteInterface {
 	public $args = [];
 	public $middleware = [];
 	public $defaults = [];
+	public $options = [];
 
-	public function __construct($name, $uri, $module, $handler, array $args = [], array $middleware = [], array $defaults = []) {
+	public function __construct($name, $uri, $module, $handler, array $args = [], array $middleware = [], array $defaults = [], $options = []) {
 		$this->name = $name;
 		$this->uri = $uri;
 		$this->module = $module;
@@ -35,6 +36,7 @@ class Route implements RouteInterface {
 		$this->args = $args;
 		$this->middleware = $middleware;
 		$this->defaults = $defaults;
+		$this->options = $options;
 	}
 
 	public function getName() {
@@ -88,6 +90,10 @@ class Route implements RouteInterface {
 		}
 
 		return $middleware;
+	}
+
+	public function getOptions() {
+		return $this->options;
 	}
 
 	protected static function methodExcludedByOptions($method, array $options) {
