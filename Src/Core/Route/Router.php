@@ -271,7 +271,7 @@ class Router implements RouterInterface {
 		}
 
 		$groupOption = [];
-		$options = array_column($this->groupStack, 'option');
+		$options = array_filter(array_column($this->groupStack, 'option'));
 		array_walk($options, function ($value) use (&$groupOption) {
 			$groupOption = array_merge($groupOption, $value);
 		});
