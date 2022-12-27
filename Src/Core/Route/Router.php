@@ -269,6 +269,11 @@ class Router implements RouterInterface {
 		return $this;
 	}
 
+	public function option(array $option) {
+		$this->option = $option;
+		return $this;
+	}
+
 	public function getData() {
 		return $this->routerCollector->getData();
 	}
