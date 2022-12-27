@@ -117,7 +117,8 @@ class RequestDispatcher extends DispatcherAbstract {
 			$routeData[1]['handler'],
 			$routeData[2] ?? [],
 			$routeData[1]['middleware']['before'] ?? [],
-			$routeData[1]['defaults'] ?? []
+			$routeData[1]['defaults'] ?? [],
+			$routeData[1]['option'] ?? []
 		);
 	}
 }

@@ -28,7 +28,7 @@ class OpenListener extends ListenerAbstract {
 	 * @param Server $server
 	 * @param Psr7Request $psr7Request
 	 */
-	private function onOpen(Server $server, Psr7Request $psr7Request): void {
+	private function onOpen(Server $server, Psr7Request $psr7Request) {
 		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_OPEN, [$server, $psr7Request->getSwooleRequest()->fd, $psr7Request->getSwooleRequest(), ServerEnum::TYPE_WEBSOCKET]);
 	}
 }
