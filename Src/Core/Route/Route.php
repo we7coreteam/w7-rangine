@@ -29,8 +29,9 @@ class Route implements RouteInterface {
 	public $args = [];
 	public $middleware = [];
 	public $defaults = [];
+	public $option = [];
 
-	public function __construct($name, $uri, $module, $handler, array $args = [], array $middleware = [], array $defaults = []) {
+	public function __construct($name, $uri, $module, $handler, array $args = [], array $middleware = [], array $defaults = [], $options = []) {
 		$this->name = $name;
 		$this->uri = $uri;
 		$this->module = $module;
@@ -38,6 +39,7 @@ class Route implements RouteInterface {
 		$this->args = $args;
 		$this->middleware = $middleware;
 		$this->defaults = $defaults;
+		$this->option = $options;
 	}
 
 	public function getName() {
@@ -91,6 +93,10 @@ class Route implements RouteInterface {
 		}
 
 		return $middleware;
+	}
+
+	public function getOption() : array {
+		return $this->option;
 	}
 
 	protected static function methodExcludedByOptions($method, array $options) {
