@@ -51,7 +51,15 @@ class RedisHandler extends HandlerAbstract {
 	}
 
 	public function setMultiple($values, $ttl = null) {
-		return $this->storage->mset((array)$values);
+		if ($ttl <= 0) {
+			return $this->storage->mset((array)$values);
+		}
+
+		$pipeline = $this->storage->multi(\Redis::MULTI);
+		foreach ($values as $key => $value) {
+			$pipeline->set($key, $value, $ttl);
+		}
+		return $pipeline->exec();
 	}
 
 	public function getMultiple($keys, $default = null) {
