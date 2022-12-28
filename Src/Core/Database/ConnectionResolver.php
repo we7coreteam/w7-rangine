@@ -118,7 +118,7 @@ class ConnectionResolver extends DatabaseManager {
 	}
 
 	public function beginTransaction($name = null) {
-		return $this->connection($name)->beginTransaction();
+		$this->connection($name)->beginTransaction();
 	}
 
 	private function releaseConnection($connection) {
