@@ -1,7 +1,13 @@
 <?php
+
 /**
- * @author donknap
- * @date 19-4-18 下午2:58
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
  */
 
 namespace W7\Tests;
@@ -15,22 +21,30 @@ use W7\Facade\Router;
 use W7\Http\Message\Server\Request;
 
 class TestMiddleware extends MiddlewareAbstract {
-
 }
 
 class Test1Middleware extends MiddlewareAbstract {
-
 }
 
 class RouteConfigTest extends TestCase {
 	public function testFuncAdd() {
-		Router::post('/user', function () {return '/user';});
-		Router::name('user1')->middleware('AppCheckMiddleware')->get('/user/{name}', function () {return '/user/{name}';});
-		Router::post('/user/get', function () {return '/user';});
+		Router::post('/user', function () {
+			return '/user';
+		});
+		Router::name('user1')->middleware('AppCheckMiddleware')->get('/user/{name}', function () {
+			return '/user/{name}';
+		});
+		Router::post('/user/get', function () {
+			return '/user';
+		});
 
 		Router::middleware('AppCheckMiddleware')->name('test2')->group('/module1', function (\W7\Core\Route\Router $route) {
-			$route->post('/info', function () {return '/module1/info';});
-			$route->name('test-colsure')->post('/build', function () {return '/module1/build';});
+			$route->post('/info', function () {
+				return '/module1/info';
+			});
+			$route->name('test-colsure')->post('/build', function () {
+				return '/module1/build';
+			});
 		});
 
 		Router::name('test3')->group('/module3', function (\W7\Core\Route\Router $route) {
@@ -39,28 +53,44 @@ class RouteConfigTest extends TestCase {
 		});
 
 		Router::name('group-name')->middleware(['AppCheckMiddleware', 'GatewayCheckSiteMiddleware'])->group('/module2', function (\W7\Core\Route\Router $route) {
-			$route->get('/info', function () {return '/module2/info';});
+			$route->get('/info', function () {
+				return '/module2/info';
+			});
 			$route->get('/info1', 'Module\InfoController@build');
 			$route->name('test-info1')->get('/info2', 'Module\InfoController@build');
-			$route->options('/info', function () {return '/module2/build';});
+			$route->options('/info', function () {
+				return '/module2/build';
+			});
 			$route->name('test4')->group('/module3', function (\W7\Core\Route\Router $route) {
 				$route->name('test4.info')->post('/info', 'Module\InfoController@info');
 				$route->name('test-build')->post('/build', 'Module\InfoController@build');
-				$route->name('test-handle')->post('/handle', function () {return 'Module\InfoController@build';});
-				$route->post('/handle1', function () {return 'Module\InfoController@build';});
+				$route->name('test-handle')->post('/handle', function () {
+					return 'Module\InfoController@build';
+				});
+				$route->post('/handle1', function () {
+					return 'Module\InfoController@build';
+				});
 
 				$route->middleware('CheckAccessTokenMiddleware')->name('test5')->group('/module4', function (\W7\Core\Route\Router $route) {
 					$route->post('/info', 'Module\InfoController@info');
 					$route->name('test-build')->post('/build', 'Module\InfoController@build');
-					$route->name('test-handle')->post('/handle', function () {return 'Module\InfoController@build';});
-					$route->post('/handle1', function () {return 'Module\InfoController@build';});
+					$route->name('test-handle')->post('/handle', function () {
+						return 'Module\InfoController@build';
+					});
+					$route->post('/handle1', function () {
+						return 'Module\InfoController@build';
+					});
 				});
 				$route->group('/module5', function (\W7\Core\Route\Router $route) {
 					$route->name('test-info')->post('/info/{info}', 'Module\InfoController@info');
 					$route->post('/info1/{info}', 'Module\InfoController@info');
 					$route->name('test-build')->post('/build', 'Module\InfoController@build');
-					$route->name('test-handle')->post('/handle', function () {return 'Module\InfoController@build';});
-					$route->post('/handle1', function () {return 'Module\InfoController@build';});
+					$route->name('test-handle')->post('/handle', function () {
+						return 'Module\InfoController@build';
+					});
+					$route->post('/handle1', function () {
+						return 'Module\InfoController@build';
+					});
 				});
 			});
 		});
@@ -164,6 +194,48 @@ class RouteConfigTest extends TestCase {
 		$this->assertSame('index', $result[1]['handler'][1]);
 	}
 
+	public function testRouteOption() {
+		Router::option([
+			'test' => 1
+		])->post('/option', function () {
+			return '/user';
+		});
+
+		Router::option([
+			'test1' => 1
+		])->name('group-option')->group('/option-g', function (\W7\Core\Route\Router $route) {
+			$route->option([
+				'test' => 1
+			])->get('/info', function () {
+				return '/module2/info';
+			});
+			$route->option([
+				'test2' => 1
+			])->name('test4')->group('/info1', function (\W7\Core\Route\Router $route) {
+				$route->option([
+					'test3' => 1
+				])->get('/info', function () {
+					return '/module2/info';
+				});
+			});
+		});
+
+		$routeInfo = Router::getData();
+		$dispatch = new GroupCountBased($routeInfo);
+
+		$result = $dispatch->dispatch('POST', '/option');
+		$this->assertArrayHasKey('test', $result[1]['option']);
+
+		$result = $dispatch->dispatch('GET', '/option-g/info');
+		$this->assertArrayHasKey('test1', $result[1]['option']);
+		$this->assertArrayHasKey('test', $result[1]['option']);
+
+		$result = $dispatch->dispatch('GET', '/option-g/info1/info');
+		$this->assertArrayHasKey('test1', $result[1]['option']);
+		$this->assertArrayHasKey('test2', $result[1]['option']);
+		$this->assertArrayHasKey('test3', $result[1]['option']);
+	}
+
 	public function testMulti() {
 		Router::add('GET', '/multi', function () {
 			return 'success';
@@ -179,7 +251,7 @@ class RouteConfigTest extends TestCase {
 	}
 
 	public function testStaticRoute() {
-		try{
+		try {
 			Router::get('/static', 'static/index.html');
 		} catch (\Throwable $e) {
 			$this->assertSame('route handler static/index.html error', $e->getMessage());
@@ -195,9 +267,15 @@ class RouteConfigTest extends TestCase {
 	}
 
 	public function testRouteUrl() {
-		Router::name("url_name_test")->post('/url/user/get', function () {return '/user';});
-		Router::name("url_name_test_params")->post('/url/user/get/{name}', function () {return '/user';});
-		Router::name("url_name_test1")->post('/url/user/get1', function () {return '/user';});
+		Router::name('url_name_test')->post('/url/user/get', function () {
+			return '/user';
+		});
+		Router::name('url_name_test_params')->post('/url/user/get/{name}', function () {
+			return '/user';
+		});
+		Router::name('url_name_test1')->post('/url/user/get1', function () {
+			return '/user';
+		});
 		$routeCollector = new RouteCollector(new Std(), new \FastRoute\DataGenerator\GroupCountBased());
 
 		foreach (Router::getData()[0] as $routes) {

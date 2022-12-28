@@ -17,12 +17,10 @@ use W7\Core\Route\RouteDispatcher;
 use W7\Core\Server\ServerEnum;
 use W7\Tcp\Route\RouteMapping;
 use W7\Tcp\Server\Dispatcher;
-use W7\Tcp\Session\Middleware\SessionMiddleware;
 
 class BeforeStartListener extends ListenerAbstract {
 	public function run(...$params) {
 		$this->registerRouter();
-//		$this->registerMiddleware();
 	}
 
 	private function registerRouter() {
@@ -31,13 +29,5 @@ class BeforeStartListener extends ListenerAbstract {
 		 */
 		$dispatcher = $this->getContainer()->get(Dispatcher::class);
 		$dispatcher->setRouterDispatcher(RouteDispatcher::getDispatcherWithRouteMapping(RouteMapping::class, ServerEnum::TYPE_TCP));
-	}
-
-	private function registerMiddleware() {
-		/**
-		 * @var Dispatcher $dispatcher
-		 */
-		$dispatcher = $this->getContainer()->get(Dispatcher::class);
-		$dispatcher->getMiddlewareMapping()->addBeforeMiddleware(SessionMiddleware::class, true);
 	}
 }

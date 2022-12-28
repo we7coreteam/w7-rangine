@@ -40,6 +40,7 @@ class Router implements RouterInterface {
 	private $defaultModule = 'system';
 
 	private $name = '';
+	private $option = [];
 
 	public function __construct(RouteCollector $routeCollector = null, $config = []) {
 		if (!$routeCollector) {
@@ -91,6 +92,8 @@ class Router implements RouterInterface {
 			$this->name = '';
 
 			$groupInfo['module'] = $option['module'];
+			$groupInfo['option'] = $this->option;
+			$this->option = [];
 
 			$this->groupStack[] = $groupInfo;
 			$callback($this);
@@ -210,6 +213,14 @@ class Router implements RouterInterface {
 			$routeHandler['handler'][0] = $this->prependGroupNamespace($routeHandler['controller_namespace'], $routeHandler['handler'][0]);
 		}
 
+		$groupOption = [];
+		$options = array_filter(array_column($this->groupStack, 'option'));
+		array_walk($options, function ($value) use (&$groupOption) {
+			$groupOption = array_merge_recursive($groupOption, $value);
+		});
+		$routeHandler['option'] = array_merge_recursive($groupOption, $this->option);
+		$this->option = [];
+
 		$groupMiddleware = [];
 		$middleWares = array_filter(array_column($this->groupStack, 'middleware'));
 		array_walk($middleWares, function ($value) use (&$groupMiddleware) {
@@ -255,6 +266,11 @@ class Router implements RouterInterface {
 
 	public function name($name) {
 		$this->name = $name;
+		return $this;
+	}
+
+	public function option(array $option) {
+		$this->option = $option;
 		return $this;
 	}
 
