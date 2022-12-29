@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
 
 namespace W7\Tests;
 
@@ -9,10 +18,8 @@ use W7\Facade\Config;
 
 class TestCache {
 	public function ok() {
-
 	}
 }
-
 
 class CacheTest extends TestCase {
 	public function setUp(): void {
@@ -51,6 +58,24 @@ class CacheTest extends TestCase {
 		$ret = Cache::getMultiple(['test', 'test1']);
 		$this->assertArrayHasKey('test', $ret);
 		$this->assertArrayHasKey('test1', $ret['test']);
+		Cache::deleteMultiple(['test', 'test1']);
+
+		Cache::setMultiple([
+			'test-1' => [
+				'test1' => 1
+			],
+			'test1-1' => [
+				'test2' => 2
+			]
+		], 10);
+		$ret = Cache::getMultiple(['test-1', 'test1-1']);
+		$this->assertArrayHasKey('test-1', $ret);
+		$this->assertArrayHasKey('test1', $ret['test-1']);
+
+		sleep(11);
+		$ret = Cache::getMultiple(['test-1', 'test1-1']);
+		$this->assertFalse($ret['test-1']);
+		$this->assertFalse($ret['test1-1']);
 	}
 
 	public function hmsetAndHmget() {
@@ -504,7 +529,6 @@ class CacheTest extends TestCase {
 			foreach ($result as $index => $value) {
 				$this->assertEquals($value, $expected[ $index ]);
 			}
-
 		});
 	}
 
@@ -597,7 +621,6 @@ class CacheTest extends TestCase {
 			foreach ($expected as $value) {
 				Cache::lPush($key, $value);
 			}
-
 
 			$expected = 'C';
 
