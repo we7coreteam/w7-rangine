@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
 
 namespace W7\Tests;
 
@@ -12,7 +21,6 @@ use W7\Facade\Redis;
 
 class TestCache1 {
 	public function ok() {
-
 	}
 }
 
@@ -84,7 +92,6 @@ class UserCacheHandler extends HandlerAbstract {
 	}
 }
 
-
 class CacheTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
@@ -128,13 +135,29 @@ class CacheTest extends TestCase {
 		$this->assertArrayHasKey('test', $ret);
 		$this->assertArrayHasKey('test1', $ret['test']);
 
+		Cache::setMultiple([
+			'test-1' => [
+				'test1' => 1
+			],
+			'test1-1' => [
+				'test2' => 2
+			]
+		], 10);
+		$ret = Cache::getMultiple(['test-1', 'test1-1']);
+		$this->assertArrayHasKey('test-1', $ret);
+		$this->assertArrayHasKey('test1', $ret['test-1']);
+
+		sleep(11);
+		$ret = Cache::getMultiple(['test-1', 'test1-1']);
+		$this->assertFalse($ret['test-1']);
+		$this->assertFalse($ret['test1-1']);
 
 		Cache::deleteMultiple(['test', 'test1']);
 		$ret = Cache::getMultiple(['test', 'test1']);
 		$this->assertFalse($ret['test']);
 		$this->assertFalse($ret['test1']);
 
-		$cache = Cache::channel("default1");
+		$cache = Cache::channel('default1');
 		$cache->set('test_default1', 1);
 		$this->assertSame('1', $cache->get('test_default1'));
 		$this->assertFalse(Cache::has('test_default1'));
