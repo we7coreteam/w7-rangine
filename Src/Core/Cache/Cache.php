@@ -52,7 +52,7 @@ class Cache extends CacheAbstract {
 		}
 		$result = [];
 		foreach ($mgetResult ?? [] as $key => $value) {
-			$result[$keys[$key]] = $this->handler->unpack($value);
+			$result[$keys[$key]] = isset($value) ? $this->handler->unpack($value) : null;
 		}
 
 		return $result;

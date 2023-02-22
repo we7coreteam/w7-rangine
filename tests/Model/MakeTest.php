@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Tests\Model;
 
 use Symfony\Component\Console\Input\ArgvInput;
@@ -57,12 +67,14 @@ EOF;
 
 		$command->run(new ArgvInput([
 			'input',
-			'--name=test/user'
+			'--table=core_log',
+			'--name=test/user',
+			'--connection=sqlite'
 		]), Output::getFacadeRoot());
 
 		$file = APP_PATH . '/Model/Entity/Test/User.php';
 		$this->assertFileExists($file);
-		$this->assertStringContainsString("\$primaryKey = ''", file_get_contents($file));
+		$this->assertStringContainsString("\$primaryKey = 'id'", file_get_contents($file));
 
 		unlink($file);
 		rmdir(pathinfo($file, PATHINFO_DIRNAME));

@@ -149,13 +149,13 @@ class CacheTest extends TestCase {
 
 		sleep(11);
 		$ret = Cache::getMultiple(['test-1', 'test1-1']);
-		$this->assertFalse($ret['test-1']);
-		$this->assertFalse($ret['test1-1']);
+		$this->assertNull($ret['test-1']);
+		$this->assertNull($ret['test1-1']);
 
 		Cache::deleteMultiple(['test', 'test1']);
 		$ret = Cache::getMultiple(['test', 'test1']);
-		$this->assertFalse($ret['test']);
-		$this->assertFalse($ret['test1']);
+		$this->assertNull($ret['test']);
+		$this->assertNull($ret['test1']);
 
 		$cache = Cache::channel('default1');
 		$cache->set('test_default1', 1);
