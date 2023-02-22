@@ -10,7 +10,7 @@
 		}
 	],
 	"require": {
-		"php": ">=7.4",
+		"php": ">=8.0",
 		"ext-json": "*",
 		"w7/rangine-compat": "~3.0.0",
 		"w7/rangine-contract": "~3.1.0",
