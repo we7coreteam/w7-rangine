@@ -1,15 +1,23 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Tests;
 
 use W7\Core\Cache\Handler\RedisHandler;
-use W7\Facade\Cache;
 use W7\Facade\Config;
 use W7\Facade\Redis;
 
 class TestCache {
 	public function ok() {
-
 	}
 }
 
@@ -23,13 +31,13 @@ class RedisTest extends TestCase {
 		go(function () {
 			$client = null;
 			go(function () use (&$client) {
-				$client = Redis::channel("default")->client();
-				$client2 = Redis::channel("default")->client();
+				$client = Redis::channel('default')->client();
+				$client2 = Redis::channel('default')->client();
 
 				$this->assertSame($client, $client2);
 			});
 
-			$client1 = Redis::channel("default")->client();
+			$client1 = Redis::channel('default')->client();
 
 			$this->assertSame($client, $client1);
 		});
@@ -305,19 +313,19 @@ class RedisTest extends TestCase {
 			'key2' => 1.3,
 			'key3' => 3.2,
 		];
-		$rangeKeys = Redis::zRange($key, 1.2, 3.2, 'WITHSCORES');
+		$rangeKeys = Redis::zRange($key, 1, 3, 'WITHSCORES');
 		$this->assertEquals(array_keys($data2), $rangeKeys);
 
-		$rangeKeys = Redis::zRange($key, 1.2, 3.2, false);
+		$rangeKeys = Redis::zRange($key, 1, 3, false);
 		$this->assertEquals($data, $rangeKeys);
 
-		$rangeKeys = Redis::zRange($key, 1.2, 3.2, true);
+		$rangeKeys = Redis::zRange($key, 1, 3, true);
 		$this->assertEquals($data2, $rangeKeys);
 
-		$rangeKeys = Redis::zRange($key, 1.2, 3.2, 0);
+		$rangeKeys = Redis::zRange($key, 1, 3, 0);
 		$this->assertEquals($data, $rangeKeys);
 
-		$rangeKeys = Redis::zRange($key, 1.2, 3.2, 'xxx');
+		$rangeKeys = Redis::zRange($key, 1, 3, 'xxx');
 		$this->assertEquals(array_keys($data2), $rangeKeys);
 
 		$rangeKeys = Redis::zRangeByScore($key, 1, 2, [
@@ -500,7 +508,6 @@ class RedisTest extends TestCase {
 			foreach ($result as $index => $value) {
 				$this->assertEquals($value, $expected[ $index ]);
 			}
-
 		});
 	}
 
@@ -593,7 +600,6 @@ class RedisTest extends TestCase {
 				Redis::lPush($key, $value);
 			}
 
-
 			$expected = 'C';
 
 			go(function () use ($key, $expected) {
@@ -619,7 +625,7 @@ class RedisTest extends TestCase {
 		$redis->setOption(\Redis::OPT_SCAN, \Redis::SCAN_RETRY);
 		$iterator = null;
 		$num = 0;
-		while ($keys = $redis->scan($iterator, 'a*',2)){
+		while ($keys = $redis->scan($iterator, 'a*', 2)) {
 			$num += count($keys);
 		}
 

@@ -15,10 +15,6 @@ namespace W7\Tests;
 use W7\App;
 use W7\Facade\FacadeAbstract;
 
-function go(\Closure $closure) {
-	$closure();
-}
-
 class TestCase extends \PHPUnit\Framework\TestCase {
 	public function setUp() :void {
 		parent::setUp();
