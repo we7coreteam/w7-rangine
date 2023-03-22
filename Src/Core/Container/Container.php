@@ -59,7 +59,7 @@ class Container extends \Illuminate\Container\Container {
 		}
 	}
 
-	public function has($name) {
+	public function has(string $name): bool {
 		//Detects whether a lazy load service is present and triggers the loader
 		$this->loadDeferredService($this->getAlias($name));
 

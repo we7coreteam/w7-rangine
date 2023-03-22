@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Tests;
 
 use Illuminate\Contracts\Validation\Rule;
@@ -50,7 +60,7 @@ class ValidateTest extends TestCase {
 				BASE_PATH . '/lang'
 			];
 
-			$loader = new FileLoader(new Filesystem(), BASE_PATH, $paths);
+			$loader = new FileLoader(new Filesystem(), $paths);
 			if (\is_callable([$loader, 'addJsonPath'])) {
 				$loader->addJsonPath(BASE_PATH . '/vendor/laravel-lang/lang/json/');
 				$loader->addJsonPath(BASE_PATH . '/lang/json/');
@@ -145,12 +155,6 @@ class ValidateTest extends TestCase {
 	}
 
 	public function testExtend() {
-		if (!file_exists(BASE_PATH . '/lang/zh_CN')) {
-			mkdir(BASE_PATH . '/lang/zh_CN', 0777, true);
-		}
-
-		copy(__DIR__ . '/tmp/lang/zh_CN/validation.php', BASE_PATH . '/lang/zh_CN/validation.php');
-
 		Validator::extend('user_validate', function ($attribute, $value, $parameters) {
 			return $value === 'test';
 		});
@@ -184,8 +188,6 @@ class ValidateTest extends TestCase {
 			$this->assertSame(403, $e->getCode());
 			$this->assertSame('{"error":"自定义验证"}', $e->getMessage());
 		}
-
-		unlink(BASE_PATH . '/lang/zh_CN/validation.php');
 	}
 
 	public function testUserRule() {
@@ -193,7 +195,7 @@ class ValidateTest extends TestCase {
 			'name' => '1'
 		];
 
-		try{
+		try {
 			$this->validate($data, [
 				'name' => [new UserRule()]
 			]);
@@ -205,7 +207,7 @@ class ValidateTest extends TestCase {
 			'name' => '12121212111'
 		];
 
-		try{
+		try {
 			$this->validate($data, [
 				'name' => [new UserRule()]
 			]);

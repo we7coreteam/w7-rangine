@@ -38,7 +38,7 @@ class Application extends SymfonyApplication {
 	 *
 	 * @return InputDefinition An InputDefinition instance
 	 */
-	protected function getDefaultInputDefinition() {
+	protected function getDefaultInputDefinition(): InputDefinition {
 		return new InputDefinition([
 			new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
 
@@ -51,7 +51,7 @@ class Application extends SymfonyApplication {
 		]);
 	}
 
-	public function run(InputInterface $input = null, OutputInterface $output = null) {
+	public function run(InputInterface $input = null, OutputInterface $output = null): int {
 		return parent::run($input, new Output());
 	}
 
@@ -78,8 +78,8 @@ class Application extends SymfonyApplication {
 	}
 
 	private function registerCommands() {
-		$this->autoRegisterCommands(__DIR__. '/Command', '\\W7\\Console');
-		$this->autoRegisterCommands(App::getApp()->getAppPath()  . '/Command', App::getApp()->getAppNamespace());
+		$this->autoRegisterCommands(__DIR__ . '/Command', '\\W7\\Console');
+		$this->autoRegisterCommands(App::getApp()->getAppPath() . '/Command', App::getApp()->getAppNamespace());
 	}
 
 	public function autoRegisterCommands($path, $classNamespace, $commandNamespace = null) {

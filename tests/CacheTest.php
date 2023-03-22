@@ -31,7 +31,7 @@ class UserCacheHandler extends HandlerAbstract {
 		return new static();
 	}
 
-	public function set($key, $value, $ttl = null) {
+	public function set(string $key, mixed $value, null|int|\DateInterval $ttl = null): bool {
 		if ($ttl) {
 			$this->storage[$key] = [
 				'value' => $value,
@@ -42,13 +42,15 @@ class UserCacheHandler extends HandlerAbstract {
 				'value' => $value
 			];
 		}
+
+		return true;
 	}
 
-	public function get($key, $default = null) {
+	public function get(string $key, mixed $default = null): mixed {
 		return $this->storage[$key]['value'] ?? null;
 	}
 
-	public function has($key) {
+	public function has(string $key): bool {
 		if (isset($this->storage[$key])) {
 			$info = $this->storage[$key];
 			return !(isset($info['expire_time']) && $info['expire_time'] < time());
@@ -57,33 +59,33 @@ class UserCacheHandler extends HandlerAbstract {
 		return false;
 	}
 
-	public function setMultiple($values, $ttl = null) {
+	public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null): bool {
 		return false;
 	}
 
-	public function getMultiple($keys, $default = null) {
-		return false;
+	public function getMultiple(iterable $keys, mixed $default = null): iterable {
+		return [];
 	}
 
-	public function delete($key) {
+	public function delete($key): bool {
 		if (isset($this->storage[$key])) {
 			unset($this->storage[$key]);
 		}
 		return true;
 	}
 
-	public function deleteMultiple($keys) {
+	public function deleteMultiple(iterable $keys) : bool {
 		foreach ($keys as $key) {
 			$this->delete($key);
 		}
 	}
 
-	public function clear() {
+	public function clear(): bool {
 		$this->storage = [];
 		return true;
 	}
 
-	public function alive() {
+	public function alive(): bool {
 		return true;
 	}
 

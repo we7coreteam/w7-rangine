@@ -40,15 +40,15 @@ abstract class HandlerAbstract extends \SessionHandler {
 		return unserialize($data);
 	}
 
-	public function open($save_path, $name) {
+	public function open($save_path, $name): bool {
 		return true;
 	}
 
-	public function close($session_id = '') {
+	public function close($session_id = ''): bool {
 		return true;
 	}
 
-	public function create_sid() {
+	public function create_sid(): bool|string {
 		return session_create_id();
 	}
 }

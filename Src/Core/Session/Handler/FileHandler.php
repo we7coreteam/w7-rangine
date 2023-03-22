@@ -77,7 +77,7 @@ class FileHandler extends HandlerAbstract {
 		}
 	}
 
-	public function write($session_id, $session_data) {
+	public function write($session_id, $session_data): bool {
 		if (!$session_data) {
 			return true;
 		}
@@ -85,31 +85,31 @@ class FileHandler extends HandlerAbstract {
 		$this->ensureSessionDirectoryExists(dirname($path = $this->getSavePath($session_id)));
 		$result = $this->filesystem->put(
 			$path,
-			$this->expiration($this->getExpires()).$session_data,
+			$this->expiration($this->getExpires()) . $session_data,
 			true
 		);
 
 		return $result !== false && $result > 0;
 	}
 
-	public function read($session_id) {
-		return $this->getPayload($session_id);
+	public function read(string $id): string|false {
+		return $this->getPayload($id);
 	}
 
-	public function destroy($session_id) {
-		if ($this->filesystem->exists($file = $this->getSavePath($session_id))) {
+	public function destroy($id): bool {
+		if ($this->filesystem->exists($file = $this->getSavePath($id))) {
 			return $this->filesystem->delete($file);
 		}
 
 		return true;
 	}
 
-	public function gc($maxlifetime) {
+	public function gc(int $max_lifetime): int|false {
 		$files = Finder::create()
 			->in($this->directory)
 			->files()
 			->ignoreDotFiles(true)
-			->date('<= now - '.$maxlifetime.' seconds');
+			->date('<= now - ' . $max_lifetime . ' seconds');
 
 		foreach ($files as $file) {
 			$this->filesystem->delete($file->getRealPath());

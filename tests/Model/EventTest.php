@@ -1,11 +1,21 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Tests\Model;
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use W7\Core\Database\ModelAbstract;
 use W7\Core\Event\Dispatcher;
+use W7\Facade\DB;
 use W7\Facade\Event;
 use W7\Core\Listener\ListenerAbstract;
 
@@ -45,8 +55,8 @@ class EventTest extends ModelTestAbstract {
 		 */
 		$event = Event::getFacadeRoot();
 		$event->listen(SavedEvent::class, SavedListener::class);
-		Schema::dropIfExists('user');
-		Schema::create('user', function (Blueprint $table) {
+		DB::connection()->getSchemaBuilder()->dropIfExists('user');
+		DB::connection()->getSchemaBuilder()->create('user', function (Blueprint $table) {
 			$table->bigIncrements('id');
 			$table->timestamps();
 			$table->string('name');
@@ -62,6 +72,6 @@ class EventTest extends ModelTestAbstract {
 		$this->assertSame('test', $value->name);
 		$this->assertSame(true, $model->saved);
 
-		Schema::dropIfExists('user');
+		DB::connection()->getSchemaBuilder()->dropIfExists('user');
 	}
 }

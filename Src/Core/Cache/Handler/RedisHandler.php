@@ -35,22 +35,22 @@ class RedisHandler extends HandlerAbstract {
 		return new static($redisManager->connection($config['connection'] ?? ''));
 	}
 
-	public function set($key, $value, $ttl = null) {
+	public function set(string $key, mixed $value, null|int|\DateInterval $ttl = null): bool {
 		if ($ttl) {
 			return $this->storage->set($key, $value, 'EX', $ttl);
 		}
 		return $this->storage->set($key, $value);
 	}
 
-	public function get($key, $default = null) {
+	public function get(string $key, mixed $default = null): mixed {
 		return $this->storage->get($key);
 	}
 
-	public function has($key) {
+	public function has(string $key): bool {
 		return $this->storage->exists($key);
 	}
 
-	public function setMultiple($values, $ttl = null) {
+	public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null) : bool {
 		if ($ttl <= 0) {
 			return $this->storage->mset((array)$values);
 		}
@@ -59,26 +59,28 @@ class RedisHandler extends HandlerAbstract {
 		foreach ($values as $key => $value) {
 			$pipeline->set($key, $value, $ttl);
 		}
-		return $pipeline->exec();
+		$result = $pipeline->exec();
+
+		return count(array_unique($result)) == 1;
 	}
 
-	public function getMultiple($keys, $default = null) {
+	public function getMultiple(iterable $keys, mixed $default = null): iterable {
 		return $this->storage->mget((array)$keys);
 	}
 
-	public function delete($key) {
+	public function delete(string $key): bool {
 		return $this->storage->del($key);
 	}
 
-	public function deleteMultiple($keys) {
+	public function deleteMultiple(iterable $keys): bool {
 		return $this->storage->del(...$keys);
 	}
 
-	public function clear() {
+	public function clear(): bool {
 		return $this->storage->flushDB();
 	}
 
-	public function alive() {
+	public function alive(): bool {
 		return $this->storage->ping();
 	}
 

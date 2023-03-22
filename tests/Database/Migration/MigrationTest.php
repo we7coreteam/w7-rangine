@@ -1,12 +1,21 @@
 <?php
 
+/**
+ * This file is part of Rangine
+ *
+ * (c) We7Team 2019 <https://www.rangine.com/>
+ *
+ * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
+ *
+ * visited https://www.rangine.com/ for more details
+ */
+
 namespace W7\Tests\Database\Migration;
 
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\ArgvInput;
 use W7\Console\Application;
 use W7\Facade\Container;
-use W7\Facade\Context;
 use W7\Facade\DB;
 use W7\Tests\Database\DatabaseTestCase;
 
@@ -149,6 +158,7 @@ class MigrationTest extends DatabaseTestCase {
 			$this->assertContains('ims_rollback_user', $tables);
 			$this->assertContains('ims_rollback_fans', $tables);
 
+			$tables = $connection->getDoctrineSchemaManager()->listTableNames();
 
 			$application->run(new ArgvInput([
 				'migrate:make',
@@ -187,7 +197,6 @@ class MigrationTest extends DatabaseTestCase {
 			$tables = $connection->getDoctrineSchemaManager()->listTableNames();
 			$this->assertContains('ims_refresh_user', $tables);
 			$this->assertContains('ims_refresh_fans', $tables);
-
 
 			$application->run(new ArgvInput([
 				'migrate:make',
@@ -256,7 +265,7 @@ class MigrationTest extends DatabaseTestCase {
 				'--database=sqlite',
 				'--pretend'
 			]));
-			$tables = $connection->getDoctrineSchemaManager()->listTableNames();;
+			$tables = $connection->getDoctrineSchemaManager()->listTableNames();
 			$this->assertContains('ims_migration', $tables);
 			$this->assertNotContains('ims_pretend_user', $tables);
 			$this->assertNotContains('ims_pretend_fans', $tables);

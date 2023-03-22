@@ -13,12 +13,12 @@
 namespace W7\Core\Cache;
 
 class Cache extends CacheAbstract {
-	public function set($key, $value, $ttl = null) {
+	public function set(string $key, mixed $value, \DateInterval|int|null $ttl = null): bool {
 		$value = $this->handler->pack($value);
 		return $this->handler->set($this->warpKey($key), $value, $ttl);
 	}
 
-	public function get($key, $default = null) {
+	public function get(string $key, mixed $default = null): mixed {
 		$result = $this->handler->get($this->warpKey($key), $default);
 		if ($result === false || $result === null) {
 			return $default;
@@ -27,12 +27,11 @@ class Cache extends CacheAbstract {
 		return $this->handler->unpack($result);
 	}
 
-	public function delete($key) {
+	public function delete(string $key): bool {
 		return (bool)$this->handler->delete($this->warpKey($key));
 	}
 
-	public function setMultiple($values, $ttl = null) {
-		$values = (array)$values;
+	public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null): bool {
 		$cacheValues = [];
 		foreach ($values as $key => $value) {
 			$cacheValues[$this->warpKey($key)] = $this->handler->pack($value);
@@ -40,7 +39,7 @@ class Cache extends CacheAbstract {
 		return $this->handler->setMultiple($cacheValues, $ttl);
 	}
 
-	public function getMultiple($keys, $default = null) {
+	public function getMultiple(iterable $keys, mixed $default = null): iterable {
 		$keys = (array)$keys;
 		$cacheKeys = [];
 		foreach ($keys as $key) {
@@ -66,11 +65,11 @@ class Cache extends CacheAbstract {
 		return (bool)$this->handler->deleteMultiple($keys);
 	}
 
-	public function has($key) {
+	public function has($key): bool {
 		return (bool)$this->handler->has($this->warpKey($key));
 	}
 
-	public function clear() {
+	public function clear(): bool {
 		return (bool)$this->handler->clear();
 	}
 
