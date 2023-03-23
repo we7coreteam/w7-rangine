@@ -88,5 +88,6 @@
 			"funkjedi/composer-include-files": true,
 			"w7/rangine-package-plugin": true
 		}
-	}
+	},
+	"minimum-stability": "dev"
 }
