@@ -56,7 +56,7 @@ class ValidateTest extends TestCase {
 		parent::setUp();
 		App::getApp()->getContainer()->set(LoaderInterface::class, function () {
 			$paths = [
-				__DIR__ . '/../vendor/laravel-lang/lang/src',
+				__DIR__ . '/../vendor/laravel-lang/lang/locales',
 				BASE_PATH . '/lang'
 			];
 
