@@ -77,7 +77,7 @@ class FileHandler extends HandlerAbstract {
 		}
 	}
 
-	public function write($session_id, $session_data): bool {
+	public function write(string $session_id, string $session_data): bool {
 		if (!$session_data) {
 			return true;
 		}

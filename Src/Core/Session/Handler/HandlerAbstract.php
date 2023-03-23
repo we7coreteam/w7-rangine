@@ -40,7 +40,7 @@ abstract class HandlerAbstract extends \SessionHandler {
 		return unserialize($data);
 	}
 
-	public function open($save_path, $name): bool {
+	public function open(string $path, string $name): bool {
 		return true;
 	}
 
