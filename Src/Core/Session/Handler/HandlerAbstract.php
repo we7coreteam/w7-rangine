@@ -48,7 +48,7 @@ abstract class HandlerAbstract extends \SessionHandler {
 		return true;
 	}
 
-	public function create_sid(): bool|string {
+	public function create_sid(): string {
 		return session_create_id();
 	}
 }
