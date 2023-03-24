@@ -23,6 +23,7 @@ use W7\Core\Process\Pool\PoolAbstract;
  *
  * @property PoolAbstract $processPool
  */
+#[\AllowDynamicProperties]
 abstract class ServerAbstract implements ServerInterface {
 	use AppCommonTrait;
 
