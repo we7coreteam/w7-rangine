@@ -12,8 +12,8 @@
 
 namespace W7\Core\Log;
 
+use Monolog\DateTimeImmutable;
 use Monolog\Handler\BufferHandler;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class Logger
@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
  * @property $bufferLimit
  */
 class Logger extends \Monolog\Logger {
-	public function addRecord($level, $message, array $context = array()) : bool {
+	public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool {
 		$result =  parent::addRecord($level, $message, $context);
 
 		if ($this->bufferLimit == 1) {
