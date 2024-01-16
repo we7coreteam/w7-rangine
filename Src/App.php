@@ -30,7 +30,7 @@ use W7\Core\Server\ServerAbstract;
  */
 class App {
 	public const NAME = 'w7-rangine';
-	public const VERSION = '3.1.1';
+	public const VERSION = '3.1.2';
 
 	public static $self;
 	protected $appNamespace;
