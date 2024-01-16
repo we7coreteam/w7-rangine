@@ -84,11 +84,10 @@ class RequestDispatcher extends DispatcherAbstract {
 			$psr7Response = $middlewareHandler->handle($psr7Request);
 		} catch (\Throwable $e) {
 			$psr7Response = $this->getContainer()->get(HandlerExceptions::class)->handle($e, $this->serverType);
-		} finally {
-			$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, $this->serverType]);
-
-			return $psr7Response;
 		}
+
+		$this->getEventDispatcher()->dispatch(ServerEvent::ON_USER_AFTER_REQUEST, [$psr7Request, $psr7Response, $this->serverType]);
+		return $psr7Response;
 	}
 
 	protected function getRoute(ServerRequestInterface $request) {
